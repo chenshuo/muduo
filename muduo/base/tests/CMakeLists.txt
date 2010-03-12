@@ -1,0 +1,3 @@
+add_executable(utctime_unittest UtcTime_unittest.cc)
+target_link_libraries(utctime_unittest muduo_base)
+
