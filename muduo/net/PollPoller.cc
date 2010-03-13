@@ -63,7 +63,7 @@ void PollPoller::updateChannel(Channel* channel)
     pfd.events = static_cast<short>(channel->events());
     pfd.revents = 0;
     pollfds_.push_back(pfd);
-    channel->set_index(pollfds_.size()-1);
+    channel->set_index(static_cast<int>(pollfds_.size())-1);
     channels_[pfd.fd] = channel;
   }
   else
