@@ -21,9 +21,9 @@ class Timer : boost::noncopyable
  public:
   typedef boost::function<void()> TimerCallback;
 
-  Timer(const TimerCallback& cb, UtcTime at, double interval)
+  Timer(const TimerCallback& cb, UtcTime when, double interval)
     : cb_(cb),
-      expiration_(at),
+      expiration_(when),
       interval_(interval),
       repeat_(interval > 0.0)
   { }

@@ -31,11 +31,11 @@ int createEventfd()
 }
 
 EventLoop::EventLoop()
-  : poller_(Poller::newDefaultPoller()),
-    timerQueue_(new TimerQueue(this)),
-    looping_(false),
+  : looping_(false),
     quit_(false),
     threadId_(CurrentThread::tid()),
+    poller_(Poller::newDefaultPoller()),
+    timerQueue_(new TimerQueue(this)),
     wakeupFd_(createEventfd()),
     wakeupChannel_(new Channel(this, wakeupFd_))
 {
@@ -53,6 +53,7 @@ EventLoop::~EventLoop()
 void EventLoop::loop()
 {
   assert(!looping_);
+  assertInLoopThread();
   looping_ = true;
   while (!quit_)
   {
@@ -72,17 +73,14 @@ void EventLoop::quit()
   quit_ = true;
 }
 
-void EventLoop::updateChannel(Channel* channel)
+void EventLoop::wakeup()
 {
-  assert(channel->getLoop() == this);
-  // channel->set_loop(this);
-  poller_->updateChannel(channel);
-}
-
-void EventLoop::removeChannel(Channel* channel)
-{
-  assert(channel->getLoop() == this);
-  // poller_->removeChannel(channel);
+  uint64_t one = 1;
+  ssize_t n = ::write(wakeupFd_, &one, sizeof one);
+  if (n != sizeof one)
+  {
+    fprintf(stderr, "EventLoop::wakeup() write %zd bytes instead of 8\n", n);
+  }
 }
 
 void EventLoop::runInLoop(const Functor& cb)
@@ -114,17 +112,26 @@ TimerId EventLoop::runEvery(double interval, const TimerCallback& cb)
   return timerQueue_->schedule(cb, time, interval);
 }
 
-void EventLoop::wakeup()
+void EventLoop::updateChannel(Channel* channel)
 {
-  uint64_t one = 1;
-  ssize_t n = ::write(wakeupFd_, &one, sizeof one);
-  if (n != sizeof one)
-  {
-    fprintf(stderr, "EventLoop::wakeup() write %zd bytes instead of 8\n", n);
-  }
+  assert(channel->getLoop() == this);
+  assertInLoopThread();
+  poller_->updateChannel(channel);
+}
+
+void EventLoop::removeChannel(Channel* channel)
+{
+  assert(channel->getLoop() == this);
+  // poller_->removeChannel(channel);
+}
+
+void EventLoop::assertInLoopThread()
+{
+  assert(threadId_ == CurrentThread::tid());
 }
 
 void EventLoop::wakedup()
 {
   // what's up
 }
+

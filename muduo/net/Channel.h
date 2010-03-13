@@ -37,6 +37,9 @@ class Channel : boost::noncopyable
   void set_events(int evt) { events_ = evt; }
   void set_revents(int revt) { revents_ = revt; }
 
+  int index() { return index_; }
+  void set_index(int idx) { index_ = idx; }
+
   EventLoop* getLoop() { return loop_; }
 
   // void set_loop(EventLoop* loop) { loop_ = loop; }
@@ -46,6 +49,7 @@ class Channel : boost::noncopyable
   const int  fd_;
   int        events_;
   int        revents_;
+  int        index_; // used by PollPoller.
   EventCallback readCallback_;
   EventCallback writeCallback_;
   EventCallback errorCallback_;

@@ -26,9 +26,12 @@ class PollPoller : public Poller
   virtual void updateChannel(Channel* channel);
 
  private:
+  void fillActiveChannels(int numEvents, ChannelList* activeChannels) const;
+
   typedef std::vector<struct pollfd> PollFdList;
+  typedef std::map<int, Channel*> ChannelMap;
   PollFdList pollfds_;
-  std::map<int, Channel*> channels_;
+  ChannelMap channels_;
 };
 
 }

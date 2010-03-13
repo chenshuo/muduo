@@ -21,7 +21,12 @@ class Poller : boost::noncopyable
 
   virtual ~Poller();
 
+  /// Polls the I/O events.
+  /// Must be called in the loop thread.
   virtual void poll(int timeoutMs, ChannelList* activeChannels) = 0;
+
+  /// Changes the interested I/O events.
+  /// Must be called in the loop thread.
   virtual void updateChannel(Channel* channel) = 0;
 
   static Poller* newDefaultPoller();

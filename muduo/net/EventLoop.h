@@ -64,16 +64,19 @@ class EventLoop : boost::noncopyable
   void updateChannel(Channel* channel);
   void removeChannel(Channel* channel);
 
+  pid_t threadId() { return threadId_; }
+  void assertInLoopThread();
+
  private:
   void wakedup();
 
   typedef std::vector<Channel*> ChannelList;
 
-  boost::scoped_ptr<Poller> poller_;
-  boost::scoped_ptr<TimerQueue> timerQueue_;
   bool looping_; /* atomic */
   bool quit_; /* atomic */
   const pid_t threadId_;
+  boost::scoped_ptr<Poller> poller_;
+  boost::scoped_ptr<TimerQueue> timerQueue_;
   int wakeupFd_;
   // unlink in TimerQueue, which is an internal class,
   // we don't expose Channel to client.
