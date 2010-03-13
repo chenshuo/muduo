@@ -1,8 +1,8 @@
 #include <muduo/net/EventLoop.h>
 
-#include <muduo/base/UtcTime.h>
+#include <muduo/base/Mutex.h>
+#include <muduo/base/Thread.h>
 #include <muduo/net/Channel.h>
-//#include <net/internal/Log.h>
 #include <muduo/net/Poller.h>
 #include <muduo/net/TimerQueue.h>
 
@@ -11,8 +11,10 @@ using namespace muduo::net;
 
 EventLoop::EventLoop()
   : poller_(Poller::newDefaultPoller()),
-    timerQueue_(new TimerQueue),
-    quit_(false)
+    timerQueue_(new TimerQueue(this)),
+    looping_(false),
+    quit_(false),
+    thread_(CurrentThread::tid())
 {
   init();
 }
@@ -23,25 +25,19 @@ EventLoop::~EventLoop()
 
 void EventLoop::loop()
 {
+  assert(!looping_);
+  looping_ = true;
   while (!quit_)
   {
-    poller_->poll(1000);
-  }
-  /*
-  while (!quit_)
-  {
-    UtcTime now(UtcTime::now());
-    UtcTime next(timerQueue_->tick(now));
-    int timeout = next.valid() ? static_cast<int>((timeDifference(next, now))*1000) : 1000;
-    if (timeout <= 0)
+    activeChannels_.clear();
+    poller_->poll(1000, &activeChannels_);
+    for (ChannelList::iterator it = activeChannels_.begin();
+        it != activeChannels_.end(); ++it)
     {
-      timeout = 1;
+      (*it)->handle_event();
     }
-
-    NetLogInfo << "polling " << timeout << NetSend;
-    poller_->poll(timeout);
   }
-  */
+  looping_ = false;
 }
 
 void EventLoop::quit()
@@ -49,7 +45,7 @@ void EventLoop::quit()
   quit_ = true;
 }
 
-void EventLoop::addChannel(Channel* channel)
+void EventLoop::updateChannel(Channel* channel)
 {
   assert(channel->getLoop() == this);
   // channel->set_loop(this);

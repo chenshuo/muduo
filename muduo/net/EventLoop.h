@@ -1,6 +1,8 @@
 #ifndef MUDUO_NET_EVENTLOOP_H
 #define MUDUO_NET_EVENTLOOP_H
 
+#include <vector>
+
 #include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
@@ -31,6 +33,8 @@ class EventLoop : boost::noncopyable
   ///
   /// Loops forever.
   ///
+  /// Must be called in the same thread as creation of the object.
+  ///
   void loop();
 
   void quit();
@@ -42,15 +46,19 @@ class EventLoop : boost::noncopyable
   TimerId runEvery(double interval, const TimerCallback& cb);
   void cancel(TimerId timerId);
 
-  void addChannel(Channel* channel);
+  void updateChannel(Channel* channel);
   void removeChannel(Channel* channel);
 
  private:
+  typedef std::vector<Channel*> ChannelList;
   void init();
 
   boost::scoped_ptr<Poller> poller_;
   boost::scoped_ptr<TimerQueue> timerQueue_;
+  bool looping_; /* atomic */
   bool quit_; /* atomic */
+  pid_t thread_;
+  ChannelList activeChannels_;
 };
 
 }

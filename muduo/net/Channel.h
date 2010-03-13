@@ -1,6 +1,7 @@
 #ifndef NET_CHANNEL_H
 #define NET_CHANNEL_H
 
+#include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
 
 #include <muduo/net/Socket.h>
@@ -12,21 +13,31 @@ namespace net
 
 class EventLoop;
 
+///
+/// A selectable I/O channel.
+/// The class doesn't own the file descriptor.
+///
 class Channel : boost::noncopyable
 {
  public:
-  Channel(EventLoop* loop, Socket sock);
+  typedef boost::function<void()> EventCallback;
+  static const int kNoneEvent;
+  static const int kReadEvent;
+  static const int kWriteEvent;
+  static const int kErrorvent;
+
+  Channel(EventLoop* loop, int fd);
   ~Channel();
 
-  void handle(int revents);
+  void handle_event();
+  void setReadCallback(const EventCallback& cb) { readCallback_ = cb; }
+  void setWriteCallback(const EventCallback& cb) { writeCallback_ = cb; }
+  void setErrorCallback(const EventCallback& cb) { errorCallback_ = cb; }
 
-  /*
   int fd() { return fd_; }
-  void set_fd(int _fd) { fd_ = _fd; }
-
   int events() { return events_; }
-  void set_events(int events0) {  events_ = events0; }
-  */
+  void set_events(int evt) { events_ = evt; }
+  void set_revents(int revt) { revents_ = revt; }
 
   EventLoop* getLoop() { return loop_; }
 
@@ -34,8 +45,12 @@ class Channel : boost::noncopyable
 
  private:
   EventLoop* loop_;
-  Socket     sock_;
+  const int  fd_;
   int        events_;
+  int        revents_;
+  EventCallback readCallback_;
+  EventCallback writeCallback_;
+  EventCallback errorCallback_;
 };
 
 }

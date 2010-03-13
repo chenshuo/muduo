@@ -3,6 +3,7 @@
 
 #include <muduo/net/Poller.h>
 
+#include <map>
 #include <vector>
 
 #include <poll.h>
@@ -21,11 +22,12 @@ class PollPoller : public Poller
 
   virtual ~PollPoller();
 
-  virtual void poll(int timeoutMs);
+  virtual void poll(int timeoutMs, ChannelList* activeChannels);
 
  private:
   typedef std::vector<struct pollfd> PollFdList;
   PollFdList pollfds_;
+  std::map<int, Channel*> channels_;
 };
 
 }

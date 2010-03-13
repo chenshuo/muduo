@@ -8,6 +8,9 @@ namespace net
 
 class Timer;
 
+///
+/// An opaque identifier, for canceling Timer.
+///
 class TimerId
 {
  public:

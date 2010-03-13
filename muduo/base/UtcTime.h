@@ -87,8 +87,7 @@ inline double timeDifference(UtcTime high, UtcTime low)
 ///
 /// Add @c seconds to given timestamp.
 ///
-/// @param high, low
-/// @return (high-low) in seconds
+/// @return timestamp+seconds as UtcTime
 ///
 inline UtcTime addTime(UtcTime timestamp, double seconds)
 {

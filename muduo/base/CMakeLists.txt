@@ -1,5 +1,7 @@
 set(base_SRCS 
-  UtcTime.cc)
+  Thread.cc
+  UtcTime.cc
+  )
 
 add_library(muduo_base ${base_SRCS})
 
