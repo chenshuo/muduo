@@ -3,6 +3,9 @@
 
 #include <muduo/base/Types.h>
 
+namespace muduo
+{
+
 ///
 /// Time stamp in UTC.
 ///
@@ -76,4 +79,5 @@ inline double timeDifference(UtcTime high, UtcTime low)
   return static_cast<double>(diff) / UtcTime::kMicroSecondsPerSecond;
 }
 
+}
 #endif

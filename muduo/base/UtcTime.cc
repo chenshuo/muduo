@@ -4,6 +4,9 @@
 #include <stdio.h>
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
+#undef __STDC_FORMAT_MACROS
+
+using namespace muduo;
 
 UtcTime::UtcTime()
   : microSecondsSinceEpoch_(0)
