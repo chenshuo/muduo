@@ -12,12 +12,16 @@ namespace net
 ///
 /// Wrapper of socket file descriptor.
 ///
+/// It closes the sockfd when desctructs.
+///
 class Socket
 {
  public:
   explicit Socket(int sockfd)
     : sockfd_(sockfd)
   { }
+
+  ~Socket();
 
   int fd() { return sockfd_; }
 

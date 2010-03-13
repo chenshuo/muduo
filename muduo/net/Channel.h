@@ -4,8 +4,6 @@
 #include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
 
-#include <muduo/net/Socket.h>
-
 namespace muduo
 {
 namespace net
@@ -15,8 +13,8 @@ class EventLoop;
 
 ///
 /// A selectable I/O channel.
-/// The class doesn't own the file descriptor.
 ///
+/// This class doesn't own the file descriptor.
 class Channel : boost::noncopyable
 {
  public:

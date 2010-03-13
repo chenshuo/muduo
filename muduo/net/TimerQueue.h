@@ -6,6 +6,7 @@
 #include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
 
+#include <muduo/base/Mutex.h>
 #include <muduo/base/UtcTime.h>
 #include <muduo/net/Channel.h>
 
@@ -18,6 +19,10 @@ class EventLoop;
 class Timer;
 class TimerId;
 
+///
+/// A best efforts timer queue.
+/// No guarantee that the callback will be on time.
+///
 class TimerQueue : boost::noncopyable
 {
  public:
@@ -30,6 +35,7 @@ class TimerQueue : boost::noncopyable
   /// Schedules the callback to be run at given time,
   /// repeats if @c interval > 0.0.
   ///
+  /// Must be thread safe.
   TimerId schedule(const TimerCallback& cb, UtcTime at, double interval);
 
   void cancel(TimerId timerId);
@@ -37,12 +43,13 @@ class TimerQueue : boost::noncopyable
  private:
   void timeout();
 
-  typedef std::list<Timer*> Timers;
+  typedef std::list<Timer*> TimerList;
 
   EventLoop* loop_;
-  int timerfd_;
+  const int timerfd_;
   Channel timerfdChannel_;
-  Timers timers_;
+  MutexLock mutex_;
+  TimerList timers_; // GuardedBy mutex_
 };
 
 }

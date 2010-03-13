@@ -13,6 +13,7 @@ class Channel;
 ///
 /// Base class for IO Multiplexing
 ///
+/// This class doesn't own the Channel objects.
 class Poller : boost::noncopyable
 {
  public:
@@ -21,6 +22,7 @@ class Poller : boost::noncopyable
   virtual ~Poller();
 
   virtual void poll(int timeoutMs, ChannelList* activeChannels) = 0;
+  virtual void updateChannel(Channel* channel) = 0;
 
   static Poller* newDefaultPoller();
 };

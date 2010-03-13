@@ -6,7 +6,10 @@
 
 #include <boost/bind.hpp>
 
-#include <stdio.h>
+#define __STDC_FORMAT_MACROS
+#include <inttypes.h> // FIXME remove
+#undef __STDC_FORMAT_MACROS
+#include <stdio.h> // FIXME perror
 #include <sys/timerfd.h>
 
 using namespace muduo;
@@ -24,6 +27,20 @@ int createTimerfd()
   }
   return timerfd;
 }
+
+struct timespec howMuchTimeFromNow(UtcTime then)
+{
+  int64_t microseconds = then.microSecondsSinceEpoch()
+                         - UtcTime::now().microSecondsSinceEpoch();
+  if (microseconds < 100)
+  {
+    microseconds = 100;
+  }
+  struct timespec ts;
+  ts.tv_sec = static_cast<time_t>(microseconds / UtcTime::kMicroSecondsPerSecond);
+  ts.tv_nsec = static_cast<long>((microseconds % UtcTime::kMicroSecondsPerSecond) * 1000);
+  return ts;
+}
 }
 
 TimerQueue::TimerQueue(EventLoop* loop)
@@ -33,6 +50,9 @@ TimerQueue::TimerQueue(EventLoop* loop)
     timers_()
 {
   timerfdChannel_.setReadCallback(boost::bind(&TimerQueue::timeout, this));
+  // we are always reading the timerfd, we disarm it with timerfd_settime.
+  timerfdChannel_.set_events(Channel::kReadEvent);
+  loop_->updateChannel(&timerfdChannel_);
 }
 
 TimerQueue::~TimerQueue()
@@ -51,42 +71,53 @@ TimerQueue::~TimerQueue()
 
 void TimerQueue::timeout()
 {
-  /*
-  while (!alarms_.empty())
+  uint64_t howmany;
+  ssize_t n = ::read(timerfd_, &howmany, sizeof howmany);
+  printf("timeout %" PRIu64 "\n", howmany);
+  if (n != sizeof howmany)
   {
-    Alarms::iterator head(alarms_.begin());
-    if (head->first.after(now))
-    {
-      break;
-    }
-    else
-    {
-      Alarm* alarm = head->second;
-      alarm->run();
-      UtcTime next = alarm->getNextTime(now);
-      if (next.valid())
-      {
-        alarms_.insert(std::make_pair(next, alarm));
-      }
-      else
-      {
-        delete alarm;
-      }
-      alarms_.erase(head);
-    }
+    fprintf(stderr, "TimerQueue::timeout() reads %zd bytes instead of 8\n", n);
   }
-  return alarms_.empty() ? UtcTime() : alarms_.begin()->first;
-  */
-  timerfdChannel_.set_events(0);
-  loop_->updateChannel(&timerfdChannel_);
 }
 
 TimerId TimerQueue::schedule(const TimerCallback& cb, UtcTime at, double interval)
 {
   Timer* timer = new Timer(cb, at, interval);
-  timers_.push_front(timer);
-  timerfdChannel_.set_events(Channel::kReadEvent);
-  loop_->updateChannel(&timerfdChannel_);
+  
+  bool earliestChanged = false;
+  {
+    MutexLockGuard lock(mutex_);
+    TimerList::iterator it = timers_.begin();
+    if (it == timers_.end() || (*it)->expiration().after(at))
+    {
+      timers_.push_front(timer);
+      earliestChanged = true;
+    }
+    else
+    {
+      while (it != timers_.end() && (*it)->expiration().before(at))
+      {
+        ++it;
+      }
+      timers_.insert(it, timer);
+    }
+  }
+
+  if (earliestChanged)
+  {
+    // wake up loop by timerfd_settime()
+    struct itimerspec newValue;
+    struct itimerspec oldValue;
+    bzero(&newValue, sizeof newValue);
+    bzero(&oldValue, sizeof oldValue);
+    newValue.it_value = howMuchTimeFromNow(at);
+    int ret = timerfd_settime(timerfd_, 0, &newValue, &oldValue);
+    if (ret)
+    {
+      perror("Error in timerfd_settime");
+    }
+  }
+  
   return TimerId(timer);
 }
 

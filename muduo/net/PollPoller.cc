@@ -29,3 +29,7 @@ void PollPoller::poll(int timeoutMs, ChannelList* activeChannels)
   }
 }
 
+void PollPoller::updateChannel(Channel* channel)
+{
+}
+

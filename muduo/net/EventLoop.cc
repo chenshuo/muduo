@@ -6,21 +6,48 @@
 #include <muduo/net/Poller.h>
 #include <muduo/net/TimerQueue.h>
 
+#include <boost/bind.hpp>
+
+#include <stdio.h> // FIXME
+#include <sys/eventfd.h>
+
 using namespace muduo;
 using namespace muduo::net;
+
+namespace
+{
+const int kPollTimeMs = 10000;
+
+int createEventfd()
+{
+  int evtfd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
+  if (evtfd < 0)
+  {
+    perror("Failed in eventfd");
+    abort();
+  }
+  return evtfd;
+}
+}
 
 EventLoop::EventLoop()
   : poller_(Poller::newDefaultPoller()),
     timerQueue_(new TimerQueue(this)),
     looping_(false),
     quit_(false),
-    thread_(CurrentThread::tid())
+    threadId_(CurrentThread::tid()),
+    wakeupFd_(createEventfd()),
+    wakeupChannel_(new Channel(this, wakeupFd_))
 {
-  init();
+  wakeupChannel_->setReadCallback(boost::bind(&EventLoop::wakedup, this));
+  // we are always reading the wakeupfd, like the old pipe(2) way.
+  wakeupChannel_->set_events(Channel::kReadEvent);
+  updateChannel(get_pointer(wakeupChannel_));
 }
 
 EventLoop::~EventLoop()
 {
+  ::close(wakeupFd_);
 }
 
 void EventLoop::loop()
@@ -30,7 +57,7 @@ void EventLoop::loop()
   while (!quit_)
   {
     activeChannels_.clear();
-    poller_->poll(1000, &activeChannels_);
+    poller_->poll(kPollTimeMs, &activeChannels_);
     for (ChannelList::iterator it = activeChannels_.begin();
         it != activeChannels_.end(); ++it)
     {
@@ -49,7 +76,7 @@ void EventLoop::updateChannel(Channel* channel)
 {
   assert(channel->getLoop() == this);
   // channel->set_loop(this);
-  // poller_->addChannel(channel);
+  poller_->updateChannel(channel);
 }
 
 void EventLoop::removeChannel(Channel* channel)
@@ -58,8 +85,16 @@ void EventLoop::removeChannel(Channel* channel)
   // poller_->removeChannel(channel);
 }
 
-void EventLoop::init()
+void EventLoop::runInLoop(const Functor& cb)
 {
+  if (threadId_ == CurrentThread::tid())
+  {
+    cb();
+  }
+  else
+  {
+    abort();
+  }
 }
 
 TimerId EventLoop::runAt(const UtcTime& time, const TimerCallback& cb)
@@ -79,3 +114,17 @@ TimerId EventLoop::runEvery(double interval, const TimerCallback& cb)
   return timerQueue_->schedule(cb, time, interval);
 }
 
+void EventLoop::wakeup()
+{
+  uint64_t one = 1;
+  ssize_t n = ::write(wakeupFd_, &one, sizeof one);
+  if (n != sizeof one)
+  {
+    fprintf(stderr, "EventLoop::wakeup() write %zd bytes instead of 8\n", n);
+  }
+}
+
+void EventLoop::wakedup()
+{
+  // what's up
+}

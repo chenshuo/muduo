@@ -23,6 +23,7 @@ class PollPoller : public Poller
   virtual ~PollPoller();
 
   virtual void poll(int timeoutMs, ChannelList* activeChannels);
+  virtual void updateChannel(Channel* channel);
 
  private:
   typedef std::vector<struct pollfd> PollFdList;

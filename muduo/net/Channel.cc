@@ -25,7 +25,7 @@ void Channel::handle_event()
     //FIXME handleClose();
   }
 
-  if (revents_ & (POLLERR|POLLNVAL))
+  if (revents_ & (POLLERR | POLLNVAL))
   {
     if (errorCallback_) errorCallback_();
   }
