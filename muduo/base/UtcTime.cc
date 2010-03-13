@@ -35,3 +35,8 @@ UtcTime UtcTime::now()
   return UtcTime(seconds * kMicroSecondsPerSecond + tv.tv_usec);
 }
 
+UtcTime UtcTime::invalid()
+{
+  return UtcTime();
+}
+

@@ -1,0 +1,3 @@
+add_executable(EventLoop_unittest EventLoop_unittest.cc)
+target_link_libraries(EventLoop_unittest muduo_net muduo_base)
+
