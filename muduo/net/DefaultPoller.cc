@@ -1,5 +1,8 @@
-#include <muduo/net/Poller.cc>
-#include <muduo/net/PollPoller.cc>
+#include <muduo/net/Poller.h>
+#include <muduo/net/PollPoller.h>
+#include <muduo/net/EPollPoller.h>
+
+using namespace muduo::net;
 
 Poller* Poller::newDefaultPoller()
 {
