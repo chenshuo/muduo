@@ -16,6 +16,7 @@
 #define MUDUO_NET_CALLBACKS_H
 
 #include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
 
 namespace muduo
 {
@@ -25,11 +26,12 @@ namespace net
 // All client visible callbacks go here.
 
 class TcpConnection;
+typedef boost::shared_ptr<TcpConnection> TcpConnectionPtr;
 typedef boost::function<void()> TimerCallback;
-typedef boost::function<void (TcpConnection*)> ConnectionCallback;
+typedef boost::function<void (const TcpConnectionPtr&)> ConnectionCallback;
 
 // the data has been read to (buf, len)
-typedef boost::function<void (TcpConnection*,
+typedef boost::function<void (const TcpConnectionPtr&,
                               const void* buf,
                               ssize_t len)> MessageCallback;
 

@@ -15,8 +15,11 @@
 #ifndef MUDUO_NET_TCPSERVER_H
 #define MUDUO_NET_TCPSERVER_H
 
+#include <muduo/base/Types.h>
 #include <muduo/net/Callbacks.h>
+#include <muduo/net/TcpConnection.h>
 
+#include <map>
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
 
@@ -71,14 +74,21 @@ class TcpServer : boost::noncopyable
 
  private:
   /// Not thread safe.
-  void newConnection(int fd, const InetAddress& peerAddr);
+  void newConnection(int sockfd, const InetAddress& peerAddr);
+  void removeConnection(const TcpConnectionPtr& conn);
+
+  typedef std::map<string, TcpConnectionPtr> ConnectionMap;
 
   EventLoop* loop_;  // the acceptor loop
   boost::scoped_ptr<Acceptor> acceptor_; // avoid revealing Acceptor
   boost::scoped_ptr<ThreadModel> threadModel_;
   ConnectionCallback connectionCallback_;
   MessageCallback messageCallback_;
+  const string serverName_;
   bool started_;
+  // always in loop thread
+  int nextConnId_;  
+  ConnectionMap connections_;
 };
 
 }

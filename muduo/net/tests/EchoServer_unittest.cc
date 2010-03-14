@@ -31,11 +31,13 @@ class EchoServer
   // void stop();
 
  private:
-  void onConnection(TcpConnection*)
+  void onConnection(const TcpConnectionPtr& conn)
   {
+    printf("conn %s -> %s\n", conn->peerAddr().toHostPort().c_str(),
+           conn->localAddr().toHostPort().c_str());
   }
 
-  void onMessage(TcpConnection*, const void* buf, ssize_t len)
+  void onMessage(const TcpConnectionPtr&, const void* buf, ssize_t len)
   {
   }
 

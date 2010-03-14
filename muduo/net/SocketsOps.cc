@@ -112,7 +112,8 @@ void sockets::close(int sockfd)
   // FIXME EINTR
 }
 
-void sockets::toHostPort(char* buf, size_t size, const struct sockaddr_in& addr)
+void sockets::toHostPort(char* buf, size_t size,
+                         const struct sockaddr_in& addr)
 {
   char host[INET_ADDRSTRLEN];
   inet_ntop(AF_INET, &addr.sin_addr, host, sizeof host);
@@ -120,3 +121,11 @@ void sockets::toHostPort(char* buf, size_t size, const struct sockaddr_in& addr)
   snprintf(buf, size, "%s:%u", host, port);
 }
 
+struct sockaddr_in sockets::getLocalAddr(int sockfd)
+{
+  struct sockaddr_in localaddr;
+  socklen_t addrlen = sizeof(localaddr);
+  ::getsockname(sockfd, reinterpret_cast<SA*>(&localaddr), &addrlen);
+  // FIXME check
+  return localaddr;
+}

@@ -49,15 +49,22 @@ void Acceptor::accept()
 {
   InetAddress peerAddr(0);
   int connfd = acceptSocket_.accept(&peerAddr);
-  string hostport = peerAddr.toHostPort();
-  printf("Connecting from %s\n", hostport.c_str());
-  if (newConnectionCallback_)
+  if (connfd >= 0)
   {
-    newConnectionCallback_(connfd, peerAddr);
+    string hostport = peerAddr.toHostPort();
+    printf("Connecting from %s\n", hostport.c_str());
+    if (newConnectionCallback_)
+    {
+      newConnectionCallback_(connfd, peerAddr);
+    }
+    else
+    {
+      sockets::close(connfd);
+    }
   }
   else
   {
-    sockets::close(connfd);
+    //FIXME log error
   }
 }
 

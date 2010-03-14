@@ -46,7 +46,7 @@ int Socket::accept(InetAddress* peeraddr)
   int connfd = sockets::accept(sockfd_, &addr);
   if (connfd >= 0)
   {
-    *peeraddr->getMutableSockAddrInet() = addr;
+    peeraddr->setSockAddrInet(addr);
   }
   return connfd;
 }

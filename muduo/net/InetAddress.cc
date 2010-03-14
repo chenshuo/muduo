@@ -52,7 +52,7 @@ InetAddress::InetAddress(uint16_t port)
   addr_.sin_port = sockets::hostToNetwork16(port);
 }
 
-string InetAddress::toHostPort()
+string InetAddress::toHostPort() const
 {
   char buf[32];
   sockets::toHostPort(buf, sizeof buf, addr_);

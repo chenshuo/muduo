@@ -15,9 +15,13 @@
 #include <muduo/net/TcpServer.h>
 
 #include <muduo/net/Acceptor.h>
+#include <muduo/net/EventLoop.h>
+#include <muduo/net/SocketsOps.h>
 #include <muduo/net/ThreadModel.h>
 
 #include <boost/bind.hpp>
+
+#include <stdio.h>
 
 using namespace muduo;
 using namespace muduo::net;
@@ -26,7 +30,8 @@ TcpServer::TcpServer(EventLoop* loop, const InetAddress& listenAddr)
   : loop_(loop),
     acceptor_(new Acceptor(loop, listenAddr)),
     threadModel_(new ThreadModel(loop)),
-    started_(false)
+    started_(false),
+    nextConnId_(1)
 {
   acceptor_->setNewConnectionCallback(
       boost::bind(&TcpServer::newConnection, this, _1, _2));
@@ -56,7 +61,25 @@ void TcpServer::start()
   }
 }
 
-void TcpServer::newConnection(int fd, const InetAddress& peerAddr)
+void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
 {
+  EventLoop* ioLoop = threadModel_->getNextLoop();
+  char buf[32];
+  snprintf(buf, sizeof buf, "#%d", nextConnId_);
+  ++nextConnId_;
+  string connName = serverName_ + buf;
 
+  InetAddress localAddr(sockets::getLocalAddr(sockfd));
+  TcpConnectionPtr conn(
+      new TcpConnection(connName, ioLoop, sockfd, localAddr, peerAddr));
+  connections_[connName] = conn;
+  conn->setConnectionCallback(connectionCallback_);
+  conn->setMessageCallback(messageCallback_);
+  conn->setCloseCallback(
+      boost::bind(&TcpServer::removeConnection, this, _1));
+  ioLoop->runInLoop(boost::bind(connectionCallback_, conn));
+}
+
+void TcpServer::removeConnection(const TcpConnectionPtr& conn)
+{
 }

@@ -14,3 +14,25 @@
 
 #include <muduo/net/TcpConnection.h>
 
+#include <muduo/net/Channel.h>
+#include <muduo/net/EventLoop.h>
+#include <muduo/net/Socket.h>
+
+using namespace muduo;
+using namespace muduo::net;
+
+TcpConnection::TcpConnection(const string& name,
+                             EventLoop* loop,
+                             int fd,
+                             const InetAddress& localAddr,
+                             const InetAddress& peerAddr)
+  : name_(name),
+    loop_(loop),
+    socket_(new Socket(fd)),
+    channel_(new Channel(loop, fd)),
+    localAddr_(localAddr),
+    peerAddr_(peerAddr)
+{
+  loop_->updateChannel(get_pointer(channel_));
+}
+

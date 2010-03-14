@@ -33,19 +33,25 @@ class InetAddress : public muduo::copyable
 {
  public:
   /// Constructs an endpoint with given port number.
-  /// Mostly used in TcpServer.
+  /// Mostly used in TcpServer listening.
   explicit InetAddress(uint16_t port);
 
   /// Constructs an endpoint with given host and port.
   /// @c host could either be "1.2.3.4" or "example.com"
   InetAddress(string host, uint16_t port);
 
-  string toHostPort();
+  /// Constructs an endpoint with given struct @c sockaddr_in
+  /// Mostly used when accepting new connections
+  InetAddress(const struct sockaddr_in& addr)
+    : addr_(addr)
+  { }
+
+  string toHostPort() const;
 
   // default copy/assignment are Okay
 
   const struct sockaddr_in& getSockAddrInet() const { return addr_; }
-  struct sockaddr_in* getMutableSockAddrInet() { return &addr_; }
+  void setSockAddrInet(const struct sockaddr_in& addr) { addr_ = addr; }
 
  private:
   struct sockaddr_in addr_;

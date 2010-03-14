@@ -26,12 +26,13 @@ void Channel::handle_event()
 {
   if ((revents_ & POLLHUP) && !(revents_ & POLLIN))
   {
+    printf("Channel::handle_event() POLLHUP");
     if (closeCallback_) closeCallback_();
   }
 
   if (revents_ & POLLNVAL)
   {
-    perror("Channel::handle_event() POLLNVAL");
+    printf("Channel::handle_event() POLLNVAL");
   }
 
   if (revents_ & (POLLERR | POLLNVAL))

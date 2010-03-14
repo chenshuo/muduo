@@ -15,6 +15,8 @@ class EventLoop;
 /// A selectable I/O channel.
 ///
 /// This class doesn't own the file descriptor.
+/// The file descriptor could be a socket,
+/// an eventfd, a timerfd, or a signalfd
 class Channel : boost::noncopyable
 {
  public:
