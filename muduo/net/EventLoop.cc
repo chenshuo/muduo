@@ -41,6 +41,7 @@ EventLoop::EventLoop()
     wakeupFd_(createEventfd()),
     wakeupChannel_(new Channel(this, wakeupFd_))
 {
+  printf("EventLoop created in thread %d\n", threadId_);
   if (t_loopInThisThread)
   {
     fprintf(stderr, "Another EventLoop %p exists in this thread %d\n",

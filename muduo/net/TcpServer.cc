@@ -15,6 +15,7 @@
 #include <muduo/net/TcpServer.h>
 
 #include <muduo/net/Acceptor.h>
+#include <muduo/net/ThreadModel.h>
 
 #include <boost/bind.hpp>
 
@@ -23,7 +24,9 @@ using namespace muduo::net;
 
 TcpServer::TcpServer(EventLoop* loop, const InetAddress& listenAddr)
   : loop_(loop),
-    acceptor_(new Acceptor(loop, listenAddr))
+    acceptor_(new Acceptor(loop, listenAddr)),
+    threadModel_(new ThreadModel(loop)),
+    started_(false)
 {
   acceptor_->setNewConnectionCallback(
       boost::bind(&TcpServer::newConnection, this, _1, _2));
@@ -33,8 +36,20 @@ TcpServer::~TcpServer()
 {
 }
 
+void TcpServer::setThreadNum(int numThreads)
+{
+  assert(0 <= numThreads);
+  threadModel_->setThreadNum(numThreads);
+}
+
 void TcpServer::start()
 {
+  if (!started_)
+  {
+    started_ = true;
+    threadModel_->start();
+  }
+
   if (!acceptor_->listenning())
   {
     acceptor_->listen();

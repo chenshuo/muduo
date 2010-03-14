@@ -28,6 +28,7 @@ namespace net
 class Acceptor;
 class EventLoop;
 class InetAddress;
+class ThreadModel;
 
 ///
 /// TCP server, supports single-threaded and thread-pool models.
@@ -39,6 +40,18 @@ class TcpServer : boost::noncopyable
 
   TcpServer(EventLoop* loop, const InetAddress& listenAddr);
   ~TcpServer();  // force out-line dtor, for scoped_ptr members.
+
+  /// Set the number of threads for handling input.
+  ///
+  /// Always accepts new connection in loop's thread.
+  /// Must be called before @c start
+  /// @param numThreads
+  /// - 0 means all I/O in loop's thread, no thread will created.
+  ///   this is the default value.
+  /// - 1 means all I/O in another thread.
+  /// - N means a thread pool with N threads, new connections
+  ///   are assigned on a round-robin basis.
+  void setThreadNum(int numThreads);
 
   /// Starts the server if it's not listenning.
   ///
@@ -60,10 +73,12 @@ class TcpServer : boost::noncopyable
   /// Not thread safe.
   void newConnection(int fd, const InetAddress& peerAddr);
 
-  EventLoop* loop_;
+  EventLoop* loop_;  // the acceptor loop
   boost::scoped_ptr<Acceptor> acceptor_; // avoid revealing Acceptor
+  boost::scoped_ptr<ThreadModel> threadModel_;
   ConnectionCallback connectionCallback_;
   MessageCallback messageCallback_;
+  bool started_;
 };
 
 }

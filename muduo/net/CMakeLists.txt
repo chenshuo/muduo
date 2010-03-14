@@ -10,6 +10,7 @@ set(net_SRCS
   Socket.cc
   SocketsOps.cc
   TcpServer.cc
+  ThreadModel.cc
   Timer.cc
   TimerQueue.cc
   )
