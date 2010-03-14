@@ -7,26 +7,30 @@
 
 namespace
 {
-  __thread pid_t t_tid = 0;
+__thread pid_t t_cachedTid = 0;
 
-  pid_t gettid()
-  {
-    return static_cast<pid_t>(::syscall(SYS_gettid));
-  }
+pid_t gettid()
+{
+  return static_cast<pid_t>(::syscall(SYS_gettid));
+}
 
-  void* startThread(void* cb)
-  {
-    muduo::Thread::ThreadFunc* func = static_cast<muduo::Thread::ThreadFunc*>(cb);
-    t_tid = gettid();
-    (*func)();
-    return NULL;
-  }
 }
 
 using namespace muduo;
 
+pid_t CurrentThread::tid()
+{
+  if (t_cachedTid == 0)
+  {
+    t_cachedTid = gettid();
+  }
+  return t_cachedTid;
+}
+
 Thread::Thread(const ThreadFunc& func)
-  : ptid_(0),
+  : started_(false),
+    pthreadId_(0),
+    tid_(0),
     func_(func)
 {
 }
@@ -37,19 +41,22 @@ Thread::~Thread()
 
 void Thread::start()
 {
-  pthread_create(&ptid_, NULL, &startThread, &func_);
+  assert(!started_);
+  started_ = true;
+  pthread_create(&pthreadId_, NULL, &startThread, this);
 }
 
 void Thread::join()
 {
-  pthread_join(ptid_, NULL);
+  assert(started_);
+  pthread_join(pthreadId_, NULL);
 }
 
-pid_t CurrentThread::tid()
+void* Thread::startThread(void* obj)
 {
-  if (t_tid == 0) {
-    t_tid = gettid();
-  }
-  return t_tid;
+  Thread* thread = static_cast<Thread*>(obj);
+  thread->tid_ = CurrentThread::tid();
+  thread->func_();
+  return NULL;
 }
 

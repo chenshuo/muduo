@@ -16,19 +16,38 @@
 #define MUDUO_NET_TCPSERVER_H
 
 #include <boost/noncopyable.hpp>
+#include <boost/scoped_ptr.hpp>
 
 namespace muduo
 {
 namespace net
 {
 
+class Acceptor;
+class EventLoop;
+class InetAddress;
+
+///
+/// TCP server, supports single-threaded and thread-pool models.
+///
+/// This is an interface class, so don't expose too much details.
 class TcpServer : boost::noncopyable
 {
  public:
+  TcpServer(EventLoop* loop, const InetAddress& listenAddr);
+  ~TcpServer();  // force out-line dtor, for scoped_ptr members.
+
+  /// Starts the server if it's not listenning.
+  ///
+  /// It's harmless to call it multiple times.
+  void start();
 
  private:
+  EventLoop* loop_;
+  boost::scoped_ptr<Acceptor> acceptor_; // avoid revealing Acceptor
 };
 
 }
 }
 
+#endif  // MUDUO_NET_TCPSERVER_H

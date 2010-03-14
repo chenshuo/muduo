@@ -6,9 +6,9 @@ set(CXX_FLAGS
  -g
  -Wall
  -Wextra
- -Werror
+ # -Werror
  -Wconversion
- -Wno-unused-parameter
+ -Wunused-parameter
  -Wold-style-cast
  -MMD
  -Wpointer-arith

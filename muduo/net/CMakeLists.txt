@@ -9,6 +9,7 @@ set(net_SRCS
   PollPoller.cc
   Socket.cc
   SocketsOps.cc
+  TcpServer.cc
   Timer.cc
   TimerQueue.cc
   )

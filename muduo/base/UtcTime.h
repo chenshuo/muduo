@@ -1,6 +1,7 @@
 #ifndef MUDUO_BASE_UTCTIME_H
 #define MUDUO_BASE_UTCTIME_H
 
+#include <muduo/base/copyable.h>
 #include <muduo/base/Types.h>
 
 namespace muduo
@@ -12,7 +13,7 @@ namespace muduo
 /// This class is immutable.
 /// It's recommended to pass it by value, since it's passed in register on x64.
 ///
-class UtcTime
+class UtcTime : public muduo::copyable
 {
  public:
   ///

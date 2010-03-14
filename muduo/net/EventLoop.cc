@@ -16,6 +16,8 @@ using namespace muduo::net;
 
 namespace
 {
+__thread EventLoop* t_loopInThisThread = 0;
+
 const int kPollTimeMs = 10000;
 
 int createEventfd()
@@ -39,6 +41,16 @@ EventLoop::EventLoop()
     wakeupFd_(createEventfd()),
     wakeupChannel_(new Channel(this, wakeupFd_))
 {
+  if (t_loopInThisThread)
+  {
+    fprintf(stderr, "Another EventLoop %p exists in this thread %d\n",
+        t_loopInThisThread, threadId_);
+    abort();
+  }
+  else
+  {
+    t_loopInThisThread = this;
+  }
   wakeupChannel_->setReadCallback(boost::bind(&EventLoop::wakedup, this));
   // we are always reading the wakeupfd, like the old pipe(2) way.
   wakeupChannel_->set_events(Channel::kReadEvent);
@@ -48,6 +60,7 @@ EventLoop::EventLoop()
 EventLoop::~EventLoop()
 {
   ::close(wakeupFd_);
+  t_loopInThisThread = NULL;
 }
 
 void EventLoop::loop()

@@ -6,7 +6,11 @@
 #include <inttypes.h>
 #undef __STDC_FORMAT_MACROS
 
+#include <boost/static_assert.hpp>
+
 using namespace muduo;
+
+BOOST_STATIC_ASSERT(sizeof(UtcTime) == sizeof(int64_t));
 
 UtcTime::UtcTime()
   : microSecondsSinceEpoch_(0)

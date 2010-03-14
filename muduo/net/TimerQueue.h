@@ -56,4 +56,4 @@ class TimerQueue : boost::noncopyable
 
 }
 }
-#endif
+#endif  // MUDUO_NET_TIMERQUEUE_H

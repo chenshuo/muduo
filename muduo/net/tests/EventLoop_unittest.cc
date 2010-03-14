@@ -11,15 +11,24 @@ using namespace muduo::net;
 
 EventLoop* g_loop;
 
+void callback()
+{
+  printf("callback(): pid = %d, tid = %d\n", getpid(), CurrentThread::tid());
+  EventLoop anotherLoop;
+}
+
 void threadFunc()
 {
+  printf("threadFunc(): pid = %d, tid = %d\n", getpid(), CurrentThread::tid());
+
   EventLoop loop;
+  loop.runAfter(1.0, callback);
   loop.loop();
 }
 
 int main()
 {
-  printf("pid = %d, tid = %d\n", getpid(), CurrentThread::tid());
+  printf("main(): pid = %d, tid = %d\n", getpid(), CurrentThread::tid());
 
   EventLoop loop;
 

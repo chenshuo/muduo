@@ -6,7 +6,8 @@
 using namespace muduo;
 using namespace muduo::net;
 
-const int Channel::kReadEvent = POLLIN;
+const int Channel::kReadEvent = POLLIN | POLLPRI;
+const int Channel::kWriteEvent = POLLOUT;
 
 Channel::Channel(EventLoop* loop, int fd__)
   : loop_(loop),
@@ -25,7 +26,7 @@ void Channel::handle_event()
 {
   if ((revents_ & POLLHUP) && !(revents_ & POLLIN))
   {
-    //FIXME handleClose();
+    if (closeCallback_) closeCallback_();
   }
 
   if (revents_ & POLLNVAL)

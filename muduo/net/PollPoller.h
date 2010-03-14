@@ -36,4 +36,4 @@ class PollPoller : public Poller
 
 }
 }
-#endif
+#endif  // MUDUO_NET_POLLPOLLER_H

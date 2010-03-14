@@ -24,6 +24,9 @@ namespace net
 namespace sockets
 {
 
+// the inline assembler code makes type blur,
+// so we disable warnings for a while.
+#pragma GCC diagnostic ignored "-Wconversion"
 inline uint32_t hostToNetwork32(uint32_t hostlong)
 {
   return htonl(hostlong);
@@ -43,6 +46,7 @@ inline uint16_t networkToHost16(uint16_t netshort)
 {
   return ntohs(netshort);
 }
+#pragma GCC diagnostic error "-Wconversion"
 
 ///
 /// Creates a non-blocking socket file descriptor,

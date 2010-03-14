@@ -12,18 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <muduo/net/Acceptor.h>
+#include <muduo/net/TcpServer.h>
 
-#include <muduo/net/SocketsOps.h>
+#include <muduo/net/Acceptor.h>
 
 using namespace muduo;
 using namespace muduo::net;
 
-Acceptor::Acceptor(EventLoop* loop, const InetAddress& listenAddr)
+TcpServer::TcpServer(EventLoop* loop, const InetAddress& listenAddr)
   : loop_(loop),
-    acceptSocket_(sockets::createNonblockingOrDie()),
-    acceptChannel_(loop, acceptSocket_.fd()),
-    listenning_(false)
+    acceptor_(new Acceptor(loop, listenAddr))
+{
+}
+
+TcpServer::~TcpServer()
+{
+}
+
+void TcpServer::start()
 {
 }
 

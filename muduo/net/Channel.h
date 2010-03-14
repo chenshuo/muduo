@@ -30,6 +30,7 @@ class Channel : boost::noncopyable
   void handle_event();
   void setReadCallback(const EventCallback& cb) { readCallback_ = cb; }
   void setWriteCallback(const EventCallback& cb) { writeCallback_ = cb; }
+  void setCloseCallback(const EventCallback& cb) { closeCallback_ = cb; }
   void setErrorCallback(const EventCallback& cb) { errorCallback_ = cb; }
 
   int fd() { return fd_; }
@@ -52,6 +53,7 @@ class Channel : boost::noncopyable
   int        index_; // used by PollPoller.
   EventCallback readCallback_;
   EventCallback writeCallback_;
+  EventCallback closeCallback_;
   EventCallback errorCallback_;
 };
 

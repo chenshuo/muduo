@@ -12,45 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef MUDUO_NET_ACCEPTOR_H
-#define MUDUO_NET_ACCEPTOR_H
+#ifndef MUDUO_NET_BOILERPLATE_H
+#define MUDUO_NET_BOILERPLATE_H
 
-#include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
-
-#include <muduo/net/Channel.h>
-#include <muduo/net/Socket.h>
 
 namespace muduo
 {
 namespace net
 {
 
-class EventLoop;
-class InetAddress;
-
-///
-/// Acceptor of incoming TCP connections.
-///
-class Acceptor : boost::noncopyable
+class BoilerPlate : boost::noncopyable
 {
  public:
-  Acceptor(EventLoop* loop, const InetAddress& listenAddr);
-  // ~Acceptor();
-
-  void accept();
-
-  bool listenning() { return listenning_; }
-  void listen();
 
  private:
-  EventLoop* loop_;
-  Socket acceptSocket_;
-  Channel acceptChannel_;
-  bool listenning_;
 };
 
 }
 }
 
-#endif  // MUDUO_NET_ACCEPTOR_H
+#endif  // MUDUO_NET_BOILERPLATE_H

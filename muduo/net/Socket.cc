@@ -3,10 +3,15 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <sys/socket.h>
-//#include <sys/types.h>
+#include <unistd.h>
 
 using namespace muduo;
 using namespace muduo::net;
+
+Socket::~Socket()
+{
+  ::close(sockfd_);
+}
 
 void Socket::setTcpNoDelay(bool on)
 {

@@ -15,7 +15,8 @@
 #ifndef MUDUO_NET_INETADDRESS_H
 #define MUDUO_NET_INETADDRESS_H
 
-#include "muduo/base/Types.h"
+#include <muduo/base/copyable.h>
+#include <muduo/base/Types.h>
 
 #include <netinet/in.h>
 
@@ -27,7 +28,8 @@ namespace net
 ///
 /// Wrapper of sockaddr_in.
 ///
-class InetAddress
+/// This is an interface class.
+class InetAddress : public muduo::copyable
 {
  public:
   /// Constructs an endpoint with given port number.
@@ -37,6 +39,8 @@ class InetAddress
   /// Constructs an endpoint with given host and port.
   /// @c host could either be "1.2.3.4" or "example.com"
   InetAddress(string host, uint16_t port);
+
+  // default copy/assignment are Okay
 
  private:
   struct sockaddr_in addr_;

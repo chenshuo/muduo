@@ -20,9 +20,15 @@
 #include <netinet/in.h>
 // #include <sys/socket.h>
 
+#include <boost/static_assert.hpp>
+
 typedef struct sockaddr SA;
 static const int kListenSize = SOMAXCONN;
-static const in_addr_t kInaddrAny = 0; // INADDR_ANY
+
+// INADDR_ANY use (type)value casting.
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+static const in_addr_t kInaddrAny = INADDR_ANY;
+#pragma GCC diagnostic error "-Wold-style-cast"
 
 //     /* Structure describing an Internet socket address.  */
 //     struct sockaddr_in {
@@ -39,6 +45,8 @@ static const in_addr_t kInaddrAny = 0; // INADDR_ANY
 
 using namespace muduo;
 using namespace muduo::net;
+
+BOOST_STATIC_ASSERT(sizeof(InetAddress) == sizeof(struct sockaddr_in));
 
 InetAddress::InetAddress(uint16_t port)
 {

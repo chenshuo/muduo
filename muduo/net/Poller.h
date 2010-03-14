@@ -34,4 +34,4 @@ class Poller : boost::noncopyable
 
 }
 }
-#endif
+#endif  // MUDUO_NET_POLLER_H

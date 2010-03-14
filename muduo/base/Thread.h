@@ -18,9 +18,16 @@ class Thread
   void start();
   void join();
 
- private:
+  bool started() const { return started_; }
+  pthread_t pthreadId() const { return pthreadId_; }
+  pid_t tid() const { return tid_; }
 
-  pthread_t  ptid_;
+ private:
+  static void* startThread(void* thread);
+
+  bool       started_;
+  pthread_t  pthreadId_;
+  pid_t      tid_;
   ThreadFunc func_;
 };
 

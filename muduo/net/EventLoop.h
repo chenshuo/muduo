@@ -22,6 +22,7 @@ class TimerQueue;
 ///
 /// Reactor, at most one per thread.
 ///
+/// This is an interface class, so don't expose too much details.
 class EventLoop : boost::noncopyable
 {
  public:
@@ -29,7 +30,7 @@ class EventLoop : boost::noncopyable
   typedef boost::function<void()> TimerCallback;
 
   EventLoop();
-  ~EventLoop();
+  ~EventLoop();  // force out-line dtor, for scoped_ptr members.
 
   ///
   /// Loops forever.
@@ -86,4 +87,4 @@ class EventLoop : boost::noncopyable
 
 }
 }
-#endif
+#endif  // MUDUO_NET_EVENTLOOP_H
