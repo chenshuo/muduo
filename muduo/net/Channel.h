@@ -1,5 +1,5 @@
-#ifndef NET_CHANNEL_H
-#define NET_CHANNEL_H
+#ifndef MUDUO_NET_CHANNEL_H
+#define MUDUO_NET_CHANNEL_H
 
 #include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
@@ -57,4 +57,4 @@ class Channel : boost::noncopyable
 
 }
 }
-#endif
+#endif  // MUDUO_NET_CHANNEL_H

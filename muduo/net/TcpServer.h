@@ -12,44 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef MUDUO_NET_SOCKET_H
-#define MUDUO_NET_SOCKET_H
+#ifndef MUDUO_NET_TCPSERVER_H
+#define MUDUO_NET_TCPSERVER_H
 
 #include <boost/noncopyable.hpp>
 
 namespace muduo
 {
-///
-/// TCP networking.
-///
 namespace net
 {
 
-///
-/// Wrapper of socket file descriptor.
-///
-/// It closes the sockfd when desctructs.
-///
-class Socket : boost::noncopyable
+class TcpServer : boost::noncopyable
 {
  public:
-  explicit Socket(int sockfd)
-    : sockfd_(sockfd)
-  { }
-
-  ~Socket();
-
-  int fd() { return sockfd_; }
-
-  ///
-  /// Enable/disable TCP_NODELAY (disable/enable Nagle's algorithm).
-  ///
-  void setTcpNoDelay(bool on);
 
  private:
-  int sockfd_;
 };
 
 }
 }
-#endif  // MUDUO_NET_SOCKET_H
+

@@ -61,6 +61,9 @@ class MutexLockGuard : boost::noncopyable
 
 }
 
-#define MutexLockGuard(x) error
+// Prevent misuse like:
+// MutexLockGuard(mutex_);
+// A tempory object doesn't hold the lock for long!
+#define MutexLockGuard(x) error "Missing guard object name"
 
-#endif
+#endif  // MUDUO_BASE_MUTEX_H

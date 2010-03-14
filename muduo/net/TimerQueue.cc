@@ -131,6 +131,7 @@ void TimerQueue::timeout()
       }
       else
       {
+        // FIXME move to a free list
         delete *it;
       }
     }

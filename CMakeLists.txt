@@ -10,6 +10,7 @@ set(CXX_FLAGS
  -Wconversion
  -Wno-unused-parameter
  -Wold-style-cast
+ -MMD
  -Wpointer-arith
  -Wshadow
  -Wwrite-strings

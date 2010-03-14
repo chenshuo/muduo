@@ -12,44 +12,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef MUDUO_NET_SOCKET_H
-#define MUDUO_NET_SOCKET_H
+#ifndef MUDUO_NET_INETADDRESS_H
+#define MUDUO_NET_INETADDRESS_H
 
-#include <boost/noncopyable.hpp>
+#include "muduo/base/Types.h"
+
+#include <netinet/in.h>
 
 namespace muduo
 {
-///
-/// TCP networking.
-///
 namespace net
 {
 
 ///
-/// Wrapper of socket file descriptor.
+/// Wrapper of sockaddr_in.
 ///
-/// It closes the sockfd when desctructs.
-///
-class Socket : boost::noncopyable
+class InetAddress
 {
  public:
-  explicit Socket(int sockfd)
-    : sockfd_(sockfd)
-  { }
+  /// Constructs an endpoint with given port number.
+  /// Mostly used in TcpServer.
+  explicit InetAddress(uint16_t port);
 
-  ~Socket();
-
-  int fd() { return sockfd_; }
-
-  ///
-  /// Enable/disable TCP_NODELAY (disable/enable Nagle's algorithm).
-  ///
-  void setTcpNoDelay(bool on);
+  /// Constructs an endpoint with given host and port.
+  /// @c host could either be "1.2.3.4" or "example.com"
+  InetAddress(string host, uint16_t port);
 
  private:
-  int sockfd_;
+  struct sockaddr_in addr_;
 };
 
 }
 }
-#endif  // MUDUO_NET_SOCKET_H
+
+#endif  // MUDUO_NET_INETADDRESS_H

@@ -11,7 +11,7 @@ class Timer;
 ///
 /// An opaque identifier, for canceling Timer.
 ///
-class TimerId
+class TimerId // muduo::copyable
 {
  public:
   explicit TimerId(Timer* timer)

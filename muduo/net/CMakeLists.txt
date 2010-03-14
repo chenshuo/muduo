@@ -1,11 +1,14 @@
 set(net_SRCS 
+  Acceptor.cc
   Channel.cc
   DefaultPoller.cc
   EPollPoller.cc
   EventLoop.cc
+  InetAddress.cc
   Poller.cc
   PollPoller.cc
   Socket.cc
+  SocketsOps.cc
   Timer.cc
   TimerQueue.cc
   )

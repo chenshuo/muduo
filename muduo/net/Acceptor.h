@@ -12,44 +12,45 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef MUDUO_NET_SOCKET_H
-#define MUDUO_NET_SOCKET_H
+#ifndef MUDUO_NET_ACCEPTOR_H
+#define MUDUO_NET_ACCEPTOR_H
 
+#include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
+
+#include <muduo/net/Channel.h>
+#include <muduo/net/Socket.h>
 
 namespace muduo
 {
-///
-/// TCP networking.
-///
 namespace net
 {
 
+class EventLoop;
+class InetAddress;
+
 ///
-/// Wrapper of socket file descriptor.
+/// Acceptor of incoming TCP connections.
 ///
-/// It closes the sockfd when desctructs.
-///
-class Socket : boost::noncopyable
+class Acceptor : boost::noncopyable
 {
  public:
-  explicit Socket(int sockfd)
-    : sockfd_(sockfd)
-  { }
+  Acceptor(EventLoop* loop, const InetAddress& serverAddr);
+  ~Acceptor();
 
-  ~Socket();
+  void accept();
 
-  int fd() { return sockfd_; }
-
-  ///
-  /// Enable/disable TCP_NODELAY (disable/enable Nagle's algorithm).
-  ///
-  void setTcpNoDelay(bool on);
+  bool listenning() { return listenning_; }
+  void listen();
 
  private:
-  int sockfd_;
+  EventLoop* loop_;
+  Socket acceptSocket_;
+  Channel acceptChannel_;
+  bool listenning_;
 };
 
 }
 }
-#endif  // MUDUO_NET_SOCKET_H
+
+#endif  // MUDUO_NET_ACCEPTOR_H

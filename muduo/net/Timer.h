@@ -12,7 +12,6 @@ namespace muduo
 {
 namespace net
 {
-
 ///
 /// Internal class for timer event.
 ///
@@ -44,7 +43,6 @@ class Timer : boost::noncopyable
   const double interval_;
   const bool repeat_;
 };
-
 }
 }
-#endif
+#endif  // MUDUO_NET_TIMER_H
