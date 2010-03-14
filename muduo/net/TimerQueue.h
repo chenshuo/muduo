@@ -3,11 +3,11 @@
 
 #include <list>
 
-#include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
 
 #include <muduo/base/Mutex.h>
 #include <muduo/base/UtcTime.h>
+#include <muduo/net/Callbacks.h>
 #include <muduo/net/Channel.h>
 
 namespace muduo
@@ -26,8 +26,6 @@ class TimerId;
 class TimerQueue : boost::noncopyable
 {
  public:
-  typedef boost::function<void()> TimerCallback;
-
   TimerQueue(EventLoop* loop);
   ~TimerQueue();
 

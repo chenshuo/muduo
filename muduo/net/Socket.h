@@ -1,4 +1,4 @@
-// Copyright 2010 Shuo Chen
+// Copyright 2010 Shuo Chen (chenshuo at chenshuo dot com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ namespace net
 /// Wrapper of socket file descriptor.
 ///
 /// It closes the sockfd when desctructs.
-///
+/// It's thread safe, all operations are delagated to OS.
 class Socket : boost::noncopyable
 {
  public:
@@ -39,7 +39,9 @@ class Socket : boost::noncopyable
 
   ~Socket();
 
-  int fd() { return sockfd_; }
+  int fd() const { return sockfd_; }
+
+  void shutdown();
 
   ///
   /// Enable/disable TCP_NODELAY (disable/enable Nagle's algorithm).
@@ -47,7 +49,7 @@ class Socket : boost::noncopyable
   void setTcpNoDelay(bool on);
 
  private:
-  int sockfd_;
+  const int sockfd_;
 };
 
 }

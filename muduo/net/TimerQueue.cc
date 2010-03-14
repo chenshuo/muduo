@@ -150,7 +150,7 @@ void TimerQueue::timeout()
 TimerId TimerQueue::schedule(const TimerCallback& cb, UtcTime when, double interval)
 {
   Timer* timer = new Timer(cb, when, interval);
-  
+
   bool earliestChanged = false;
   {
     MutexLockGuard lock(mutex_);
@@ -161,7 +161,7 @@ TimerId TimerQueue::schedule(const TimerCallback& cb, UtcTime when, double inter
   {
     resetTimerfd(timerfd_, when);
   }
-  
+
   return TimerId(timer);
 }
 

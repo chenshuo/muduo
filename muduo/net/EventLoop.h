@@ -8,6 +8,7 @@
 #include <boost/scoped_ptr.hpp>
 
 #include <muduo/base/UtcTime.h>
+#include <muduo/net/Callbacks.h>
 #include <muduo/net/TimerId.h>
 
 namespace muduo
@@ -27,7 +28,6 @@ class EventLoop : boost::noncopyable
 {
  public:
   typedef boost::function<void()> Functor;
-  typedef boost::function<void()> TimerCallback;
 
   EventLoop();
   ~EventLoop();  // force out-line dtor, for scoped_ptr members.

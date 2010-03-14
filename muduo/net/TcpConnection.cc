@@ -12,24 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <muduo/net/TcpServer.h>
-
-#include <muduo/net/Acceptor.h>
-
-using namespace muduo;
-using namespace muduo::net;
-
-TcpServer::TcpServer(EventLoop* loop, const InetAddress& listenAddr)
-  : loop_(loop),
-    acceptor_(new Acceptor(loop, listenAddr))
-{
-}
-
-TcpServer::~TcpServer()
-{
-}
-
-void TcpServer::start()
-{
-}
+#include <muduo/net/TcpConnection.h>
 

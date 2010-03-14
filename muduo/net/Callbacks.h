@@ -12,24 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <muduo/net/TcpServer.h>
+#ifndef MUDUO_NET_CALLBACKS_H
+#define MUDUO_NET_CALLBACKS_H
 
-#include <muduo/net/Acceptor.h>
+#include <boost/function.hpp>
 
-using namespace muduo;
-using namespace muduo::net;
-
-TcpServer::TcpServer(EventLoop* loop, const InetAddress& listenAddr)
-  : loop_(loop),
-    acceptor_(new Acceptor(loop, listenAddr))
+namespace muduo
 {
+namespace net
+{
+
+// All client visible callbacks go here.
+
+class TcpConnection;
+typedef boost::function<void()> TimerCallback;
+typedef boost::function<void (TcpConnection*)> ConnectionCallback;
+typedef boost::function<void (TcpConnection*, const void*, ssize_t len)> ReadCallback;
+
+}
 }
 
-TcpServer::~TcpServer()
-{
-}
-
-void TcpServer::start()
-{
-}
-
+#endif  // MUDUO_NET_CALLBACKS_H

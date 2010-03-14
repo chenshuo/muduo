@@ -14,6 +14,7 @@ class EchoServer
     : loop_(loop),
       server_(loop, listenAddr)
   {
+    server_.setReadCallback(boost::bind(&EchoServer::onRead, this));
   }
 
   void start()
@@ -23,6 +24,8 @@ class EchoServer
   // void stop();
 
  private:
+  void onRead();
+
   EventLoop* loop_;
   TcpServer server_;
 };

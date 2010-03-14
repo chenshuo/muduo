@@ -3,10 +3,10 @@
 
 #include <map>
 
-#include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
 
 #include <muduo/base/UtcTime.h>
+#include <muduo/net/Callbacks.h>
 
 namespace muduo
 {
@@ -18,8 +18,6 @@ namespace net
 class Timer : boost::noncopyable
 {
  public:
-  typedef boost::function<void()> TimerCallback;
-
   Timer(const TimerCallback& cb, UtcTime when, double interval)
     : cb_(cb),
       expiration_(when),

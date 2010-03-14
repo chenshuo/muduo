@@ -1,4 +1,4 @@
-// Copyright 2010 Shuo Chen
+// Copyright 2010 Shuo Chen (chenshuo at chenshuo dot com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
 
 #ifndef MUDUO_NET_TCPSERVER_H
 #define MUDUO_NET_TCPSERVER_H
+
+#include <muduo/net/Callbacks.h>
 
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
@@ -34,6 +36,7 @@ class InetAddress;
 class TcpServer : boost::noncopyable
 {
  public:
+
   TcpServer(EventLoop* loop, const InetAddress& listenAddr);
   ~TcpServer();  // force out-line dtor, for scoped_ptr members.
 
@@ -42,9 +45,14 @@ class TcpServer : boost::noncopyable
   /// It's harmless to call it multiple times.
   void start();
 
+  void setConnectionCallback(ConnectionCallback cb);
+  void setReadCallback(ReadCallback cb);
+
  private:
   EventLoop* loop_;
   boost::scoped_ptr<Acceptor> acceptor_; // avoid revealing Acceptor
+  ConnectionCallback connectionCb_;
+  ReadCallback messageCb_;
 };
 
 }
