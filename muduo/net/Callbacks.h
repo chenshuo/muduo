@@ -27,7 +27,11 @@ namespace net
 class TcpConnection;
 typedef boost::function<void()> TimerCallback;
 typedef boost::function<void (TcpConnection*)> ConnectionCallback;
-typedef boost::function<void (TcpConnection*, const void*, ssize_t len)> ReadCallback;
+
+// the data has been read to (buf, len)
+typedef boost::function<void (TcpConnection*,
+                              const void* buf,
+                              ssize_t len)> MessageCallback;
 
 }
 }

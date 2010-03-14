@@ -51,7 +51,8 @@ EventLoop::EventLoop()
   {
     t_loopInThisThread = this;
   }
-  wakeupChannel_->setReadCallback(boost::bind(&EventLoop::wakedup, this));
+  wakeupChannel_->setReadCallback(
+      boost::bind(&EventLoop::wakedup, this));
   // we are always reading the wakeupfd, like the old pipe(2) way.
   wakeupChannel_->set_events(Channel::kReadEvent);
   updateChannel(get_pointer(wakeupChannel_));

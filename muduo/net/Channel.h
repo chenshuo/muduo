@@ -28,10 +28,14 @@ class Channel : boost::noncopyable
   ~Channel();
 
   void handle_event();
-  void setReadCallback(const EventCallback& cb) { readCallback_ = cb; }
-  void setWriteCallback(const EventCallback& cb) { writeCallback_ = cb; }
-  void setCloseCallback(const EventCallback& cb) { closeCallback_ = cb; }
-  void setErrorCallback(const EventCallback& cb) { errorCallback_ = cb; }
+  void setReadCallback(const EventCallback& cb)
+  { readCallback_ = cb; }
+  void setWriteCallback(const EventCallback& cb)
+  { writeCallback_ = cb; }
+  void setCloseCallback(const EventCallback& cb)
+  { closeCallback_ = cb; }
+  void setErrorCallback(const EventCallback& cb)
+  { errorCallback_ = cb; }
 
   int fd() { return fd_; }
   int events() { return events_; }

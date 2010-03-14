@@ -1,0 +1,19 @@
+2010-??-??  Shuo Chen  <chenshuo@chenshuo.com>
+
+  * First alpha release, version 0.1.0
+
+2010-03-15  Shuo Chen  <chenshuo@chenshuo.com>
+
+  * TcpConnection at server side works.
+
+2010-03-14  Shuo Chen  <chenshuo@chenshuo.com>
+
+  * Acceptor works.
+
+2010-03-13  Shuo Chen  <chenshuo@chenshuo.com>
+
+  * TimerQueue works.
+
+2010-03-12  Shuo Chen  <chenshuo@chenshuo.com>
+
+  * Starts working on Muduo.

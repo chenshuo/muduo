@@ -16,6 +16,8 @@
 
 #include <muduo/net/Acceptor.h>
 
+#include <boost/bind.hpp>
+
 using namespace muduo;
 using namespace muduo::net;
 
@@ -23,6 +25,8 @@ TcpServer::TcpServer(EventLoop* loop, const InetAddress& listenAddr)
   : loop_(loop),
     acceptor_(new Acceptor(loop, listenAddr))
 {
+  acceptor_->setNewConnectionCallback(
+      boost::bind(&TcpServer::newConnection, this, _1, _2));
 }
 
 TcpServer::~TcpServer()
@@ -31,5 +35,13 @@ TcpServer::~TcpServer()
 
 void TcpServer::start()
 {
+  if (!acceptor_->listenning())
+  {
+    acceptor_->listen();
+  }
 }
 
+void TcpServer::newConnection(int fd, const InetAddress& peerAddr)
+{
+
+}

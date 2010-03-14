@@ -31,7 +31,8 @@ void PollPoller::poll(int timeoutMs, ChannelList* activeChannels)
 
 }
 
-void PollPoller::fillActiveChannels(int numEvents, ChannelList* activeChannels) const
+void PollPoller::fillActiveChannels(int numEvents,
+                                    ChannelList* activeChannels) const
 {
   for (PollFdList::const_iterator pfd = pollfds_.begin();
       pfd != pollfds_.end() && numEvents > 0; ++pfd)

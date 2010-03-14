@@ -43,16 +43,27 @@ class TcpServer : boost::noncopyable
   /// Starts the server if it's not listenning.
   ///
   /// It's harmless to call it multiple times.
+  /// Not thread safe.
   void start();
 
-  void setConnectionCallback(ConnectionCallback cb);
-  void setReadCallback(ReadCallback cb);
+  /// Set connection callback.
+  /// Not thread safe.
+  void setConnectionCallback(const ConnectionCallback& cb)
+  { connectionCallback_ = cb; }
+
+  /// Set message callback.
+  /// Not thread safe.
+  void setMessageCallback(const MessageCallback& cb)
+  { messageCallback_ = cb; }
 
  private:
+  /// Not thread safe.
+  void newConnection(int fd, const InetAddress& peerAddr);
+
   EventLoop* loop_;
   boost::scoped_ptr<Acceptor> acceptor_; // avoid revealing Acceptor
-  ConnectionCallback connectionCb_;
-  ReadCallback messageCb_;
+  ConnectionCallback connectionCallback_;
+  MessageCallback messageCallback_;
 };
 
 }

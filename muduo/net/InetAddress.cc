@@ -16,14 +16,10 @@
 
 #include <muduo/net/SocketsOps.h>
 
-#include <strings.h>
+#include <strings.h>  // bzero
 #include <netinet/in.h>
-// #include <sys/socket.h>
 
 #include <boost/static_assert.hpp>
-
-typedef struct sockaddr SA;
-static const int kListenSize = SOMAXCONN;
 
 // INADDR_ANY use (type)value casting.
 #pragma GCC diagnostic ignored "-Wold-style-cast"
@@ -54,5 +50,12 @@ InetAddress::InetAddress(uint16_t port)
   addr_.sin_family = AF_INET;
   addr_.sin_addr.s_addr = sockets::hostToNetwork32(kInaddrAny);
   addr_.sin_port = sockets::hostToNetwork16(port);
+}
+
+string InetAddress::toHostPort()
+{
+  char buf[32];
+  sockets::toHostPort(buf, sizeof buf, addr_);
+  return buf;
 }
 

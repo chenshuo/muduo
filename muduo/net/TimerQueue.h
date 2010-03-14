@@ -34,13 +34,17 @@ class TimerQueue : boost::noncopyable
   /// repeats if @c interval > 0.0.
   ///
   /// Must be thread safe. Usually be called from other threads.
-  TimerId schedule(const TimerCallback& cb, UtcTime when, double interval);
+  TimerId schedule(const TimerCallback& cb,
+                   UtcTime when,
+                   double interval);
 
   void cancel(TimerId timerId);
 
  private:
-  void timeout(); // called when timerfd arms
-  bool insertWithLockHold(Timer* timer); // insert timer in sorted list.
+  // called when timerfd arms
+  void timeout();
+  // insert timer in sorted list.
+  bool insertWithLockHold(Timer* timer);
 
   // FIXME: use unique_ptr<Timer> instead of raw pointers.
   typedef std::list<Timer*> TimerList;
@@ -49,7 +53,8 @@ class TimerQueue : boost::noncopyable
   const int timerfd_;
   Channel timerfdChannel_;
   MutexLock mutex_;
-  TimerList timers_; // Timer list sorted by expiration, @GuardedBy mutex_
+  // Timer list sorted by expiration, @GuardedBy mutex_
+  TimerList timers_;
 };
 
 }

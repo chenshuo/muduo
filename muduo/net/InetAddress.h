@@ -28,7 +28,7 @@ namespace net
 ///
 /// Wrapper of sockaddr_in.
 ///
-/// This is an interface class.
+/// This is an POD interface class.
 class InetAddress : public muduo::copyable
 {
  public:
@@ -40,7 +40,12 @@ class InetAddress : public muduo::copyable
   /// @c host could either be "1.2.3.4" or "example.com"
   InetAddress(string host, uint16_t port);
 
+  string toHostPort();
+
   // default copy/assignment are Okay
+
+  const struct sockaddr_in& getSockAddrInet() const { return addr_; }
+  struct sockaddr_in* getMutableSockAddrInet() { return &addr_; }
 
  private:
   struct sockaddr_in addr_;

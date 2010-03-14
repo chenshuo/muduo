@@ -64,7 +64,8 @@ TimerQueue::TimerQueue(EventLoop* loop)
     timerfdChannel_(loop, timerfd_),
     timers_()
 {
-  timerfdChannel_.setReadCallback(boost::bind(&TimerQueue::timeout, this));
+  timerfdChannel_.setReadCallback(
+      boost::bind(&TimerQueue::timeout, this));
   // we are always reading the timerfd, we disarm it with timerfd_settime.
   timerfdChannel_.set_events(Channel::kReadEvent);
   loop_->updateChannel(&timerfdChannel_);
@@ -88,7 +89,8 @@ void TimerQueue::timeout()
   UtcTime now(UtcTime::now());
   uint64_t howmany;
   ssize_t n = ::read(timerfd_, &howmany, sizeof howmany);
-  printf("TimerQueue::timeout() timeout %" PRIu64 " at %s\n", howmany, now.toString().c_str());
+  printf("TimerQueue::timeout() timeout %" PRIu64 " at %s\n",
+      howmany, now.toString().c_str());
   if (n != sizeof howmany)
   {
     fprintf(stderr, "TimerQueue::timeout() reads %zd bytes instead of 8\n", n);
@@ -147,7 +149,9 @@ void TimerQueue::timeout()
   }
 }
 
-TimerId TimerQueue::schedule(const TimerCallback& cb, UtcTime when, double interval)
+TimerId TimerQueue::schedule(const TimerCallback& cb,
+                             UtcTime when,
+                             double interval)
 {
   Timer* timer = new Timer(cb, when, interval);
 

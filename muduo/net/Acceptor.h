@@ -35,18 +35,24 @@ class InetAddress;
 class Acceptor : boost::noncopyable
 {
  public:
+  typedef boost::function<void (int fd, const InetAddress&)>
+    NewConnectionCallback;
+
   Acceptor(EventLoop* loop, const InetAddress& listenAddr);
   // ~Acceptor();
 
-  void accept();
-
-  bool listenning() { return listenning_; }
+  void setNewConnectionCallback(const NewConnectionCallback& cb)
+  { newConnectionCallback_ = cb; }
+  bool listenning() const { return listenning_; }
   void listen();
 
  private:
+  void accept();
+
   EventLoop* loop_;
   Socket acceptSocket_;
   Channel acceptChannel_;
+  NewConnectionCallback newConnectionCallback_;
   bool listenning_;
 };
 
