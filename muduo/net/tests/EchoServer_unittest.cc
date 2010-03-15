@@ -21,7 +21,7 @@ class EchoServer
     server_.setConnectionCallback(
         boost::bind(&EchoServer::onConnection, this, _1));
     server_.setMessageCallback(
-        boost::bind(&EchoServer::onMessage, this, _1, _2, _3));
+        boost::bind(&EchoServer::onMessage, this, _1, _2));
   }
 
   void start()
@@ -37,8 +37,10 @@ class EchoServer
            conn->localAddr().toHostPort().c_str());
   }
 
-  void onMessage(const TcpConnectionPtr&, const void* buf, ssize_t len)
+  void onMessage(const TcpConnectionPtr&, ChannelBuffer* buf)
   {
+    string msg(buf->retrieveAsString());
+    printf("recv %zu bytes '%s'", msg.size(), msg.c_str());
   }
 
   EventLoop* loop_;

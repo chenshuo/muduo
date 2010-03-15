@@ -28,54 +28,29 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <muduo/net/Channel.h>
+// Author: Shuo Chen (chenshuo at chenshuo dot com)
+//
+// This is a public header file, it must only include public header files.
+// This is an internal header file, you should not include this.
 
-#include <poll.h>
-#include <stdio.h> // FIXME
+#ifndef MUDUO_NET_BOILERPLATE_H
+#define MUDUO_NET_BOILERPLATE_H
 
-using namespace muduo;
-using namespace muduo::net;
+#include <boost/noncopyable.hpp>
 
-const int Channel::kReadEvent = POLLIN | POLLPRI;
-const int Channel::kWriteEvent = POLLOUT;
-
-Channel::Channel(EventLoop* loop, int fd__)
-  : loop_(loop),
-    fd_(fd__),
-    events_(0),
-    revents_(0),
-    index_(-1)
+namespace muduo
 {
+namespace net
+{
+
+class BoilerPlate : boost::noncopyable
+{
+ public:
+
+ private:
+};
+
+}
 }
 
-Channel::~Channel()
-{
-}
-
-void Channel::handle_event()
-{
-  if ((revents_ & POLLHUP) && !(revents_ & POLLIN))
-  {
-    printf("Channel::handle_event() POLLHUP");
-    if (closeCallback_) closeCallback_();
-  }
-
-  if (revents_ & POLLNVAL)
-  {
-    printf("Channel::handle_event() POLLNVAL");
-  }
-
-  if (revents_ & (POLLERR | POLLNVAL))
-  {
-    if (errorCallback_) errorCallback_();
-  }
-  if (revents_ & (POLLIN | POLLPRI | POLLRDHUP))
-  {
-    if (readCallback_) readCallback_();
-  }
-  if (revents_ & POLLOUT)
-  {
-    if (writeCallback_) writeCallback_();
-  }
-}
-
+#endif  // MUDUO_NET_BOILERPLATE_H

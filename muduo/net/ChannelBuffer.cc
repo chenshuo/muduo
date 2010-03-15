@@ -28,54 +28,42 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <muduo/net/Channel.h>
+// Author: Shuo Chen (chenshuo at chenshuo dot com)
+//
 
-#include <poll.h>
-#include <stdio.h> // FIXME
+#include <muduo/net/ChannelBuffer.h>
+
+#include <muduo/base/Types.h>  // implicit_cast
+
+#include <errno.h>
+#include <sys/uio.h>
 
 using namespace muduo;
 using namespace muduo::net;
 
-const int Channel::kReadEvent = POLLIN | POLLPRI;
-const int Channel::kWriteEvent = POLLOUT;
-
-Channel::Channel(EventLoop* loop, int fd__)
-  : loop_(loop),
-    fd_(fd__),
-    events_(0),
-    revents_(0),
-    index_(-1)
+ssize_t ChannelBuffer::readFd(int fd, int* savedErrno)
 {
-}
-
-Channel::~Channel()
-{
-}
-
-void Channel::handle_event()
-{
-  if ((revents_ & POLLHUP) && !(revents_ & POLLIN))
+  char extrabuf[65536];
+  struct iovec vec[2];
+  size_t writable = writableBytes();
+  vec[0].iov_base = begin()+writerIndex_;
+  vec[0].iov_len = writable;
+  vec[1].iov_base = extrabuf;
+  vec[1].iov_len = sizeof extrabuf;
+  ssize_t n = readv(fd, vec, 2);
+  if (n < 0)
   {
-    printf("Channel::handle_event() POLLHUP");
-    if (closeCallback_) closeCallback_();
+    *savedErrno = errno;
   }
-
-  if (revents_ & POLLNVAL)
+  else if (implicit_cast<size_t>(n) <= writable)
   {
-    printf("Channel::handle_event() POLLNVAL");
+    writerIndex_ += n;
   }
-
-  if (revents_ & (POLLERR | POLLNVAL))
+  else
   {
-    if (errorCallback_) errorCallback_();
+    writerIndex_ = buffer_.size();
+    append(extrabuf, n - writable);
   }
-  if (revents_ & (POLLIN | POLLPRI | POLLRDHUP))
-  {
-    if (readCallback_) readCallback_();
-  }
-  if (revents_ & POLLOUT)
-  {
-    if (writeCallback_) writeCallback_();
-  }
+  return n;
 }
 

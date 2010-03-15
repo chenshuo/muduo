@@ -78,7 +78,8 @@ inline bool operator==(UtcTime lhs, UtcTime rhs)
 ///
 /// @param high, low
 /// @return (high-low) in seconds
-///
+/// @c double has 52-bit precision, enough for one-microseciond
+/// resolution for next 100 years.
 inline double timeDifference(UtcTime high, UtcTime low)
 {
   int64_t diff = high.microSecondsSinceEpoch() - low.microSecondsSinceEpoch();
