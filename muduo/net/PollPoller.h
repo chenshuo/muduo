@@ -58,6 +58,7 @@ class PollPoller : public Poller
 
   virtual void poll(int timeoutMs, ChannelList* activeChannels);
   virtual void updateChannel(Channel* channel);
+  virtual void removeChannel(Channel* channel);
 
  private:
   void fillActiveChannels(int numEvents,

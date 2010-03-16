@@ -86,8 +86,10 @@ void sockets::listenOrDie(int sockfd)
 int sockets::accept(int sockfd, struct sockaddr_in* addr)
 {
   socklen_t addrlen = sizeof *addr;
-  int connfd = ::accept4(sockfd, reinterpret_cast<SA*>(addr),
-                         &addrlen, SOCK_NONBLOCK | SOCK_CLOEXEC);
+  int connfd = ::accept(sockfd, reinterpret_cast<SA*>(addr),
+                        &addrlen);//, SOCK_NONBLOCK | SOCK_CLOEXEC);
+  // int connfd = ::accept4(sockfd, reinterpret_cast<SA*>(addr),
+  //                        &addrlen, SOCK_NONBLOCK | SOCK_CLOEXEC);
   if (connfd == -1)
   {
     int savedErrno = errno;
@@ -115,6 +117,7 @@ int sockets::accept(int sockfd, struct sockaddr_in* addr)
         break;
       default:
         // unknown errors
+        fprintf(stderr, "errno = %d\n", savedErrno);
         abort();
         break;
     }
@@ -125,6 +128,12 @@ int sockets::accept(int sockfd, struct sockaddr_in* addr)
 void sockets::close(int sockfd)
 {
   ::close(sockfd);
+  // FIXME EINTR
+}
+
+void sockets::shutdown(int sockfd)
+{
+  ::shutdown(sockfd, SHUT_RDWR);
   // FIXME EINTR
 }
 

@@ -107,8 +107,10 @@ void EventLoop::loop()
     for (ChannelList::iterator it = activeChannels_.begin();
         it != activeChannels_.end(); ++it)
     {
-      (*it)->handle_event();
+      (*it)->handleEvent();
+      // FIXME if one handleEvent() destroys XXX HACK
     }
+    //pendingDestructs();
   }
   looping_ = false;
 }
@@ -140,6 +142,10 @@ void EventLoop::runInLoop(const Functor& cb)
   }
 }
 
+void EventLoop::runDelayDestruct(const Functor& cb)
+{
+}
+
 TimerId EventLoop::runAt(const UtcTime& time, const TimerCallback& cb)
 {
   return timerQueue_->schedule(cb, time, 0.0);
@@ -167,7 +173,7 @@ void EventLoop::updateChannel(Channel* channel)
 void EventLoop::removeChannel(Channel* channel)
 {
   assert(channel->getLoop() == this);
-  // poller_->removeChannel(channel);
+  poller_->removeChannel(channel);
 }
 
 void EventLoop::assertInLoopThread()

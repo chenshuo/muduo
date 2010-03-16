@@ -36,6 +36,7 @@
 using namespace muduo;
 using namespace muduo::net;
 
+const int Channel::kNoneEvent = 0;
 const int Channel::kReadEvent = POLLIN | POLLPRI;
 const int Channel::kWriteEvent = POLLOUT;
 
@@ -44,7 +45,8 @@ Channel::Channel(EventLoop* loop, int fd__)
     fd_(fd__),
     events_(0),
     revents_(0),
-    index_(-1)
+    index_(-1),
+    tied_(false)
 {
 }
 
@@ -52,7 +54,30 @@ Channel::~Channel()
 {
 }
 
-void Channel::handle_event()
+void Channel::tie(const boost::shared_ptr<void>& obj)
+{
+  tie_ = obj;
+  tied_ = true;
+}
+
+void Channel::handleEvent()
+{
+  boost::shared_ptr<void> guard;
+  if (tied_)
+  {
+    guard = tie_.lock();
+    if (guard)
+    {
+      handleEventWithGuard();
+    }
+  }
+  else
+  {
+    handleEventWithGuard();
+  }
+}
+
+void Channel::handleEventWithGuard()
 {
   if ((revents_ & POLLHUP) && !(revents_ & POLLIN))
   {

@@ -44,6 +44,7 @@ using namespace muduo::net;
 
 TcpServer::TcpServer(EventLoop* loop, const InetAddress& listenAddr)
   : loop_(loop),
+    name_(listenAddr.toHostPort()),
     acceptor_(new Acceptor(loop, listenAddr)),
     threadModel_(new ThreadModel(loop)),
     started_(false),
@@ -79,24 +80,36 @@ void TcpServer::start()
 
 void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
 {
+  loop_->assertInLoopThread();
   EventLoop* ioLoop = threadModel_->getNextLoop();
   char buf[32];
-  snprintf(buf, sizeof buf, "#%d", nextConnId_);
+  snprintf(buf, sizeof buf, "%s#%d", name_.c_str(), nextConnId_);
   ++nextConnId_;
   string connName = serverName_ + buf;
 
   InetAddress localAddr(sockets::getLocalAddr(sockfd));
   // FIXME poll with zero timeout to double confirm the new connection
   TcpConnectionPtr conn(
-      new TcpConnection(connName, ioLoop, sockfd, localAddr, peerAddr));
+      new TcpConnection(ioLoop, connName, sockfd, localAddr, peerAddr));
   connections_[connName] = conn;
   conn->setConnectionCallback(connectionCallback_);
   conn->setMessageCallback(messageCallback_);
   conn->setCloseCallback(
       boost::bind(&TcpServer::removeConnection, this, _1));
-  ioLoop->runInLoop(boost::bind(&TcpConnection::connected, conn));
+  ioLoop->runInLoop(boost::bind(&TcpConnection::connectEstablished, conn));
 }
 
 void TcpServer::removeConnection(const TcpConnectionPtr& conn)
 {
+  loop_->runInLoop(boost::bind(&TcpServer::removeConnectionInLoop, this, conn));
 }
+
+void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn)
+{
+  loop_->assertInLoopThread();
+  size_t n = connections_.erase(conn->name());
+  assert(n == 1);
+  EventLoop* ioLoop = conn->getLoop();
+  ioLoop->runDelayDestruct(boost::bind(&TcpConnection::connectDestroyed, conn));
+}
+

@@ -20,8 +20,9 @@ set(CXX_FLAGS
 string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS}")
 
 set(CMAKE_CXX_FLAGS_DEBUG "-O0")
-set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
+set(CMAKE_CXX_FLAGS_RELEASE "-O2") # no NDEBUG in Release, keep asserting.
 
 include_directories(${PROJECT_SOURCE_DIR})
 add_subdirectory(muduo/base)
 add_subdirectory(muduo/net)
+

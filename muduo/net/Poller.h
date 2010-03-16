@@ -63,6 +63,10 @@ class Poller : boost::noncopyable
   /// Must be called in the loop thread.
   virtual void updateChannel(Channel* channel) = 0;
 
+  /// Remove the channel, when it destructs.
+  /// Must be called in the loop thread.
+  virtual void removeChannel(Channel* channel) = 0;
+
   static Poller* newDefaultPoller();
 };
 

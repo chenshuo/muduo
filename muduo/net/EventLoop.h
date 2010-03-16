@@ -80,8 +80,13 @@ class EventLoop : boost::noncopyable
 
   /// Runs callback immediately in the loop thread.
   /// It wakes up the loop, and run the cb.
+  /// If in the same loop thread, cb is run within the function.
   /// Safe to call from other threads.
   void runInLoop(const Functor& cb);
+  /// Queues callback in the loop thread.
+  /// Runs after finish pooling.
+  /// Safe to call from other threads.
+  void runDelayDestruct(const Functor& cb);
   ///
   TimerId runAt(const UtcTime& time, const TimerCallback& cb);
   ///

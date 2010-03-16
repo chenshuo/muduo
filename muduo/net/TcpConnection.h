@@ -64,14 +64,21 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
  public:
   /// Constructs a TcpConnection with a connected sockfd
   ///
-  TcpConnection(const string& name,
-                EventLoop* loop,
+  TcpConnection(EventLoop* loop,
+                const string& name,
                 int sockfd,
                 const InetAddress& localAddr,
                 const InetAddress& peerAddr);
+  ~TcpConnection();
 
-  const InetAddress& localAddr() { return localAddr_; }
-  const InetAddress& peerAddr() { return peerAddr_; }
+  EventLoop* getLoop() const { return loop_; }
+  const string& name() const { return name_; }
+  const InetAddress& localAddress() { return localAddr_; }
+  const InetAddress& peerAddress() { return peerAddr_; }
+  bool connected() const { return state_ == kConnected; }
+  bool connecting() const { return state_ == kConnecting; }
+
+  void shutdown();
 
   void setConnectionCallback(ConnectionCallback cb)
   { connectionCallback_ = cb; }
@@ -84,16 +91,19 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
   { closeCallback_ = cb; }
 
   // called when TcpServer accepts a new connection
-  void connected();
+  void connectEstablished();
+  void connectDestroyed();
 
  private:
+  enum States { kDisconnected, kConnecting, kConnected };
   void handleRead();
   void handleWrite();
   void handleClose();
   void handleError();
 
-  string name_;
   EventLoop* loop_;
+  string name_;
+  States state_;
   // we don't expose those classes to client.
   boost::scoped_ptr<Socket> socket_;
   boost::scoped_ptr<Channel> channel_;

@@ -37,6 +37,8 @@
 
 #include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
 
 namespace muduo
 {
@@ -63,7 +65,7 @@ class Channel : boost::noncopyable
   Channel(EventLoop* loop, int fd);
   ~Channel();
 
-  void handle_event();
+  void handleEvent();
   void setReadCallback(const EventCallback& cb)
   { readCallback_ = cb; }
   void setWriteCallback(const EventCallback& cb)
@@ -72,6 +74,10 @@ class Channel : boost::noncopyable
   { closeCallback_ = cb; }
   void setErrorCallback(const EventCallback& cb)
   { errorCallback_ = cb; }
+
+  /// Tie this channel to the owner object managed by shared_ptr,
+  /// prevent the owner object being destroyed in handleEvent.
+  void tie(const boost::shared_ptr<void>&);
 
   int fd() { return fd_; }
   int events() { return events_; }
@@ -86,11 +92,16 @@ class Channel : boost::noncopyable
   // void set_loop(EventLoop* loop) { loop_ = loop; }
 
  private:
+  void handleEventWithGuard();
+
   EventLoop* loop_;
   const int  fd_;
   int        events_;
   int        revents_;
   int        index_; // used by PollPoller.
+
+  boost::weak_ptr<void> tie_;
+  bool tied_;
   EventCallback readCallback_;
   EventCallback writeCallback_;
   EventCallback closeCallback_;

@@ -64,6 +64,7 @@ void Acceptor::listen()
 
 void Acceptor::accept()
 {
+  loop_->assertInLoopThread();
   InetAddress peerAddr(0);
   int connfd = acceptSocket_.accept(&peerAddr);
   if (connfd >= 0)

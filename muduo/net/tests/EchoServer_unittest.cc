@@ -22,6 +22,7 @@ class EchoServer
         boost::bind(&EchoServer::onConnection, this, _1));
     server_.setMessageCallback(
         boost::bind(&EchoServer::onMessage, this, _1, _2));
+    server_.setThreadNum(0);
   }
 
   void start()
@@ -31,16 +32,34 @@ class EchoServer
   // void stop();
 
  private:
+  TcpConnectionPtr first;
+  TcpConnectionPtr second;
   void onConnection(const TcpConnectionPtr& conn)
   {
-    printf("conn %s -> %s\n", conn->peerAddr().toHostPort().c_str(),
-           conn->localAddr().toHostPort().c_str());
+    printf("conn %s -> %s %s\n",
+        conn->peerAddress().toHostPort().c_str(),
+        conn->localAddress().toHostPort().c_str(),
+        conn->connected() ? "UP" : "DOWN");
+    if (!first)
+      first = conn;
+    else if (!second)
+      second = conn;
   }
 
-  void onMessage(const TcpConnectionPtr&, ChannelBuffer* buf)
+  void onMessage(const TcpConnectionPtr& conn, ChannelBuffer* buf)
   {
     string msg(buf->retrieveAsString());
     printf("recv %zu bytes '%s'", msg.size(), msg.c_str());
+    // conn->send(buf);
+    // conn->shutdown();
+    // loop_->quit();
+    if (second && conn == first)
+    {
+      second->shutdown();
+      second.reset();
+      first.reset();
+      loop_->quit();
+    }
   }
 
   EventLoop* loop_;

@@ -30,6 +30,7 @@
 
 #include <muduo/net/PollPoller.h>
 
+#include <muduo/base/Types.h>
 #include <muduo/net/Channel.h>
 
 #include <assert.h>
@@ -84,6 +85,7 @@ void PollPoller::fillActiveChannels(int numEvents,
 void PollPoller::updateChannel(Channel* channel)
 {
   // assert(channel->getLoop()
+  //assert in loop thread
 
   if (channel->index() < 0)
   {
@@ -94,7 +96,8 @@ void PollPoller::updateChannel(Channel* channel)
     pfd.events = static_cast<short>(channel->events());
     pfd.revents = 0;
     pollfds_.push_back(pfd);
-    channel->set_index(static_cast<int>(pollfds_.size())-1);
+    int idx = static_cast<int>(pollfds_.size())-1;
+    channel->set_index(idx);
     channels_[pfd.fd] = channel;
   }
   else
@@ -105,15 +108,39 @@ void PollPoller::updateChannel(Channel* channel)
     int idx = channel->index();
     assert(0 <= idx && idx < static_cast<int>(pollfds_.size()));
     struct pollfd& pfd = pollfds_[idx];
-    assert(pfd.fd == channel->fd() || pfd.fd == -1);
+    assert(pfd.fd == channel->fd() || pfd.fd == -channel->fd()-1);
     pfd.events = static_cast<short>(channel->events());
-    if (pfd.events == 0)
+    if (pfd.events == Channel::kNoneEvent)
     {
       // ignore this pollfd
-      pfd.fd = -1;
-      printf("set pfd.fd=-1 for fd=%d\n", channel->fd());
+      pfd.fd = -channel->fd()-1;
+      printf("set pfd.fd=-fd-1 for fd=%d\n", channel->fd());
     }
   }
+}
 
+void PollPoller::removeChannel(Channel* channel)
+{
+  //assert in loop thread
+  assert(channels_.find(channel->fd()) != channels_.end());
+  assert(channels_[channel->fd()] == channel);
+  // assert(channel->events() == Channel::kNoneEvent);
+  int idx = channel->index();
+  assert(0 <= idx && idx < static_cast<int>(pollfds_.size()));
+  const struct pollfd& pfd = pollfds_[idx];
+  // assert(pfd.fd == -channel->fd()-1 && pfd.events == Channel::kNoneEvent);
+  size_t n = channels_.erase(channel->fd());
+  assert(n == 1);
+  if (implicit_cast<size_t>(idx) == pollfds_.size()-1)
+  {
+    pollfds_.pop_back();
+  }
+  else
+  {
+    int channelAtEnd = pollfds_.back().fd;
+    iter_swap(pollfds_.begin()+idx, pollfds_.end()-1);
+    channels_[channelAtEnd]->set_index(idx);
+    pollfds_.pop_back();
+  }
 }
 
