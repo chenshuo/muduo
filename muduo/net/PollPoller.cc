@@ -50,6 +50,7 @@ void PollPoller::poll(int timeoutMs, ChannelList* activeChannels)
   if (numEvents > 0)
   {
     fillActiveChannels(numEvents, activeChannels);
+    printf("%d events\n", numEvents);
   }
   else if (numEvents == 0)
   {

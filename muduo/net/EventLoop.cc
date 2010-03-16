@@ -65,6 +65,7 @@ int createEventfd()
 EventLoop::EventLoop()
   : looping_(false),
     quit_(false),
+    eventHandling_(false),
     threadId_(CurrentThread::tid()),
     poller_(Poller::newDefaultPoller()),
     timerQueue_(new TimerQueue(this)),
@@ -104,13 +105,16 @@ void EventLoop::loop()
   {
     activeChannels_.clear();
     poller_->poll(kPollTimeMs, &activeChannels_);
+    // TODO sort channel by priority
+    eventHandling_ = true;
     for (ChannelList::iterator it = activeChannels_.begin();
         it != activeChannels_.end(); ++it)
     {
       (*it)->handleEvent();
       // FIXME if one handleEvent() destroys XXX HACK
     }
-    //pendingDestructs();
+    eventHandling_ = false;
+    doPendingFunctors();
   }
   looping_ = false;
 }
@@ -138,12 +142,14 @@ void EventLoop::runInLoop(const Functor& cb)
   }
   else
   {
-    abort();
+    queueInLoop(cb);
   }
 }
 
-void EventLoop::runDelayDestruct(const Functor& cb)
+void EventLoop::queueInLoop(const Functor& cb)
 {
+  MutexLockGuard lock(mutex_);
+  pendingFunctors_.push_back(cb);
 }
 
 TimerId EventLoop::runAt(const UtcTime& time, const TimerCallback& cb)
@@ -184,5 +190,24 @@ void EventLoop::assertInLoopThread()
 void EventLoop::wakedup()
 {
   // what's up
+}
+
+void EventLoop::doPendingFunctors()
+{
+  std::vector<Functor> functors;
+  do
+  {
+    functors.clear();
+
+    {
+      MutexLockGuard lock(mutex_);
+      functors.swap(pendingFunctors_);
+    }
+
+    for (size_t i = 0; i < functors.size(); ++i)
+    {
+      functors[i]();
+    }
+  } while (!functors.empty());
 }
 

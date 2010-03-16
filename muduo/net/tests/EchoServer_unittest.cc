@@ -7,9 +7,12 @@
 #include <boost/bind.hpp>
 
 #include <stdio.h>
+#include <unistd.h>
 
 using namespace muduo;
 using namespace muduo::net;
+
+int numThreads = 0;
 
 class EchoServer
 {
@@ -22,7 +25,7 @@ class EchoServer
         boost::bind(&EchoServer::onConnection, this, _1));
     server_.setMessageCallback(
         boost::bind(&EchoServer::onMessage, this, _1, _2));
-    server_.setThreadNum(0);
+    server_.setThreadNum(numThreads);
   }
 
   void start()
@@ -50,15 +53,21 @@ class EchoServer
   {
     string msg(buf->retrieveAsString());
     printf("recv %zu bytes '%s'", msg.size(), msg.c_str());
+    if (msg == "exit\n")
+      ::exit(0);
     // conn->send(buf);
     // conn->shutdown();
     // loop_->quit();
+    if (conn == second)
+    {
+      sleep(10);
+    }
     if (second && conn == first)
     {
       second->shutdown();
       second.reset();
       first.reset();
-      loop_->quit();
+      // loop_->quit();
     }
   }
 
@@ -70,9 +79,10 @@ void threadFunc(uint16_t port)
 {
 }
 
-int main()
+int main(int argc, char* argv[])
 {
   printf("main(): pid = %d, tid = %d\n", getpid(), CurrentThread::tid());
+  numThreads = argc - 1;
   EventLoop loop;
   InetAddress listenAddr(2000);
   EchoServer server(&loop, listenAddr);

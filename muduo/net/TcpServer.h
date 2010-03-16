@@ -116,7 +116,7 @@ class TcpServer : boost::noncopyable
   const string serverName_;
   bool started_;
   // always in loop thread
-  int nextConnId_;  
+  int nextConnId_;
   ConnectionMap connections_;
 };
 

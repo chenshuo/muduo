@@ -75,8 +75,12 @@ TcpConnection::~TcpConnection()
 
 void TcpConnection::shutdown()
 {
-  sockets::shutdown(channel_->fd());
-  loop_->runInLoop(boost::bind(&TcpConnection::handleClose, this));
+  if (state_ == kConnected)
+  {
+    state_ = kDisconnecting;
+    sockets::shutdown(channel_->fd());
+    loop_->runInLoop(boost::bind(&TcpConnection::handleClose, this));
+  }
 }
 
 void TcpConnection::connectEstablished()

@@ -29,6 +29,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <muduo/net/SocketsOps.h>
+#include <muduo/base/Types.h>
 
 #include <errno.h>
 #include <fcntl.h>
@@ -41,6 +42,16 @@ using namespace muduo;
 using namespace muduo::net;
 
 typedef struct sockaddr SA;
+
+const SA* sockaddr_cast(const struct sockaddr_in* addr)
+{
+  return static_cast<const SA*>(implicit_cast<const void*>(addr));
+}
+
+SA* sockaddr_cast(struct sockaddr_in* addr)
+{
+  return static_cast<SA*>(implicit_cast<void*>(addr));
+}
 
 int sockets::createNonblockingOrDie()
 {
@@ -65,7 +76,7 @@ int sockets::createNonblockingOrDie()
 
 void sockets::bindOrDie(int sockfd, const struct sockaddr_in& addr)
 {
-  int ret = ::bind(sockfd, reinterpret_cast<const SA*>(&addr), sizeof addr);
+  int ret = ::bind(sockfd, sockaddr_cast(&addr), sizeof addr);
   if (ret)
   {
     perror("sockets::bindOrDie");
@@ -86,9 +97,8 @@ void sockets::listenOrDie(int sockfd)
 int sockets::accept(int sockfd, struct sockaddr_in* addr)
 {
   socklen_t addrlen = sizeof *addr;
-  int connfd = ::accept(sockfd, reinterpret_cast<SA*>(addr),
-                        &addrlen);//, SOCK_NONBLOCK | SOCK_CLOEXEC);
-  // int connfd = ::accept4(sockfd, reinterpret_cast<SA*>(addr),
+  int connfd = ::accept(sockfd, sockaddr_cast(addr), &addrlen);
+  // int connfd = ::accept4(sockfd, sockaddr_cast(addr),
   //                        &addrlen, SOCK_NONBLOCK | SOCK_CLOEXEC);
   if (connfd == -1)
   {
@@ -150,7 +160,8 @@ struct sockaddr_in sockets::getLocalAddr(int sockfd)
 {
   struct sockaddr_in localaddr;
   socklen_t addrlen = sizeof(localaddr);
-  ::getsockname(sockfd, reinterpret_cast<SA*>(&localaddr), &addrlen);
+  ::getsockname(sockfd, sockaddr_cast(&localaddr), &addrlen);
   // FIXME check
   return localaddr;
 }
+

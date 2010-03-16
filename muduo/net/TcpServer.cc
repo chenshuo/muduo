@@ -56,6 +56,17 @@ TcpServer::TcpServer(EventLoop* loop, const InetAddress& listenAddr)
 
 TcpServer::~TcpServer()
 {
+  loop_->assertInLoopThread();
+
+  for (ConnectionMap::iterator it(connections_.begin());
+      it != connections_.end(); ++it)
+  {
+    TcpConnectionPtr conn = it->second;
+    it->second.reset();
+    conn->getLoop()->runInLoop(
+      boost::bind(&TcpConnection::connectDestroyed, conn));
+    conn.reset();
+  }
 }
 
 void TcpServer::setThreadNum(int numThreads)
@@ -110,6 +121,7 @@ void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn)
   size_t n = connections_.erase(conn->name());
   assert(n == 1);
   EventLoop* ioLoop = conn->getLoop();
-  ioLoop->runDelayDestruct(boost::bind(&TcpConnection::connectDestroyed, conn));
+  ioLoop->queueInLoop(
+      boost::bind(&TcpConnection::connectDestroyed, conn));
 }
 

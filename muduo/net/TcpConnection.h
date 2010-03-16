@@ -95,7 +95,7 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
   void connectDestroyed();
 
  private:
-  enum States { kDisconnected, kConnecting, kConnected };
+  enum States { kDisconnected, kConnecting, kConnected, kDisconnecting };
   void handleRead();
   void handleWrite();
   void handleClose();

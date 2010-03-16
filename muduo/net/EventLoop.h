@@ -41,6 +41,7 @@
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
 
+#include <muduo/base/Mutex.h>
 #include <muduo/base/UtcTime.h>
 #include <muduo/net/Callbacks.h>
 #include <muduo/net/TimerId.h>
@@ -86,7 +87,7 @@ class EventLoop : boost::noncopyable
   /// Queues callback in the loop thread.
   /// Runs after finish pooling.
   /// Safe to call from other threads.
-  void runDelayDestruct(const Functor& cb);
+  void queueInLoop(const Functor& cb);
   ///
   TimerId runAt(const UtcTime& time, const TimerCallback& cb);
   ///
@@ -109,11 +110,13 @@ class EventLoop : boost::noncopyable
 
  private:
   void wakedup();
+  void doPendingFunctors();
 
   typedef std::vector<Channel*> ChannelList;
 
   bool looping_; /* atomic */
   bool quit_; /* atomic */
+  bool eventHandling_;
   const pid_t threadId_;
   boost::scoped_ptr<Poller> poller_;
   boost::scoped_ptr<TimerQueue> timerQueue_;
@@ -122,6 +125,8 @@ class EventLoop : boost::noncopyable
   // we don't expose Channel to client.
   boost::scoped_ptr<Channel> wakeupChannel_;
   ChannelList activeChannels_;
+  MutexLock mutex_;
+  std::vector<Functor> pendingFunctors_; // @BuardedBy mutex_
 };
 
 }

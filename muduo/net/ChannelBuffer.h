@@ -74,6 +74,15 @@ class ChannelBuffer : public muduo::copyable
     assert(prependableBytes() == kCheapPrepend);
   }
 
+  // default copy-ctor, dtor and assignment are fine
+
+  void swap(ChannelBuffer& rhs)
+  {
+    buffer_.swap(rhs.buffer_);
+    std::swap(readerIndex_, rhs.readerIndex_);
+    std::swap(writerIndex_, rhs.writerIndex_);
+  }
+
   size_t readableBytes()
   { return writerIndex_ - readerIndex_; }
 
@@ -86,12 +95,19 @@ class ChannelBuffer : public muduo::copyable
   const char* peek() const
   { return begin() + readerIndex_; }
 
-  char* retrieve(size_t len)
+  // retrieve returns void, to prevent
+  // string str(retrieve(readableBytes()), readableBytes());
+  // the evaluation of two functions are unspecified
+  void retrieve(size_t len)
   {
     assert(len <= readableBytes());
-    char* p = begin() + readerIndex_;
     readerIndex_ += len;
-    return p;
+  }
+
+  void retrieveAll()
+  {
+    readerIndex_ = kCheapPrepend;
+    writerIndex_ = kCheapPrepend;
   }
 
   string retrieveAsString()
@@ -118,6 +134,13 @@ class ChannelBuffer : public muduo::copyable
     assert(len <= prependableBytes());
     readerIndex_ -= len;
     std::copy(data, data+len, begin()+readerIndex_);
+  }
+
+  void shrink(size_t reserve)
+  {
+   std::vector<char> buf(kCheapPrepend+readableBytes()+reserve);
+   std::copy(peek(), peek()+readableBytes(), buf.begin()+kCheapPrepend);
+   buf.swap(buffer_);
   }
 
   /// Read data directly into buffer.
