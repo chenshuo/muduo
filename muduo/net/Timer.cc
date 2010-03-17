@@ -33,7 +33,7 @@
 using namespace muduo;
 using namespace muduo::net;
 
-void Timer::restart(UtcTime now)
+void Timer::restart(Timestamp now)
 {
   if (repeat_)
   {
@@ -41,6 +41,6 @@ void Timer::restart(UtcTime now)
   }
   else
   {
-    expiration_ = UtcTime::invalid();
+    expiration_ = Timestamp::invalid();
   }
 }

@@ -35,6 +35,7 @@
 #ifndef MUDUO_NET_TCPCONNECTION_H
 #define MUDUO_NET_TCPCONNECTION_H
 
+#include <muduo/base/Mutex.h>
 #include <muduo/base/Types.h>
 #include <muduo/net/Callbacks.h>
 #include <muduo/net/ChannelBuffer.h>
@@ -78,6 +79,9 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
   bool connected() const { return state_ == kConnected; }
   bool connecting() const { return state_ == kConnecting; }
 
+  void send(const string& message);
+  // void send(const ChannelBuffer& message);
+  void send(ChannelBuffer* message);  // this one will retrieve data
   void shutdown();
 
   void setConnectionCallback(ConnectionCallback cb)
@@ -96,10 +100,11 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
 
  private:
   enum States { kDisconnected, kConnecting, kConnected, kDisconnecting };
-  void handleRead();
+  void handleRead(Timestamp receiveTime);
   void handleWrite();
   void handleClose();
   void handleError();
+  void sendInLoop(const string& message);
 
   EventLoop* loop_;
   string name_;
@@ -113,6 +118,7 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
   MessageCallback messageCallback_;
   ConnectionCallback closeCallback_;
   ChannelBuffer inputBuffer_;
+  // MutexLock mutex_;
   ChannelBuffer outputBuffer_;
 };
 

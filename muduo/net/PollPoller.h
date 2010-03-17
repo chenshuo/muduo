@@ -56,7 +56,7 @@ class PollPoller : public Poller
 
   virtual ~PollPoller();
 
-  virtual void poll(int timeoutMs, ChannelList* activeChannels);
+  virtual Timestamp poll(int timeoutMs, ChannelList* activeChannels);
   virtual void updateChannel(Channel* channel);
   virtual void removeChannel(Channel* channel);
 

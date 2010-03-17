@@ -54,7 +54,7 @@ class EPollPoller : public Poller
 
   virtual ~EPollPoller();
 
-  virtual void poll(int timeoutMs, ChannelList* activeChannels);
+  virtual Timestamp poll(int timeoutMs, ChannelList* activeChannels);
   virtual void updateChannel(Channel* channel);
 
  private:

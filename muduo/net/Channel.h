@@ -40,6 +40,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
+#include <muduo/base/Timestamp.h>
+
 namespace muduo
 {
 namespace net
@@ -57,16 +59,17 @@ class Channel : boost::noncopyable
 {
  public:
   typedef boost::function<void()> EventCallback;
+  typedef boost::function<void(Timestamp)> ReadEventCallback;
   static const int kNoneEvent;
   static const int kReadEvent;
   static const int kWriteEvent;
-  static const int kErrorvent;
+  // static const int kErrorvent;
 
   Channel(EventLoop* loop, int fd);
   ~Channel();
 
-  void handleEvent();
-  void setReadCallback(const EventCallback& cb)
+  void handleEvent(Timestamp receiveTime);
+  void setReadCallback(const ReadEventCallback& cb)
   { readCallback_ = cb; }
   void setWriteCallback(const EventCallback& cb)
   { writeCallback_ = cb; }
@@ -92,7 +95,7 @@ class Channel : boost::noncopyable
   // void set_loop(EventLoop* loop) { loop_ = loop; }
 
  private:
-  void handleEventWithGuard();
+  void handleEventWithGuard(Timestamp receiveTime);
 
   EventLoop* loop_;
   const int  fd_;
@@ -102,7 +105,7 @@ class Channel : boost::noncopyable
 
   boost::weak_ptr<void> tie_;
   bool tied_;
-  EventCallback readCallback_;
+  ReadEventCallback readCallback_;
   EventCallback writeCallback_;
   EventCallback closeCallback_;
   EventCallback errorCallback_;

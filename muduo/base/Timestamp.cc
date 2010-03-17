@@ -1,4 +1,4 @@
-#include <muduo/base/UtcTime.h>
+#include <muduo/base/Timestamp.h>
 
 #include <sys/time.h>
 #include <stdio.h>
@@ -10,19 +10,19 @@
 
 using namespace muduo;
 
-BOOST_STATIC_ASSERT(sizeof(UtcTime) == sizeof(int64_t));
+BOOST_STATIC_ASSERT(sizeof(Timestamp) == sizeof(int64_t));
 
-UtcTime::UtcTime()
+Timestamp::Timestamp()
   : microSecondsSinceEpoch_(0)
 {
 }
 
-UtcTime::UtcTime(int64_t microseconds)
+Timestamp::Timestamp(int64_t microseconds)
   : microSecondsSinceEpoch_(microseconds)
 {
 }
 
-string UtcTime::toString() const
+string Timestamp::toString() const
 {
   char buf[32] = {0};
   int64_t seconds = microSecondsSinceEpoch_ / kMicroSecondsPerSecond;
@@ -31,16 +31,16 @@ string UtcTime::toString() const
   return buf;
 }
 
-UtcTime UtcTime::now()
+Timestamp Timestamp::now()
 {
   struct timeval tv;
   gettimeofday(&tv, NULL);
   int64_t seconds = tv.tv_sec;
-  return UtcTime(seconds * kMicroSecondsPerSecond + tv.tv_usec);
+  return Timestamp(seconds * kMicroSecondsPerSecond + tv.tv_usec);
 }
 
-UtcTime UtcTime::invalid()
+Timestamp Timestamp::invalid()
 {
-  return UtcTime();
+  return Timestamp();
 }
 

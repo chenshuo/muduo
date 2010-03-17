@@ -40,6 +40,7 @@
 
 namespace muduo
 {
+class Timestamp;
 namespace net
 {
 
@@ -53,7 +54,8 @@ typedef boost::function<void (const TcpConnectionPtr&)> ConnectionCallback;
 
 // the data has been read to (buf, len)
 typedef boost::function<void (const TcpConnectionPtr&,
-                              ChannelBuffer*)> MessageCallback;
+                              ChannelBuffer*,
+                              Timestamp receiveTime)> MessageCallback;
 
 }
 }

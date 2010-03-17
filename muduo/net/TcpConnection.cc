@@ -56,7 +56,7 @@ TcpConnection::TcpConnection(EventLoop* loop,
     peerAddr_(peerAddr)
 {
   channel_->setReadCallback(
-      boost::bind(&TcpConnection::handleRead, this));
+      boost::bind(&TcpConnection::handleRead, this, _1));
   channel_->setWriteCallback(
       boost::bind(&TcpConnection::handleWrite, this));
   channel_->setCloseCallback(
@@ -68,9 +68,35 @@ TcpConnection::TcpConnection(EventLoop* loop,
 
 TcpConnection::~TcpConnection()
 {
+}
+
+void TcpConnection::send(const string& message)
+{
+  if (state_ == kConnected)
+  {
+    loop_->runInLoop(
+        boost::bind(&TcpConnection::sendInLoop, this, message));
+    /*
+    {
+      MutexLockGuard lock(mutex_);
+      outputBuffer_.append(message.data(), message.size());
+    }
+    channel_->set_events(Channel::kReadEvent | Channel::kWriteEvent);
+    loop_->runInLoop(
+        boost::bind(&EventLoop::updateChannel, loop_, get_pointer(channel_)));
+    */
+  }
+}
+
+void TcpConnection::sendInLoop(const string& message)
+{
   loop_->assertInLoopThread();
-  loop_->removeChannel(get_pointer(channel_));
-  printf("%p %s dtor\n", this, name_.c_str());
+  outputBuffer_.append(message.data(), message.size());
+  if ((channel_->events() & Channel::kWriteEvent) == 0)
+  {
+    channel_->set_events(Channel::kReadEvent | Channel::kWriteEvent);
+    loop_->updateChannel(get_pointer(channel_));
+  }
 }
 
 void TcpConnection::shutdown()
@@ -96,16 +122,19 @@ void TcpConnection::connectEstablished()
 
 void TcpConnection::connectDestroyed()
 {
+  loop_->assertInLoopThread();
+  loop_->removeChannel(get_pointer(channel_));
+  printf("%p %s dtor\n", this, name_.c_str());
 }
 
-void TcpConnection::handleRead()
+void TcpConnection::handleRead(Timestamp receiveTime)
 {
   loop_->assertInLoopThread();
   int savedErrno;
   ssize_t n = inputBuffer_.readFd(channel_->fd(), &savedErrno);
   if (n > 0)
   {
-    messageCallback_(shared_from_this(), &inputBuffer_);
+    messageCallback_(shared_from_this(), &inputBuffer_, receiveTime);
   }
   else if (n == 0)
   {
@@ -119,6 +148,19 @@ void TcpConnection::handleRead()
 
 void TcpConnection::handleWrite()
 {
+  loop_->assertInLoopThread();
+
+  ssize_t n = ::write(channel_->fd(), outputBuffer_.peek(), outputBuffer_.readableBytes());
+  //int savedErrno = errno;
+  if (n > 0)
+  {
+    outputBuffer_.retrieve(n);
+    if (outputBuffer_.readableBytes() == 0)
+    {
+      channel_->set_events(Channel::kReadEvent);
+      loop_->updateChannel(get_pointer(channel_));
+    }
+  }
 }
 
 void TcpConnection::handleClose()

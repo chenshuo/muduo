@@ -53,7 +53,9 @@ EPollPoller::~EPollPoller()
 {
 }
 
-void EPollPoller::poll(int timeoutMs, ChannelList* activeChannels)
+Timestamp EPollPoller::poll(int timeoutMs, ChannelList* activeChannels)
 {
+  Timestamp now(Timestamp::now());
+  return now;
 }
 

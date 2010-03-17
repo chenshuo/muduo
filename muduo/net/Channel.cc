@@ -60,7 +60,7 @@ void Channel::tie(const boost::shared_ptr<void>& obj)
   tied_ = true;
 }
 
-void Channel::handleEvent()
+void Channel::handleEvent(Timestamp receiveTime)
 {
   boost::shared_ptr<void> guard;
   if (tied_)
@@ -68,16 +68,16 @@ void Channel::handleEvent()
     guard = tie_.lock();
     if (guard)
     {
-      handleEventWithGuard();
+      handleEventWithGuard(receiveTime);
     }
   }
   else
   {
-    handleEventWithGuard();
+    handleEventWithGuard(receiveTime);
   }
 }
 
-void Channel::handleEventWithGuard()
+void Channel::handleEventWithGuard(Timestamp receiveTime)
 {
   if ((revents_ & POLLHUP) && !(revents_ & POLLIN))
   {
@@ -96,7 +96,7 @@ void Channel::handleEventWithGuard()
   }
   if (revents_ & (POLLIN | POLLPRI | POLLRDHUP))
   {
-    if (readCallback_) readCallback_();
+    if (readCallback_) readCallback_(receiveTime);
   }
   if (revents_ & POLLOUT)
   {

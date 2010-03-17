@@ -14,7 +14,7 @@ EventLoop* g_loop;
 
 void print(const char* msg)
 {
-  printf("msg %s %s\n", UtcTime::now().toString().c_str(), msg);
+  printf("msg %s %s\n", Timestamp::now().toString().c_str(), msg);
   if (++cnt == 20)
   {
     g_loop->quit();

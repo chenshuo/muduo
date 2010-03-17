@@ -1,21 +1,21 @@
-#include <muduo/base/UtcTime.h>
+#include <muduo/base/Timestamp.h>
 #include <stdio.h>
 
-using muduo::UtcTime;
+using muduo::Timestamp;
 
-void passByConstReference(const UtcTime& x)
+void passByConstReference(const Timestamp& x)
 {
   printf("%s\n", x.toString().c_str());
 }
 
-void passByValue(UtcTime x)
+void passByValue(Timestamp x)
 {
   printf("%s\n", x.toString().c_str());
 }
 
 int main()
 {
-  UtcTime now(UtcTime::now());
+  Timestamp now(Timestamp::now());
   printf("%s\n", now.toString().c_str());
   passByValue(now);
   passByConstReference(now);

@@ -59,23 +59,23 @@ int createTimerfd()
   return timerfd;
 }
 
-struct timespec howMuchTimeFromNow(UtcTime when)
+struct timespec howMuchTimeFromNow(Timestamp when)
 {
   int64_t microseconds = when.microSecondsSinceEpoch()
-                         - UtcTime::now().microSecondsSinceEpoch();
+                         - Timestamp::now().microSecondsSinceEpoch();
   if (microseconds < 100)
   {
     microseconds = 100;
   }
   struct timespec ts;
   ts.tv_sec = static_cast<time_t>(
-      microseconds / UtcTime::kMicroSecondsPerSecond);
+      microseconds / Timestamp::kMicroSecondsPerSecond);
   ts.tv_nsec = static_cast<long>(
-      (microseconds % UtcTime::kMicroSecondsPerSecond) * 1000);
+      (microseconds % Timestamp::kMicroSecondsPerSecond) * 1000);
   return ts;
 }
 
-void resetTimerfd(int timerfd, UtcTime when)
+void resetTimerfd(int timerfd, Timestamp when)
 {
   // wake up loop by timerfd_settime()
   struct itimerspec newValue;
@@ -119,7 +119,7 @@ TimerQueue::~TimerQueue()
 void TimerQueue::timeout()
 {
   loop_->assertInLoopThread();
-  UtcTime now(UtcTime::now());
+  Timestamp now(Timestamp::now());
   uint64_t howmany;
   ssize_t n = ::read(timerfd_, &howmany, sizeof howmany);
   printf("TimerQueue::timeout() timeout %" PRIu64 " at %s\n",
@@ -152,7 +152,7 @@ void TimerQueue::timeout()
     (*it)->run();
   }
 
-  UtcTime nextExpire;
+  Timestamp nextExpire;
   {
     MutexLockGuard lock(mutex_);
     // shall never callback in critical section
@@ -184,7 +184,7 @@ void TimerQueue::timeout()
 }
 
 TimerId TimerQueue::schedule(const TimerCallback& cb,
-                             UtcTime when,
+                             Timestamp when,
                              double interval)
 {
   Timer* timer = new Timer(cb, when, interval);
@@ -206,7 +206,7 @@ TimerId TimerQueue::schedule(const TimerCallback& cb,
 bool TimerQueue::insertWithLockHold(Timer* timer)
 {
   bool earliestChanged = false;
-  UtcTime when = timer->expiration();
+  Timestamp when = timer->expiration();
   TimerList::iterator it = timers_.begin();
   if (it == timers_.end() || (*it)->expiration().after(when))
   {

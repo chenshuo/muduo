@@ -24,7 +24,7 @@ class EchoServer
     server_.setConnectionCallback(
         boost::bind(&EchoServer::onConnection, this, _1));
     server_.setMessageCallback(
-        boost::bind(&EchoServer::onMessage, this, _1, _2));
+        boost::bind(&EchoServer::onMessage, this, _1, _2, _3));
     server_.setThreadNum(numThreads);
   }
 
@@ -49,15 +49,26 @@ class EchoServer
       second = conn;
   }
 
-  void onMessage(const TcpConnectionPtr& conn, ChannelBuffer* buf)
+  void onMessage(const TcpConnectionPtr& conn, ChannelBuffer* buf, Timestamp time)
   {
     string msg(buf->retrieveAsString());
     printf("recv %zu bytes '%s'", msg.size(), msg.c_str());
     if (msg == "exit\n")
-      ::exit(0);
+    {
+      first->shutdown();
+      first.reset();
+      second->shutdown();
+      second.reset();
+      loop_->quit();
+    }
+    if (conn != first && first)
+      first->send(msg);
+    if (conn != second && second)
+      second->send(msg);
     // conn->send(buf);
     // conn->shutdown();
     // loop_->quit();
+    /*
     if (conn == second)
     {
       sleep(10);
@@ -69,6 +80,7 @@ class EchoServer
       first.reset();
       // loop_->quit();
     }
+    */
   }
 
   EventLoop* loop_;

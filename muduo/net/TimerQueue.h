@@ -40,7 +40,7 @@
 #include <boost/noncopyable.hpp>
 
 #include <muduo/base/Mutex.h>
-#include <muduo/base/UtcTime.h>
+#include <muduo/base/Timestamp.h>
 #include <muduo/net/Callbacks.h>
 #include <muduo/net/Channel.h>
 
@@ -69,7 +69,7 @@ class TimerQueue : boost::noncopyable
   ///
   /// Must be thread safe. Usually be called from other threads.
   TimerId schedule(const TimerCallback& cb,
-                   UtcTime when,
+                   Timestamp when,
                    double interval);
 
   void cancel(TimerId timerId);

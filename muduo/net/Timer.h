@@ -39,7 +39,7 @@
 
 #include <boost/noncopyable.hpp>
 
-#include <muduo/base/UtcTime.h>
+#include <muduo/base/Timestamp.h>
 #include <muduo/net/Callbacks.h>
 
 namespace muduo
@@ -52,7 +52,7 @@ namespace net
 class Timer : boost::noncopyable
 {
  public:
-  Timer(const TimerCallback& cb, UtcTime when, double interval)
+  Timer(const TimerCallback& cb, Timestamp when, double interval)
     : cb_(cb),
       expiration_(when),
       interval_(interval),
@@ -64,14 +64,14 @@ class Timer : boost::noncopyable
     cb_();
   }
 
-  UtcTime expiration() const  { return expiration_; }
+  Timestamp expiration() const  { return expiration_; }
   bool repeat() const { return repeat_; }
 
-  void restart(UtcTime now);
+  void restart(Timestamp now);
 
  private:
   const TimerCallback cb_;
-  UtcTime expiration_;
+  Timestamp expiration_;
   const double interval_;
   const bool repeat_;
 };

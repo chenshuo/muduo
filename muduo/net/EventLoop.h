@@ -42,7 +42,7 @@
 #include <boost/scoped_ptr.hpp>
 
 #include <muduo/base/Mutex.h>
-#include <muduo/base/UtcTime.h>
+#include <muduo/base/Timestamp.h>
 #include <muduo/net/Callbacks.h>
 #include <muduo/net/TimerId.h>
 
@@ -89,7 +89,7 @@ class EventLoop : boost::noncopyable
   /// Safe to call from other threads.
   void queueInLoop(const Functor& cb);
   ///
-  TimerId runAt(const UtcTime& time, const TimerCallback& cb);
+  TimerId runAt(const Timestamp& time, const TimerCallback& cb);
   ///
   /// Runs callback after @c delay seconds.
   /// Safe to call from other threads.

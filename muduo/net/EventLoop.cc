@@ -104,13 +104,13 @@ void EventLoop::loop()
   while (!quit_)
   {
     activeChannels_.clear();
-    poller_->poll(kPollTimeMs, &activeChannels_);
+    Timestamp receiveTime = poller_->poll(kPollTimeMs, &activeChannels_);
     // TODO sort channel by priority
     eventHandling_ = true;
     for (ChannelList::iterator it = activeChannels_.begin();
         it != activeChannels_.end(); ++it)
     {
-      (*it)->handleEvent();
+      (*it)->handleEvent(receiveTime);
       // FIXME if one handleEvent() destroys XXX HACK
     }
     eventHandling_ = false;
@@ -152,20 +152,20 @@ void EventLoop::queueInLoop(const Functor& cb)
   pendingFunctors_.push_back(cb);
 }
 
-TimerId EventLoop::runAt(const UtcTime& time, const TimerCallback& cb)
+TimerId EventLoop::runAt(const Timestamp& time, const TimerCallback& cb)
 {
   return timerQueue_->schedule(cb, time, 0.0);
 }
 
 TimerId EventLoop::runAfter(double delay, const TimerCallback& cb)
 {
-  UtcTime time(addTime(UtcTime::now(), delay));
+  Timestamp time(addTime(Timestamp::now(), delay));
   return runAt(time, cb);
 }
 
 TimerId EventLoop::runEvery(double interval, const TimerCallback& cb)
 {
-  UtcTime time(addTime(UtcTime::now(), interval));
+  Timestamp time(addTime(Timestamp::now(), interval));
   return timerQueue_->schedule(cb, time, interval);
 }
 
