@@ -5,6 +5,7 @@ set(net_SRCS
   DefaultPoller.cc
   EPollPoller.cc
   EventLoop.cc
+  EventLoopPool.cc
   InetAddress.cc
   Poller.cc
   PollPoller.cc
@@ -12,7 +13,6 @@ set(net_SRCS
   SocketsOps.cc
   TcpConnection.cc
   TcpServer.cc
-  ThreadModel.cc
   Timer.cc
   TimerQueue.cc
   )

@@ -28,7 +28,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <muduo/net/ThreadModel.h>
+#include <muduo/net/EventLoopPool.h>
 
 #include <muduo/base/Thread.h>
 #include <muduo/net/EventLoop.h>
@@ -39,7 +39,7 @@ using namespace muduo;
 using namespace muduo::net;
 
 
-ThreadModel::ThreadModel(EventLoop* baseLoop)
+EventLoopPool::EventLoopPool(EventLoop* baseLoop)
   : baseLoop_(baseLoop),
     started_(false),
     exiting_(false),
@@ -50,7 +50,7 @@ ThreadModel::ThreadModel(EventLoop* baseLoop)
 {
 }
 
-ThreadModel::~ThreadModel()
+EventLoopPool::~EventLoopPool()
 {
   exiting_ = true;
   for (size_t i = 0; i < loopPool_.size(); ++i)
@@ -66,14 +66,14 @@ ThreadModel::~ThreadModel()
   }
 }
 
-void ThreadModel::start()
+void EventLoopPool::start()
 {
   assert(!started_);
   baseLoop_->assertInLoopThread();
 
   started_ = true;
 
-  Thread::ThreadFunc func = boost::bind(&ThreadModel::threadFunc, this);
+  Thread::ThreadFunc func = boost::bind(&EventLoopPool::threadFunc, this);
 
   for (int i = 0; i < numThreads_; ++i)
   {
@@ -91,7 +91,7 @@ void ThreadModel::start()
   }
 }
 
-EventLoop* ThreadModel::getNextLoop()
+EventLoop* EventLoopPool::getNextLoop()
 {
   baseLoop_->assertInLoopThread();
   EventLoop* loop = baseLoop_;
@@ -109,7 +109,7 @@ EventLoop* ThreadModel::getNextLoop()
   return loop;
 }
 
-void ThreadModel::threadFunc()
+void EventLoopPool::threadFunc()
 {
   EventLoop loop;
 

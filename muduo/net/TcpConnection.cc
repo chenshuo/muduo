@@ -68,6 +68,7 @@ TcpConnection::TcpConnection(EventLoop* loop,
 
 TcpConnection::~TcpConnection()
 {
+  printf("%p %s dtor\n", this, name_.c_str());
 }
 
 void TcpConnection::send(const string& message)
@@ -123,8 +124,15 @@ void TcpConnection::connectEstablished()
 void TcpConnection::connectDestroyed()
 {
   loop_->assertInLoopThread();
+  if (state_ == kConnected)
+  {
+    state_ = kDisconnected;
+    sockets::shutdown(channel_->fd());
+    channel_->set_events(Channel::kNoneEvent);
+    loop_->updateChannel(get_pointer(channel_));
+    connectionCallback_(shared_from_this());
+  }
   loop_->removeChannel(get_pointer(channel_));
-  printf("%p %s dtor\n", this, name_.c_str());
 }
 
 void TcpConnection::handleRead(Timestamp receiveTime)

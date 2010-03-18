@@ -1,4 +1,4 @@
-#include <muduo/net/ThreadModel.h>
+#include <muduo/net/EventLoopPool.h>
 #include <muduo/net/EventLoop.h>
 #include <muduo/base/Thread.h>
 
@@ -23,7 +23,7 @@ int main()
 
   {
     printf("Single thread:\n");
-    ThreadModel model(&loop);
+    EventLoopPool model(&loop);
     model.setThreadNum(0);
     model.start();
     assert(model.getNextLoop() == &loop);
@@ -33,7 +33,7 @@ int main()
 
   {
     printf("Another thread:\n");
-    ThreadModel model(&loop);
+    EventLoopPool model(&loop);
     model.setThreadNum(1);
     model.start();
     EventLoop* nextLoop = model.getNextLoop();
@@ -44,7 +44,7 @@ int main()
 
   {
     printf("Three threads:\n");
-    ThreadModel model(&loop);
+    EventLoopPool model(&loop);
     model.setThreadNum(3);
     model.start();
     EventLoop* nextLoop = model.getNextLoop();

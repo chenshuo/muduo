@@ -47,6 +47,7 @@ using namespace muduo::net;
 
 namespace
 {
+
 int createTimerfd()
 {
   int timerfd = ::timerfd_create(CLOCK_MONOTONIC,
@@ -89,6 +90,7 @@ void resetTimerfd(int timerfd, Timestamp when)
     perror("Error in timerfd_settime");
   }
 }
+
 }
 
 TimerQueue::TimerQueue(EventLoop* loop)

@@ -51,7 +51,7 @@ namespace net
 class Acceptor;
 class EventLoop;
 class InetAddress;
-class ThreadModel;
+class EventLoopPool;
 
 ///
 /// TCP server, supports single-threaded and thread-pool models.
@@ -110,7 +110,7 @@ class TcpServer : boost::noncopyable
   EventLoop* loop_;  // the acceptor loop
   string name_;
   boost::scoped_ptr<Acceptor> acceptor_; // avoid revealing Acceptor
-  boost::scoped_ptr<ThreadModel> threadModel_;
+  boost::scoped_ptr<EventLoopPool> threadPool_;
   ConnectionCallback connectionCallback_;
   MessageCallback messageCallback_;
   const string serverName_;

@@ -85,7 +85,7 @@ EventLoop::EventLoop()
   }
   wakeupChannel_->setReadCallback(
       boost::bind(&EventLoop::wakedup, this));
-  // we are always reading the wakeupfd, like the old pipe(2) way.
+  // we are always reading the wakeupfd
   wakeupChannel_->set_events(Channel::kReadEvent);
   updateChannel(get_pointer(wakeupChannel_));
 }
@@ -111,7 +111,6 @@ void EventLoop::loop()
         it != activeChannels_.end(); ++it)
     {
       (*it)->handleEvent(receiveTime);
-      // FIXME if one handleEvent() destroys XXX HACK
     }
     eventHandling_ = false;
     doPendingFunctors();
@@ -122,6 +121,10 @@ void EventLoop::loop()
 void EventLoop::quit()
 {
   quit_ = true;
+  if (threadId_ == CurrentThread::tid())
+  {
+    wakeup();
+  }
 }
 
 void EventLoop::wakeup()
@@ -143,6 +146,7 @@ void EventLoop::runInLoop(const Functor& cb)
   else
   {
     queueInLoop(cb);
+    wakeup();
   }
 }
 
@@ -179,6 +183,7 @@ void EventLoop::updateChannel(Channel* channel)
 void EventLoop::removeChannel(Channel* channel)
 {
   assert(channel->getLoop() == this);
+  assertInLoopThread();
   poller_->removeChannel(channel);
 }
 
@@ -189,7 +194,12 @@ void EventLoop::assertInLoopThread()
 
 void EventLoop::wakedup()
 {
-  // what's up
+  uint64_t one = 1;
+  ssize_t n = ::read(wakeupFd_, &one, sizeof one);
+  if (n != sizeof one)
+  {
+    fprintf(stderr, "EventLoop::wakedup() write %zd bytes instead of 8\n", n);
+  }
 }
 
 void EventLoop::doPendingFunctors()

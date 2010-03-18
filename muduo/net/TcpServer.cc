@@ -32,8 +32,8 @@
 
 #include <muduo/net/Acceptor.h>
 #include <muduo/net/EventLoop.h>
+#include <muduo/net/EventLoopPool.h>
 #include <muduo/net/SocketsOps.h>
-#include <muduo/net/ThreadModel.h>
 
 #include <boost/bind.hpp>
 
@@ -46,7 +46,7 @@ TcpServer::TcpServer(EventLoop* loop, const InetAddress& listenAddr)
   : loop_(loop),
     name_(listenAddr.toHostPort()),
     acceptor_(new Acceptor(loop, listenAddr)),
-    threadModel_(new ThreadModel(loop)),
+    threadPool_(new EventLoopPool(loop)),
     started_(false),
     nextConnId_(1)
 {
@@ -72,7 +72,7 @@ TcpServer::~TcpServer()
 void TcpServer::setThreadNum(int numThreads)
 {
   assert(0 <= numThreads);
-  threadModel_->setThreadNum(numThreads);
+  threadPool_->setThreadNum(numThreads);
 }
 
 void TcpServer::start()
@@ -80,7 +80,7 @@ void TcpServer::start()
   if (!started_)
   {
     started_ = true;
-    threadModel_->start();
+    threadPool_->start();
   }
 
   if (!acceptor_->listenning())
@@ -92,7 +92,7 @@ void TcpServer::start()
 void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
 {
   loop_->assertInLoopThread();
-  EventLoop* ioLoop = threadModel_->getNextLoop();
+  EventLoop* ioLoop = threadPool_->getNextLoop();
   char buf[32];
   snprintf(buf, sizeof buf, "%s#%d", name_.c_str(), nextConnId_);
   ++nextConnId_;
