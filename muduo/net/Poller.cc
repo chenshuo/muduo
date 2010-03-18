@@ -29,10 +29,22 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <muduo/net/Poller.h>
+#include <muduo/net/EventLoop.h>
 
 using namespace muduo;
 using namespace muduo::net;
 
+Poller::Poller(EventLoop* loop)
+  : loop_(loop)
+{
+}
+
 Poller::~Poller()
 {
 }
+
+void Poller::assertInLoopThread()
+{
+  loop_->assertInLoopThread();
+}
+

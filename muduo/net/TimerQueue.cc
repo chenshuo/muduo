@@ -30,16 +30,13 @@
 
 #include <muduo/net/TimerQueue.h>
 
+#include <muduo/base/Logging.h>
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/Timer.h>
 #include <muduo/net/TimerId.h>
 
 #include <boost/bind.hpp>
 
-#define __STDC_FORMAT_MACROS
-#include <inttypes.h> // FIXME remove
-#undef __STDC_FORMAT_MACROS
-#include <stdio.h> // FIXME perror
 #include <sys/timerfd.h>
 
 using namespace muduo;
@@ -54,8 +51,7 @@ int createTimerfd()
                                  TFD_NONBLOCK | TFD_CLOEXEC);
   if (timerfd < 0)
   {
-    perror("Failed in timerfd_create");
-    abort();
+    LOG_SYSFATAL << "Failed in timerfd_create";
   }
   return timerfd;
 }
@@ -87,7 +83,7 @@ void resetTimerfd(int timerfd, Timestamp when)
   int ret = timerfd_settime(timerfd, 0, &newValue, &oldValue);
   if (ret)
   {
-    perror("Error in timerfd_settime");
+    LOG_SYSERR << "timerfd_settime()";
   }
 }
 
@@ -124,12 +120,10 @@ void TimerQueue::timeout()
   Timestamp now(Timestamp::now());
   uint64_t howmany;
   ssize_t n = ::read(timerfd_, &howmany, sizeof howmany);
-  printf("TimerQueue::timeout() timeout %" PRIu64 " at %s\n",
-      howmany, now.toString().c_str());
+  LOG_DEBUG << "TimerQueue::timeout() " << howmany << " at " << now.toString();
   if (n != sizeof howmany)
   {
-    fprintf(stderr, "TimerQueue::timeout() "
-        "reads %zd bytes instead of 8\n", n);
+    LOG_ERROR << "TimerQueue::timeout() reads " << n << " bytes instead of 8";
   }
 
   TimerList expired;

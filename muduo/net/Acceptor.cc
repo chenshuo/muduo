@@ -30,6 +30,7 @@
 
 #include <muduo/net/Acceptor.h>
 
+#include <muduo/base/Logging.h>
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/InetAddress.h>
 #include <muduo/net/SocketsOps.h>
@@ -66,11 +67,12 @@ void Acceptor::accept()
 {
   loop_->assertInLoopThread();
   InetAddress peerAddr(0);
+  //FIXME loop until no more
   int connfd = acceptSocket_.accept(&peerAddr);
   if (connfd >= 0)
   {
     string hostport = peerAddr.toHostPort();
-    printf("Connecting from %s\n", hostport.c_str());
+    LOG_INFO << "Accepts of " << hostport;
     if (newConnectionCallback_)
     {
       newConnectionCallback_(connfd, peerAddr);
@@ -82,7 +84,7 @@ void Acceptor::accept()
   }
   else
   {
-    //FIXME log error
+    LOG_SYSERR << "accept";
   }
 }
 

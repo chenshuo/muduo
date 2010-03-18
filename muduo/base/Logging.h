@@ -34,8 +34,8 @@ class Logger
   boost::scoped_ptr<LoggerImpl> impl_;
 };
 
-#define LOG_TRACE Logger(__FILE__, __LINE__, Logger::TRACE, __PRETTY_FUNCTION__).stream()
-#define LOG_DEBUG Logger(__FILE__, __LINE__, Logger::DEBUG, __PRETTY_FUNCTION__).stream()
+#define LOG_TRACE Logger(__FILE__, __LINE__, Logger::TRACE, __func__).stream()
+#define LOG_DEBUG Logger(__FILE__, __LINE__, Logger::DEBUG, __func__).stream()
 #define LOG_INFO Logger(__FILE__, __LINE__).stream()
 #define LOG_WARN Logger(__FILE__, __LINE__, Logger::WARN).stream()
 #define LOG_ERROR Logger(__FILE__, __LINE__, Logger::ERROR).stream()

@@ -54,6 +54,7 @@ class PollPoller : public Poller
 {
  public:
 
+  PollPoller(EventLoop* loop);
   virtual ~PollPoller();
 
   virtual Timestamp poll(int timeoutMs, ChannelList* activeChannels);

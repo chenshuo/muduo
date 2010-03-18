@@ -104,7 +104,7 @@ void TcpConnection::shutdown()
 {
   if (state_ == kConnected)
   {
-    state_ = kDisconnecting;
+    setState(kDisconnecting);
     sockets::shutdown(channel_->fd());
     loop_->runInLoop(boost::bind(&TcpConnection::handleClose, this));
   }
@@ -113,7 +113,7 @@ void TcpConnection::shutdown()
 void TcpConnection::connectEstablished()
 {
   loop_->assertInLoopThread();
-  state_ = kConnected;
+  setState(kConnected);
   channel_->tie(shared_from_this());
   channel_->set_events(Channel::kReadEvent);
   loop_->updateChannel(get_pointer(channel_));
@@ -126,7 +126,7 @@ void TcpConnection::connectDestroyed()
   loop_->assertInLoopThread();
   if (state_ == kConnected)
   {
-    state_ = kDisconnected;
+    setState(kDisconnected);
     sockets::shutdown(channel_->fd());
     channel_->set_events(Channel::kNoneEvent);
     loop_->updateChannel(get_pointer(channel_));
@@ -175,7 +175,7 @@ void TcpConnection::handleClose()
 {
   loop_->assertInLoopThread();
   // we don't close fd, leave it to dtor, so we can find leaks easily.
-  state_ = kDisconnected;
+  setState(kDisconnected);
   channel_->set_events(Channel::kNoneEvent);
   loop_->updateChannel(get_pointer(channel_));
 

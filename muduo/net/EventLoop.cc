@@ -48,7 +48,7 @@ namespace
 {
 __thread EventLoop* t_loopInThisThread = 0;
 
-const int kPollTimeMs = 10000;
+const int kPollTimeMs = 60000;
 
 int createEventfd()
 {
@@ -67,7 +67,7 @@ EventLoop::EventLoop()
     quit_(false),
     eventHandling_(false),
     threadId_(CurrentThread::tid()),
-    poller_(Poller::newDefaultPoller()),
+    poller_(Poller::newDefaultPoller(this)),
     timerQueue_(new TimerQueue(this)),
     wakeupFd_(createEventfd()),
     wakeupChannel_(new Channel(this, wakeupFd_))

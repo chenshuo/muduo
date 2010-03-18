@@ -46,6 +46,7 @@ namespace net
 {
 
 class Channel;
+class EventLoop;
 ///
 /// Base class for IO Multiplexing
 ///
@@ -55,6 +56,7 @@ class Poller : boost::noncopyable
  public:
   typedef std::vector<Channel*> ChannelList;
 
+  Poller(EventLoop* loop);
   virtual ~Poller();
 
   /// Polls the I/O events.
@@ -69,7 +71,13 @@ class Poller : boost::noncopyable
   /// Must be called in the loop thread.
   virtual void removeChannel(Channel* channel) = 0;
 
-  static Poller* newDefaultPoller();
+  static Poller* newDefaultPoller(EventLoop* loop);
+
+ protected:
+  void assertInLoopThread();
+
+ private:
+  EventLoop* loop_;
 };
 
 }

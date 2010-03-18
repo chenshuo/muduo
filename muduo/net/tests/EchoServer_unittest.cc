@@ -40,10 +40,9 @@ class EchoServer
   TcpConnectionPtr second;
   void onConnection(const TcpConnectionPtr& conn)
   {
-    printf("conn %s -> %s %s\n",
-        conn->peerAddress().toHostPort().c_str(),
-        conn->localAddress().toHostPort().c_str(),
-        conn->connected() ? "UP" : "DOWN");
+    LOG_TRACE << conn->peerAddress().toHostPort() << " -> "
+        << conn->localAddress().toHostPort() << " is "
+        << (conn->connected() ? "UP" : "DOWN");
     if (!first)
       first = conn;
     else if (!second)
@@ -53,7 +52,7 @@ class EchoServer
   void onMessage(const TcpConnectionPtr& conn, ChannelBuffer* buf, Timestamp time)
   {
     string msg(buf->retrieveAsString());
-    printf("recv %zu bytes '%s'", msg.size(), msg.c_str());
+    LOG_TRACE << conn->name() << " recv " << msg.size() << " bytes";
     if (msg == "exit\n")
     {
       first->shutdown();

@@ -77,7 +77,6 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
   const InetAddress& localAddress() { return localAddr_; }
   const InetAddress& peerAddress() { return peerAddr_; }
   bool connected() const { return state_ == kConnected; }
-  bool connecting() const { return state_ == kConnecting; }
 
   void send(const string& message);
   // void send(const ChannelBuffer& message);
@@ -105,6 +104,7 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
   void handleClose();
   void handleError();
   void sendInLoop(const string& message);
+  void setState(States s) { state_ = s; }
 
   EventLoop* loop_;
   string name_;

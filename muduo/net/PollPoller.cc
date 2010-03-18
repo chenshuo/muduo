@@ -30,14 +30,19 @@
 
 #include <muduo/net/PollPoller.h>
 
+#include <muduo/base/Logging.h>
 #include <muduo/base/Types.h>
 #include <muduo/net/Channel.h>
 
 #include <assert.h>
-#include <stdio.h>
 
 using namespace muduo;
 using namespace muduo::net;
+
+PollPoller::PollPoller(EventLoop* loop)
+  : Poller(loop)
+{
+}
 
 PollPoller::~PollPoller()
 {
@@ -50,16 +55,16 @@ Timestamp PollPoller::poll(int timeoutMs, ChannelList* activeChannels)
   Timestamp now(Timestamp::now());
   if (numEvents > 0)
   {
+    LOG_TRACE << numEvents << " events happended";
     fillActiveChannels(numEvents, activeChannels);
-    printf("%d events\n", numEvents);
   }
   else if (numEvents == 0)
   {
-    printf("nothing\n");
+    LOG_TRACE << " nothing happended";
   }
   else
   {
-    perror("PollPoller::poll");
+    LOG_SYSERR << "PollPoller::poll()";
   }
   return now;
 }
@@ -86,9 +91,8 @@ void PollPoller::fillActiveChannels(int numEvents,
 
 void PollPoller::updateChannel(Channel* channel)
 {
-  // assert(channel->getLoop()
-  //assert in loop thread
-
+  Poller::assertInLoopThread();
+  LOG_TRACE << "fd = " << channel->fd() << " events = " << channel->events();
   if (channel->index() < 0)
   {
     // a new one, add to pollfds_
@@ -116,17 +120,17 @@ void PollPoller::updateChannel(Channel* channel)
     {
       // ignore this pollfd
       pfd.fd = -channel->fd()-1;
-      printf("set pfd.fd=-fd-1 for fd=%d\n", channel->fd());
     }
   }
 }
 
 void PollPoller::removeChannel(Channel* channel)
 {
-  //assert in loop thread
+  Poller::assertInLoopThread();
+  LOG_TRACE << "fd = " << channel->fd();
   assert(channels_.find(channel->fd()) != channels_.end());
   assert(channels_[channel->fd()] == channel);
-  // assert(channel->events() == Channel::kNoneEvent);
+  assert(channel->events() == Channel::kNoneEvent);
   int idx = channel->index();
   assert(0 <= idx && idx < static_cast<int>(pollfds_.size()));
   const struct pollfd& pfd = pollfds_[idx];
