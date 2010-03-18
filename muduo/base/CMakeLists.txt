@@ -1,4 +1,5 @@
 set(base_SRCS 
+  Logging.cc
   Timestamp.cc
   Thread.cc
   )

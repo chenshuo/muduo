@@ -30,6 +30,7 @@ class Timestamp : public muduo::copyable
   // default copy/assignment are Okay
 
   string toString() const;
+  string toFormattedString() const;
 
   bool valid() const { return microSecondsSinceEpoch_ > 0; }
 

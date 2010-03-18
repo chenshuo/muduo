@@ -1,5 +1,6 @@
 #include <muduo/net/TcpServer.h>
 
+#include <muduo/base/Logging.h>
 #include <muduo/base/Thread.h>
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/InetAddress.h>
@@ -93,7 +94,7 @@ void threadFunc(uint16_t port)
 
 int main(int argc, char* argv[])
 {
-  printf("main(): pid = %d, tid = %d\n", getpid(), CurrentThread::tid());
+  LOG_INFO << "pid = " << getpid() << ", tid = " << CurrentThread::tid();
   numThreads = argc - 1;
   EventLoop loop;
   InetAddress listenAddr(2000);

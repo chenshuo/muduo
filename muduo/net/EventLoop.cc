@@ -30,6 +30,7 @@
 
 #include <muduo/net/EventLoop.h>
 
+#include <muduo/base/Logging.h>
 #include <muduo/base/Mutex.h>
 #include <muduo/base/Thread.h>
 #include <muduo/net/Channel.h>
@@ -38,7 +39,6 @@
 
 #include <boost/bind.hpp>
 
-#include <stdio.h> // FIXME
 #include <sys/eventfd.h>
 
 using namespace muduo;
@@ -55,7 +55,7 @@ int createEventfd()
   int evtfd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
   if (evtfd < 0)
   {
-    perror("Failed in eventfd");
+    LOG_SYSERR << "Failed in eventfd";
     abort();
   }
   return evtfd;
@@ -72,11 +72,11 @@ EventLoop::EventLoop()
     wakeupFd_(createEventfd()),
     wakeupChannel_(new Channel(this, wakeupFd_))
 {
-  printf("EventLoop created in thread %d\n", threadId_);
+  LOG_TRACE << "EventLoop created " << this << " in thread " << threadId_;
   if (t_loopInThisThread)
   {
-    fprintf(stderr, "Another EventLoop %p exists in this thread %d\n",
-        t_loopInThisThread, threadId_);
+    LOG_FATAL << "Another EventLoop " << t_loopInThisThread
+              << " exists in this thread " << threadId_;
     abort();
   }
   else
@@ -133,7 +133,7 @@ void EventLoop::wakeup()
   ssize_t n = ::write(wakeupFd_, &one, sizeof one);
   if (n != sizeof one)
   {
-    fprintf(stderr, "EventLoop::wakeup() write %zd bytes instead of 8\n", n);
+    LOG_ERROR << "EventLoop::wakeup() writes " << n << " bytes instead of 8";
   }
 }
 
@@ -198,7 +198,7 @@ void EventLoop::wakedup()
   ssize_t n = ::read(wakeupFd_, &one, sizeof one);
   if (n != sizeof one)
   {
-    fprintf(stderr, "EventLoop::wakedup() write %zd bytes instead of 8\n", n);
+    LOG_ERROR << "EventLoop::wakeup() reads " << n << " bytes instead of 8";
   }
 }
 

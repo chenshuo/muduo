@@ -16,6 +16,8 @@ set(CXX_FLAGS
  -Wwrite-strings
  -rdynamic
  -lpthread
+ -lglog
+ -L/usr/local/lib
  )
 string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS}")
 
