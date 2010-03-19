@@ -7,6 +7,7 @@
 
 #include <boost/bind.hpp>
 
+#include <mcheck.h>
 #include <stdio.h>
 #include <unistd.h>
 
@@ -55,9 +56,9 @@ class EchoServer
     LOG_TRACE << conn->name() << " recv " << msg.size() << " bytes";
     if (msg == "exit\n")
     {
-      first->shutdown();
+      // first->shutdown();
       first.reset();
-      second->shutdown();
+      // second->shutdown();
       second.reset();
       loop_->quit();
     }
@@ -93,7 +94,9 @@ void threadFunc(uint16_t port)
 
 int main(int argc, char* argv[])
 {
+  mtrace();
   LOG_INFO << "pid = " << getpid() << ", tid = " << CurrentThread::tid();
+  LOG_INFO << "sizeof TcpConnection = " << sizeof(TcpConnection);
   numThreads = argc - 1;
   EventLoop loop;
   InetAddress listenAddr(2000);
