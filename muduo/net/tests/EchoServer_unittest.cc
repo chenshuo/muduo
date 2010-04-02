@@ -44,10 +44,20 @@ class EchoServer
     LOG_TRACE << conn->peerAddress().toHostPort() << " -> "
         << conn->localAddress().toHostPort() << " is "
         << (conn->connected() ? "UP" : "DOWN");
+    if (conn->connected())
+    {
     if (!first)
       first = conn;
     else if (!second)
       second = conn;
+    }
+    else
+    {
+      if (first == conn)
+        first.reset();
+      else if (second == conn)
+        second.reset();
+    }
   }
 
   void onMessage(const TcpConnectionPtr& conn, ChannelBuffer* buf, Timestamp time)
@@ -55,6 +65,11 @@ class EchoServer
     string msg(buf->retrieveAsString());
     LOG_TRACE << conn->name() << " recv " << msg.size() << " bytes";
     if (msg == "exit\n")
+    {
+      conn->send("bye\n");
+      conn->shutdown();
+    }
+    if (msg == "quit\n")
     {
       // first->shutdown();
       first.reset();

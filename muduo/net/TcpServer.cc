@@ -8,6 +8,7 @@
 
 #include <muduo/net/TcpServer.h>
 
+#include <muduo/base/Logging.h>
 #include <muduo/net/Acceptor.h>
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/EventLoopPool.h>
@@ -35,6 +36,7 @@ TcpServer::TcpServer(EventLoop* loop, const InetAddress& listenAddr)
 TcpServer::~TcpServer()
 {
   loop_->assertInLoopThread();
+  LOG_TRACE << "TcpServer::~TcpServer " << this << " destructing";
 
   for (ConnectionMap::iterator it(connections_.begin());
       it != connections_.end(); ++it)

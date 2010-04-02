@@ -8,6 +8,7 @@
 
 #include <muduo/net/TcpConnection.h>
 
+#include <muduo/base/Logging.h>
 #include <muduo/net/Channel.h>
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/Socket.h>
@@ -15,6 +16,7 @@
 
 #include <boost/bind.hpp>
 
+#include <errno.h>
 #include <stdio.h>
 
 using namespace muduo;
@@ -71,6 +73,7 @@ void TcpConnection::sendInLoop(const string& message)
 {
   loop_->assertInLoopThread();
   outputBuffer_.append(message.data(), message.size());
+  // enableWriting
   if ((channel_->events() & Channel::kWriteEvent) == 0)
   {
     channel_->set_events(Channel::kReadEvent | Channel::kWriteEvent);
@@ -83,8 +86,18 @@ void TcpConnection::shutdown()
   if (state_ == kConnected)
   {
     setState(kDisconnecting);
-    sockets::shutdown(channel_->fd());
-    loop_->runInLoop(boost::bind(&TcpConnection::handleClose, this));
+    loop_->runInLoop(
+        boost::bind(&TcpConnection::shutdownInLoop, this));
+  }
+}
+
+void TcpConnection::shutdownInLoop()
+{
+  loop_->assertInLoopThread();
+  if ((channel_->events() & Channel::kWriteEvent) == 0)
+  {
+    // we are not writing
+    sockets::shutdownWrite(channel_->fd());
   }
 }
 
@@ -105,7 +118,7 @@ void TcpConnection::connectDestroyed()
   if (state_ == kConnected)
   {
     setState(kDisconnected);
-    sockets::shutdown(channel_->fd());
+    //sockets::shutdown(channel_->fd());
     channel_->set_events(Channel::kNoneEvent);
     loop_->updateChannel(get_pointer(channel_));
     connectionCallback_(shared_from_this());
@@ -137,7 +150,7 @@ void TcpConnection::handleWrite()
   loop_->assertInLoopThread();
 
   ssize_t n = ::write(channel_->fd(), outputBuffer_.peek(), outputBuffer_.readableBytes());
-  //int savedErrno = errno;
+  int savedErrno = errno;
   if (n > 0)
   {
     outputBuffer_.retrieve(n);
@@ -145,7 +158,15 @@ void TcpConnection::handleWrite()
     {
       channel_->set_events(Channel::kReadEvent);
       loop_->updateChannel(get_pointer(channel_));
+      if (state_ == kDisconnecting)
+      {
+        shutdownInLoop();
+      }
     }
+  }
+  else
+  {
+    LOG_SYSERR << "TcpConnection::handleWrite";
   }
 }
 

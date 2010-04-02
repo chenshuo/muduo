@@ -79,6 +79,7 @@ void EventLoop::loop()
   assert(!looping_);
   assertInLoopThread();
   looping_ = true;
+  LOG_TRACE << "EventLoop " << this << " start looping";
   while (!quit_)
   {
     activeChannels_.clear();
@@ -93,13 +94,14 @@ void EventLoop::loop()
     eventHandling_ = false;
     doPendingFunctors();
   }
+  LOG_TRACE << "EventLoop " << this << " stop looping";
   looping_ = false;
 }
 
 void EventLoop::quit()
 {
   quit_ = true;
-  if (threadId_ == CurrentThread::tid())
+  if (threadId_ != CurrentThread::tid())
   {
     wakeup();
   }

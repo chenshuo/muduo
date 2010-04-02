@@ -57,7 +57,7 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
   void send(const string& message);
   // void send(const ChannelBuffer& message);
   void send(ChannelBuffer* message);  // this one will swap data
-  void shutdown();
+  void shutdown(); // not thread safe, no simultaneous calling
 
   void setConnectionCallback(ConnectionCallback cb)
   { connectionCallback_ = cb; }
@@ -80,6 +80,7 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
   void handleClose();
   void handleError();
   void sendInLoop(const string& message);
+  void shutdownInLoop();
   void setState(States s) { state_ = s; }
 
   EventLoop* loop_;

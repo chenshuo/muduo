@@ -58,8 +58,8 @@ class Channel : boost::noncopyable
   /// prevent the owner object being destroyed in handleEvent.
   void tie(const boost::shared_ptr<void>&);
 
-  int fd() { return fd_; }
-  int events() { return events_; }
+  int fd() const { return fd_; }
+  int events() const { return events_; }
   void set_events(int evt) { events_ = evt; }
   void set_revents(int revt) { revents_ = revt; }
 

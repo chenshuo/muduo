@@ -119,9 +119,9 @@ void sockets::close(int sockfd)
   // FIXME EINTR
 }
 
-void sockets::shutdown(int sockfd)
+void sockets::shutdownWrite(int sockfd)
 {
-  ::shutdown(sockfd, SHUT_RDWR);
+  ::shutdown(sockfd, SHUT_WR);
   // FIXME EINTR
 }
 
