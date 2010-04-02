@@ -76,8 +76,7 @@ TimerQueue::TimerQueue(EventLoop* loop)
   timerfdChannel_.setReadCallback(
       boost::bind(&TimerQueue::timeout, this));
   // we are always reading the timerfd, we disarm it with timerfd_settime.
-  timerfdChannel_.set_events(Channel::kReadEvent);
-  loop_->updateChannel(&timerfdChannel_);
+  timerfdChannel_.enableReading();
 }
 
 TimerQueue::~TimerQueue()

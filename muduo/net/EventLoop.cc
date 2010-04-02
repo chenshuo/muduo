@@ -64,8 +64,7 @@ EventLoop::EventLoop()
   wakeupChannel_->setReadCallback(
       boost::bind(&EventLoop::wakedup, this));
   // we are always reading the wakeupfd
-  wakeupChannel_->set_events(Channel::kReadEvent);
-  updateChannel(get_pointer(wakeupChannel_));
+  wakeupChannel_->enableReading();
 }
 
 EventLoop::~EventLoop()
@@ -83,13 +82,13 @@ void EventLoop::loop()
   while (!quit_)
   {
     activeChannels_.clear();
-    Timestamp receiveTime = poller_->poll(kPollTimeMs, &activeChannels_);
+    happenTime_ = poller_->poll(kPollTimeMs, &activeChannels_);
     // TODO sort channel by priority
     eventHandling_ = true;
     for (ChannelList::iterator it = activeChannels_.begin();
         it != activeChannels_.end(); ++it)
     {
-      (*it)->handleEvent(receiveTime);
+      (*it)->handleEvent(happenTime_);
     }
     eventHandling_ = false;
     doPendingFunctors();

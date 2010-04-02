@@ -54,10 +54,10 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
   const InetAddress& peerAddress() { return peerAddr_; }
   bool connected() const { return state_ == kConnected; }
 
-  void send(const string& message);
+  void send(string&& message);
   // void send(const ChannelBuffer& message);
   void send(ChannelBuffer* message);  // this one will swap data
-  void shutdown(); // not thread safe, no simultaneous calling
+  void shutdown(); // NOT thread safe, no simultaneous calling
 
   void setConnectionCallback(ConnectionCallback cb)
   { connectionCallback_ = cb; }
@@ -70,9 +70,9 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
   { closeCallback_ = cb; }
 
   // called when TcpServer accepts a new connection
-  void connectEstablished();
+  void connectEstablished();   // should be called only once
   // called when TcpServer has removed me from its map
-  void connectDestroyed();
+  void connectDestroyed();  // should be called only once
 
  private:
   enum States { kDisconnected, kConnecting, kConnected, kDisconnecting };
@@ -80,13 +80,13 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
   void handleWrite();
   void handleClose();
   void handleError();
-  void sendInLoop(const string& message);
+  void sendInLoop(string&& message);
   void shutdownInLoop();
   void setState(States s) { state_ = s; }
 
   EventLoop* loop_;
   string name_;
-  States state_;
+  States state_;  // FIXME: use atomic variable
   // we don't expose those classes to client.
   boost::scoped_ptr<Socket> socket_;
   boost::scoped_ptr<Channel> channel_;

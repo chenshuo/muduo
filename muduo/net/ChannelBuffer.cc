@@ -19,6 +19,7 @@ using namespace muduo::net;
 
 ssize_t ChannelBuffer::readFd(int fd, int* savedErrno)
 {
+  // FIXME use ioctl/FIONREAD to tell how much to read
   char extrabuf[65536];
   struct iovec vec[2];
   size_t writable = writableBytes();

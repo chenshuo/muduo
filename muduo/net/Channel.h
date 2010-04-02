@@ -37,9 +37,6 @@ class Channel : boost::noncopyable
   typedef boost::function<void()> EventCallback;
   typedef boost::function<void(Timestamp)> ReadEventCallback;
   static const int kNoneEvent;
-  static const int kReadEvent;
-  static const int kWriteEvent;
-  // static const int kErrorvent;
 
   Channel(EventLoop* loop, int fd);
   ~Channel();
@@ -60,18 +57,26 @@ class Channel : boost::noncopyable
 
   int fd() const { return fd_; }
   int events() const { return events_; }
-  void set_events(int evt) { events_ = evt; }
   void set_revents(int revt) { revents_ = revt; }
 
+  void enableReading() { events_ |= kReadEvent; update(); }
+  void enableWriting() { events_ |= kWriteEvent; update(); }
+  void disableWriting() { events_ &= ~kWriteEvent; update(); }
+  void disableAll() { events_ = kNoneEvent; update(); }
+  bool isWriting() const { return events_ & kWriteEvent; }
+
+  // for PollPoller
   int index() { return index_; }
   void set_index(int idx) { index_ = idx; }
 
   EventLoop* getLoop() { return loop_; }
 
-  // void set_loop(EventLoop* loop) { loop_ = loop; }
-
  private:
+  void update();
   void handleEventWithGuard(Timestamp receiveTime);
+
+  static const int kReadEvent;
+  static const int kWriteEvent;
 
   EventLoop* loop_;
   const int  fd_;

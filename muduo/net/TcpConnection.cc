@@ -51,25 +51,26 @@ TcpConnection::~TcpConnection()
   printf("%p %s dtor\n", this, name_.c_str());
 }
 
-void TcpConnection::send(const string& message)
+void TcpConnection::send(string&& message)
 {
   if (state_ == kConnected)
   {
     loop_->runInLoop(
-        boost::bind(&TcpConnection::sendInLoop, this, message));
+        boost::bind(&TcpConnection::sendInLoop,
+                    this,
+                    std::forward<string>(message)));
     // FIXME: as an optimization, send message here
   }
 }
 
-void TcpConnection::sendInLoop(const string& message)
+void TcpConnection::sendInLoop(string&& message)
 {
   loop_->assertInLoopThread();
+  // FIXME: try writing here, until EWOULDBLOCK
   outputBuffer_.append(message.data(), message.size());
-  // enableWriting
-  if ((channel_->events() & Channel::kWriteEvent) == 0)
+  if (!channel_->isWriting())
   {
-    channel_->set_events(Channel::kReadEvent | Channel::kWriteEvent);
-    loop_->updateChannel(get_pointer(channel_));
+    channel_->enableWriting();
   }
 }
 
@@ -85,7 +86,7 @@ void TcpConnection::shutdown()
 void TcpConnection::shutdownInLoop()
 {
   loop_->assertInLoopThread();
-  if ((channel_->events() & Channel::kWriteEvent) == 0)
+  if (!channel_->isWriting())
   {
     // we are not writing
     sockets::shutdownWrite(channel_->fd());
@@ -98,8 +99,7 @@ void TcpConnection::connectEstablished()
   assert(state_ == kConnecting);
   setState(kConnected);
   channel_->tie(shared_from_this());
-  channel_->set_events(Channel::kReadEvent);
-  loop_->updateChannel(get_pointer(channel_));
+  channel_->enableReading();
 
   connectionCallback_(shared_from_this());
 }
@@ -110,9 +110,8 @@ void TcpConnection::connectDestroyed()
   if (state_ == kConnected)
   {
     setState(kDisconnected);
-    //sockets::shutdown(channel_->fd());
-    channel_->set_events(Channel::kNoneEvent);
-    loop_->updateChannel(get_pointer(channel_));
+    channel_->disableAll();
+
     connectionCallback_(shared_from_this());
   }
   loop_->removeChannel(get_pointer(channel_));
@@ -140,25 +139,33 @@ void TcpConnection::handleRead(Timestamp receiveTime)
 void TcpConnection::handleWrite()
 {
   loop_->assertInLoopThread();
-
-  ssize_t n = ::write(channel_->fd(), outputBuffer_.peek(), outputBuffer_.readableBytes());
-  int savedErrno = errno;
-  if (n > 0)
+  if (channel_->isWriting())
   {
-    outputBuffer_.retrieve(n);
-    if (outputBuffer_.readableBytes() == 0)
+    ssize_t n = ::write(channel_->fd(), outputBuffer_.peek(), outputBuffer_.readableBytes());
+    if (n > 0)
     {
-      channel_->set_events(Channel::kReadEvent);
-      loop_->updateChannel(get_pointer(channel_));
-      if (state_ == kDisconnecting)
+      outputBuffer_.retrieve(n);
+      if (outputBuffer_.readableBytes() == 0)
       {
-        shutdownInLoop();
+        channel_->disableWriting();
+        if (state_ == kDisconnecting)
+        {
+          shutdownInLoop();
+        }
       }
+      else
+      {
+        LOG_TRACE << "I am going to write more data";
+      }
+    }
+    else
+    {
+      LOG_SYSERR << "TcpConnection::handleWrite";
     }
   }
   else
   {
-    LOG_SYSERR << "TcpConnection::handleWrite";
+    LOG_TRACE << "Connection is down, no more writing";
   }
 }
 
@@ -167,8 +174,7 @@ void TcpConnection::handleClose()
   loop_->assertInLoopThread();
   // we don't close fd, leave it to dtor, so we can find leaks easily.
   setState(kDisconnected);
-  channel_->set_events(Channel::kNoneEvent);
-  loop_->updateChannel(get_pointer(channel_));
+  channel_->disableAll();
 
   TcpConnectionPtr guardThis(shared_from_this());
   connectionCallback_(guardThis);

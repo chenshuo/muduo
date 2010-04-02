@@ -2,8 +2,12 @@
 #define MUDUO_BASE_TYPES_H
 
 #include <stdint.h>
+#ifdef MUDUO_STD_STRING
+#include <string>
+#else  // !MUDUO_STD_STRING
 #include <ext/vstring.h>
 #include <ext/vstring_fwd.h>
+#endif
 
 ///
 /// The most common stuffs.
@@ -11,9 +15,12 @@
 namespace muduo
 {
 
+#ifdef MUDUO_STD_STRING
+using std::string;
+#else  // !MUDUO_STD_STRING
 // typedef __gnu_cxx::__versa_string<char, std::char_traits<char>, std::allocator<char> > string;
 typedef __gnu_cxx::__sso_string string;
-
+#endif
 // Taken from google-protobuf stubs/common.h
 //
 // Use implicit_cast as a safe version of static_cast or const_cast

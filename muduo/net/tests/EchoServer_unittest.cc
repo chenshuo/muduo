@@ -7,6 +7,8 @@
 
 #include <boost/bind.hpp>
 
+#include <utility>
+
 #include <mcheck.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -37,27 +39,13 @@ class EchoServer
   // void stop();
 
  private:
-  TcpConnectionPtr first;
-  TcpConnectionPtr second;
   void onConnection(const TcpConnectionPtr& conn)
   {
     LOG_TRACE << conn->peerAddress().toHostPort() << " -> "
         << conn->localAddress().toHostPort() << " is "
         << (conn->connected() ? "UP" : "DOWN");
-    if (conn->connected())
-    {
-    if (!first)
-      first = conn;
-    else if (!second)
-      second = conn;
-    }
-    else
-    {
-      if (first == conn)
-        first.reset();
-      else if (second == conn)
-        second.reset();
-    }
+
+    conn->send("hello\n");
   }
 
   void onMessage(const TcpConnectionPtr& conn, ChannelBuffer* buf, Timestamp time)
@@ -71,32 +59,10 @@ class EchoServer
     }
     if (msg == "quit\n")
     {
-      // first->shutdown();
-      first.reset();
-      // second->shutdown();
-      second.reset();
       loop_->quit();
     }
-    if (conn != first && first)
-      first->send(msg);
-    if (conn != second && second)
-      second->send(msg);
-    // conn->send(buf);
-    // conn->shutdown();
-    // loop_->quit();
-    /*
-    if (conn == second)
-    {
-      sleep(10);
-    }
-    if (second && conn == first)
-    {
-      second->shutdown();
-      second.reset();
-      first.reset();
-      // loop_->quit();
-    }
-    */
+    sleep(2);
+    conn->send(std::move(msg));
   }
 
   EventLoop* loop_;

@@ -92,7 +92,8 @@ class EventLoop : boost::noncopyable
 
   bool looping_; /* atomic */
   bool quit_; /* atomic */
-  bool eventHandling_;
+  bool eventHandling_; /* atomic */
+  Timestamp happenTime_;
   const pid_t threadId_;
   boost::scoped_ptr<Poller> poller_;
   boost::scoped_ptr<TimerQueue> timerQueue_;

@@ -10,10 +10,11 @@ set(CXX_FLAGS
  -Wconversion
  -Wunused-parameter
  -Wold-style-cast
- -MMD
  -Wpointer-arith
  -Wshadow
  -Wwrite-strings
+ -MMD
+ -std=c++0x
  -rdynamic
  -lpthread
  )

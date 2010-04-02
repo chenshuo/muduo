@@ -7,9 +7,9 @@
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
 #include <muduo/net/Channel.h>
+#include <muduo/net/EventLoop.h>
 
 #include <poll.h>
-#include <stdio.h> // FIXME
 
 using namespace muduo;
 using namespace muduo::net;
@@ -36,6 +36,11 @@ void Channel::tie(const boost::shared_ptr<void>& obj)
 {
   tie_ = obj;
   tied_ = true;
+}
+
+void Channel::update()
+{
+  loop_->updateChannel(this);
 }
 
 void Channel::handleEvent(Timestamp receiveTime)
