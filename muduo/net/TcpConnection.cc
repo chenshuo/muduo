@@ -29,7 +29,7 @@ TcpConnection::TcpConnection(EventLoop* loop,
                              const InetAddress& peerAddr)
   : loop_(loop),
     name_(name__),
-    state_(kDisconnected),
+    state_(kConnecting),
     socket_(new Socket(fd)),
     channel_(new Channel(loop, fd)),
     localAddr_(localAddr),
@@ -57,15 +57,7 @@ void TcpConnection::send(const string& message)
   {
     loop_->runInLoop(
         boost::bind(&TcpConnection::sendInLoop, this, message));
-    /*
-    {
-      MutexLockGuard lock(mutex_);
-      outputBuffer_.append(message.data(), message.size());
-    }
-    channel_->set_events(Channel::kReadEvent | Channel::kWriteEvent);
-    loop_->runInLoop(
-        boost::bind(&EventLoop::updateChannel, loop_, get_pointer(channel_)));
-    */
+    // FIXME: as an optimization, send message here
   }
 }
 
@@ -86,8 +78,7 @@ void TcpConnection::shutdown()
   if (state_ == kConnected)
   {
     setState(kDisconnecting);
-    loop_->runInLoop(
-        boost::bind(&TcpConnection::shutdownInLoop, this));
+    loop_->runInLoop(boost::bind(&TcpConnection::shutdownInLoop, this));
   }
 }
 
@@ -104,6 +95,7 @@ void TcpConnection::shutdownInLoop()
 void TcpConnection::connectEstablished()
 {
   loop_->assertInLoopThread();
+  assert(state_ == kConnecting);
   setState(kConnected);
   channel_->tie(shared_from_this());
   channel_->set_events(Channel::kReadEvent);

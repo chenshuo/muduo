@@ -71,6 +71,7 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
 
   // called when TcpServer accepts a new connection
   void connectEstablished();
+  // called when TcpServer has removed me from its map
   void connectDestroyed();
 
  private:
