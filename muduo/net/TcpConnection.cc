@@ -51,19 +51,20 @@ TcpConnection::~TcpConnection()
   printf("%p %s dtor\n", this, name_.c_str());
 }
 
-void TcpConnection::send(string&& message)
+void TcpConnection::send(const string& message)
 {
   if (state_ == kConnected)
   {
     loop_->runInLoop(
         boost::bind(&TcpConnection::sendInLoop,
                     this,
-                    std::forward<string>(message)));
+                    message));
+                    //std::forward<string>(message)));
     // FIXME: as an optimization, send message here
   }
 }
 
-void TcpConnection::sendInLoop(string&& message)
+void TcpConnection::sendInLoop(const string& message)
 {
   loop_->assertInLoopThread();
   // FIXME: try writing here, until EWOULDBLOCK

@@ -14,7 +14,7 @@ set(CXX_FLAGS
  -Wshadow
  -Wwrite-strings
  -MMD
- -std=c++0x
+ # -std=c++0x
  -rdynamic
  -lpthread
  )

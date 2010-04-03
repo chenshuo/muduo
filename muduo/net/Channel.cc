@@ -6,6 +6,7 @@
 
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
+#include <muduo/base/Logging.h>
 #include <muduo/net/Channel.h>
 #include <muduo/net/EventLoop.h>
 
@@ -64,13 +65,13 @@ void Channel::handleEventWithGuard(Timestamp receiveTime)
 {
   if ((revents_ & POLLHUP) && !(revents_ & POLLIN))
   {
-    printf("Channel::handle_event() POLLHUP");
+    LOG_WARN << "Channel::handle_event() POLLHUP";
     if (closeCallback_) closeCallback_();
   }
 
   if (revents_ & POLLNVAL)
   {
-    printf("Channel::handle_event() POLLNVAL");
+    LOG_WARN << "Channel::handle_event() POLLNVAL";
   }
 
   if (revents_ & (POLLERR | POLLNVAL))

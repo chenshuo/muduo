@@ -62,7 +62,7 @@ class EchoServer
       loop_->quit();
     }
     sleep(2);
-    conn->send(std::move(msg));
+    conn->send(msg);
   }
 
   EventLoop* loop_;
