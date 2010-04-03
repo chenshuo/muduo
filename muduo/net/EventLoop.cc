@@ -10,7 +10,6 @@
 
 #include <muduo/base/Logging.h>
 #include <muduo/base/Mutex.h>
-#include <muduo/base/Thread.h>
 #include <muduo/net/Channel.h>
 #include <muduo/net/Poller.h>
 #include <muduo/net/TimerQueue.h>
@@ -100,7 +99,7 @@ void EventLoop::loop()
 void EventLoop::quit()
 {
   quit_ = true;
-  if (threadId_ != CurrentThread::tid())
+  if (!isInLoopThread())
   {
     wakeup();
   }
@@ -118,7 +117,7 @@ void EventLoop::wakeup()
 
 void EventLoop::runInLoop(const Functor& cb)
 {
-  if (threadId_ == CurrentThread::tid())
+  if (isInLoopThread())
   {
     cb();
   }
@@ -166,9 +165,9 @@ void EventLoop::removeChannel(Channel* channel)
   poller_->removeChannel(channel);
 }
 
-void EventLoop::assertInLoopThread()
+void EventLoop::abortNotInLoopThread()
 {
-  assert(threadId_ == CurrentThread::tid());
+  LOG_FATAL << "threadId_=" << threadId_;
 }
 
 void EventLoop::wakedup()

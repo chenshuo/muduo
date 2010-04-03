@@ -55,12 +55,18 @@ void TcpConnection::send(const string& message)
 {
   if (state_ == kConnected)
   {
-    loop_->runInLoop(
-        boost::bind(&TcpConnection::sendInLoop,
-                    this,
-                    message));
+    if (loop_->isInLoopThread())
+    {
+      sendInLoop(message);
+    }
+    else
+    {
+      loop_->runInLoop(
+          boost::bind(&TcpConnection::sendInLoop,
+                      this,
+                      message));
                     //std::forward<string>(message)));
-    // FIXME: as an optimization, send message here
+    }
   }
 }
 

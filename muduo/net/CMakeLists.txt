@@ -11,6 +11,7 @@ set(net_SRCS
   PollPoller.cc
   Socket.cc
   SocketsOps.cc
+  TcpClient.cc
   TcpConnection.cc
   TcpServer.cc
   Timer.cc

@@ -18,6 +18,7 @@
 #include <boost/scoped_ptr.hpp>
 
 #include <muduo/base/Mutex.h>
+#include <muduo/base/Thread.h>
 #include <muduo/base/Timestamp.h>
 #include <muduo/net/Callbacks.h>
 #include <muduo/net/TimerId.h>
@@ -82,9 +83,17 @@ class EventLoop : boost::noncopyable
   void removeChannel(Channel* channel);
 
   pid_t threadId() { return threadId_; }
-  void assertInLoopThread();
+  void assertInLoopThread()
+  {
+    if (!isInLoopThread())
+    {
+      abortNotInLoopThread();
+    }
+  }
+  bool isInLoopThread() { return threadId_ == CurrentThread::tid(); }
 
  private:
+  void abortNotInLoopThread();
   void wakedup();
   void doPendingFunctors();
 
