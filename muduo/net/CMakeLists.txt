@@ -2,6 +2,7 @@ set(net_SRCS
   Acceptor.cc
   Channel.cc
   ChannelBuffer.cc
+  Connector.cc
   DefaultPoller.cc
   EPollPoller.cc
   EventLoop.cc

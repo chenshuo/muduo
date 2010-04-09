@@ -46,6 +46,11 @@ InetAddress::InetAddress(uint16_t port)
   addr_.sin_port = sockets::hostToNetwork16(port);
 }
 
+InetAddress::InetAddress(const string& host, uint16_t port)
+{
+  bzero(&addr_, sizeof addr_);
+}
+
 string InetAddress::toHostPort() const
 {
   char buf[32];

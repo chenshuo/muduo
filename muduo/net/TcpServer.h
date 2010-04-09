@@ -26,7 +26,6 @@ namespace net
 
 class Acceptor;
 class EventLoop;
-class InetAddress;
 class EventLoopPool;
 
 ///

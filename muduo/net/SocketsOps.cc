@@ -34,7 +34,7 @@ SA* sockaddr_cast(struct sockaddr_in* addr)
 int sockets::createNonblockingOrDie()
 {
   // socket
-  int sockfd = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+  int sockfd = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   // FIXME check
 
   // non-block
@@ -75,9 +75,12 @@ void sockets::listenOrDie(int sockfd)
 int sockets::accept(int sockfd, struct sockaddr_in* addr)
 {
   socklen_t addrlen = sizeof *addr;
+#if VALGRIND
   int connfd = ::accept(sockfd, sockaddr_cast(addr), &addrlen);
-  // int connfd = ::accept4(sockfd, sockaddr_cast(addr),
-  //                        &addrlen, SOCK_NONBLOCK | SOCK_CLOEXEC);
+#else
+  int connfd = ::accept4(sockfd, sockaddr_cast(addr),
+                         &addrlen, SOCK_NONBLOCK | SOCK_CLOEXEC);
+#endif
   if (connfd == -1)
   {
     int savedErrno = errno;
@@ -129,7 +132,7 @@ void sockets::toHostPort(char* buf, size_t size,
                          const struct sockaddr_in& addr)
 {
   char host[INET_ADDRSTRLEN];
-  inet_ntop(AF_INET, &addr.sin_addr, host, sizeof host);
+  ::inet_ntop(AF_INET, &addr.sin_addr, host, sizeof host);
   uint16_t port = sockets::networkToHost16(addr.sin_port);
   snprintf(buf, size, "%s:%u", host, port);
 }

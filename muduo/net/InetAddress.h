@@ -34,7 +34,7 @@ class InetAddress : public muduo::copyable
 
   /// Constructs an endpoint with given host and port.
   /// @c host could either be "1.2.3.4" or "example.com"
-  InetAddress(string host, uint16_t port);
+  InetAddress(const string& host, uint16_t port);
 
   /// Constructs an endpoint with given struct @c sockaddr_in
   /// Mostly used when accepting new connections

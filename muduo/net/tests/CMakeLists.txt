@@ -1,6 +1,9 @@
 add_executable(echoserver_unittest EchoServer_unittest.cc)
 target_link_libraries(echoserver_unittest muduo_net)
 
+add_executable(echoclient_unittest EchoClient_unittest.cc)
+target_link_libraries(echoclient_unittest muduo_net)
+
 add_executable(eventloop_unittest EventLoop_unittest.cc)
 target_link_libraries(eventloop_unittest muduo_net)
 
