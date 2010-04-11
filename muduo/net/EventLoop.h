@@ -94,7 +94,7 @@ class EventLoop : boost::noncopyable
 
  private:
   void abortNotInLoopThread();
-  void wakedup();
+  void handleRead();  // waked up
   void doPendingFunctors();
 
   typedef std::vector<Channel*> ChannelList;

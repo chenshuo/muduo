@@ -43,6 +43,25 @@ class Logger
 #define LOG_SYSERR Logger(__FILE__, __LINE__, false).stream()
 #define LOG_SYSFATAL Logger(__FILE__, __LINE__, true).stream()
 
+const char* strerror_tl(int savedErrno);
+
+// Taken from glog/logging.h
+//
+// Check that the input is non NULL.  This very useful in constructor
+// initializer lists.
+
+#define CHECK_NOTNULL(val) \
+  ::muduo::CheckNotNull(__FILE__, __LINE__, "'" #val "' Must be non NULL", (val))
+
+// A small helper for CHECK_NOTNULL().
+template <typename T>
+T* CheckNotNull(const char *file, int line, const char *names, T* ptr) {
+  if (ptr == NULL) {
+   Logger(file, line, Logger::FATAL).stream() << names;
+  }
+  return ptr;
+}
+
 }
 
 #endif  // MUDUO_LOG_LOGGING_H

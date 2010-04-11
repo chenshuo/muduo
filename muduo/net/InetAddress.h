@@ -32,9 +32,9 @@ class InetAddress : public muduo::copyable
   /// Mostly used in TcpServer listening.
   explicit InetAddress(uint16_t port);
 
-  /// Constructs an endpoint with given host and port.
-  /// @c host could either be "1.2.3.4" or "example.com"
-  InetAddress(const string& host, uint16_t port);
+  /// Constructs an endpoint with given ip and port.
+  /// @c ip should be "1.2.3.4"
+  InetAddress(const string& ip, uint16_t port);
 
   /// Constructs an endpoint with given struct @c sockaddr_in
   /// Mostly used when accepting new connections

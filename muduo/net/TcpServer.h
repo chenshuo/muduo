@@ -42,7 +42,7 @@ class TcpServer : boost::noncopyable
             const string& name);
   ~TcpServer();  // force out-line dtor, for scoped_ptr members.
 
-  const string& name() const { return name_; }
+  // const string& hostport() const { return hostport_; }
 
   /// Set the number of threads for handling input.
   ///
@@ -73,22 +73,22 @@ class TcpServer : boost::noncopyable
   { messageCallback_ = cb; }
 
  private:
-  /// Not thread safe.
+  /// Not thread safe, but in loop
   void newConnection(int sockfd, const InetAddress& peerAddr);
   /// Thread safe.
   void removeConnection(const TcpConnectionPtr& conn);
-  /// Not thread safe.
+  /// Not thread safe, but in loop
   void removeConnectionInLoop(const TcpConnectionPtr& conn);
 
   typedef std::map<string, TcpConnectionPtr> ConnectionMap;
 
   EventLoop* loop_;  // the acceptor loop
-  string name_;
+  const string hostport_;
+  const string name_;
   boost::scoped_ptr<Acceptor> acceptor_; // avoid revealing Acceptor
   boost::scoped_ptr<EventLoopPool> threadPool_;
   ConnectionCallback connectionCallback_;
   MessageCallback messageCallback_;
-  const string serverName_;
   bool started_;
   // always in loop thread
   int nextConnId_;

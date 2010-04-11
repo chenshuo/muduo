@@ -74,7 +74,7 @@ TimerQueue::TimerQueue(EventLoop* loop)
     timers_()
 {
   timerfdChannel_.setReadCallback(
-      boost::bind(&TimerQueue::timeout, this));
+      boost::bind(&TimerQueue::handleRead, this));
   // we are always reading the timerfd, we disarm it with timerfd_settime.
   timerfdChannel_.enableReading();
 }
@@ -91,16 +91,16 @@ TimerQueue::~TimerQueue()
 }
 
 // FIXME replace linked-list operations with binary-heap.
-void TimerQueue::timeout()
+void TimerQueue::handleRead()
 {
   loop_->assertInLoopThread();
   Timestamp now(Timestamp::now());
   uint64_t howmany;
   ssize_t n = ::read(timerfd_, &howmany, sizeof howmany);
-  LOG_DEBUG << "TimerQueue::timeout() " << howmany << " at " << now.toString();
+  LOG_DEBUG << "TimerQueue::handleRead() " << howmany << " at " << now.toString();
   if (n != sizeof howmany)
   {
-    LOG_ERROR << "TimerQueue::timeout() reads " << n << " bytes instead of 8";
+    LOG_ERROR << "TimerQueue::handleRead() reads " << n << " bytes instead of 8";
   }
 
   TimerList expired;

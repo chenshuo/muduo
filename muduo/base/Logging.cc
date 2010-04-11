@@ -27,6 +27,14 @@ class LoggerImpl
 
   static const char* LogLevelName[];
 };
+
+__thread char t_errnobuf[512];
+
+const char* strerror_tl(int savedErrno)
+{
+  return strerror_r(savedErrno, t_errnobuf, sizeof t_errnobuf);
+}
+
 }
 
 using namespace muduo;
@@ -59,7 +67,7 @@ LoggerImpl::LoggerImpl(LogLevel level, int savedErrno, const char* file, int lin
   stream_ << message_head;
   if (savedErrno != 0)
   {
-    stream_ << strerror(savedErrno);
+    stream_ << strerror_tl(savedErrno) << " ";
   }
 }
 

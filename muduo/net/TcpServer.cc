@@ -16,14 +16,14 @@
 
 #include <boost/bind.hpp>
 
-#include <stdio.h>
+#include <stdio.h>  // snprintf
 
 using namespace muduo;
 using namespace muduo::net;
 
 TcpServer::TcpServer(EventLoop* loop, const InetAddress& listenAddr)
-  : loop_(loop),
-    name_(listenAddr.toHostPort()),
+  : loop_(CHECK_NOTNULL(loop)),
+    hostport_(listenAddr.toHostPort()),
     acceptor_(new Acceptor(loop, listenAddr)),
     threadPool_(new EventLoopPool(loop)),
     started_(false),
@@ -74,9 +74,9 @@ void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
   loop_->assertInLoopThread();
   EventLoop* ioLoop = threadPool_->getNextLoop();
   char buf[32];
-  snprintf(buf, sizeof buf, "%s#%d", name_.c_str(), nextConnId_);
+  snprintf(buf, sizeof buf, ":%s#%d", hostport_.c_str(), nextConnId_);
   ++nextConnId_;
-  string connName = serverName_ + buf;
+  string connName = name_ + buf;
 
   InetAddress localAddr(sockets::getLocalAddr(sockfd));
   // FIXME poll with zero timeout to double confirm the new connection
@@ -103,5 +103,6 @@ void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn)
   EventLoop* ioLoop = conn->getLoop();
   ioLoop->queueInLoop(
       boost::bind(&TcpConnection::connectDestroyed, conn));
+  // FIXME wake up ?
 }
 

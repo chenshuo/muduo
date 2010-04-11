@@ -29,7 +29,7 @@ Acceptor::Acceptor(EventLoop* loop, const InetAddress& listenAddr)
   acceptSocket_.setReuseAddr(true);
   acceptSocket_.bindAddress(listenAddr);
   acceptChannel_.setReadCallback(
-      boost::bind(&Acceptor::accept, this));
+      boost::bind(&Acceptor::handleRead, this));
 }
 
 void Acceptor::listen()
@@ -40,7 +40,7 @@ void Acceptor::listen()
   acceptChannel_.enableReading();
 }
 
-void Acceptor::accept()
+void Acceptor::handleRead()
 {
   loop_->assertInLoopThread();
   InetAddress peerAddr(0);
@@ -58,10 +58,6 @@ void Acceptor::accept()
     {
       sockets::close(connfd);
     }
-  }
-  else
-  {
-    LOG_SYSERR << "accept";
   }
 }
 

@@ -45,9 +45,9 @@ int Socket::accept(InetAddress* peeraddr)
   return connfd;
 }
 
-void Socket::shutdown()
+void Socket::shutdownWrite()
 {
-  // ::shutdown(sockfd_);
+  sockets::shutdownWrite(sockfd_);
 }
 
 void Socket::setTcpNoDelay(bool on)

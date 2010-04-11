@@ -29,6 +29,7 @@ class EchoClient
         boost::bind(&EchoClient::onConnection, this, _1));
     client_.setMessageCallback(
         boost::bind(&EchoClient::onMessage, this, _1, _2, _3));
+    client_.setRetry(true);
   }
 
   void connect()
@@ -40,11 +41,14 @@ class EchoClient
  private:
   void onConnection(const TcpConnectionPtr& conn)
   {
-    LOG_TRACE << conn->peerAddress().toHostPort() << " -> "
-        << conn->localAddress().toHostPort() << " is "
+    LOG_TRACE << conn->localAddress().toHostPort() << " -> "
+        << conn->peerAddress().toHostPort() << " is "
         << (conn->connected() ? "UP" : "DOWN");
 
-    conn->send("hello\n");
+    conn->send("world\n");
+    if (!conn->connected())
+    {
+    }
   }
 
   void onMessage(const TcpConnectionPtr& conn, ChannelBuffer* buf, Timestamp time)
@@ -74,10 +78,7 @@ void threadFunc(uint16_t port)
 
 int main(int argc, char* argv[])
 {
-  mtrace();
   LOG_INFO << "pid = " << getpid() << ", tid = " << CurrentThread::tid();
-  LOG_INFO << "sizeof TcpConnection = " << sizeof(TcpConnection);
-  numThreads = argc - 1;
   EventLoop loop;
   InetAddress serverAddr("127.0.0.1", 2000);
   EchoClient client(&loop, serverAddr);

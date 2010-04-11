@@ -49,7 +49,8 @@ class Socket : boost::noncopyable
   /// set to non-blocking and close-on-exec. *peeraddr is assigned.
   /// On error, -1 is returned, and *peeraddr is untouched.
   int accept(InetAddress* peeraddr);
-  void shutdown();
+
+  void shutdownWrite();
 
   ///
   /// Enable/disable TCP_NODELAY (disable/enable Nagle's algorithm).

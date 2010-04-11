@@ -29,7 +29,7 @@ class Timer : boost::noncopyable
 {
  public:
   Timer(const TimerCallback& cb, Timestamp when, double interval)
-    : cb_(cb),
+    : callback_(cb),
       expiration_(when),
       interval_(interval),
       repeat_(interval > 0.0)
@@ -37,7 +37,7 @@ class Timer : boost::noncopyable
 
   void run() const
   {
-    cb_();
+    callback_();
   }
 
   Timestamp expiration() const  { return expiration_; }
@@ -46,7 +46,7 @@ class Timer : boost::noncopyable
   void restart(Timestamp now);
 
  private:
-  const TimerCallback cb_;
+  const TimerCallback callback_;
   Timestamp expiration_;
   const double interval_;
   const bool repeat_;

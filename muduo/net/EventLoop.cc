@@ -54,14 +54,13 @@ EventLoop::EventLoop()
   {
     LOG_FATAL << "Another EventLoop " << t_loopInThisThread
               << " exists in this thread " << threadId_;
-    abort();
   }
   else
   {
     t_loopInThisThread = this;
   }
   wakeupChannel_->setReadCallback(
-      boost::bind(&EventLoop::wakedup, this));
+      boost::bind(&EventLoop::handleRead, this));
   // we are always reading the wakeupfd
   wakeupChannel_->enableReading();
 }
@@ -170,7 +169,7 @@ void EventLoop::abortNotInLoopThread()
   LOG_FATAL << "threadId_=" << threadId_;
 }
 
-void EventLoop::wakedup()
+void EventLoop::handleRead()
 {
   uint64_t one = 1;
   ssize_t n = ::read(wakeupFd_, &one, sizeof one);

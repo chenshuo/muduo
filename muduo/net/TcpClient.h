@@ -13,6 +13,7 @@
 
 #include <boost/noncopyable.hpp>
 
+#include <muduo/base/Mutex.h>
 #include <muduo/net/TcpConnection.h>
 
 namespace muduo
@@ -26,12 +27,16 @@ class EventLoop;
 class TcpClient : boost::noncopyable
 {
  public:
-  TcpClient(EventLoop* loop, const string& host, uint16_t port);
+  // TcpClient(EventLoop* loop);
+  // TcpClient(EventLoop* loop, const string& host, uint16_t port);
   TcpClient(EventLoop* loop, const InetAddress& serverAddr);
   ~TcpClient();  // force out-line dtor, for scoped_ptr members.
 
   void connect();
-  void disconnect();
+  // void disconnect();
+
+  bool retry() const;
+  void setRetry(bool on) { retry_ = on; }
 
   /// Set connection callback.
   /// Not thread safe.
@@ -44,12 +49,21 @@ class TcpClient : boost::noncopyable
   { messageCallback_ = cb; }
 
  private:
+  /// Not thread safe, but in loop
+  void newConnection(int sockfd);
+  /// Not thread safe, but in loop
+  void removeConnection(const TcpConnectionPtr& conn);
+
   EventLoop* loop_;
-  InetAddress serverAddr_;
   boost::scoped_ptr<Connector> connector_; // avoid revealing Connector
+  const string name_;
   ConnectionCallback connectionCallback_;
   MessageCallback messageCallback_;
-  TcpConnectionPtr connection_;
+  bool retry_;  // atmoic
+  // always in loop thread
+  int nextConnId_;
+  MutexLock        mutex_;
+  TcpConnectionPtr connection_; // @BuardedBy mutex_
 };
 
 }

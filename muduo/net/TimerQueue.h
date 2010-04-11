@@ -52,7 +52,7 @@ class TimerQueue : boost::noncopyable
 
  private:
   // called when timerfd arms
-  void timeout();
+  void handleRead();
   // insert timer in sorted list.
   bool insertWithLockHold(Timer* timer);
 

@@ -27,7 +27,7 @@ TcpConnection::TcpConnection(EventLoop* loop,
                              int fd,
                              const InetAddress& localAddr,
                              const InetAddress& peerAddr)
-  : loop_(loop),
+  : loop_(CHECK_NOTNULL(loop)),
     name_(name__),
     state_(kConnecting),
     socket_(new Socket(fd)),
@@ -96,7 +96,7 @@ void TcpConnection::shutdownInLoop()
   if (!channel_->isWriting())
   {
     // we are not writing
-    sockets::shutdownWrite(channel_->fd());
+    socket_->shutdownWrite();
   }
 }
 
@@ -191,5 +191,6 @@ void TcpConnection::handleClose()
 
 void TcpConnection::handleError()
 {
+  LOG_ERROR << "TcpConnection::handleError";
 }
 

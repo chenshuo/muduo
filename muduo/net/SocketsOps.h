@@ -49,6 +49,7 @@ inline uint16_t networkToHost16(uint16_t netshort)
 /// abort if any error.
 int createNonblockingOrDie();
 
+int  connect(int sockfd, const struct sockaddr_in& addr);
 void bindOrDie(int sockfd, const struct sockaddr_in& addr);
 void listenOrDie(int sockfd);
 int  accept(int sockfd, struct sockaddr_in* addr);
@@ -57,8 +58,14 @@ void shutdownWrite(int sockfd);
 
 void toHostPort(char* buf, size_t size,
                 const struct sockaddr_in& addr);
+void fromHostPort(const char* ip, uint16_t port,
+                  struct sockaddr_in* addr);
+
+int getSocketError(int sockfd);
 
 struct sockaddr_in getLocalAddr(int sockfd);
+struct sockaddr_in getPeerAddr(int sockfd);
+bool isSelfConnect(int sockfd);
 
 }
 }

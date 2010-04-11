@@ -7,12 +7,13 @@
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
 #include <muduo/net/SocketsOps.h>
+#include <muduo/base/Logging.h>
 #include <muduo/base/Types.h>
 
 #include <errno.h>
 #include <fcntl.h>
-#include <stdio.h> // FIXME
-#include <stdlib.h> // FIXME
+#include <stdio.h>  // snprintf
+#include <strings.h>  // bzero
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -35,7 +36,10 @@ int sockets::createNonblockingOrDie()
 {
   // socket
   int sockfd = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  // FIXME check
+  if (sockfd < 0)
+  {
+    LOG_SYSFATAL << "sockets::createNonblockingOrDie";
+  }
 
   // non-block
   int flags = ::fcntl(sockfd, F_GETFL, 0);
@@ -55,20 +59,18 @@ int sockets::createNonblockingOrDie()
 void sockets::bindOrDie(int sockfd, const struct sockaddr_in& addr)
 {
   int ret = ::bind(sockfd, sockaddr_cast(&addr), sizeof addr);
-  if (ret)
+  if (ret < 0)
   {
-    perror("sockets::bindOrDie");
-    abort();
+    LOG_SYSFATAL << "sockets::bindOrDie";
   }
 }
 
 void sockets::listenOrDie(int sockfd)
 {
   int ret = ::listen(sockfd, SOMAXCONN);
-  if (ret)
+  if (ret < 0)
   {
-    perror("sockets::listenOrDie");
-    abort();
+    LOG_SYSFATAL << "sockets::listenOrDie";
   }
 }
 
@@ -81,10 +83,10 @@ int sockets::accept(int sockfd, struct sockaddr_in* addr)
   int connfd = ::accept4(sockfd, sockaddr_cast(addr),
                          &addrlen, SOCK_NONBLOCK | SOCK_CLOEXEC);
 #endif
-  if (connfd == -1)
+  if (connfd < 0)
   {
     int savedErrno = errno;
-    perror("Socket::accept");
+    LOG_SYSERR << "Socket::accept";
     switch (savedErrno)
     {
       case EAGAIN:
@@ -104,45 +106,97 @@ int sockets::accept(int sockfd, struct sockaddr_in* addr)
       case ENOTSOCK:
       case EOPNOTSUPP:
         // unexpected errors
-        abort();
+        LOG_FATAL << "unexpected error of ::accept";
         break;
       default:
-        // unknown errors
-        fprintf(stderr, "errno = %d\n", savedErrno);
-        abort();
+        LOG_FATAL << "unknown error of ::accept " << savedErrno;
         break;
     }
   }
   return connfd;
 }
 
+int sockets::connect(int sockfd, const struct sockaddr_in& addr)
+{
+  return ::connect(sockfd, sockaddr_cast(&addr), sizeof addr);
+}
+
 void sockets::close(int sockfd)
 {
-  ::close(sockfd);
-  // FIXME EINTR
+  if (::close(sockfd) < 0)
+  {
+    LOG_SYSERR << "sockets::close";
+  }
 }
 
 void sockets::shutdownWrite(int sockfd)
 {
-  ::shutdown(sockfd, SHUT_WR);
-  // FIXME EINTR
+  if (::shutdown(sockfd, SHUT_WR) < 0)
+  {
+    LOG_SYSERR << "sockets::shutdownWrite";
+  }
 }
 
 void sockets::toHostPort(char* buf, size_t size,
                          const struct sockaddr_in& addr)
 {
-  char host[INET_ADDRSTRLEN];
+  char host[INET_ADDRSTRLEN] = "INVALID";
   ::inet_ntop(AF_INET, &addr.sin_addr, host, sizeof host);
   uint16_t port = sockets::networkToHost16(addr.sin_port);
   snprintf(buf, size, "%s:%u", host, port);
 }
 
+void sockets::fromHostPort(const char* ip, uint16_t port,
+                           struct sockaddr_in* addr)
+{
+  addr->sin_family = AF_INET;
+  addr->sin_port = hostToNetwork16(port);
+  if (inet_pton(AF_INET, ip, &addr->sin_addr) <= 0)
+  {
+    LOG_SYSERR << "sockets::fromHostPort";
+  }
+}
+
+int sockets::getSocketError(int sockfd)
+{
+  int optval;
+  socklen_t optlen = sizeof optval;
+
+  if (::getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &optval, &optlen) < 0)
+  {
+    return errno;
+  }
+  else
+  {
+    return optval;
+  }
+}
+
 struct sockaddr_in sockets::getLocalAddr(int sockfd)
 {
   struct sockaddr_in localaddr;
+  bzero(&localaddr, sizeof localaddr);
   socklen_t addrlen = sizeof(localaddr);
-  ::getsockname(sockfd, sockaddr_cast(&localaddr), &addrlen);
-  // FIXME check
+  if (::getsockname(sockfd, sockaddr_cast(&localaddr), &addrlen) < 0)
+  {
+    LOG_SYSERR << "sockets::getLocalAddr";
+  }
   return localaddr;
 }
 
+struct sockaddr_in sockets::getPeerAddr(int sockfd)
+{
+  struct sockaddr_in peeraddr;
+  bzero(&peeraddr, sizeof peeraddr);
+  socklen_t addrlen = sizeof(peeraddr);
+  if (::getpeername(sockfd, sockaddr_cast(&peeraddr), &addrlen) < 0)
+  {
+    LOG_SYSERR << "sockets::getPeerAddr";
+  }
+  return peeraddr;
+}
+
+bool sockets::isSelfConnect(int sockfd)
+{
+  return false;
+}
