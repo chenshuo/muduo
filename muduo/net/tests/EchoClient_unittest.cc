@@ -23,13 +23,13 @@ class EchoClient
  public:
   EchoClient(EventLoop* loop, const InetAddress& listenAddr)
     : loop_(loop),
-      client_(loop, listenAddr)
+      client_(loop, listenAddr, "EchoClient")
   {
     client_.setConnectionCallback(
         boost::bind(&EchoClient::onConnection, this, _1));
     client_.setMessageCallback(
         boost::bind(&EchoClient::onMessage, this, _1, _2, _3));
-    client_.setRetry(true);
+    client_.enableRetry();
   }
 
   void connect()
@@ -46,15 +46,12 @@ class EchoClient
         << (conn->connected() ? "UP" : "DOWN");
 
     conn->send("world\n");
-    if (!conn->connected())
-    {
-    }
   }
 
   void onMessage(const TcpConnectionPtr& conn, ChannelBuffer* buf, Timestamp time)
   {
     string msg(buf->retrieveAsString());
-    LOG_TRACE << conn->name() << " recv " << msg.size() << " bytes";
+    LOG_TRACE << conn->name() << " recv " << msg.size() << " bytes at " << time.toString();
     if (msg == "exit\n")
     {
       conn->send("bye\n");
@@ -64,7 +61,6 @@ class EchoClient
     {
       loop_->quit();
     }
-    sleep(2);
     conn->send(msg);
   }
 
@@ -72,19 +68,21 @@ class EchoClient
   TcpClient client_;
 };
 
-void threadFunc(uint16_t port)
-{
-}
-
 int main(int argc, char* argv[])
 {
   LOG_INFO << "pid = " << getpid() << ", tid = " << CurrentThread::tid();
-  EventLoop loop;
-  InetAddress serverAddr(argv[1], 2000);
-  EchoClient client(&loop, serverAddr);
+  if (argc > 1)
+  {
+    EventLoop loop;
+    InetAddress serverAddr(argv[1], 2000);
+    EchoClient client(&loop, serverAddr);
 
-  client.connect();
-
-  loop.loop();
+    client.connect();
+    loop.loop();
+  }
+  else
+  {
+    printf("Usage: %s host_ip\n", argv[0]);
+  }
 }
 

@@ -23,7 +23,7 @@ class EchoServer
  public:
   EchoServer(EventLoop* loop, const InetAddress& listenAddr)
     : loop_(loop),
-      server_(loop, listenAddr)
+      server_(loop, listenAddr, "EchoServer")
   {
     server_.setConnectionCallback(
         boost::bind(&EchoServer::onConnection, this, _1));
@@ -51,7 +51,7 @@ class EchoServer
   void onMessage(const TcpConnectionPtr& conn, ChannelBuffer* buf, Timestamp time)
   {
     string msg(buf->retrieveAsString());
-    LOG_TRACE << conn->name() << " recv " << msg.size() << " bytes";
+    LOG_TRACE << conn->name() << " recv " << msg.size() << " bytes at " << time.toString();
     if (msg == "exit\n")
     {
       conn->send("bye\n");
@@ -61,7 +61,6 @@ class EchoServer
     {
       loop_->quit();
     }
-    sleep(2);
     conn->send(msg);
   }
 
@@ -69,16 +68,15 @@ class EchoServer
   TcpServer server_;
 };
 
-void threadFunc(uint16_t port)
-{
-}
-
 int main(int argc, char* argv[])
 {
   mtrace();
   LOG_INFO << "pid = " << getpid() << ", tid = " << CurrentThread::tid();
   LOG_INFO << "sizeof TcpConnection = " << sizeof(TcpConnection);
-  numThreads = argc - 1;
+  if (argc > 1)
+  {
+    numThreads = atoi(argv[1]);
+  }
   EventLoop loop;
   InetAddress listenAddr(2000);
   EchoServer server(&loop, listenAddr);

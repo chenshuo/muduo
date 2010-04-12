@@ -36,7 +36,7 @@ class TcpServer : boost::noncopyable
 {
  public:
 
-  TcpServer(EventLoop* loop, const InetAddress& listenAddr);
+  //TcpServer(EventLoop* loop, const InetAddress& listenAddr);
   TcpServer(EventLoop* loop,
             const InetAddress& listenAddr,
             const string& name);

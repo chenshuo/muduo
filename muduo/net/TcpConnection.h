@@ -41,6 +41,7 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
  public:
   /// Constructs a TcpConnection with a connected sockfd
   ///
+  /// User should not create this object.
   TcpConnection(EventLoop* loop,
                 const string& name,
                 int sockfd,

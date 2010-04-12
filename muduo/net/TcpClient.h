@@ -29,14 +29,16 @@ class TcpClient : boost::noncopyable
  public:
   // TcpClient(EventLoop* loop);
   // TcpClient(EventLoop* loop, const string& host, uint16_t port);
-  TcpClient(EventLoop* loop, const InetAddress& serverAddr);
+  TcpClient(EventLoop* loop,
+            const InetAddress& serverAddr,
+            const string& name);
   ~TcpClient();  // force out-line dtor, for scoped_ptr members.
 
   void connect();
   // void disconnect();
 
   bool retry() const;
-  void setRetry(bool on) { retry_ = on; }
+  void enableRetry() { retry_ = true; }
 
   /// Set connection callback.
   /// Not thread safe.

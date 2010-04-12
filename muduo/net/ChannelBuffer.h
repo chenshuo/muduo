@@ -147,7 +147,7 @@ class ChannelBuffer : public muduo::copyable
                  begin()+kCheapPrepend);
        readerIndex_ = kCheapPrepend;
        writerIndex_ = readerIndex_ + used;
-       assert(used = readableBytes());
+       assert(used == readableBytes());
      }
    }
 

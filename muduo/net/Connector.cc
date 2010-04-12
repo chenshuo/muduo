@@ -33,6 +33,7 @@ Connector::Connector(EventLoop* loop, const InetAddress& serverAddr)
 
 Connector::~Connector()
 {
+  assert(!channel_);
 }
 
 void Connector::start()

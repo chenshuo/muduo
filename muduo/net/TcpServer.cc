@@ -21,9 +21,12 @@
 using namespace muduo;
 using namespace muduo::net;
 
-TcpServer::TcpServer(EventLoop* loop, const InetAddress& listenAddr)
+TcpServer::TcpServer(EventLoop* loop,
+                     const InetAddress& listenAddr,
+                     const string& name)
   : loop_(CHECK_NOTNULL(loop)),
     hostport_(listenAddr.toHostPort()),
+    name_(name),
     acceptor_(new Acceptor(loop, listenAddr)),
     threadPool_(new EventLoopPool(loop)),
     started_(false),
