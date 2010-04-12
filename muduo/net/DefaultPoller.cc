@@ -14,5 +14,5 @@ using namespace muduo::net;
 
 Poller* Poller::newDefaultPoller(EventLoop* loop)
 {
-  return new PollPoller(loop);
+  return new EPollPoller(loop);
 }

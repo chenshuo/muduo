@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
 {
   LOG_INFO << "pid = " << getpid() << ", tid = " << CurrentThread::tid();
   EventLoop loop;
-  InetAddress serverAddr("127.0.0.1", 2000);
+  InetAddress serverAddr(argv[1], 2000);
   EchoClient client(&loop, serverAddr);
 
   client.connect();

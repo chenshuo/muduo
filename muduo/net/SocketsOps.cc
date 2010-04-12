@@ -198,5 +198,9 @@ struct sockaddr_in sockets::getPeerAddr(int sockfd)
 
 bool sockets::isSelfConnect(int sockfd)
 {
-  return false;
+  struct sockaddr_in localaddr = getLocalAddr(sockfd);
+  struct sockaddr_in peeraddr = getPeerAddr(sockfd);
+  return localaddr.sin_port == peeraddr.sin_port
+      && localaddr.sin_addr.s_addr == peeraddr.sin_addr.s_addr;
 }
+

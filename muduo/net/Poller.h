@@ -23,6 +23,7 @@ namespace net
 
 class Channel;
 class EventLoop;
+
 ///
 /// Base class for IO Multiplexing
 ///
@@ -49,7 +50,6 @@ class Poller : boost::noncopyable
 
   static Poller* newDefaultPoller(EventLoop* loop);
 
- protected:
   void assertInLoopThread();
 
  private:

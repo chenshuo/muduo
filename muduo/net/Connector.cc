@@ -47,21 +47,37 @@ void Connector::startInLoop()
   int sockfd = sockets::createNonblockingOrDie();
   int ret = sockets::connect(sockfd, serverAddr_.getSockAddrInet());
   int savedErrno = (ret == 0) ? 0 : errno;
-  LOG_TRACE << strerror_tl(savedErrno);
   switch (savedErrno)
   {
     case 0:
     case EINPROGRESS:
+    case EINTR:
+    case EISCONN:
       connecting(sockfd);
       break;
 
     case EAGAIN:
+    case EADDRINUSE:
     case ECONNREFUSED:
+    case ENETUNREACH:
       retry(sockfd);
       break;
 
+    case EACCES:
+    case EPERM:
+    case EAFNOSUPPORT:
+    case EALREADY:
+    case EBADF:
+    case EFAULT:
+    case ENOTSOCK:
+      LOG_SYSERR << "connect error in Connector::startInLoop.";
+      sockets::close(sockfd);
+      break;
+
     default:
-      retry(sockfd);
+      LOG_SYSERR << "Unexpected error in Connector::startInLoop.";
+      sockets::close(sockfd);
+      // connectErrorCallback_();
       break;
   }
 }
@@ -109,7 +125,6 @@ void Connector::handleWrite()
   if (sockets::isSelfConnect(sockfd))
   {
     LOG_WARN << "Connector::handleWrite - Self connect";
-    abort();
     retry(sockfd);
   }
   else
@@ -126,17 +141,16 @@ void Connector::handleError()
 
   int sockfd = removeAndResetChannel();
   int err = sockets::getSocketError(sockfd);
-  LOG_INFO << "SO_ERROR = " << err << " " << strerror_tl(err);
+  LOG_TRACE << "SO_ERROR = " << err << " " << strerror_tl(err);
   retry(sockfd);
 }
 
 void Connector::retry(int sockfd)
 {
-  InetAddress addr(sockets::getLocalAddr(sockfd));
   sockets::close(sockfd);
   setState(kDisconnected);
   LOG_INFO << "Connector::retry - Retry connecting to " << serverAddr_.toHostPort()
-           << " in " << retryDelayMs_ << " milliseconds. " << addr.toHostPort();
+           << " in " << retryDelayMs_ << " milliseconds. ";
   loop_->runAfter(retryDelayMs_/1000.0, boost::bind(&Connector::startInLoop, this));
   retryDelayMs_ = std::min(retryDelayMs_ * 2, kMaxRetryDelayMs);
 }
