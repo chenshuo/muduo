@@ -18,18 +18,18 @@ using namespace muduo::net;
 
 int numThreads = 0;
 
-class EchoClient
+class EchoClient : boost::noncopyable
 {
  public:
-  EchoClient(EventLoop* loop, const InetAddress& listenAddr)
+  EchoClient(EventLoop* loop, const InetAddress& listenAddr, const string& id)
     : loop_(loop),
-      client_(loop, listenAddr, "EchoClient")
+      client_(loop, listenAddr, "EchoClient"+id)
   {
     client_.setConnectionCallback(
         boost::bind(&EchoClient::onConnection, this, _1));
     client_.setMessageCallback(
         boost::bind(&EchoClient::onMessage, this, _1, _2, _3));
-    client_.enableRetry();
+    //client_.enableRetry();
   }
 
   void connect()
@@ -52,6 +52,7 @@ class EchoClient
   {
     string msg(buf->retrieveAsString());
     LOG_TRACE << conn->name() << " recv " << msg.size() << " bytes at " << time.toString();
+    /*
     if (msg == "exit\n")
     {
       conn->send("bye\n");
@@ -62,6 +63,7 @@ class EchoClient
       loop_->quit();
     }
     conn->send(msg);
+    */
   }
 
   EventLoop* loop_;
@@ -75,14 +77,33 @@ int main(int argc, char* argv[])
   {
     EventLoop loop;
     InetAddress serverAddr(argv[1], 2000);
-    EchoClient client(&loop, serverAddr);
 
-    client.connect();
+    int n = 1;
+    if (argc > 2)
+    {
+      n = atoi(argv[2]);
+    }
+
+    std::vector<EchoClient*> clients;
+    clients.reserve(n);
+    for (int i = 0; i < n; ++i)
+    {
+      char buf[32];
+      snprintf(buf, sizeof buf, "%d", i+1);
+      clients.push_back(new EchoClient(&loop, serverAddr, buf));
+      clients.back()->connect();
+    }
+
     loop.loop();
+    while (!clients.empty())
+    {
+      delete clients.back();
+      clients.pop_back();
+    }
   }
   else
   {
-    printf("Usage: %s host_ip\n", argv[0]);
+    printf("Usage: %s host_ip [current#]\n", argv[0]);
   }
 }
 

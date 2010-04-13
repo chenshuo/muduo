@@ -2,6 +2,7 @@
 #define MUDUO_BASE_SINGLETON_H
 
 #include <pthread.h>
+#include <stdlib.h> // atexit
 
 template<typename T>
 class Singleton
@@ -22,6 +23,12 @@ class Singleton
   static void init()
   {
     value_ = new T();
+    atexit(destroy);
+  }
+
+  static void destroy()
+  {
+    delete value_;
   }
 
  private:

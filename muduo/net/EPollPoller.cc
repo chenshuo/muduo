@@ -131,6 +131,7 @@ void EPollPoller::removeChannel(Channel* channel)
 void EPollPoller::update(int operation, Channel* channel)
 {
   struct epoll_event event;
+  bzero(&event, sizeof event);
   event.events = channel->events();
   event.data.ptr = channel;
   if (::epoll_ctl(epollfd_, operation, channel->fd(), &event) < 0)

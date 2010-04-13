@@ -59,6 +59,7 @@ void Connector::startInLoop()
 
     case EAGAIN:
     case EADDRINUSE:
+    case EADDRNOTAVAIL:
     case ECONNREFUSED:
     case ENETUNREACH:
       retry(sockfd);
@@ -71,12 +72,12 @@ void Connector::startInLoop()
     case EBADF:
     case EFAULT:
     case ENOTSOCK:
-      LOG_SYSERR << "connect error in Connector::startInLoop.";
+      LOG_SYSERR << "connect error in Connector::startInLoop " << savedErrno;
       sockets::close(sockfd);
       break;
 
     default:
-      LOG_SYSERR << "Unexpected error in Connector::startInLoop.";
+      LOG_SYSERR << "Unexpected error in Connector::startInLoop " << savedErrno;
       sockets::close(sockfd);
       // connectErrorCallback_();
       break;
