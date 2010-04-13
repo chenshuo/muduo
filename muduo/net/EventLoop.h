@@ -107,7 +107,7 @@ class EventLoop : boost::noncopyable
   boost::scoped_ptr<Poller> poller_;
   boost::scoped_ptr<TimerQueue> timerQueue_;
   int wakeupFd_;
-  // unlink in TimerQueue, which is an internal class,
+  // unlike in TimerQueue, which is an internal class,
   // we don't expose Channel to client.
   boost::scoped_ptr<Channel> wakeupChannel_;
   ChannelList activeChannels_;

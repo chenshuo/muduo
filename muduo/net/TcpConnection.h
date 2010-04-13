@@ -14,7 +14,7 @@
 #include <muduo/base/Mutex.h>
 #include <muduo/base/Types.h>
 #include <muduo/net/Callbacks.h>
-#include <muduo/net/ChannelBuffer.h>
+#include <muduo/net/Buffer.h>
 #include <muduo/net/InetAddress.h>
 
 #include <boost/enable_shared_from_this.hpp>
@@ -57,8 +57,8 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
 
   // void send(string&& message);
   void send(const string& message);
-  // void send(const ChannelBuffer& message);
-  void send(ChannelBuffer* message);  // this one will swap data
+  // void send(const Buffer& message);
+  void send(Buffer* message);  // this one will swap data
   void shutdown(); // NOT thread safe, no simultaneous calling
 
   void setConnectionCallback(ConnectionCallback cb)
@@ -98,9 +98,9 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
   ConnectionCallback connectionCallback_;
   MessageCallback messageCallback_;
   ConnectionCallback closeCallback_;
-  ChannelBuffer inputBuffer_;
+  Buffer inputBuffer_;
   // MutexLock mutex_;
-  ChannelBuffer outputBuffer_;
+  Buffer outputBuffer_;
 };
 
 typedef boost::shared_ptr<TcpConnection> TcpConnectionPtr;

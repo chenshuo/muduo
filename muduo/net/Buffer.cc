@@ -7,7 +7,7 @@
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 //
 
-#include <muduo/net/ChannelBuffer.h>
+#include <muduo/net/Buffer.h>
 
 #include <muduo/base/Types.h>  // implicit_cast
 
@@ -17,7 +17,7 @@
 using namespace muduo;
 using namespace muduo::net;
 
-ssize_t ChannelBuffer::readFd(int fd, int* savedErrno)
+ssize_t Buffer::readFd(int fd, int* savedErrno)
 {
   // FIXME use ioctl/FIONREAD to tell how much to read
   char extrabuf[65536];

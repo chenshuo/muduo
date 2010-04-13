@@ -8,8 +8,8 @@
 //
 // This is a public header file, it must only include public header files.
 
-#ifndef MUDUO_NET_CHANNELBUFFER_H
-#define MUDUO_NET_CHANNELBUFFER_H
+#ifndef MUDUO_NET_BUFFER_H
+#define MUDUO_NET_BUFFER_H
 
 #include <muduo/base/copyable.h>
 #include <muduo/base/Types.h>
@@ -34,13 +34,13 @@ namespace net
 /// |                   |                  |                  |
 /// 0      <=      readerIndex   <=   writerIndex    <=     size
 /// @endcode
-class ChannelBuffer : public muduo::copyable
+class Buffer : public muduo::copyable
 {
  public:
   static const size_t kCheapPrepend = 8;
   static const size_t kInitialSize = 1024;
 
-  ChannelBuffer()
+  Buffer()
     : buffer_(kCheapPrepend + kInitialSize),
       readerIndex_(kCheapPrepend),
       writerIndex_(kCheapPrepend)
@@ -52,7 +52,7 @@ class ChannelBuffer : public muduo::copyable
 
   // default copy-ctor, dtor and assignment are fine
 
-  void swap(ChannelBuffer& rhs)
+  void swap(Buffer& rhs)
   {
     buffer_.swap(rhs.buffer_);
     std::swap(readerIndex_, rhs.readerIndex_);
@@ -160,4 +160,4 @@ class ChannelBuffer : public muduo::copyable
 }
 }
 
-#endif  // MUDUO_NET_CHANNELBUFFER_H
+#endif  // MUDUO_NET_BUFFER_H

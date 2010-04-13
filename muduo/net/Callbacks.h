@@ -22,7 +22,7 @@ namespace net
 
 // All client visible callbacks go here.
 
-class ChannelBuffer;
+class Buffer;
 class TcpConnection;
 typedef boost::shared_ptr<TcpConnection> TcpConnectionPtr;
 typedef boost::function<void()> TimerCallback;
@@ -30,7 +30,7 @@ typedef boost::function<void (const TcpConnectionPtr&)> ConnectionCallback;
 
 // the data has been read to (buf, len)
 typedef boost::function<void (const TcpConnectionPtr&,
-                              ChannelBuffer*,
+                              Buffer*,
                               Timestamp receiveTime)> MessageCallback;
 
 }

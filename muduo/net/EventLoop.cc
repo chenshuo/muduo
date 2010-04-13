@@ -10,12 +10,14 @@
 
 #include <muduo/base/Logging.h>
 #include <muduo/base/Mutex.h>
+#include <muduo/base/Singleton.h>
 #include <muduo/net/Channel.h>
 #include <muduo/net/Poller.h>
 #include <muduo/net/TimerQueue.h>
 
 #include <boost/bind.hpp>
 
+#include <signal.h>
 #include <sys/eventfd.h>
 
 using namespace muduo;
@@ -37,6 +39,18 @@ int createEventfd()
   }
   return evtfd;
 }
+
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+class IgnoreSigPipe
+{
+ public:
+  IgnoreSigPipe()
+  {
+    ::signal(SIGPIPE, SIG_IGN);
+    LOG_TRACE << "Ignore SIGPIPE";
+  }
+};
+#pragma GCC diagnostic error "-Wold-style-cast"
 }
 
 EventLoop::EventLoop()
@@ -49,6 +63,7 @@ EventLoop::EventLoop()
     wakeupFd_(createEventfd()),
     wakeupChannel_(new Channel(this, wakeupFd_))
 {
+  Singleton<IgnoreSigPipe>::instance();
   LOG_TRACE << "EventLoop created " << this << " in thread " << threadId_;
   if (t_loopInThisThread)
   {
