@@ -16,6 +16,7 @@ class LoggerImpl
  public:
   typedef Logger::LogLevel LogLevel;
   LoggerImpl(LogLevel level, int old_errno, const char* file, int line);
+  void finish();
 
   Timestamp time_;
   std::ostringstream stream_;
@@ -61,14 +62,19 @@ LoggerImpl::LoggerImpl(LogLevel level, int savedErrno, const char* file, int lin
   const char* path_sep_pos = strrchr(fullname_, '/');
   basename_ = (path_sep_pos != NULL) ? path_sep_pos + 1 : fullname_;
   char message_head[512];
-  snprintf(message_head, sizeof(message_head), "%s %5d %s:%d %s ",
+  snprintf(message_head, sizeof(message_head), "%s %5d %s ",
       time_.toFormattedString().c_str(), CurrentThread::tid(),
-      basename_, line_, LogLevelName[level]);
+      LogLevelName[level]);
   stream_ << message_head;
   if (savedErrno != 0)
   {
-    stream_ << strerror_tl(savedErrno) << " ";
+    stream_ << strerror_tl(savedErrno) << " (" << savedErrno << ")";
   }
+}
+
+void LoggerImpl::finish()
+{
+  stream_ << " - " << basename_ << ":" << line_ << '\n';
 }
 
 std::ostream& Logger::stream()
@@ -99,7 +105,7 @@ Logger::Logger(const char* file, int line, bool toAbort)
 
 Logger::~Logger()
 {
-  impl_->stream_ << '\n';
+  impl_->finish();
   std::string buf(impl_->stream_.str());
   ssize_t n = ::write(1, buf.data(), buf.size());
   if (impl_->level_ == FATAL)

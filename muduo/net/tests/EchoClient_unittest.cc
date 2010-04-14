@@ -17,6 +17,9 @@ using namespace muduo;
 using namespace muduo::net;
 
 int numThreads = 0;
+class EchoClient;
+std::vector<EchoClient*> clients;
+int current = 0;
 
 class EchoClient : boost::noncopyable
 {
@@ -45,6 +48,15 @@ class EchoClient : boost::noncopyable
         << conn->peerAddress().toHostPort() << " is "
         << (conn->connected() ? "UP" : "DOWN");
 
+    if (conn->connected())
+    {
+      ++current;
+      if (current < clients.size())
+      {
+        clients[current]->connect();
+      }
+      LOG_INFO << "*** connected " << current;
+    }
     conn->send("world\n");
   }
 
@@ -84,16 +96,15 @@ int main(int argc, char* argv[])
       n = atoi(argv[2]);
     }
 
-    std::vector<EchoClient*> clients;
     clients.reserve(n);
     for (int i = 0; i < n; ++i)
     {
       char buf[32];
       snprintf(buf, sizeof buf, "%d", i+1);
       clients.push_back(new EchoClient(&loop, serverAddr, buf));
-      clients.back()->connect();
     }
 
+    clients[current]->connect();
     loop.loop();
     while (!clients.empty())
     {

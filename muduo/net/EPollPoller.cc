@@ -59,7 +59,7 @@ Timestamp EPollPoller::poll(int timeoutMs, ChannelList* activeChannels)
     fillActiveChannels(numEvents, activeChannels);
     if (implicit_cast<size_t>(numEvents) == events_.size())
     {
-      events_.resize(events_.size()+1);
+      events_.resize(events_.size()*2);
     }
   }
   else if (numEvents == 0)

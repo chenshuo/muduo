@@ -20,6 +20,9 @@
 using namespace muduo;
 using namespace muduo::net;
 
+namespace
+{
+
 typedef struct sockaddr SA;
 
 const SA* sockaddr_cast(const struct sockaddr_in* addr)
@@ -32,15 +35,8 @@ SA* sockaddr_cast(struct sockaddr_in* addr)
   return static_cast<SA*>(implicit_cast<void*>(addr));
 }
 
-int sockets::createNonblockingOrDie()
+void setNonBlockAndCloseOnExec(int sockfd)
 {
-  // socket
-  int sockfd = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if (sockfd < 0)
-  {
-    LOG_SYSFATAL << "sockets::createNonblockingOrDie";
-  }
-
   // non-block
   int flags = ::fcntl(sockfd, F_GETFL, 0);
   flags |= O_NONBLOCK;
@@ -52,7 +48,20 @@ int sockets::createNonblockingOrDie()
   flags |= FD_CLOEXEC;
   ret = ::fcntl(sockfd, F_SETFD, flags);
   // FIXME check
+}
 
+}
+
+int sockets::createNonblockingOrDie()
+{
+  // socket
+  int sockfd = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  if (sockfd < 0)
+  {
+    LOG_SYSFATAL << "sockets::createNonblockingOrDie";
+  }
+
+  setNonBlockAndCloseOnExec(sockfd);
   return sockfd;
 }
 
@@ -79,6 +88,7 @@ int sockets::accept(int sockfd, struct sockaddr_in* addr)
   socklen_t addrlen = sizeof *addr;
 #if VALGRIND
   int connfd = ::accept(sockfd, sockaddr_cast(addr), &addrlen);
+  setNonBlockAndCloseOnExec(connfd);
 #else
   int connfd = ::accept4(sockfd, sockaddr_cast(addr),
                          &addrlen, SOCK_NONBLOCK | SOCK_CLOEXEC);
