@@ -54,6 +54,10 @@ class EventLoop : boost::noncopyable
   void quit();
   void wakeup();
 
+  /// Time when poll returns, usually means data arrivial.
+  ///
+  Timestamp receiveTime();
+
   // timers
 
   /// Runs callback immediately in the loop thread.

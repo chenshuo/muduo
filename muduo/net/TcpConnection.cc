@@ -22,6 +22,19 @@
 using namespace muduo;
 using namespace muduo::net;
 
+void muduo::net::defaultConnectionCallback(const TcpConnectionPtr& conn)
+{
+  LOG_TRACE << conn->localAddress().toHostPort() << " -> "
+        << conn->peerAddress().toHostPort() << " is "
+        << (conn->connected() ? "UP" : "DOWN");
+}
+
+void muduo::net::defaultMessageCallback(const TcpConnectionPtr&,
+                                        Buffer*,
+                                        Timestamp)
+{
+}
+
 TcpConnection::TcpConnection(EventLoop* loop,
                              const string& name__,
                              int fd,
@@ -51,6 +64,25 @@ TcpConnection::~TcpConnection()
   printf("%p %s dtor\n", this, name_.c_str());
 }
 
+void TcpConnection::send(const void* data, size_t len)
+{
+  if (state_ == kConnected)
+  {
+    if (loop_->isInLoopThread())
+    {
+      sendInLoop(data, len);
+    }
+    else
+    {
+      string message(static_cast<const char*>(data), len);
+      loop_->runInLoop(
+          boost::bind(&TcpConnection::sendInLoop,
+                      this,
+                      message));
+    }
+  }
+}
+
 void TcpConnection::send(const string& message)
 {
   if (state_ == kConnected)
@@ -72,12 +104,38 @@ void TcpConnection::send(const string& message)
 
 void TcpConnection::sendInLoop(const string& message)
 {
+  sendInLoop(message.data(), message.size());
+}
+
+void TcpConnection::sendInLoop(const void* data, size_t len)
+{
   loop_->assertInLoopThread();
-  // FIXME: try writing here, until EWOULDBLOCK
-  outputBuffer_.append(message.data(), message.size());
-  if (!channel_->isWriting())
+  ssize_t nwrote = 0;
+  if (!channel_->isWriting() && outputBuffer_.readableBytes() == 0)
   {
-    channel_->enableWriting();
+    nwrote = ::write(channel_->fd(), data, len);
+    if (nwrote >= 0)
+    {
+      if (implicit_cast<size_t>(nwrote) < len)
+      {
+        LOG_TRACE << "I am going to write more data";
+      }
+    }
+    else// if (errno != EWOULDBLOCK)
+    {
+      nwrote = 0;
+      LOG_SYSERR << "TcpConnection::handleWrite";
+    }
+  }
+
+  assert(nwrote >= 0);
+  if (implicit_cast<size_t>(nwrote) < len)
+  {
+    outputBuffer_.append(static_cast<const char*>(data)+nwrote, len);
+    if (!channel_->isWriting())
+    {
+      channel_->enableWriting();
+    }
   }
 }
 

@@ -31,7 +31,12 @@ typedef boost::function<void (const TcpConnectionPtr&)> ConnectionCallback;
 // the data has been read to (buf, len)
 typedef boost::function<void (const TcpConnectionPtr&,
                               Buffer*,
-                              Timestamp receiveTime)> MessageCallback;
+                              Timestamp)> MessageCallback;
+
+void defaultConnectionCallback(const TcpConnectionPtr& conn);
+void defaultMessageCallback(const TcpConnectionPtr& conn,
+                            Buffer* buffer,
+                            Timestamp receiveTime);
 
 }
 }

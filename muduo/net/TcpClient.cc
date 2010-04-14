@@ -39,6 +39,8 @@ TcpClient::TcpClient(EventLoop* loop,
   : loop_(CHECK_NOTNULL(loop)),
     connector_(new Connector(loop, serverAddr)),
     name_(name),
+    connectionCallback_(defaultConnectionCallback),
+    messageCallback_(defaultMessageCallback),
     retry_(false),
     nextConnId_(1)
 {

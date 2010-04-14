@@ -29,6 +29,8 @@ TcpServer::TcpServer(EventLoop* loop,
     name_(name),
     acceptor_(new Acceptor(loop, listenAddr)),
     threadPool_(new EventLoopPool(loop)),
+    connectionCallback_(defaultConnectionCallback),
+    messageCallback_(defaultMessageCallback),
     started_(false),
     nextConnId_(1)
 {
