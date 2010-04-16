@@ -8,15 +8,15 @@
 //
 // This is an internal header file, you should not include this.
 
-#ifndef MUDUO_NET_POLLPOLLER_H
-#define MUDUO_NET_POLLPOLLER_H
+#ifndef MUDUO_NET_POLLER_EPOLLPOLLER_H
+#define MUDUO_NET_POLLER_EPOLLPOLLER_H
 
 #include <muduo/net/Poller.h>
 
 #include <map>
 #include <vector>
 
-#include <poll.h>
+#include <sys/epoll.h>
 
 namespace muduo
 {
@@ -24,29 +24,33 @@ namespace net
 {
 
 ///
-/// IO Multiplexing with poll(2).
+/// IO Multiplexing with epoll(4).
 ///
-class PollPoller : public Poller
+class EPollPoller : public Poller
 {
  public:
-
-  PollPoller(EventLoop* loop);
-  virtual ~PollPoller();
+  EPollPoller(EventLoop* loop);
+  virtual ~EPollPoller();
 
   virtual Timestamp poll(int timeoutMs, ChannelList* activeChannels);
   virtual void updateChannel(Channel* channel);
   virtual void removeChannel(Channel* channel);
 
  private:
+  static const int kInitEventListSize = 16;
+
   void fillActiveChannels(int numEvents,
                           ChannelList* activeChannels) const;
+  void update(int operation, Channel* channel);
 
-  typedef std::vector<struct pollfd> PollFdList;
+  typedef std::vector<struct epoll_event> EventList;
   typedef std::map<int, Channel*> ChannelMap;
-  PollFdList pollfds_;
+
+  int epollfd_;
+  EventList events_;
   ChannelMap channels_;
 };
 
 }
 }
-#endif  // MUDUO_NET_POLLPOLLER_H
+#endif  // MUDUO_NET_POLLER_EPOLLPOLLER_H

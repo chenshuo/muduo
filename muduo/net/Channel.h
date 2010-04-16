@@ -65,7 +65,7 @@ class Channel : boost::noncopyable
   void disableAll() { events_ = kNoneEvent; update(); }
   bool isWriting() const { return events_ & kWriteEvent; }
 
-  // for PollPoller
+  // for Poller
   int index() { return index_; }
   void set_index(int idx) { index_ = idx; }
 
@@ -82,7 +82,7 @@ class Channel : boost::noncopyable
   const int  fd_;
   int        events_;
   int        revents_;
-  int        index_; // used by PollPoller.
+  int        index_; // used by Poller.
 
   boost::weak_ptr<void> tie_;
   bool tied_;

@@ -8,8 +8,8 @@
 //
 // This is an internal header file, you should not include this.
 
-#ifndef MUDUO_NET_EVENTLOOPPOOL_H
-#define MUDUO_NET_EVENTLOOPPOOL_H
+#ifndef MUDUO_NET_EVENTLOOPTHREADPOOL_H
+#define MUDUO_NET_EVENTLOOPTHREADPOOL_H
 
 #include <muduo/base/Condition.h>
 #include <muduo/base/Mutex.h>
@@ -50,4 +50,4 @@ class EventLoopThreadPool : boost::noncopyable
 }
 }
 
-#endif  // MUDUO_NET_EVENTLOOPPOOL_H
+#endif  // MUDUO_NET_EVENTLOOPTHREADPOOL_H

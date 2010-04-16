@@ -7,8 +7,8 @@
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
 #include <muduo/net/Poller.h>
-#include <muduo/net/PollPoller.h>
-#include <muduo/net/EPollPoller.h>
+#include <muduo/net/poller/PollPoller.h>
+#include <muduo/net/poller/EPollPoller.h>
 
 #include <stdlib.h>
 

@@ -6,7 +6,7 @@
 
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
-#include <muduo/net/PollPoller.h>
+#include <muduo/net/poller/PollPoller.h>
 
 #include <muduo/base/Logging.h>
 #include <muduo/base/Types.h>

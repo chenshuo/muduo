@@ -3,14 +3,14 @@ set(net_SRCS
   Buffer.cc
   Channel.cc
   Connector.cc
-  DefaultPoller.cc
-  EPollPoller.cc
   EventLoop.cc
-  EventLoopPool.cc
   EventLoopThread.cc
+  EventLoopThreadPool.cc
   InetAddress.cc
   Poller.cc
-  PollPoller.cc
+  poller/DefaultPoller.cc
+  poller/EPollPoller.cc
+  poller/PollPoller.cc
   Socket.cc
   SocketsOps.cc
   TcpClient.cc
