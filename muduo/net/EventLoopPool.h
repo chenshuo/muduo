@@ -26,28 +26,25 @@ namespace net
 {
 
 class EventLoop;
+class EventLoopThread;
 
-class EventLoopPool : boost::noncopyable
+class EventLoopThreadPool : boost::noncopyable
 {
  public:
-  EventLoopPool(EventLoop* baseLoop);
-  ~EventLoopPool();
+  EventLoopThreadPool(EventLoop* baseLoop);
+  ~EventLoopThreadPool();
   void setThreadNum(int numThreads) { numThreads_ = numThreads; }
   void start();
   EventLoop* getNextLoop();
 
  private:
-  void threadFunc();
 
   EventLoop* baseLoop_;
   bool started_;
-  bool exiting_;
   int numThreads_;
   int next_;
-  std::vector<Thread*> threads_;
-  MutexLock mutex_;
-  Condition cond_;
-  std::vector<EventLoop*> loopPool_; // @GuardedBy mutex_
+  std::vector<EventLoopThread*> threads_; // FIXME: use unique_ptr
+  std::vector<EventLoop*> loops_;
 };
 
 }

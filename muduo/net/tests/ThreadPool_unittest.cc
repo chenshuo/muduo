@@ -23,7 +23,7 @@ int main()
 
   {
     printf("Single thread:\n");
-    EventLoopPool model(&loop);
+    EventLoopThreadPool model(&loop);
     model.setThreadNum(0);
     model.start();
     assert(model.getNextLoop() == &loop);
@@ -33,7 +33,7 @@ int main()
 
   {
     printf("Another thread:\n");
-    EventLoopPool model(&loop);
+    EventLoopThreadPool model(&loop);
     model.setThreadNum(1);
     model.start();
     EventLoop* nextLoop = model.getNextLoop();
@@ -44,7 +44,7 @@ int main()
 
   {
     printf("Three threads:\n");
-    EventLoopPool model(&loop);
+    EventLoopThreadPool model(&loop);
     model.setThreadNum(3);
     model.start();
     EventLoop* nextLoop = model.getNextLoop();
