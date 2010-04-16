@@ -7,6 +7,7 @@ set(net_SRCS
   EPollPoller.cc
   EventLoop.cc
   EventLoopPool.cc
+  EventLoopThread.cc
   InetAddress.cc
   Poller.cc
   PollPoller.cc

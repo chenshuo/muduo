@@ -226,6 +226,7 @@ void TcpConnection::handleWrite()
     else
     {
       LOG_SYSERR << "TcpConnection::handleWrite";
+      abort();  // FIXME
     }
   }
   else
@@ -252,5 +253,6 @@ void TcpConnection::handleError()
   int err = sockets::getSocketError(channel_->fd());
   LOG_ERROR << "TcpConnection::handleError [" << name_
             << "] - SO_ERROR = " << err << " " << strerror_tl(err);
+  abort();  // FIXME
 }
 
