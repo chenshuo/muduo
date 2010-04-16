@@ -5,8 +5,10 @@ project(muduo CXX)
 set(CXX_FLAGS
  -g
  -DVALGRIND
+ # -DMUDUO_STD_STRING
  -Wall
  -Wextra
+ # -m32
  # -Werror
  -Wconversion
  -Wunused-parameter
@@ -21,6 +23,8 @@ set(CXX_FLAGS
  )
 string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS}")
 
+set(CMAKE_CXX_COMPILER "g++")
+#set(CMAKE_CXX_COMPILER "icpc")
 set(CMAKE_CXX_FLAGS_DEBUG "-O0")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2") # no NDEBUG in Release, keep asserting.
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)

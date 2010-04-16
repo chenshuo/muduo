@@ -86,7 +86,7 @@ void runClient(const char* ip, uint16_t port)
   client.setConnectionCallback(clientConnectionCallback);
   client.setMessageCallback(clientMessageCallback);
   client.connect();
-  loop.runEvery(0.1, sendMyTime);
+  loop.runEvery(0.2, sendMyTime);
   loop.loop();
 }
 
