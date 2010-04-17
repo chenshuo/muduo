@@ -3,7 +3,7 @@
 #include <muduo/base/Thread.h>
 #include <muduo/base/Timestamp.h>
 
-#include <errno.h>                      // for errno
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -68,7 +68,7 @@ LoggerImpl::LoggerImpl(LogLevel level, int savedErrno, const char* file, int lin
   stream_ << message_head;
   if (savedErrno != 0)
   {
-    stream_ << strerror_tl(savedErrno) << " (" << savedErrno << ")";
+    stream_ << strerror_tl(savedErrno) << " (errno=" << savedErrno << ") ";
   }
 }
 

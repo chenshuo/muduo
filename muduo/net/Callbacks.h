@@ -14,9 +14,10 @@
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include <muduo/base/Timestamp.h>
+
 namespace muduo
 {
-class Timestamp;
 namespace net
 {
 

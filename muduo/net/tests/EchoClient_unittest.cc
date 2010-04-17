@@ -51,7 +51,7 @@ class EchoClient : boost::noncopyable
     if (conn->connected())
     {
       ++current;
-      if (current < clients.size())
+      if (implicit_cast<size_t>(current) < clients.size())
       {
         clients[current]->connect();
       }
