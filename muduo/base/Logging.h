@@ -30,11 +30,13 @@ class Logger
 
   std::ostream& stream();
 
+  static LogLevel logLevel();
+
  private:
   boost::scoped_ptr<LoggerImpl> impl_;
 };
 
-#define LOG_TRACE Logger(__FILE__, __LINE__, Logger::TRACE, __func__).stream()
+#define LOG_TRACE if (Logger::logLevel() <= Logger::TRACE) Logger(__FILE__, __LINE__, Logger::TRACE, __func__).stream()
 #define LOG_DEBUG Logger(__FILE__, __LINE__, Logger::DEBUG, __func__).stream()
 #define LOG_INFO Logger(__FILE__, __LINE__).stream()
 #define LOG_WARN Logger(__FILE__, __LINE__, Logger::WARN).stream()
