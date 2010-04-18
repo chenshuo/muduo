@@ -59,6 +59,6 @@ void EventLoopThread::threadFunc()
   }
 
   loop.loop();
-  assert(exiting_);
+  //assert(exiting_);
 }
 

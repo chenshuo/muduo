@@ -52,7 +52,6 @@ class EventLoop : boost::noncopyable
   void loop();
 
   void quit();
-  void wakeup();
 
   /// Time when poll returns, usually means data arrivial.
   ///
@@ -81,8 +80,9 @@ class EventLoop : boost::noncopyable
   TimerId runEvery(double interval, const TimerCallback& cb);
   /// Cancels the timer.
   /// Safe to call from other threads.
-  void cancel(TimerId timerId);
+  // void cancel(TimerId timerId);
 
+  void wakeup();
   void updateChannel(Channel* channel);
   void removeChannel(Channel* channel);
 
