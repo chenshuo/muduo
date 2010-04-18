@@ -36,6 +36,16 @@ const char* strerror_tl(int savedErrno)
   return strerror_r(savedErrno, t_errnobuf, sizeof t_errnobuf);
 }
 
+Logger::LogLevel initLogLevel()
+{
+  if (::getenv("MUDUO_LOG_TRACE"))
+    return Logger::TRACE;
+  else
+    return Logger::DEBUG;
+}
+
+Logger::LogLevel g_logLevel = initLogLevel();
+
 }
 
 using namespace muduo;
@@ -116,5 +126,6 @@ Logger::~Logger()
 
 Logger::LogLevel Logger::logLevel()
 {
-  return TRACE;
+  return g_logLevel;
 }
+
