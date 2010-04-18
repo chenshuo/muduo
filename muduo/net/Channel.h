@@ -58,6 +58,7 @@ class Channel : boost::noncopyable
   int fd() const { return fd_; }
   int events() const { return events_; }
   void set_revents(int revt) { revents_ = revt; }
+  // int revents() const { return revents_; }
 
   void enableReading() { events_ |= kReadEvent; update(); }
   void enableWriting() { events_ |= kWriteEvent; update(); }
@@ -68,6 +69,9 @@ class Channel : boost::noncopyable
   // for Poller
   int index() { return index_; }
   void set_index(int idx) { index_ = idx; }
+
+  // for debug
+  string reventsToString() const;
 
   EventLoop* getLoop() { return loop_; }
 

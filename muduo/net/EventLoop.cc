@@ -96,6 +96,10 @@ void EventLoop::loop()
   {
     activeChannels_.clear();
     happenTime_ = poller_->poll(kPollTimeMs, &activeChannels_);
+    if (Logger::logLevel() <= Logger::TRACE)
+    {
+      printActiveChannels();
+    }
     // TODO sort channel by priority
     eventHandling_ = true;
     for (ChannelList::iterator it = activeChannels_.begin();
@@ -211,5 +215,15 @@ void EventLoop::doPendingFunctors()
       functors[i]();
     }
   } while (!functors.empty());
+}
+
+void EventLoop::printActiveChannels() const
+{
+  for (ChannelList::const_iterator it = activeChannels_.begin();
+      it != activeChannels_.end(); ++it)
+  {
+    const Channel* ch = *it;
+    LOG_TRACE << "{" << ch->reventsToString() << "} ";
+  }
 }
 

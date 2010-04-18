@@ -10,6 +10,8 @@
 #include <muduo/net/Channel.h>
 #include <muduo/net/EventLoop.h>
 
+#include <sstream>
+
 #include <poll.h>
 
 using namespace muduo;
@@ -92,3 +94,24 @@ void Channel::handleEventWithGuard(Timestamp receiveTime)
   eventHandling_ = false;
 }
 
+string Channel::reventsToString() const
+{
+  std::ostringstream oss;
+  oss << fd_ << ": ";
+  if (revents_ & POLLIN)
+    oss << "IN ";
+  if (revents_ & POLLPRI)
+    oss << "PRI ";
+  if (revents_ & POLLOUT)
+    oss << "OUT ";
+  if (revents_ & POLLHUP)
+    oss << "HUP ";
+  if (revents_ & POLLRDHUP)
+    oss << "RDHUP ";
+  if (revents_ & POLLERR)
+    oss << "ERR ";
+  if (revents_ & POLLNVAL)
+    oss << "NVAL ";
+
+  return oss.str().c_str();
+}

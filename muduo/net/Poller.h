@@ -53,7 +53,7 @@ class Poller : boost::noncopyable
   void assertInLoopThread();
 
  private:
-  EventLoop* loop_;
+  EventLoop* ownerLoop_;
 };
 
 }

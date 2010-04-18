@@ -13,7 +13,7 @@ using namespace muduo;
 using namespace muduo::net;
 
 Poller::Poller(EventLoop* loop)
-  : loop_(loop)
+  : ownerLoop_(loop)
 {
 }
 
@@ -23,6 +23,6 @@ Poller::~Poller()
 
 void Poller::assertInLoopThread()
 {
-  loop_->assertInLoopThread();
+  ownerLoop_->assertInLoopThread();
 }
 

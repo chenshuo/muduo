@@ -30,9 +30,10 @@ void muduo::net::defaultConnectionCallback(const TcpConnectionPtr& conn)
 }
 
 void muduo::net::defaultMessageCallback(const TcpConnectionPtr&,
-                                        Buffer*,
+                                        Buffer* buf,
                                         Timestamp)
 {
+  buf->retrieveAll();
 }
 
 TcpConnection::TcpConnection(EventLoop* loop,
@@ -56,12 +57,12 @@ TcpConnection::TcpConnection(EventLoop* loop,
       boost::bind(&TcpConnection::handleClose, this));
   channel_->setErrorCallback(
       boost::bind(&TcpConnection::handleError, this));
-  printf("%p %s ctor\n", this, name_.c_str());
+  LOG_DEBUG << "TcpConnection::ctor[" <<  name_ << "] at " << this;
 }
 
 TcpConnection::~TcpConnection()
 {
-  printf("%p %s dtor\n", this, name_.c_str());
+  LOG_DEBUG << "TcpConnection::dtor[" <<  name_ << "] at " << this;
 }
 
 void TcpConnection::send(const void* data, size_t len)
@@ -253,6 +254,6 @@ void TcpConnection::handleError()
   int err = sockets::getSocketError(channel_->fd());
   LOG_ERROR << "TcpConnection::handleError [" << name_
             << "] - SO_ERROR = " << err << " " << strerror_tl(err);
-  abort();  // FIXME
+  //handleClose();
 }
 

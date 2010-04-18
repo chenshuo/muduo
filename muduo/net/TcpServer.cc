@@ -41,7 +41,7 @@ TcpServer::TcpServer(EventLoop* loop,
 TcpServer::~TcpServer()
 {
   loop_->assertInLoopThread();
-  LOG_TRACE << "TcpServer::~TcpServer " << this << " destructing";
+  LOG_TRACE << "TcpServer::~TcpServer [" << name_ << "] destructing";
 
   for (ConnectionMap::iterator it(connections_.begin());
       it != connections_.end(); ++it)
@@ -83,6 +83,9 @@ void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
   ++nextConnId_;
   string connName = name_ + buf;
 
+  LOG_INFO << "TcpServer::newConnection [" << name_
+           << "] - new connection [" << connName
+           << "] from " << peerAddr.toHostPort();
   InetAddress localAddr(sockets::getLocalAddr(sockfd));
   // FIXME poll with zero timeout to double confirm the new connection
   TcpConnectionPtr conn(
@@ -103,6 +106,8 @@ void TcpServer::removeConnection(const TcpConnectionPtr& conn)
 void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn)
 {
   loop_->assertInLoopThread();
+  LOG_INFO << "TcpServer::removeConnectionInLoop [" << name_
+           << "] - connection " << conn->name();
   size_t n = connections_.erase(conn->name());
   assert(n == 1);
   EventLoop* ioLoop = conn->getLoop();

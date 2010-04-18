@@ -101,6 +101,8 @@ class EventLoop : boost::noncopyable
   void handleRead();  // waked up
   void doPendingFunctors();
 
+  void printActiveChannels() const; // DEBUG
+
   typedef std::vector<Channel*> ChannelList;
 
   bool looping_; /* atomic */

@@ -116,5 +116,5 @@ Logger::~Logger()
 
 Logger::LogLevel Logger::logLevel()
 {
-  return INFO;
+  return TRACE;
 }
