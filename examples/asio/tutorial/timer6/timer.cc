@@ -2,7 +2,7 @@
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/EventLoopThread.h>
 
-#include <iostream>
+#include <stdio.h>
 #include <boost/bind.hpp>
 #include <boost/noncopyable.hpp>
 
@@ -24,7 +24,9 @@ class Printer : boost::noncopyable
 
   ~Printer()
   {
-    std::cout << "Final count is " << count_ << "\n";
+    // cout is not thread safe
+    //std::cout << "Final count is " << count_ << "\n";
+    printf("Final count is %d\n", count_);
   }
 
   void print1()
@@ -52,7 +54,9 @@ class Printer : boost::noncopyable
     }
     else
     {
-      std::cout << "Timer 1: " << count << "\n";
+      // cout is not thread safe
+      //std::cout << "Timer 1: " << count << "\n";
+      printf("Timer 1: %d\n", count);
       loop1_->runAfter(1, boost::bind(&Printer::print1, this));
     }
   }
@@ -82,7 +86,9 @@ class Printer : boost::noncopyable
     }
     else
     {
-      std::cout << "Timer 2: " << count << "\n";
+      // cout is not thread safe
+      //std::cout << "Timer 2: " << count << "\n";
+      printf("Timer 2: %d\n", count);
       loop2_->runAfter(1, boost::bind(&Printer::print2, this));
     }
   }
