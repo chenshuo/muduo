@@ -25,7 +25,7 @@ class TimeClient : boost::noncopyable
         boost::bind(&TimeClient::onConnection, this, _1));
     client_.setMessageCallback(
         boost::bind(&TimeClient::onMessage, this, _1, _2, _3));
-    client_.enableRetry();
+    // client_.enableRetry();
   }
 
   void connect()
@@ -50,6 +50,7 @@ class TimeClient : boost::noncopyable
     {
       const void* data = buf->peek();
       int32_t time = *static_cast<const int32_t*>(data);
+      buf->retrieve(sizeof(int32_t));
       time_t servertime = sockets::networkToHost32(time);
       Timestamp t(servertime * Timestamp::kMicroSecondsPerSecond);
       LOG_INFO << "Server time = " << servertime << ", " << t.toFormattedString();

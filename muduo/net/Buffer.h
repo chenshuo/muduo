@@ -105,11 +105,12 @@ class Buffer : public muduo::copyable
     writerIndex_ += len;
   }
 
-  void prepend(const char* /*restrict*/ data, size_t len)
+  void prepend(const void* /*restrict*/ data, size_t len)
   {
     assert(len <= prependableBytes());
     readerIndex_ -= len;
-    std::copy(data, data+len, begin()+readerIndex_);
+    const char* d = static_cast<const char*>(data);
+    std::copy(d, d+len, begin()+readerIndex_);
   }
 
   void shrink(size_t reserve)
