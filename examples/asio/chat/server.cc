@@ -52,9 +52,9 @@ class ChatServer : boost::noncopyable
     }
   }
 
-  void onStringMessage(const TcpConnectionPtr& conn,
+  void onStringMessage(const TcpConnectionPtr&,
                        const string& message,
-                       Timestamp time)
+                       Timestamp)
   {
     MutexLockGuard lock(mutex_);
     for (ConnectionList::iterator it = connections_.begin();

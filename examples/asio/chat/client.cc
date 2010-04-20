@@ -66,9 +66,9 @@ class ChatClient : boost::noncopyable
     }
   }
 
-  void onStringMessage(const TcpConnectionPtr& conn,
+  void onStringMessage(const TcpConnectionPtr&,
                        const string& message,
-                       Timestamp receiveTime)
+                       Timestamp)
   {
     printf("<<< %s\n", message.c_str());
   }

@@ -38,14 +38,14 @@ void muduo::net::defaultMessageCallback(const TcpConnectionPtr&,
 
 TcpConnection::TcpConnection(EventLoop* loop,
                              const string& name__,
-                             int fd,
+                             int sockfd,
                              const InetAddress& localAddr,
                              const InetAddress& peerAddr)
   : loop_(CHECK_NOTNULL(loop)),
     name_(name__),
     state_(kConnecting),
-    socket_(new Socket(fd)),
-    channel_(new Channel(loop, fd)),
+    socket_(new Socket(sockfd)),
+    channel_(new Channel(loop, sockfd)),
     localAddr_(localAddr),
     peerAddr_(peerAddr)
 {
@@ -58,13 +58,13 @@ TcpConnection::TcpConnection(EventLoop* loop,
   channel_->setErrorCallback(
       boost::bind(&TcpConnection::handleError, this));
   LOG_DEBUG << "TcpConnection::ctor[" <<  name_ << "] at " << this
-    << " fd=" << fd;
+    << " fd=" << sockfd;
 }
 
 TcpConnection::~TcpConnection()
 {
   LOG_DEBUG << "TcpConnection::dtor[" <<  name_ << "] at " << this
-    << " fd=" << fd;
+    << " fd=" << channel_->fd();
 }
 
 void TcpConnection::send(const void* data, size_t len)

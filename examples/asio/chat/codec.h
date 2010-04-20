@@ -4,10 +4,11 @@
 #include <muduo/net/TcpConnection.h>
 
 #include <boost/function.hpp>
+#include <boost/noncopyable.hpp>
 
 using muduo::Logger;
 
-class LengthHeaderCodec
+class LengthHeaderCodec : boost::noncopyable
 {
  public:
   typedef boost::function<void (const muduo::net::TcpConnectionPtr&,
