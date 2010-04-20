@@ -1,7 +1,8 @@
+#include "codec.h"
+
 #include <muduo/base/Logging.h>
 #include <muduo/base/Mutex.h>
 #include <muduo/net/EventLoopThread.h>
-#include <muduo/net/SocketsOps.h>
 #include <muduo/net/TcpClient.h>
 
 #include <boost/bind.hpp>
@@ -18,12 +19,13 @@ class ChatClient : boost::noncopyable
  public:
   ChatClient(EventLoop* loop, const InetAddress& listenAddr)
     : loop_(loop),
-      client_(loop, listenAddr, "ChatClient")
+      client_(loop, listenAddr, "ChatClient"),
+      codec_(boost::bind(&ChatClient::onStringMessage, this, _1, _2, _3))
   {
     client_.setConnectionCallback(
         boost::bind(&ChatClient::onConnection, this, _1));
     client_.setMessageCallback(
-        boost::bind(&ChatClient::onMessage, this, _1, _2, _3));
+        boost::bind(&LengthHeaderCodec::onMessage, &codec_, _1, _2, _3));
     client_.enableRetry();
   }
 
@@ -42,11 +44,7 @@ class ChatClient : boost::noncopyable
     MutexLockGuard lock(mutex_);
     if (connection_)
     {
-      Buffer buf;
-      buf.append(message.data(), message.size());
-      int32_t len = sockets::hostToNetwork32(static_cast<int32_t>(message.size()));
-      buf.prepend(&len, sizeof len);
-      connection_->send(&buf);
+      codec_.send(get_pointer(connection_), message);
     }
   }
 
@@ -68,41 +66,18 @@ class ChatClient : boost::noncopyable
     }
   }
 
-  void onMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp receiveTime)
+  void onStringMessage(const TcpConnectionPtr& conn,
+                       const string& message,
+                       Timestamp receiveTime)
   {
-    if (buf->readableBytes() >= kHeaderLen)
-    {
-      const void* data = buf->peek();
-      int32_t tmp = *static_cast<const int32_t*>(data);
-      int32_t len = sockets::networkToHost32(tmp);
-      if (len > 65536 || len < 0)
-      {
-        LOG_ERROR << "Invalid length " << len;
-        conn->shutdown();
-      }
-      else
-      {
-        if (buf->readableBytes() >= len + kHeaderLen)
-        {
-          buf->retrieve(kHeaderLen);
-          string message(buf->peek(), len);
-          buf->retrieve(len);
-          printf("<<< %s\n", message.c_str());
-        }
-      }
-    }
-    else
-    {
-      LOG_INFO << conn->name() << " no enough data " << buf->readableBytes()
-       << " at " << receiveTime.toFormattedString();
-    }
+    printf("<<< %s\n", message.c_str());
   }
 
   EventLoop* loop_;
   TcpClient client_;
+  LengthHeaderCodec codec_;
   MutexLock mutex_;
   TcpConnectionPtr connection_;
-  const static size_t kHeaderLen = 4;
 };
 
 int main(int argc, char* argv[])
