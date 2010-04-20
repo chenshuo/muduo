@@ -62,14 +62,14 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
   void send(Buffer* message);  // this one will swap data
   void shutdown(); // NOT thread safe, no simultaneous calling
 
-  void setConnectionCallback(ConnectionCallback cb)
+  void setConnectionCallback(const ConnectionCallback& cb)
   { connectionCallback_ = cb; }
 
-  void setMessageCallback(MessageCallback cb)
+  void setMessageCallback(const MessageCallback& cb)
   { messageCallback_ = cb; }
 
   /// Internal use only.
-  void setCloseCallback(ConnectionCallback cb)
+  void setCloseCallback(const CloseCallback& cb)
   { closeCallback_ = cb; }
 
   // called when TcpServer accepts a new connection

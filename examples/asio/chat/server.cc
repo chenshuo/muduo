@@ -8,6 +8,9 @@
 
 #include <boost/bind.hpp>
 
+#include <set>
+#include <stdio.h>
+
 using namespace muduo;
 using namespace muduo::net;
 
@@ -34,17 +37,40 @@ class ChatServer : boost::noncopyable
  private:
   void onConnection(const TcpConnectionPtr& conn)
   {
+    LOG_INFO << conn->localAddress().toHostPort() << " -> "
+        << conn->peerAddress().toHostPort() << " is "
+        << (conn->connected() ? "UP" : "DOWN");
+
+    MutexLockGuard lock(mutex_);
+    if (conn->connected())
+    {
+      connections_.insert(conn);
+    }
+    else
+    {
+      connections_.erase(conn);
+    }
   }
 
   void onStringMessage(const TcpConnectionPtr& conn,
                        const string& message,
                        Timestamp time)
   {
+    MutexLockGuard lock(mutex_);
+    for (ConnectionList::iterator it = connections_.begin();
+        it != connections_.end();
+        ++it)
+    {
+      codec_.send(get_pointer(*it), message);
+    }
   }
 
+  typedef std::set<TcpConnectionPtr> ConnectionList;
   EventLoop* loop_;
   TcpServer server_;
   LengthHeaderCodec codec_;
+  MutexLock mutex_;
+  ConnectionList connections_;
 };
 
 int main(int argc, char* argv[])
@@ -58,6 +84,10 @@ int main(int argc, char* argv[])
     ChatServer server(&loop, serverAddr);
     server.start();
     loop.loop();
+  }
+  else
+  {
+    printf("Usage: %s port\n", argv[0]);
   }
 }
 

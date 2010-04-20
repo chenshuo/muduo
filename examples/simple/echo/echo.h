@@ -7,7 +7,7 @@ class EchoServer
 {
  public:
   EchoServer(muduo::net::EventLoop* loop,
-                const muduo::net::InetAddress& listenAddr);
+             const muduo::net::InetAddress& listenAddr);
 
   void start();
 

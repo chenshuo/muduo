@@ -57,12 +57,14 @@ TcpConnection::TcpConnection(EventLoop* loop,
       boost::bind(&TcpConnection::handleClose, this));
   channel_->setErrorCallback(
       boost::bind(&TcpConnection::handleError, this));
-  LOG_DEBUG << "TcpConnection::ctor[" <<  name_ << "] at " << this;
+  LOG_DEBUG << "TcpConnection::ctor[" <<  name_ << "] at " << this
+    << " fd=" << fd;
 }
 
 TcpConnection::~TcpConnection()
 {
-  LOG_DEBUG << "TcpConnection::dtor[" <<  name_ << "] at " << this;
+  LOG_DEBUG << "TcpConnection::dtor[" <<  name_ << "] at " << this
+    << " fd=" << fd;
 }
 
 void TcpConnection::send(const void* data, size_t len)
