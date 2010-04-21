@@ -129,3 +129,8 @@ Logger::LogLevel Logger::logLevel()
   return g_logLevel;
 }
 
+void Logger::setLogLevel(Logger::LogLevel level)
+{
+  g_logLevel = level;
+}
+

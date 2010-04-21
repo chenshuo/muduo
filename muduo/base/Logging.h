@@ -31,6 +31,7 @@ class Logger
   std::ostream& stream();
 
   static LogLevel logLevel();
+  static void setLogLevel(LogLevel level);
 
  private:
   boost::scoped_ptr<LoggerImpl> impl_;
