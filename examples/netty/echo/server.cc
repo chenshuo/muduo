@@ -1,0 +1,95 @@
+#include <muduo/net/TcpServer.h>
+
+#include <muduo/base/Atomic.h>
+#include <muduo/base/Logging.h>
+#include <muduo/base/Thread.h>
+#include <muduo/net/EventLoop.h>
+#include <muduo/net/InetAddress.h>
+
+#include <boost/bind.hpp>
+
+#include <utility>
+
+#include <mcheck.h>
+#include <stdio.h>
+#include <unistd.h>
+
+using namespace muduo;
+using namespace muduo::net;
+
+int numThreads = 0;
+
+class EchoServer
+{
+ public:
+  EchoServer(EventLoop* loop, const InetAddress& listenAddr)
+    : loop_(loop),
+      server_(loop, listenAddr, "EchoServer"),
+      oldCounter_(0),
+      startTime_(Timestamp::now())
+  {
+    server_.setConnectionCallback(
+        boost::bind(&EchoServer::onConnection, this, _1));
+    server_.setMessageCallback(
+        boost::bind(&EchoServer::onMessage, this, _1, _2, _3));
+    server_.setThreadNum(numThreads);
+    loop->runEvery(3.0, boost::bind(&EchoServer::printThroughput, this));
+  }
+
+  void start()
+  {
+    LOG_INFO << "starting " << numThreads << " threads.";
+    server_.start();
+  }
+
+ private:
+  void onConnection(const TcpConnectionPtr& conn)
+  {
+    LOG_TRACE << conn->peerAddress().toHostPort() << " -> "
+        << conn->localAddress().toHostPort() << " is "
+        << (conn->connected() ? "UP" : "DOWN");
+  }
+
+  void onMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp)
+  {
+    size_t len = buf->readableBytes();
+    transferred_.addAndGet(len);
+    conn->send(buf);
+  }
+
+  void printThroughput()
+  {
+    Timestamp endTime = Timestamp::now();
+    int64_t newCounter = transferred_.get();
+    int64_t bytes = newCounter - oldCounter_;
+    double time = timeDifference(endTime, startTime_);
+    printf("%4.3f MiB/s\n", static_cast<double>(bytes)/time/1024/1024);
+
+    oldCounter_ = newCounter;
+    startTime_ = endTime;
+  }
+
+  EventLoop* loop_;
+  TcpServer server_;
+  AtomicInt64 transferred_;
+  int64_t oldCounter_;
+  Timestamp startTime_;
+};
+
+int main(int argc, char* argv[])
+{
+  mtrace();
+  LOG_INFO << "pid = " << getpid() << ", tid = " << CurrentThread::tid();
+  if (argc > 1)
+  {
+    numThreads = atoi(argv[1]);
+  }
+  EventLoop loop;
+  InetAddress listenAddr(2007);
+  EchoServer server(&loop, listenAddr);
+
+  server.start();
+
+  loop.loop();
+}
+
