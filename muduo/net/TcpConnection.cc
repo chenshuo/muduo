@@ -112,7 +112,8 @@ void TcpConnection::send(Buffer* buf)
   {
     if (loop_->isInLoopThread())
     {
-      sendInLoop(buf->retrieveAsString());
+      sendInLoop(buf->peek(), buf->readableBytes());
+      buf->retrieveAll();
     }
     else
     {
@@ -154,7 +155,7 @@ void TcpConnection::sendInLoop(const void* data, size_t len)
   assert(nwrote >= 0);
   if (implicit_cast<size_t>(nwrote) < len)
   {
-    outputBuffer_.append(static_cast<const char*>(data)+nwrote, len);
+    outputBuffer_.append(static_cast<const char*>(data)+nwrote, len-nwrote);
     if (!channel_->isWriting())
     {
       channel_->enableWriting();
