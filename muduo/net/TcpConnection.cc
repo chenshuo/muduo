@@ -144,11 +144,18 @@ void TcpConnection::sendInLoop(const void* data, size_t len)
       {
         LOG_TRACE << "I am going to write more data";
       }
+      else if (writeCompleteCallback_)
+      {
+        loop_->queueInLoop(boost::bind(writeCompleteCallback_, shared_from_this()));
+      }
     }
-    else// if (errno != EWOULDBLOCK)
+    else // nwrote < 0
     {
       nwrote = 0;
-      LOG_SYSERR << "TcpConnection::handleWrite";
+      if (errno != EWOULDBLOCK)
+      {
+        LOG_SYSERR << "TcpConnection::sendInLoop";
+      }
     }
   }
 
@@ -237,6 +244,10 @@ void TcpConnection::handleWrite()
       if (outputBuffer_.readableBytes() == 0)
       {
         channel_->disableWriting();
+        if (writeCompleteCallback_)
+        {
+          loop_->queueInLoop(boost::bind(writeCompleteCallback_, shared_from_this()));
+        }
         if (state_ == kDisconnecting)
         {
           shutdownInLoop();
@@ -277,6 +288,5 @@ void TcpConnection::handleError()
   int err = sockets::getSocketError(channel_->fd());
   LOG_ERROR << "TcpConnection::handleError [" << name_
             << "] - SO_ERROR = " << err << " " << strerror_tl(err);
-  //handleClose();
 }
 

@@ -68,6 +68,9 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
   void setMessageCallback(const MessageCallback& cb)
   { messageCallback_ = cb; }
 
+  void setWriteCompleteCallback(const WriteCompleteCallback& cb)
+  { writeCompleteCallback_ = cb; }
+
   /// Internal use only.
   void setCloseCallback(const CloseCallback& cb)
   { closeCallback_ = cb; }
@@ -99,6 +102,7 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
   InetAddress peerAddr_;
   ConnectionCallback connectionCallback_;
   MessageCallback messageCallback_;
+  WriteCompleteCallback writeCompleteCallback_;
   ConnectionCallback closeCallback_;
   Buffer inputBuffer_;
   // MutexLock mutex_;

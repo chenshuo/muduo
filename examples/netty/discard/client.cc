@@ -16,18 +16,20 @@
 using namespace muduo;
 using namespace muduo::net;
 
-class EchoClient : boost::noncopyable
+class DiscardClient : boost::noncopyable
 {
  public:
-  EchoClient(EventLoop* loop, const InetAddress& listenAddr, int size)
+  DiscardClient(EventLoop* loop, const InetAddress& listenAddr, int size)
     : loop_(loop),
-      client_(loop, listenAddr, "EchoClient"),
+      client_(loop, listenAddr, "DiscardClient"),
       message_(size, 'H')
   {
     client_.setConnectionCallback(
-        boost::bind(&EchoClient::onConnection, this, _1));
+        boost::bind(&DiscardClient::onConnection, this, _1));
     client_.setMessageCallback(
-        boost::bind(&EchoClient::onMessage, this, _1, _2, _3));
+        boost::bind(&DiscardClient::onMessage, this, _1, _2, _3));
+    client_.setWriteCompleteCallback(
+        boost::bind(&DiscardClient::onWriteComplete, this, _1));
     //client_.enableRetry();
   }
 
@@ -48,7 +50,12 @@ class EchoClient : boost::noncopyable
 
   void onMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp time)
   {
-    conn->send(buf);
+    buf->retrieveAll();
+  }
+
+  void onWriteComplete(const TcpConnectionPtr& conn)
+  {
+    conn->send(message_);
   }
 
   EventLoop* loop_;
@@ -70,7 +77,7 @@ int main(int argc, char* argv[])
       size = atoi(argv[2]);
     }
 
-    EchoClient client(&loop, serverAddr, size);
+    DiscardClient client(&loop, serverAddr, size);
     client.connect();
     loop.loop();
   }

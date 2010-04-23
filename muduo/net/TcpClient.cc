@@ -77,6 +77,7 @@ void TcpClient::newConnection(int sockfd)
 
   conn->setConnectionCallback(connectionCallback_);
   conn->setMessageCallback(messageCallback_);
+  conn->setWriteCompleteCallback(writeCompleteCallback_);
   conn->setCloseCallback(
       boost::bind(&TcpClient::removeConnection, this, _1));
   {

@@ -19,21 +19,21 @@ using namespace muduo::net;
 
 int numThreads = 0;
 
-class EchoServer
+class DiscardServer
 {
  public:
-  EchoServer(EventLoop* loop, const InetAddress& listenAddr)
+  DiscardServer(EventLoop* loop, const InetAddress& listenAddr)
     : loop_(loop),
-      server_(loop, listenAddr, "EchoServer"),
+      server_(loop, listenAddr, "DiscardServer"),
       oldCounter_(0),
       startTime_(Timestamp::now())
   {
     server_.setConnectionCallback(
-        boost::bind(&EchoServer::onConnection, this, _1));
+        boost::bind(&DiscardServer::onConnection, this, _1));
     server_.setMessageCallback(
-        boost::bind(&EchoServer::onMessage, this, _1, _2, _3));
+        boost::bind(&DiscardServer::onMessage, this, _1, _2, _3));
     server_.setThreadNum(numThreads);
-    loop->runEvery(3.0, boost::bind(&EchoServer::printThroughput, this));
+    loop->runEvery(3.0, boost::bind(&DiscardServer::printThroughput, this));
   }
 
   void start()
@@ -55,7 +55,7 @@ class EchoServer
     size_t len = buf->readableBytes();
     transferred_.addAndGet(len);
     receivedMessages_.incrementAndGet();
-    conn->send(buf);
+    buf->retrieveAll();
   }
 
   void printThroughput()
@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
   }
   EventLoop loop;
   InetAddress listenAddr(2007);
-  EchoServer server(&loop, listenAddr);
+  DiscardServer server(&loop, listenAddr);
 
   server.start();
 

@@ -29,6 +29,7 @@ typedef boost::shared_ptr<TcpConnection> TcpConnectionPtr;
 typedef boost::function<void()> TimerCallback;
 typedef boost::function<void (const TcpConnectionPtr&)> ConnectionCallback;
 typedef boost::function<void (const TcpConnectionPtr&)> CloseCallback;
+typedef boost::function<void (const TcpConnectionPtr&)> WriteCompleteCallback;
 
 // the data has been read to (buf, len)
 typedef boost::function<void (const TcpConnectionPtr&,

@@ -72,6 +72,11 @@ class TcpServer : boost::noncopyable
   void setMessageCallback(const MessageCallback& cb)
   { messageCallback_ = cb; }
 
+  /// Set write complete callback.
+  /// Not thread safe.
+  void setWriteCompleteCallback(const WriteCompleteCallback& cb)
+  { writeCompleteCallback_ = cb; }
+
  private:
   /// Not thread safe, but in loop
   void newConnection(int sockfd, const InetAddress& peerAddr);
@@ -89,6 +94,7 @@ class TcpServer : boost::noncopyable
   boost::scoped_ptr<EventLoopThreadPool> threadPool_;
   ConnectionCallback connectionCallback_;
   MessageCallback messageCallback_;
+  WriteCompleteCallback writeCompleteCallback_;
   bool started_;
   // always in loop thread
   int nextConnId_;

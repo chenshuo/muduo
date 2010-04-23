@@ -70,7 +70,8 @@ void TcpServer::start()
 
   if (!acceptor_->listenning())
   {
-    acceptor_->listen();
+    loop_->runInLoop(
+        boost::bind(&Acceptor::listen, get_pointer(acceptor_)));
   }
 }
 
@@ -93,6 +94,7 @@ void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
   connections_[connName] = conn;
   conn->setConnectionCallback(connectionCallback_);
   conn->setMessageCallback(messageCallback_);
+  conn->setWriteCompleteCallback(writeCompleteCallback_);
   conn->setCloseCallback(
       boost::bind(&TcpServer::removeConnection, this, _1));
   ioLoop->runInLoop(boost::bind(&TcpConnection::connectEstablished, conn));
