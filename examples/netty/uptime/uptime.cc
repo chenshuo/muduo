@@ -16,20 +16,17 @@
 using namespace muduo;
 using namespace muduo::net;
 
-class DiscardClient : boost::noncopyable
+class UptimeClient : boost::noncopyable
 {
  public:
-  DiscardClient(EventLoop* loop, const InetAddress& listenAddr, int size)
+  UptimeClient(EventLoop* loop, const InetAddress& listenAddr)
     : loop_(loop),
-      client_(loop, listenAddr, "DiscardClient"),
-      message_(size, 'H')
+      client_(loop, listenAddr, "UptimeClient")
   {
     client_.setConnectionCallback(
-        boost::bind(&DiscardClient::onConnection, this, _1));
+        boost::bind(&UptimeClient::onConnection, this, _1));
     client_.setMessageCallback(
-        boost::bind(&DiscardClient::onMessage, this, _1, _2, _3));
-    client_.setWriteCompleteCallback(
-        boost::bind(&DiscardClient::onWriteComplete, this, _1));
+        boost::bind(&UptimeClient::onMessage, this, _1, _2, _3));
     //client_.enableRetry();
   }
 
@@ -44,46 +41,31 @@ class DiscardClient : boost::noncopyable
     LOG_TRACE << conn->localAddress().toHostPort() << " -> "
         << conn->peerAddress().toHostPort() << " is "
         << (conn->connected() ? "UP" : "DOWN");
-
-    conn->send(message_);
   }
 
   void onMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp time)
   {
-    buf->retrieveAll();
-  }
-
-  void onWriteComplete(const TcpConnectionPtr& conn)
-  {
-    conn->send(message_);
   }
 
   EventLoop* loop_;
   TcpClient client_;
-  string message_;
 };
 
 int main(int argc, char* argv[])
 {
   LOG_INFO << "pid = " << getpid() << ", tid = " << CurrentThread::tid();
-  if (argc > 1)
+  if (argc > 2)
   {
     EventLoop loop;
-    InetAddress serverAddr(argv[1], 2009);
+    InetAddress serverAddr(argv[1], atoi(argv[2]));
 
-    int size = 256;
-    if (argc > 2)
-    {
-      size = atoi(argv[2]);
-    }
-
-    DiscardClient client(&loop, serverAddr, size);
+    UptimeClient client(&loop, serverAddr);
     client.connect();
     loop.loop();
   }
   else
   {
-    printf("Usage: %s host_ip [msg_size]\n", argv[0]);
+    printf("Usage: %s host_ip port\n", argv[0]);
   }
 }
 

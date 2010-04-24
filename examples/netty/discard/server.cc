@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
     numThreads = atoi(argv[1]);
   }
   EventLoop loop;
-  InetAddress listenAddr(2007);
+  InetAddress listenAddr(2009);
   DiscardServer server(&loop, listenAddr);
 
   server.start();
