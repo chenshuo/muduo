@@ -24,5 +24,6 @@ add_library(muduo_net ${net_SRCS})
 target_link_libraries(muduo_net muduo_base)
 
 add_subdirectory(http)
+add_subdirectory(inspect)
 add_subdirectory(tests)
 

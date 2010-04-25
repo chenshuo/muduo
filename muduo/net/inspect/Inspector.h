@@ -8,31 +8,24 @@
 //
 // This is a public header file, it must only include public header files.
 
-#ifndef MUDUO_NET_HTTP_HTTPSERVER_H
-#define MUDUO_NET_HTTP_HTTPSERVER_H
+#ifndef MUDUO_NET_INSPECT_INSPECTOR_H
+#define MUDUO_NET_INSPECT_INSPECTOR_H
 
 #include <boost/noncopyable.hpp>
-#include <muduo/net/TcpServer.h>
 
 namespace muduo
 {
 namespace net
 {
 
-class HttpServer : boost::noncopyable
+class Inspector : boost::noncopyable
 {
  public:
-  HttpServer(EventLoop* loop, 
-             const InetAddress& listenAddr,
-             const string& name);
-
-  void start();
 
  private:
-  TcpServer server_;
 };
 
 }
 }
 
-#endif  // MUDUO_NET_HTTP_HTTPSERVER_H
+#endif  // MUDUO_NET_INSPECT_INSPECTOR_H

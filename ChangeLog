@@ -2,6 +2,10 @@
 
   * First alpha release, version 0.1.0
 
+2010-04-25  Shuo Chen  <chenshuo@chenshuo.com>
+
+  * Add examples.
+
 2010-04-11  Shuo Chen  <chenshuo@chenshuo.com>
 
   * TcpClient works.

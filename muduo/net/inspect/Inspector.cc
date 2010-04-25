@@ -7,21 +7,9 @@
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 //
 
-#include <muduo/net/http/HttpServer.h>
+#include <muduo/net/inspect/Inspector.h>
 
 using namespace muduo;
 using namespace muduo::net;
 
-
-HttpServer::HttpServer(EventLoop* loop, 
-                       const InetAddress& listenAddr,
-                       const string& name)
-  : server_(loop, listenAddr, name)
-{
-}
-
-void HttpServer::start()
-{
-  server_.start();
-}
 
