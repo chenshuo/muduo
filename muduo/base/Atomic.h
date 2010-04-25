@@ -21,8 +21,7 @@ class AtomicInt64 : boost::noncopyable
 
   int64_t addAndGet(int64_t x)
   {
-    value_ += x;
-    return value_;
+    return __sync_add_and_fetch(&value_, x);
   }
 
   int64_t incrementAndGet()
@@ -32,13 +31,11 @@ class AtomicInt64 : boost::noncopyable
 
   int64_t getAndSet(int64_t newValue)
   {
-    int64_t old = value_;
-    value_ = newValue;
-    return old;
+    return __sync_lock_test_and_set(&value_, newValue);
   }
 
  private:
-  int64_t value_;
+  volatile int64_t value_;
 };
 
 }
