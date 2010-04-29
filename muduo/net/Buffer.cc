@@ -17,6 +17,8 @@
 using namespace muduo;
 using namespace muduo::net;
 
+const char Buffer::kCRLF[] = "\r\n";
+
 ssize_t Buffer::readFd(int fd, int* savedErrno)
 {
   // FIXME use ioctl/FIONREAD to tell how much to read

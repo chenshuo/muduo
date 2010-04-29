@@ -14,6 +14,7 @@
 #include <muduo/base/copyable.h>
 #include <muduo/base/Types.h>
 
+#include <algorithm>
 #include <vector>
 
 #include <assert.h>
@@ -70,6 +71,12 @@ class Buffer : public muduo::copyable
 
   const char* peek() const
   { return begin() + readerIndex_; }
+
+  const char* findCRLF() const
+  {
+    const char* crlf = std::search(peek(), begin()+writerIndex_, kCRLF, kCRLF+2);
+    return crlf == begin()+writerIndex_ ? NULL : crlf;
+  }
 
   // retrieve returns void, to prevent
   // string str(retrieve(readableBytes()), readableBytes());
@@ -156,6 +163,7 @@ class Buffer : public muduo::copyable
    std::vector<char> buffer_;
    size_t readerIndex_;
    size_t writerIndex_;
+   static const char kCRLF[];
 };
 
 }

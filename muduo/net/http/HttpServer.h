@@ -11,25 +11,45 @@
 #ifndef MUDUO_NET_HTTP_HTTPSERVER_H
 #define MUDUO_NET_HTTP_HTTPSERVER_H
 
-#include <boost/noncopyable.hpp>
 #include <muduo/net/TcpServer.h>
+
+#include <boost/noncopyable.hpp>
+
+#include <map>
 
 namespace muduo
 {
 namespace net
 {
 
+class HttpCodec;
+class HttpRequest;
+class HttpResponse;
+
 class HttpServer : boost::noncopyable
 {
  public:
+  typedef boost::function<void (const TcpConnectionPtr&,
+                                const HttpRequest&,
+                                HttpResponse*)> HttpCallback;
+
   HttpServer(EventLoop* loop, 
              const InetAddress& listenAddr,
              const string& name);
 
+  ~HttpServer();  // force out-line dtor, for scoped_ptr members.
+
   void start();
+  void registerHttpCallback(const string& path,
+                            const HttpCallback& cb);
 
  private:
+  void onConnection(const TcpConnectionPtr& conn);
+  void onRequest(const TcpConnectionPtr&, const HttpRequest&);
+
   TcpServer server_;
+  boost::scoped_ptr<HttpCodec> codec_;
+  std::map<string, HttpCallback> callbacks_;
 };
 
 }

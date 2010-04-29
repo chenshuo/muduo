@@ -61,7 +61,7 @@ class LengthHeaderCodec : boost::noncopyable
 
  private:
   StringMessageCallback messageCallback_;
-  muduo::Timestamp receiveTime_;
+  muduo::Timestamp receiveTime_;  // FIXME: this should be per connection, not per server.
   const static size_t kHeaderLen = sizeof(int32_t);
 };
 

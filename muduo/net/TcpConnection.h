@@ -17,6 +17,7 @@
 #include <muduo/net/Buffer.h>
 #include <muduo/net/InetAddress.h>
 
+#include <boost/any.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
@@ -61,6 +62,15 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
   // void send(const Buffer& message);
   void send(Buffer* message);  // this one will swap data
   void shutdown(); // NOT thread safe, no simultaneous calling
+
+  void setContext(const boost::any& context)
+  { context_ = context; }
+
+  boost::any& getContext()
+  { return context_; }
+
+  const boost::any& getContext() const
+  { return context_; }
 
   void setConnectionCallback(const ConnectionCallback& cb)
   { connectionCallback_ = cb; }
@@ -107,6 +117,7 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
   Buffer inputBuffer_;
   // MutexLock mutex_;
   Buffer outputBuffer_;
+  boost::any context_;
 };
 
 typedef boost::shared_ptr<TcpConnection> TcpConnectionPtr;
