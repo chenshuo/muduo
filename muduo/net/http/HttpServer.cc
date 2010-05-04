@@ -9,40 +9,107 @@
 
 #include <muduo/net/http/HttpServer.h>
 #include <muduo/net/http/HttpContext.h>
+#include <muduo/net/http/HttpRequest.h>
+#include <muduo/net/http/HttpResponse.h>
 
 #include <boost/bind.hpp>
-#include <iostream>
 
 using namespace muduo;
 using namespace muduo::net;
 
 namespace
 {
-  bool processRequestLine(const char* begin, const char* end, HttpContext* context)
+bool processRequestLine(const char* begin, const char* end, HttpContext* context)
+{
+  bool succeed = false;
+  const char* start = begin;
+  const char* space = std::find(start, end, ' ');
+  if (space != end && context->request().setMethod(start, space))
   {
-    bool succeed = false;
-    const char* start = begin;
-    const char* space = std::find(start, end, ' ');
-    if (space != end && context->request().setMethod(start, space))
+    start = space+1;
+    space = std::find(start, end, ' ');
+    if (space != end)
     {
+      context->request().setPath(start, space);
       start = space+1;
-      space = std::find(start, end, ' ');
-      if (space != end)
+      succeed = end-start == 8 && std::equal(start, end, "HTTP/1.1");
+    }
+  }
+  return succeed;
+}
+
+// return false if any error
+bool parseRequest(Buffer* buf, HttpContext* context, Timestamp receiveTime)
+{
+  bool ok = true;
+  bool hasMore = true;
+  while (hasMore)
+  {
+    if (context->expectRequestLine())
+    {
+      const char* crlf = buf->findCRLF();
+      if (crlf)
       {
-        context->request().setUri(start, space);
-        start = space+1;
-        succeed = end-start == 8 && std::equal(start, end, "HTTP/1.1");
+        ok = processRequestLine(buf->peek(), crlf, context);
+        if (ok)
+        {
+          context->request().setReceiveTime(receiveTime);
+          buf->retrieve(crlf - buf->peek() + 2);
+          context->receiveRequestLine();
+        }
+        else
+        {
+          hasMore = false;
+        }
+      }
+      else
+      {
+        hasMore = false;
       }
     }
-    return succeed;
+    else if (context->expectHeaders())
+    {
+      const char* crlf = buf->findCRLF();
+      if (crlf)
+      {
+        const char* colon = std::find(buf->peek(), crlf, ':');
+        if (colon != crlf)
+        {
+          context->request().addHeader(buf->peek(), colon, crlf);
+        }
+        else
+        {
+          context->receiveHeaders();
+          hasMore = !context->gotAll();
+        }
+        buf->retrieve(crlf - buf->peek() + 2);
+      }
+      else
+      {
+        hasMore = false;
+      }
+    }
+    else if (context->expectBody())
+    {
+    }
   }
+  return ok;
+}
+
+void defaultHttpCallback(const HttpRequest&, HttpResponse* resp)
+{
+  resp->setStatusCode(HttpResponse::k404NotFound);
+  resp->setStatusMessage("Not Found");
+  resp->setCloseConnection(true);
+}
 
 }
 
 HttpServer::HttpServer(EventLoop* loop, 
                        const InetAddress& listenAddr,
                        const string& name)
-  : server_(loop, listenAddr, name)
+  : server_(loop, listenAddr, name),
+    httpCallback_(defaultHttpCallback)
 {
   server_.setConnectionCallback(
       boost::bind(&HttpServer::onConnection, this, _1));
@@ -71,79 +138,31 @@ void HttpServer::onMessage(const TcpConnectionPtr& conn,
                            Buffer* buf,
                            Timestamp receiveTime)
 {
-  HttpContext& context = boost::any_cast<HttpContext&>(conn->getContext());
-  bool hasMore = true;
-  while (hasMore)
+  HttpContext* context = &boost::any_cast<HttpContext&>(conn->getContext());
+
+  if (!parseRequest(buf, context, receiveTime))
   {
-    if (context.expectRequestLine())
-    {
-      const char* crlf = buf->findCRLF();
-      if (crlf)
-      {
-        if (processRequestLine(buf->peek(), crlf, &context))
-        {
-          context.request().setReceiveTime(receiveTime);
-          buf->retrieve(crlf - buf->peek() + 2);
-          context.receiveRequestLine();
-        }
-        else
-        {
-          conn->shutdown();
-        }
-      }
-      else
-      {
-        hasMore = false;
-      }
-    }
-    else if (context.expectHeaders())
-    {
-      const char* crlf = buf->findCRLF();
-      if (crlf)
-      {
-        const char* colon = std::find(buf->peek(), crlf, ':');
-        if (colon != crlf)
-        {
-          context.request().addHeader(buf->peek(), colon, crlf);
-        }
-        else
-        {
-          context.receiveHeaders();
-          hasMore = !context.gotAll();
-        }
-        buf->retrieve(crlf - buf->peek() + 2);
-      }
-      else
-      {
-        hasMore = false;
-      }
-    }
-    else if (context.expectBody())
-    {
-    }
+    conn->send("HTTP/1.1 400 Bad Request\r\n\r\n");
+    conn->shutdown();
   }
-  if (context.gotAll())
+
+  if (context->gotAll())
   {
-    onRequest(conn, context.request());
-    context.reset();
+    onRequest(conn, context->request());
+    context->reset();
   }
 }
 
 void HttpServer::onRequest(const TcpConnectionPtr& conn, const HttpRequest& req)
 {
-  std::cout << "Headers " << req.uri() << std::endl;
-  const std::map<string, string>& headers = req.headers();
-  for (std::map<string, string>::const_iterator it = headers.begin();
-       it != headers.end();
-       ++it)
+  HttpResponse response(req.getHeader("Connection") == "close");
+  httpCallback_(req, &response);
+  Buffer buf;
+  response.appendToBuffer(&buf);
+  conn->send(&buf);
+  if (response.closeConnection())
   {
-    std::cout << it->first << ": " << it->second << std::endl;
+    conn->shutdown();
   }
-
-  conn->send("HTTP/1.1 200 OK\r\n");
-  conn->send("Connection: close\r\n");
-  conn->send("\r\n");
-  conn->send("Hello world.\r\n");
-  conn->shutdown();
 }
 

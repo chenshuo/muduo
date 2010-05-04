@@ -101,6 +101,11 @@ class Buffer : public muduo::copyable
     return str;
   }
 
+  void append(const string& str)
+  {
+    append(str.data(), str.length());
+  }
+
   void append(const char* /*restrict*/ data, size_t len)
   {
     if (writableBytes() < len)

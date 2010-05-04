@@ -11,16 +11,17 @@
 #ifndef MUDUO_NET_HTTP_HTTPREQUEST_H
 #define MUDUO_NET_HTTP_HTTPREQUEST_H
 
-#include <boost/noncopyable.hpp>
+#include <muduo/base/copyable.h>
 
 #include <map>
+#include <stdio.h>
 
 namespace muduo
 {
 namespace net
 {
 
-class HttpRequest
+class HttpRequest : public muduo::copyable
 {
  public:
   enum Method
@@ -64,13 +65,13 @@ class HttpRequest
     return method_ != kUnknown;
   }
 
-  void setUri(const char* start, const char* end)
+  void setPath(const char* start, const char* end)
   {
-    uri_.assign(start, end);
+    path_.assign(start, end);
   }
 
-  const string& uri() const
-  { return uri_; }
+  const string& path() const
+  { return path_; }
 
   void setReceiveTime(Timestamp t)
   { receiveTime_ = t; }
@@ -91,12 +92,23 @@ class HttpRequest
     headers_[field] = value;
   }
 
+  string getHeader(const string& field) const
+  {
+    string result;
+    std::map<string, string>::const_iterator it = headers_.find(field);
+    if (it != headers_.end())
+    {
+      result = it->second;
+    }
+    return result;
+  }
+
   const std::map<string, string>& headers() const
   { return headers_; }
 
  private:
   Method method_;
-  string uri_;
+  string path_;
   Timestamp receiveTime_;
   std::map<string, string> headers_;
 };

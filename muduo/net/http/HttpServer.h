@@ -13,10 +13,6 @@
 
 #include <muduo/net/TcpServer.h>
 
-#include <boost/noncopyable.hpp>
-
-#include <map>
-
 namespace muduo
 {
 namespace net
@@ -25,11 +21,14 @@ namespace net
 class HttpRequest;
 class HttpResponse;
 
+/// A simple embeddable HTTP server designed for report status of a program.
+/// It is not a fully HTTP 1.1 compliant server, but provides minimum features
+/// that can communicate with HttpClient and Web browser.
+/// It is synchronous, just like Java Servlet.
 class HttpServer : boost::noncopyable
 {
  public:
-  typedef boost::function<void (const TcpConnectionPtr&,
-                                const HttpRequest&,
+  typedef boost::function<void (const HttpRequest&,
                                 HttpResponse*)> HttpCallback;
 
   HttpServer(EventLoop* loop, 
@@ -39,8 +38,10 @@ class HttpServer : boost::noncopyable
   ~HttpServer();  // force out-line dtor, for scoped_ptr members.
 
   void start();
-  void registerHttpCallback(const string& path,
-                            const HttpCallback& cb);
+
+  /// Not thread safe, callback be registered before calling start().
+  void registerHttpCallback(const HttpCallback& cb)
+  { httpCallback_ = cb; }
 
  private:
   void onConnection(const TcpConnectionPtr& conn);
@@ -50,7 +51,7 @@ class HttpServer : boost::noncopyable
   void onRequest(const TcpConnectionPtr&, const HttpRequest&);
 
   TcpServer server_;
-  std::map<string, HttpCallback> callbacks_;
+  HttpCallback httpCallback_;
 };
 
 }
