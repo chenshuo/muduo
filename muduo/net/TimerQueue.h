@@ -48,7 +48,7 @@ class TimerQueue : boost::noncopyable
                    Timestamp when,
                    double interval);
 
-  void cancel(TimerId timerId);
+  // void cancel(TimerId timerId);
 
  private:
   // called when timerfd arms
