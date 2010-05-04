@@ -12,6 +12,7 @@
 #define MUDUO_NET_TCPCONNECTION_H
 
 #include <muduo/base/Mutex.h>
+#include <muduo/base/StringPiece.h>
 #include <muduo/base/Types.h>
 #include <muduo/net/Callbacks.h>
 #include <muduo/net/Buffer.h>
@@ -58,7 +59,7 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
 
   // void send(string&& message);
   void send(const void* message, size_t len);
-  void send(const string& message);
+  void send(const StringPiece& message);
   // void send(const Buffer& message);
   void send(Buffer* message);  // this one will swap data
   void shutdown(); // NOT thread safe, no simultaneous calling
@@ -97,7 +98,7 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
   void handleClose();
   void handleError();
   //void sendInLoop(string&& message);
-  void sendInLoop(const string& message);
+  void sendInLoop(const StringPiece& message);
   void sendInLoop(const void* message, size_t len);
   void shutdownInLoop();
   void setState(States s) { state_ = s; }

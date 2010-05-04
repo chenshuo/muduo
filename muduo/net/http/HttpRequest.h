@@ -37,24 +37,24 @@ class HttpRequest : public muduo::copyable
   bool setMethod(const char* start, const char* end)
   {
     assert(method_ == kUnknown);
-    string method(start, end);
-    if (method == "GET")
+    string m(start, end);
+    if (m == "GET")
     {
       method_ = kGet;
     }
-    else if (method == "POST")
+    else if (m == "POST")
     {
       method_ = kPost;
     }
-    else if (method == "HEAD")
+    else if (m == "HEAD")
     {
       method_ = kHead;
     }
-    else if (method == "PUT")
+    else if (m == "PUT")
     {
       method_ = kPut;
     }
-    else if (method == "DELETE")
+    else if (m == "DELETE")
     {
       method_ = kDelete;
     }
@@ -64,6 +64,9 @@ class HttpRequest : public muduo::copyable
     }
     return method_ != kUnknown;
   }
+
+  Method method() const
+  { return method_; }
 
   void setPath(const char* start, const char* end)
   {

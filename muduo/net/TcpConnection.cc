@@ -86,7 +86,7 @@ void TcpConnection::send(const void* data, size_t len)
   }
 }
 
-void TcpConnection::send(const string& message)
+void TcpConnection::send(const StringPiece& message)
 {
   if (state_ == kConnected)
   {
@@ -126,7 +126,7 @@ void TcpConnection::send(Buffer* buf)
   }
 }
 
-void TcpConnection::sendInLoop(const string& message)
+void TcpConnection::sendInLoop(const StringPiece& message)
 {
   sendInLoop(message.data(), message.size());
 }
