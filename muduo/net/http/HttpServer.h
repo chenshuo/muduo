@@ -22,7 +22,6 @@ namespace muduo
 namespace net
 {
 
-class HttpCodec;
 class HttpRequest;
 class HttpResponse;
 
@@ -45,10 +44,12 @@ class HttpServer : boost::noncopyable
 
  private:
   void onConnection(const TcpConnectionPtr& conn);
+  void onMessage(const TcpConnectionPtr& conn,
+                 Buffer* buf,
+                 Timestamp receiveTime);
   void onRequest(const TcpConnectionPtr&, const HttpRequest&);
 
   TcpServer server_;
-  boost::scoped_ptr<HttpCodec> codec_;
   std::map<string, HttpCallback> callbacks_;
 };
 

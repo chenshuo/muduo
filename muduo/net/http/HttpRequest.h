@@ -72,6 +72,9 @@ class HttpRequest
   const string& uri() const
   { return uri_; }
 
+  void setReceiveTime(Timestamp t)
+  { receiveTime_ = t; }
+
   void addHeader(const char* start, const char* colon, const char* end)
   {
     string field(start, colon);
@@ -94,6 +97,7 @@ class HttpRequest
  private:
   Method method_;
   string uri_;
+  Timestamp receiveTime_;
   std::map<string, string> headers_;
 };
 

@@ -1,5 +1,4 @@
 set(http_SRCS
-  HttpCodec.cc
   HttpServer.cc
   )
 
