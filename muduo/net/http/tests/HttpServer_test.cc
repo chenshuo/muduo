@@ -1,5 +1,6 @@
 #include <muduo/net/http/HttpServer.h>
 #include <muduo/net/http/HttpRequest.h>
+#include <muduo/net/http/HttpResponse.h>
 #include <muduo/net/EventLoop.h>
 
 #include <iostream>
@@ -19,12 +20,26 @@ void onRequest(const HttpRequest& req, HttpResponse* resp)
     std::cout << it->first << ": " << it->second << std::endl;
   }
 
+  if (req.path() == "/")
+  {
+    resp->setStatusCode(HttpResponse::k200Ok);
+    resp->setStatusMessage("OK");
+    resp->setCloseConnection(true);
+    resp->setBody("hello");
+  }
+  else
+  {
+    resp->setStatusCode(HttpResponse::k404NotFound);
+    resp->setStatusMessage("Not Found");
+    resp->setCloseConnection(true);
+  }
 }
 
 int main()
 {
   EventLoop loop;
   HttpServer server(&loop, InetAddress(8000), "dummy");
+  server.setHttpCallback(onRequest);
   server.start();
   loop.loop();
 }

@@ -40,7 +40,7 @@ class HttpServer : boost::noncopyable
   void start();
 
   /// Not thread safe, callback be registered before calling start().
-  void registerHttpCallback(const HttpCallback& cb)
+  void setHttpCallback(const HttpCallback& cb)
   { httpCallback_ = cb; }
 
  private:

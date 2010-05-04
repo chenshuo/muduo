@@ -28,7 +28,7 @@ class HttpResponse : public muduo::copyable
   enum HttpStatusCode
   {
     kUnknown,
-    k200OK = 200,
+    k200Ok = 200,
     k404NotFound = 404,
   };
 
@@ -50,6 +50,9 @@ class HttpResponse : public muduo::copyable
   bool closeConnection() const
   { return closeConnection_; }
 
+  void setBody(const string& body)
+  { body_ = body; }
+
   void appendToBuffer(Buffer* output) const;
 
  private:
@@ -57,6 +60,7 @@ class HttpResponse : public muduo::copyable
   HttpStatusCode statusCode_;
   string statusMessage_;
   bool closeConnection_;
+  string body_;
 };
 
 }
