@@ -24,8 +24,8 @@ void onRequest(const HttpRequest& req, HttpResponse* resp)
   {
     resp->setStatusCode(HttpResponse::k200Ok);
     resp->setStatusMessage("OK");
-    resp->setCloseConnection(true);
-    resp->setBody("hello");
+    //resp->setCloseConnection(true);
+    resp->setBody("<html><head><title>This is title</title></head><body><h1>Hello</h1></body></html>");
   }
   else
   {

@@ -109,6 +109,14 @@ class HttpRequest : public muduo::copyable
   const std::map<string, string>& headers() const
   { return headers_; }
 
+  void swap(HttpRequest& that)
+  {
+    std::swap(method_, that.method_);
+    path_.swap(that.path_);
+    receiveTime_.swap(that.receiveTime_);
+    headers_.swap(that.headers_);
+  }
+
  private:
   Method method_;
   string path_;

@@ -27,6 +27,11 @@ class Timestamp : public muduo::copyable
   /// @param microSecondsSinceEpoch
   explicit Timestamp(int64_t microSecondsSinceEpoch);
 
+  void swap(Timestamp& that)
+  {
+    std::swap(microSecondsSinceEpoch_, that.microSecondsSinceEpoch_);
+  }
+
   // default copy/assignment are Okay
 
   string toString() const;

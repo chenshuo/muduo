@@ -57,7 +57,11 @@ class HttpContext : public muduo::copyable
   { state_ = kGotAll; }  // FIXME
 
   void reset()
-  { state_ = kExpectRequestLine; }
+  {
+    state_ = kExpectRequestLine;
+    HttpRequest dummy;
+    request_.swap(dummy);
+  }
 
   const HttpRequest& request() const
   { return request_; }
