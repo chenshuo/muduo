@@ -11,6 +11,7 @@
 #ifndef MUDUO_NET_INSPECT_INSPECTOR_H
 #define MUDUO_NET_INSPECT_INSPECTOR_H
 
+#include <muduo/net/http/HttpServer.h>
 #include <boost/noncopyable.hpp>
 
 namespace muduo
@@ -18,11 +19,18 @@ namespace muduo
 namespace net
 {
 
+// A internal inspector of the running process, usually a singleton.
 class Inspector : boost::noncopyable
 {
  public:
+  Inspector(EventLoop* loop, 
+            const InetAddress& httpAddr,
+            const string& name);
 
  private:
+  void start();
+
+  HttpServer server_;
 };
 
 }
