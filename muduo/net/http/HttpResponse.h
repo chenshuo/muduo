@@ -50,6 +50,9 @@ class HttpResponse : public muduo::copyable
   bool closeConnection() const
   { return closeConnection_; }
 
+  void setContentType(const string& contentType)
+  { headers_["Content-Type"] = contentType; }
+
   void setBody(const string& body)
   { body_ = body; }
 

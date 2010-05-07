@@ -33,6 +33,16 @@ void HttpResponse::appendToBuffer(Buffer* output) const
     output->append(buf);
   }
 
+  for (std::map<string, string>::const_iterator it = headers_.begin();
+       it != headers_.end();
+       ++it)
+  {
+    output->append(it->first);
+    output->append(": ");
+    output->append(it->second);
+    output->append("\r\n");
+  }
+
   output->append("\r\n");
   output->append(body_);
 }

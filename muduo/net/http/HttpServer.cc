@@ -8,6 +8,8 @@
 //
 
 #include <muduo/net/http/HttpServer.h>
+
+#include <muduo/base/Logging.h>
 #include <muduo/net/http/HttpContext.h>
 #include <muduo/net/http/HttpRequest.h>
 #include <muduo/net/http/HttpResponse.h>
@@ -123,6 +125,8 @@ HttpServer::~HttpServer()
 
 void HttpServer::start()
 {
+  LOG_INFO << "HttpServer[" << server_.name()
+    << "] starts listenning on " << server_.hostport();
   server_.start();
 }
 
