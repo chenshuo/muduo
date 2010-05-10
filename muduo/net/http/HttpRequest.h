@@ -79,6 +79,9 @@ class HttpRequest : public muduo::copyable
   void setReceiveTime(Timestamp t)
   { receiveTime_ = t; }
 
+  Timestamp receiveTime() const
+  { return receiveTime_; }
+
   void addHeader(const char* start, const char* colon, const char* end)
   {
     string field(start, colon);
