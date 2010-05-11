@@ -24,7 +24,7 @@ namespace muduo
 namespace net
 {
 
-class ProcessInfo;
+class ProcessInspector;
 
 // A internal inspector of the running process, usually a singleton.
 class Inspector : boost::noncopyable
@@ -50,7 +50,7 @@ class Inspector : boost::noncopyable
   void onRequest(const HttpRequest& req, HttpResponse* resp);
 
   HttpServer server_;
-  boost::scoped_ptr<ProcessInfo> processInfo_;
+  boost::scoped_ptr<ProcessInspector> processInspector_;
   MutexLock mutex_;
   std::map<string, CommandList> commands_;
   std::map<string, HelpList> helps_;

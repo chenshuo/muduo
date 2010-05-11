@@ -1,6 +1,6 @@
 set(inspect_SRCS
   Inspector.cc
-  ProcessInfo.cc
+  ProcessInspector.cc
   )
 
 add_library(muduo_inspect ${inspect_SRCS})

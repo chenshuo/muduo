@@ -11,7 +11,7 @@
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/http/HttpRequest.h>
 #include <muduo/net/http/HttpResponse.h>
-#include <muduo/net/inspect/ProcessInfo.h>
+#include <muduo/net/inspect/ProcessInspector.h>
 
 //#include <iostream>
 //#include <iterator>
@@ -53,10 +53,10 @@ Inspector::Inspector(EventLoop* loop,
                      const InetAddress& httpAddr,
                      const string& name)
     : server_(loop, httpAddr, "Inspector:"+name),
-      processInfo_(new ProcessInfo)
+      processInspector_(new ProcessInspector)
 {
   server_.setHttpCallback(boost::bind(&Inspector::onRequest, this, _1, _2));
-  processInfo_->registerCommands(this);
+  processInspector_->registerCommands(this);
   loop->runAfter(0, boost::bind(&Inspector::start, this));
 }
 
