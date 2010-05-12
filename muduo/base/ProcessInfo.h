@@ -18,10 +18,11 @@ namespace muduo
 
 namespace ProcessInfo
 {
+  pid_t pid();
+  
   /// read /proc/self/status
   string procStatus();
 
-  
   int openedFiles();
 }
 

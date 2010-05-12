@@ -8,19 +8,26 @@
 //
 
 #include <muduo/base/ProcessInfo.h>
+
 #include <dirent.h>
 #include <stdio.h>
+#include <unistd.h>
 
 using namespace muduo;
 
 namespace
 {
   __thread int t_numOpenedFiles = 0;
-  int fdDirFilter(const struct dirent* d)
+  int fdDirFilter(const struct dirent*)
   {
     ++t_numOpenedFiles;
     return 0;
   }
+}
+
+pid_t ProcessInfo::pid()
+{
+  return ::getpid();
 }
 
 string ProcessInfo::procStatus()

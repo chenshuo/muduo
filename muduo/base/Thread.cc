@@ -1,4 +1,5 @@
 #include <muduo/base/Thread.h>
+#include <muduo/base/ProcessInfo.h>
 
 #include <unistd.h>
 #include <sys/syscall.h>
@@ -25,6 +26,11 @@ pid_t CurrentThread::tid()
     t_cachedTid = gettid();
   }
   return t_cachedTid;
+}
+
+bool CurrentThread::isMainThread()
+{
+  return tid() == ProcessInfo::pid();
 }
 
 Thread::Thread(const ThreadFunc& func)

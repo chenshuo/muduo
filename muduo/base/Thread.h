@@ -34,6 +34,7 @@ class Thread
 namespace CurrentThread
 {
   pid_t tid();
+  bool isMainThread();
 }
 
 }

@@ -8,6 +8,8 @@
 //
 
 #include <muduo/net/inspect/Inspector.h>
+
+#include <muduo/base/Thread.h>
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/http/HttpRequest.h>
 #include <muduo/net/http/HttpResponse.h>
@@ -25,6 +27,9 @@ using namespace muduo::net;
 
 namespace
 {
+Inspector* g_globalInspector = 0;
+
+// Looks buggy
 std::vector<string> split(const string& str)
 {
   std::vector<string> result;
@@ -47,6 +52,7 @@ std::vector<string> split(const string& str)
 
   return result;
 }
+
 }
 
 Inspector::Inspector(EventLoop* loop,
@@ -55,13 +61,18 @@ Inspector::Inspector(EventLoop* loop,
     : server_(loop, httpAddr, "Inspector:"+name),
       processInspector_(new ProcessInspector)
 {
+  assert(CurrentThread::isMainThread());
+  assert(g_globalInspector == 0);
+  g_globalInspector = this;
   server_.setHttpCallback(boost::bind(&Inspector::onRequest, this, _1, _2));
   processInspector_->registerCommands(this);
-  loop->runAfter(0, boost::bind(&Inspector::start, this));
+  loop->runAfter(0, boost::bind(&Inspector::start, this)); // little race condition
 }
 
 Inspector::~Inspector()
 {
+  assert(CurrentThread::isMainThread());
+  g_globalInspector = NULL;
 }
 
 void Inspector::add(const string& module,
