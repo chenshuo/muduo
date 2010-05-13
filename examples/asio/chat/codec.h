@@ -1,3 +1,6 @@
+#ifndef MUDUO_EXAMPLES_ASIO_CHAT_CODEC_H
+#define MUDUO_EXAMPLES_ASIO_CHAT_CODEC_H
+
 #include <muduo/base/Logging.h>
 #include <muduo/net/Buffer.h>
 #include <muduo/net/SocketsOps.h>
@@ -65,3 +68,4 @@ class LengthHeaderCodec : boost::noncopyable
   const static size_t kHeaderLen = sizeof(int32_t);
 };
 
+#endif  // MUDUO_EXAMPLES_ASIO_CHAT_CODEC_H
