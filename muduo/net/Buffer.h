@@ -74,8 +74,16 @@ class Buffer : public muduo::copyable
 
   const char* findCRLF() const
   {
-    const char* crlf = std::search(peek(), begin()+writerIndex_, kCRLF, kCRLF+2);
-    return crlf == begin()+writerIndex_ ? NULL : crlf;
+    const char* crlf = std::search(peek(), beginWrite(), kCRLF, kCRLF+2);
+    return crlf == beginWrite() ? NULL : crlf;
+  }
+
+  const char* findCRLF(const char* start) const
+  {
+    assert(peek() <= start);
+    assert(start <= beginWrite());
+    const char* crlf = std::search(start, beginWrite(), kCRLF, kCRLF+2);
+    return crlf == beginWrite() ? NULL : crlf;
   }
 
   // retrieve returns void, to prevent
@@ -85,6 +93,13 @@ class Buffer : public muduo::copyable
   {
     assert(len <= readableBytes());
     readerIndex_ += len;
+  }
+
+  void retrieveUntil(const char* end)
+  {
+    assert(peek() <= end);
+    assert(end <= beginWrite());
+    retrieve(end - peek());
   }
 
   void retrieveAll()
@@ -113,7 +128,7 @@ class Buffer : public muduo::copyable
       makeSpace(len);
     }
     assert(len <= writableBytes());
-    std::copy(data, data+len, begin()+writerIndex_);
+    std::copy(data, data+len, beginWrite());
     writerIndex_ += len;
   }
 
@@ -139,6 +154,12 @@ class Buffer : public muduo::copyable
   ssize_t readFd(int fd, int* savedErrno);
 
  private:
+   char* beginWrite()
+   { return begin() + writerIndex_; }
+
+   const char* beginWrite() const
+   { return begin() + writerIndex_; }
+
    char* begin()
    { return &*buffer_.begin(); }
 

@@ -32,7 +32,7 @@ class HttpServer : boost::noncopyable
   typedef boost::function<void (const HttpRequest&,
                                 HttpResponse*)> HttpCallback;
 
-  HttpServer(EventLoop* loop, 
+  HttpServer(EventLoop* loop,
              const InetAddress& listenAddr,
              const string& name);
 

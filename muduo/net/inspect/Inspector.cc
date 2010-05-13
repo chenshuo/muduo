@@ -92,7 +92,12 @@ void Inspector::start()
 
 void Inspector::onRequest(const HttpRequest& req, HttpResponse* resp)
 {
-  if (req.path() == "/")
+  if (req.method() != HttpRequest::kGet)
+  {
+    resp->setStatusCode(HttpResponse::k400BadRequest);
+    resp->setStatusMessage("Unsupported method");
+  }
+  else if (req.path() == "/")
   {
     string result;
     MutexLockGuard lock(mutex_);

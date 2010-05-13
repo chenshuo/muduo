@@ -4,7 +4,7 @@ project(muduo CXX)
 
 set(CXX_FLAGS
  -g
- -DVALGRIND
+ # -DVALGRIND
  # -DMUDUO_STD_STRING
  -Wall
  -Wextra
@@ -13,6 +13,7 @@ set(CXX_FLAGS
  -Wconversion
  -Wunused-parameter
  -Wold-style-cast
+ -Woverloaded-virtual
  -Wpointer-arith
  -Wshadow
  -Wwrite-strings

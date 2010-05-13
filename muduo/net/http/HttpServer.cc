@@ -56,7 +56,7 @@ bool parseRequest(Buffer* buf, HttpContext* context, Timestamp receiveTime)
         if (ok)
         {
           context->request().setReceiveTime(receiveTime);
-          buf->retrieve(crlf - buf->peek() + 2);
+          buf->retrieveUntil(crlf + 2);
           context->receiveRequestLine();
         }
         else
@@ -84,7 +84,7 @@ bool parseRequest(Buffer* buf, HttpContext* context, Timestamp receiveTime)
           context->receiveHeaders();
           hasMore = !context->gotAll();
         }
-        buf->retrieve(crlf - buf->peek() + 2);
+        buf->retrieveUntil(crlf + 2);
       }
       else
       {

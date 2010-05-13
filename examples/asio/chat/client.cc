@@ -58,6 +58,7 @@ class ChatClient : boost::noncopyable
     MutexLockGuard lock(mutex_);
     if (conn->connected())
     {
+      conn->setContext(Timestamp());
       connection_ = conn;
     }
     else

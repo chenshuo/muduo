@@ -32,7 +32,7 @@ class Inspector : boost::noncopyable
  public:
   typedef std::vector<string> ArgList;
   typedef boost::function<string (const ArgList& args)> Callback;
-  Inspector(EventLoop* loop, 
+  Inspector(EventLoop* loop,
             const InetAddress& httpAddr,
             const string& name);
   ~Inspector();
