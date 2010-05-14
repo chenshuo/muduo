@@ -132,6 +132,7 @@ class PubSubServer : boost::noncopyable
         boost::bind(&PubSubServer::onConnection, this, _1));
     server_.setMessageCallback(
         boost::bind(&PubSubServer::onMessage, this, _1, _2, _3));
+    loop_->runEvery(1.0, boost::bind(&PubSubServer::timePublish, this));
   }
 
   void start()
@@ -171,7 +172,7 @@ class PubSubServer : boost::noncopyable
     {
       if (cmd == "pub")
       {
-        doPublish(conn, topic, content, receiveTime);
+        doPublish(conn->name(), topic, content, receiveTime);
       }
       else if (cmd == "sub")
       {
@@ -194,6 +195,8 @@ class PubSubServer : boost::noncopyable
 
   void timePublish()
   {
+    Timestamp now = Timestamp::now();
+    doPublish("internal", "utc_time", now.toFormattedString(), now);
   }
 
   void doSubscribe(const TcpConnectionPtr& conn,
@@ -215,7 +218,7 @@ class PubSubServer : boost::noncopyable
     getTopic(topic).remove(conn);
   }
 
-  void doPublish(const TcpConnectionPtr& conn,
+  void doPublish(const string& source,
                  const string& topic,
                  const string& content,
                  Timestamp time)
