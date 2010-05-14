@@ -12,6 +12,7 @@
 #define MUDUO_NET_INSPECT_INSPECTOR_H
 
 #include <muduo/base/Mutex.h>
+#include <muduo/net/http/HttpRequest.h>
 #include <muduo/net/http/HttpServer.h>
 
 #include <map>
@@ -31,7 +32,7 @@ class Inspector : boost::noncopyable
 {
  public:
   typedef std::vector<string> ArgList;
-  typedef boost::function<string (const ArgList& args)> Callback;
+  typedef boost::function<string (HttpRequest::Method, const ArgList& args)> Callback;
   Inspector(EventLoop* loop,
             const InetAddress& httpAddr,
             const string& name);

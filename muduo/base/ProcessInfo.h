@@ -12,6 +12,7 @@
 #define MUDUO_BASE_PROCESSINFO_H
 
 #include <muduo/base/Types.h>
+#include <vector>
 
 namespace muduo
 {
@@ -24,6 +25,8 @@ namespace ProcessInfo
   string procStatus();
 
   int openedFiles();
+
+  std::vector<pid_t> threads();
 }
 
 }

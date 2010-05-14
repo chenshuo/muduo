@@ -92,12 +92,7 @@ void Inspector::start()
 
 void Inspector::onRequest(const HttpRequest& req, HttpResponse* resp)
 {
-  if (req.method() != HttpRequest::kGet)
-  {
-    resp->setStatusCode(HttpResponse::k400BadRequest);
-    resp->setStatusMessage("Unsupported method");
-  }
-  else if (req.path() == "/")
+  if (req.path() == "/")
   {
     string result;
     MutexLockGuard lock(mutex_);
@@ -155,7 +150,8 @@ void Inspector::onRequest(const HttpRequest& req, HttpResponse* resp)
             resp->setStatusCode(HttpResponse::k200Ok);
             resp->setStatusMessage("OK");
             resp->setContentType("text/plain");
-            resp->setBody(it->second(args));
+            const Callback& cb = it->second;
+            resp->setBody(cb(req.method(), args));
             ok = true;
           }
         }

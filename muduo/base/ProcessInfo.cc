@@ -9,8 +9,11 @@
 
 #include <muduo/base/ProcessInfo.h>
 
+#include <algorithm>
+
 #include <dirent.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 using namespace muduo;
@@ -21,6 +24,16 @@ namespace
   int fdDirFilter(const struct dirent*)
   {
     ++t_numOpenedFiles;
+    return 0;
+  }
+
+  __thread std::vector<pid_t>* t_pids = 0;
+  int taskDirFilter(const struct dirent* d)
+  {
+    if (isdigit(d->d_name[0]))
+    {
+      t_pids->push_back(atoi(d->d_name));
+    }
     return 0;
   }
 }
@@ -52,7 +65,15 @@ int ProcessInfo::openedFiles()
   t_numOpenedFiles = 0;
   struct dirent** namelist;
   scandir("/proc/self/fd", &namelist, fdDirFilter, alphasort);
-
   return t_numOpenedFiles-2; // "." and ".."
 }
 
+std::vector<pid_t> ProcessInfo::threads()
+{
+  std::vector<pid_t> result;
+  t_pids = &result;
+  struct dirent** namelist;
+  scandir("/proc/self/task", &namelist, taskDirFilter, alphasort);
+  std::sort(result.begin(), result.end());
+  return result;
+}

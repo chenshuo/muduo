@@ -25,8 +25,10 @@ class ProcessInspector : boost::noncopyable
   void registerCommands(Inspector* ins);
 
  private:
-  static string procStatus(const Inspector::ArgList& args);
-  static string openedFiles(const Inspector::ArgList& args);
+  static string pid(HttpRequest::Method, const Inspector::ArgList&);
+  static string procStatus(HttpRequest::Method, const Inspector::ArgList&);
+  static string openedFiles(HttpRequest::Method, const Inspector::ArgList&);
+  static string threads(HttpRequest::Method, const Inspector::ArgList&);
 
 };
 
