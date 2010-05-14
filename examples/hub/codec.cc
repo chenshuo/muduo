@@ -8,7 +8,6 @@ void PubSubCodec::onMessage(const TcpConnectionPtr& conn,
                             Buffer* buf,
                             Timestamp receiveTime)
 {
-  //ClientContext* context = &boost::any_cast<ClientContext&>(conn->getContext());
   const char* crlf = buf->findCRLF();
   if (crlf)
   {
