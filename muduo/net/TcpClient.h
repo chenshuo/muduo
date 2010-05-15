@@ -35,7 +35,7 @@ class TcpClient : boost::noncopyable
   ~TcpClient();  // force out-line dtor, for scoped_ptr members.
 
   void connect();
-  // void disconnect();
+  void disconnect();
 
   bool retry() const;
   void enableRetry() { retry_ = true; }
@@ -68,6 +68,7 @@ class TcpClient : boost::noncopyable
   MessageCallback messageCallback_;
   WriteCompleteCallback writeCompleteCallback_;
   bool retry_;  // atmoic
+  bool connect_;
   // always in loop thread
   int nextConnId_;
   MutexLock        mutex_;

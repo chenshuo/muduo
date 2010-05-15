@@ -20,6 +20,11 @@ namespace muduo
 namespace ProcessInfo
 {
   pid_t pid();
+  string pidString();
+  uid_t uid();
+  string username();
+
+  string hostname();
   
   /// read /proc/self/status
   string procStatus();

@@ -12,6 +12,7 @@
 #include <algorithm>
 
 #include <dirent.h>
+#include <pwd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -41,6 +42,41 @@ namespace
 pid_t ProcessInfo::pid()
 {
   return ::getpid();
+}
+
+string ProcessInfo::pidString()
+{
+  char buf[32];
+  snprintf(buf, sizeof buf, "%d", pid());
+  return buf;
+}
+
+uid_t ProcessInfo::uid()
+{
+  return ::getuid();
+}
+
+string ProcessInfo::username()
+{
+  struct passwd pwd;
+  struct passwd* result = NULL;
+  char passwdbuf[8192];
+  const char* name = "unknown";
+
+  getpwuid_r(uid(), &pwd, passwdbuf, sizeof passwdbuf, &result);
+  if (result)
+  {
+    name = pwd.pw_name;
+  }
+  return name;
+}
+
+string ProcessInfo::hostname()
+{
+  char buf[64] = "unknownhost";
+  buf[sizeof(buf)-1] = '\0';
+  gethostname(buf, sizeof buf);
+  return buf;
 }
 
 string ProcessInfo::procStatus()

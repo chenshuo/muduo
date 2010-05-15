@@ -42,6 +42,7 @@ TcpClient::TcpClient(EventLoop* loop,
     connectionCallback_(defaultConnectionCallback),
     messageCallback_(defaultMessageCallback),
     retry_(false),
+    connect_(true),
     nextConnId_(1)
 {
   connector_->setNewConnectionCallback(
@@ -58,7 +59,14 @@ void TcpClient::connect()
   // FIXME: check state
   LOG_INFO << "TcpClient::connect[" << name_ << "] - connecting to "
            << connector_->serverAddress().toHostPort();
+  connect_ = true;
   connector_->start();
+}
+
+void TcpClient::disconnect()
+{
+  // FIXME: do-it
+  connect_ = false;
 }
 
 void TcpClient::newConnection(int sockfd)
@@ -100,7 +108,7 @@ void TcpClient::removeConnection(const TcpConnectionPtr& conn)
 
   loop_->queueInLoop(boost::bind(&TcpConnection::connectDestroyed, conn));
   // FIXME wake up ?
-  if (retry_)
+  if (retry_ && connect_)
   {
     LOG_INFO << "TcpClient::connect[" << name_ << "] - Reconnecting to "
              << connector_->serverAddress().toHostPort();
