@@ -8,6 +8,23 @@ using namespace muduo;
 using namespace muduo::net;
 using namespace pubsub;
 
+EventLoop* g_loop = NULL;
+string g_topic;
+string g_content;
+
+void connection(PubSubClient* client)
+{
+  if (client->connected())
+  {
+    client->publish(g_topic, g_content);
+    client->stop();
+  }
+  else
+  {
+    g_loop->quit();
+  }
+}
+
 int main(int argc, char* argv[])
 {
   if (argc == 4)
@@ -18,13 +35,15 @@ int main(int argc, char* argv[])
     {
       string hostip = hostport.substr(0, colon);
       uint16_t port = atoi(hostport.c_str()+colon+1);
-      string topic = argv[2];
-      string content = argv[3];
+      g_topic = argv[2];
+      g_content = argv[3];
 
       EventLoop loop;
+      g_loop = &loop;
       string name = ProcessInfo::username()+"@"+ProcessInfo::hostname();
       name += ":" + ProcessInfo::pidString();
-      PubSubClient client(&loop, InetAddress(hostport, port), name);
+      PubSubClient client(&loop, InetAddress(hostip, port), name);
+      client.setConnectionCallback(connection);
       client.start();
       loop.loop();
     }

@@ -65,8 +65,15 @@ void TcpClient::connect()
 
 void TcpClient::disconnect()
 {
-  // FIXME: do-it
   connect_ = false;
+
+  {
+    MutexLockGuard lock(mutex_);
+    if (connection_)
+    {
+      connection_->shutdown();
+    }
+  }
 }
 
 void TcpClient::newConnection(int sockfd)

@@ -22,16 +22,19 @@ using namespace muduo;
 namespace
 {
   __thread int t_numOpenedFiles = 0;
-  int fdDirFilter(const struct dirent*)
+  int fdDirFilter(const struct dirent* d)
   {
-    ++t_numOpenedFiles;
+    if (::isdigit(d->d_name[0]))
+    {
+      ++t_numOpenedFiles;
+    }
     return 0;
   }
 
-  __thread std::vector<pid_t>* t_pids = 0;
+  __thread std::vector<pid_t>* t_pids = NULL;
   int taskDirFilter(const struct dirent* d)
   {
-    if (isdigit(d->d_name[0]))
+    if (::isdigit(d->d_name[0]))
     {
       t_pids->push_back(atoi(d->d_name));
     }
@@ -60,10 +63,10 @@ string ProcessInfo::username()
 {
   struct passwd pwd;
   struct passwd* result = NULL;
-  char passwdbuf[8192];
-  const char* name = "unknown";
+  char buf[8192];
+  const char* name = "unknownuser";
 
-  getpwuid_r(uid(), &pwd, passwdbuf, sizeof passwdbuf, &result);
+  getpwuid_r(uid(), &pwd, buf, sizeof buf, &result);
   if (result)
   {
     name = pwd.pw_name;
@@ -101,7 +104,7 @@ int ProcessInfo::openedFiles()
   t_numOpenedFiles = 0;
   struct dirent** namelist;
   scandir("/proc/self/fd", &namelist, fdDirFilter, alphasort);
-  return t_numOpenedFiles-2; // "." and ".."
+  return t_numOpenedFiles;
 }
 
 std::vector<pid_t> ProcessInfo::threads()
@@ -113,3 +116,4 @@ std::vector<pid_t> ProcessInfo::threads()
   std::sort(result.begin(), result.end());
   return result;
 }
+
