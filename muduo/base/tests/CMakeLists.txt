@@ -1,3 +1,9 @@
+add_executable(date_unittest Date_unittest.cc)
+target_link_libraries(date_unittest muduo_base)
+
 add_executable(timestamp_unittest Timestamp_unittest.cc)
 target_link_libraries(timestamp_unittest muduo_base)
+
+add_executable(timezone_unittest TimeZone_unittest.cc)
+target_link_libraries(timezone_unittest muduo_base)
 

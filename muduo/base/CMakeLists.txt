@@ -1,7 +1,9 @@
 set(base_SRCS 
+  Date.cc
   Logging.cc
   ProcessInfo.cc
   Timestamp.cc
+  TimeZone.cc
   Thread.cc
   )
 

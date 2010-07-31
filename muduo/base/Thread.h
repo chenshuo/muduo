@@ -3,11 +3,12 @@
 
 #include <pthread.h>
 #include <boost/function.hpp>
+#include <boost/noncopyable.hpp>
 
 namespace muduo
 {
 
-class Thread
+class Thread : boost::noncopyable
 {
  public:
   typedef boost::function<void ()> ThreadFunc;
