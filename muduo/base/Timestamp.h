@@ -32,7 +32,7 @@ class Timestamp : public muduo::copyable
     std::swap(microSecondsSinceEpoch_, that.microSecondsSinceEpoch_);
   }
 
-  // default copy/assignment are Okay
+  // default copy/assignment/dtor are Okay
 
   string toString() const;
   string toFormattedString() const;
