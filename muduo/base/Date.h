@@ -1,8 +1,15 @@
+// Use of this source code is governed by a BSD-style license
+// that can be found in the License file.
+//
+// Author: Shuo Chen (chenshuo at chenshuo dot com)
+
 #ifndef MUDUO_BASE_DATE_H
 #define MUDUO_BASE_DATE_H
 
 #include <muduo/base/copyable.h>
 #include <muduo/base/Types.h>
+
+struct tm;
 
 namespace muduo
 {
@@ -14,6 +21,8 @@ namespace muduo
 /// It's recommended to pass it by value, since it's passed in register on x64.
 ///
 class Date : public muduo::copyable
+          // public boost::less_than_comparable<Date>,
+          // public boost::equality_comparable<Date>
 {
  public:
 
@@ -47,6 +56,12 @@ class Date : public muduo::copyable
     : julianDayNumber_(julianDayNum)
   {}
 
+  ///
+  /// Constucts a Date from struct tm
+  ///
+  /// 1 <= month <= 12
+  explicit Date(const struct tm&);
+
   // default copy/assignment/dtor are Okay
 
   bool valid() const { return julianDayNumber_ > 0; }
@@ -54,7 +69,7 @@ class Date : public muduo::copyable
   ///
   /// Converts to yyyy-mm-dd format.
   ///
-  string toString() const;
+  string toIsoString() const;
 
   YearMonthDay yearMonthDay() const;
 
@@ -84,6 +99,16 @@ class Date : public muduo::copyable
  private:
   int julianDayNumber_;
 };
+
+inline bool operator<(Date x, Date y)
+{
+  return x.julianDayNumber() < y.julianDayNumber();
+}
+
+inline bool operator==(Date x, Date y)
+{
+  return x.julianDayNumber() == y.julianDayNumber();
+}
 
 }
 #endif  // MUDUO_BASE_DATE_H

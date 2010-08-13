@@ -27,10 +27,10 @@ struct TimeZone::Data
 
 namespace
 {
-  bool readTimeZoneFile(const char* zonefile, struct TimeZone::Data* data)
-  {
-    return true;
-  }
+bool readTimeZoneFile(const char* zonefile, struct TimeZone::Data* data)
+{
+  return true;
+}
 }
 
 

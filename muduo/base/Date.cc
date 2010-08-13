@@ -1,3 +1,8 @@
+// Use of this source code is governed by a BSD-style license
+// that can be found in the License file.
+//
+// Author: Shuo Chen (chenshuo at chenshuo dot com)
+
 #include <muduo/base/Date.h>
 #include <stdio.h>  // snprintf
 
@@ -5,6 +10,10 @@ using namespace muduo;
 
 namespace
 {
+
+// algorithm and explanation see:
+// http://www.faqs.org/faqs/calendars/faq/part2/
+// http://blog.csdn.net/Solstice
 
 int getJulianDayNumber(int year, int month, int day)
 {
@@ -36,7 +45,15 @@ Date::Date(int y, int m, int d)
 {
 }
 
-string Date::toString() const
+Date::Date(const struct tm& t)
+  : julianDayNumber_(getJulianDayNumber(
+        t.tm_year+1900,
+        t.tm_mon+1,
+        t.tm_mday))
+{
+}
+
+string Date::toIsoString() const
 {
   char buf[32];
   YearMonthDay ymd(yearMonthDay());

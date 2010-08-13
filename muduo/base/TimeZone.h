@@ -13,11 +13,14 @@ class TimeZone : public muduo::copyable
  public:
   explicit TimeZone(const char* zonefile);
 
+  // default copy ctor/assignment/dtor are Okay.
+
   bool valid() const { return data_; }
   struct tm toLocalTime(time_t secondsSinceEpoch) const;
   time_t fromLocalTime(const struct tm&) const;
 
   struct Data;
+
  private:
   boost::shared_ptr<Data> data_;
 };

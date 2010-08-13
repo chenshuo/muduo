@@ -4,7 +4,7 @@
 
 using muduo::Date;
 
-const int MonthsOfYear = 12;
+const int kMonthsOfYear = 12;
 
 int isLeapYear(int year)
 {
@@ -20,7 +20,7 @@ int isLeapYear(int year)
 
 int daysOfMonth(int year, int month)
 {
-  static int days[2][MonthsOfYear+1] =
+  static int days[2][kMonthsOfYear+1] =
   {
     { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 },
     { 0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 },
@@ -30,28 +30,36 @@ int daysOfMonth(int year, int month)
 
 void passByConstReference(const Date& x)
 {
-  printf("%s\n", x.toString().c_str());
+  printf("%s\n", x.toIsoString().c_str());
 }
 
 void passByValue(Date x)
 {
-  printf("%s\n", x.toString().c_str());
+  printf("%s\n", x.toIsoString().c_str());
 }
 
 int main()
 {
-  Date someDay(1982, 4, 3);
-  printf("%s\n", someDay.toString().c_str());
+  time_t now = time(NULL);
+  struct tm t1 = *gmtime(&now);
+  struct tm t2 = *localtime(&now);
+  Date someDay(2008, 9, 10);
+  printf("%s\n", someDay.toIsoString().c_str());
   passByValue(someDay);
   passByConstReference(someDay);
+  Date todayUtc(t1);
+  printf("%s\n", someDay2.toIsoString().c_str());
+  Date todayLocal(t2);
+  printf("%s\n", someDay2.toIsoString().c_str());
 
   int julianDayNumber = 2415021;
   int weekDay = 1; // Monday
 
   for (int year = 1900; year < 2500; ++year)
   {
-    assert(Date(year, 3, 1).julianDayNumber() - Date(year, 2, 29).julianDayNumber() == isLeapYear(year));
-    for (int month = 1; month <= MonthsOfYear; ++month)
+    assert(Date(year, 3, 1).julianDayNumber() - Date(year, 2, 29).julianDayNumber()
+           == isLeapYear(year));
+    for (int month = 1; month <= kMonthsOfYear; ++month)
     {
       for (int day = 1; day <= daysOfMonth(year, month); ++day)
       {
@@ -75,6 +83,6 @@ int main()
       }
     }
   }
-
+  printf("All passed.\n");
 }
 
