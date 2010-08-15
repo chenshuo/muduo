@@ -71,7 +71,7 @@ class Date : public muduo::copyable
   ///
   string toIsoString() const;
 
-  YearMonthDay yearMonthDay() const;
+  struct YearMonthDay yearMonthDay() const;
 
   int year() const
   {

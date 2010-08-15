@@ -2,6 +2,26 @@
 
   * First alpha release, version 0.1.0
 
+2010-08-07  Shuo Chen  <chenshuo@chenshuo.com>
+
+  * Add Date.
+
+2010-05-15  Shuo Chen  <chenshuo@chenshuo.com>
+
+  * Hub works.
+
+2010-05-14  Shuo Chen  <chenshuo@chenshuo.com>
+
+  * Inspects opened files and threads.
+
+2010-05-11  Shuo Chen  <chenshuo@chenshuo.com>
+
+  * Add inspector for process info.
+
+2010-05-04  Shuo Chen  <chenshuo@chenshuo.com>
+
+  * Add simple http server and client.
+
 2010-04-25  Shuo Chen  <chenshuo@chenshuo.com>
 
   * Add examples.
