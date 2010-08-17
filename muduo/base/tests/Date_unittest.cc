@@ -48,9 +48,9 @@ int main()
   passByValue(someDay);
   passByConstReference(someDay);
   Date todayUtc(t1);
-  printf("%s\n", someDay2.toIsoString().c_str());
+  printf("%s\n", todayUtc.toIsoString().c_str());
   Date todayLocal(t2);
-  printf("%s\n", someDay2.toIsoString().c_str());
+  printf("%s\n", todayLocal.toIsoString().c_str());
 
   int julianDayNumber = 2415021;
   int weekDay = 1; // Monday
