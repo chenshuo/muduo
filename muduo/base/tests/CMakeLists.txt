@@ -1,3 +1,6 @@
+add_executable(atomic_unittest Atomic_unittest.cc)
+# target_link_libraries(atomic_unittest muduo_base)
+
 add_executable(date_unittest Date_unittest.cc)
 target_link_libraries(date_unittest muduo_base)
 

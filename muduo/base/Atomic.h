@@ -1,42 +1,82 @@
+// Use of this source code is governed by a BSD-style license
+// that can be found in the License file.
+//
+// Author: Shuo Chen (chenshuo at chenshuo dot com)
+
 #ifndef MUDUO_BASE_ATOMIC_H
 #define MUDUO_BASE_ATOMIC_H
 
 #include <boost/noncopyable.hpp>
+#include <stdint.h>
 
 namespace muduo
 {
 
-class AtomicInt64 : boost::noncopyable
+namespace detail
+{
+template<typename T>
+class AtomicIntegerT : boost::noncopyable
 {
  public:
-  AtomicInt64()
+  AtomicIntegerT()
     : value_(0)
   {
   }
 
-  int64_t get()
+  // uncomment if you need copying and assignment
+  //
+  // AtomicIntegerT(const AtomicIntegerT& that)
+  //   : value_(that.get())
+  // {}
+  //
+  // AtomicIntegerT& operator=(const AtomicIntegerT& that)
+  // {
+  //   getAndSet(that.get());
+  //   return *this;
+  // }
+
+  T get()
   {
-    return value_;
+    return __sync_val_compare_and_swap(&value_, 0, 0);
   }
 
-  int64_t addAndGet(int64_t x)
+  T getAndAdd(T x)
   {
-    return __sync_add_and_fetch(&value_, x);
+    return __sync_fetch_and_add(&value_, x);
   }
 
-  int64_t incrementAndGet()
+  T addAndGet(T x)
+  {
+    return getAndAdd(x) + x;
+  }
+
+  T incrementAndGet()
   {
     return addAndGet(1);
   }
 
-  int64_t getAndSet(int64_t newValue)
+  void increment()
+  {
+    incrementAndGet();
+  }
+
+  void decrement()
+  {
+    getAndAdd(-1);
+  }
+
+  T getAndSet(T newValue)
   {
     return __sync_lock_test_and_set(&value_, newValue);
   }
 
  private:
-  volatile int64_t value_;
+  volatile T value_;
 };
-
 }
+
+typedef detail::AtomicIntegerT<int32_t> AtomicInt32;
+typedef detail::AtomicIntegerT<int64_t> AtomicInt64;
+}
+
 #endif  // MUDUO_BASE_ATOMIC_H
