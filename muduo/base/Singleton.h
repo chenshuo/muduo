@@ -1,11 +1,20 @@
+// Use of this source code is governed by a BSD-style license
+// that can be found in the License file.
+//
+// Author: Shuo Chen (chenshuo at chenshuo dot com)
+
 #ifndef MUDUO_BASE_SINGLETON_H
 #define MUDUO_BASE_SINGLETON_H
 
+#include <boost/noncopyable.hpp>
 #include <pthread.h>
 #include <stdlib.h> // atexit
 
+namespace muduo
+{
+
 template<typename T>
-class Singleton
+class Singleton : boost::noncopyable
 {
  public:
   static T& instance()
@@ -16,14 +25,12 @@ class Singleton
 
  private:
   Singleton();
-  Singleton(const Singleton&);
-  Singleton& operator=(const Singleton&);
   ~Singleton();
 
   static void init()
   {
     value_ = new T();
-    atexit(destroy);
+    ::atexit(destroy);
   }
 
   static void destroy()
@@ -42,5 +49,6 @@ pthread_once_t Singleton<T>::ponce_ = PTHREAD_ONCE_INIT;
 template<typename T>
 T* Singleton<T>::value_ = NULL;
 
+}
 #endif
 

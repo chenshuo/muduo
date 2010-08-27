@@ -4,12 +4,19 @@
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
 #include <muduo/base/Thread.h>
-#include <muduo/base/ProcessInfo.h>
 
 #include <unistd.h>
 #include <sys/syscall.h>
 #include <sys/types.h>
 #include <linux/unistd.h>
+
+namespace muduo
+{
+namespace CurrentThread
+{
+  __thread const char* t_threadName = "unknown";
+}
+}
 
 namespace
 {
@@ -20,6 +27,16 @@ pid_t gettid()
   return static_cast<pid_t>(::syscall(SYS_gettid));
 }
 
+class ThreadNameInitializer
+{
+ public:
+  ThreadNameInitializer()
+  {
+    muduo::CurrentThread::t_threadName = "main";
+  }
+};
+
+ThreadNameInitializer init;
 }
 
 using namespace muduo;
@@ -33,17 +50,26 @@ pid_t CurrentThread::tid()
   return t_cachedTid;
 }
 
-bool CurrentThread::isMainThread()
+const char* CurrentThread::name()
 {
-  return tid() == ProcessInfo::pid();
+  return t_threadName;
 }
 
-Thread::Thread(const ThreadFunc& func)
+bool CurrentThread::isMainThread()
+{
+  return tid() == ::getpid();
+}
+
+AtomicInt32 Thread::numCreated_;
+
+Thread::Thread(const ThreadFunc& func, const string& n)
   : started_(false),
     pthreadId_(0),
     tid_(0),
-    func_(func)
+    func_(func),
+    name_(n)
 {
+  numCreated_.increment();
 }
 
 Thread::~Thread()
@@ -66,8 +92,15 @@ void Thread::join()
 void* Thread::startThread(void* obj)
 {
   Thread* thread = static_cast<Thread*>(obj);
-  thread->tid_ = CurrentThread::tid();
-  thread->func_();
+  thread->runInThread();
   return NULL;
+}
+
+void Thread::runInThread()
+{
+  tid_ = CurrentThread::tid();
+  muduo::CurrentThread::t_threadName = name_.c_str();
+  func_();
+  muduo::CurrentThread::t_threadName = "finished";
 }
 

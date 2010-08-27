@@ -51,6 +51,8 @@ class IgnoreSigPipe
   }
 };
 #pragma GCC diagnostic error "-Wold-style-cast"
+
+IgnoreSigPipe initObj;
 }
 
 EventLoop::EventLoop()
@@ -63,7 +65,6 @@ EventLoop::EventLoop()
     wakeupFd_(createEventfd()),
     wakeupChannel_(new Channel(this, wakeupFd_))
 {
-  Singleton<IgnoreSigPipe>::instance();
   LOG_TRACE << "EventLoop created " << this << " in thread " << threadId_;
   if (t_loopInThisThread)
   {

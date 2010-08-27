@@ -1,9 +1,13 @@
+// Use of this source code is governed by a BSD-style license
+// that can be found in the License file.
+//
+// Author: Shuo Chen (chenshuo at chenshuo dot com)
+
 #ifndef MUDUO_BASE_MUTEX_H
 #define MUDUO_BASE_MUTEX_H
 
-#include <pthread.h>
-
 #include <boost/noncopyable.hpp>
+#include <pthread.h>
 
 namespace muduo
 {
