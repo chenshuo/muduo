@@ -5,7 +5,6 @@ set(base_SRCS
   Logging.cc
   ProcessInfo.cc
   Timestamp.cc
-  TimeZone.cc
   Thread.cc
   ThreadPool.cc
   )
