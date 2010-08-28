@@ -110,11 +110,11 @@ void TimerQueue::handleRead()
     MutexLockGuard lock(mutex_);
     // shall never callback in critical section
     TimerList::iterator it = timers_.begin();
-    while (it != timers_.end() && !(*it)->expiration().after(now))
+    while (it != timers_.end() && (*it)->expiration() <= now)
     {
       ++it;
     }
-    assert(it == timers_.end() || (*it)->expiration().after(now));
+    assert(it == timers_.end() || (*it)->expiration() > now);
     expired.splice(expired.begin(), timers_, timers_.begin(), it);
   }
 
@@ -181,14 +181,14 @@ bool TimerQueue::insertWithLockHold(Timer* timer)
   bool earliestChanged = false;
   Timestamp when = timer->expiration();
   TimerList::iterator it = timers_.begin();
-  if (it == timers_.end() || (*it)->expiration().after(when))
+  if (it == timers_.end() || (*it)->expiration() > when)
   {
     timers_.push_front(timer);
     earliestChanged = true;
   }
   else
   {
-    while (it != timers_.end() && (*it)->expiration().before(when))
+    while (it != timers_.end() && (*it)->expiration() < when)
     {
       ++it;
     }

@@ -51,7 +51,6 @@ class Date : public muduo::copyable
   ///
   /// Constucts a Date from Julian Day Number.
   ///
-  /// 1 <= month <= 12
   explicit Date(int julianDayNum)
     : julianDayNumber_(julianDayNum)
   {}
@@ -59,10 +58,14 @@ class Date : public muduo::copyable
   ///
   /// Constucts a Date from struct tm
   ///
-  /// 1 <= month <= 12
   explicit Date(const struct tm&);
 
   // default copy/assignment/dtor are Okay
+
+  void swap(Date& that)
+  {
+    std::swap(julianDayNumber_, that.julianDayNumber_);
+  }
 
   bool valid() const { return julianDayNumber_ > 0; }
 

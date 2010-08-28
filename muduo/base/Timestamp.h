@@ -4,6 +4,8 @@
 #include <muduo/base/copyable.h>
 #include <muduo/base/Types.h>
 
+#include <boost/operators.hpp>
+
 namespace muduo
 {
 
@@ -13,7 +15,8 @@ namespace muduo
 /// This class is immutable.
 /// It's recommended to pass it by value, since it's passed in register on x64.
 ///
-class Timestamp : public muduo::copyable
+class Timestamp : public muduo::copyable,
+                  public boost::less_than_comparable<Timestamp>
 {
  public:
   ///
@@ -39,21 +42,6 @@ class Timestamp : public muduo::copyable
 
   bool valid() const { return microSecondsSinceEpoch_ > 0; }
 
-  bool before(Timestamp rhs) const
-  {
-    return microSecondsSinceEpoch_ < rhs.microSecondsSinceEpoch_;
-  }
-
-  bool after(Timestamp rhs) const
-  {
-    return microSecondsSinceEpoch_ > rhs.microSecondsSinceEpoch_;
-  }
-
-  bool equals(Timestamp rhs) const
-  {
-    return microSecondsSinceEpoch_ == rhs.microSecondsSinceEpoch_;
-  }
-
   // for internal usage.
   int64_t microSecondsSinceEpoch() const { return microSecondsSinceEpoch_; }
 
@@ -71,12 +59,12 @@ class Timestamp : public muduo::copyable
 
 inline bool operator<(Timestamp lhs, Timestamp rhs)
 {
-  return lhs.before(rhs);
+  return lhs.microSecondsSinceEpoch() < rhs.microSecondsSinceEpoch();
 }
 
 inline bool operator==(Timestamp lhs, Timestamp rhs)
 {
-  return lhs.equals(rhs);
+  return lhs.microSecondsSinceEpoch() == rhs.microSecondsSinceEpoch();
 }
 
 ///
