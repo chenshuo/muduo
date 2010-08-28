@@ -57,7 +57,8 @@ int main(int argc, char* argv[])
   if (argc > 2)
   {
     EventLoop loop;
-    InetAddress serverAddr(argv[1], atoi(argv[2]));
+    uint16_t port = static_cast<uint16_t>(atoi(argv[2]));
+    InetAddress serverAddr(argv[1], port);
 
     UptimeClient client(&loop, serverAddr);
     client.connect();

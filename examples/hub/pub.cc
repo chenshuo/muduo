@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
     if (colon != string::npos)
     {
       string hostip = hostport.substr(0, colon);
-      uint16_t port = atoi(hostport.c_str()+colon+1);
+      uint16_t port = static_cast<uint16_t>(atoi(hostport.c_str()+colon+1));
       g_topic = argv[2];
       g_content = argv[3];
 

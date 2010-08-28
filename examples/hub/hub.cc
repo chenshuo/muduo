@@ -223,6 +223,7 @@ class PubSubServer : boost::noncopyable
                  const string& content,
                  Timestamp time)
   {
+    (void)source;
     getTopic(topic).publish(content, time);
   }
 
@@ -247,11 +248,11 @@ int main(int argc, char* argv[])
 {
   if (argc > 1)
   {
-    int port = atoi(argv[1]);
+    uint16_t port = static_cast<uint16_t>(atoi(argv[1]));
     EventLoop loop;
     if (argc > 2)
     {
-      int inspectPort = atoi(argv[2]);
+      //int inspectPort = atoi(argv[2]);
     }
     pubsub::PubSubServer server(&loop, InetAddress(port));
     server.start();

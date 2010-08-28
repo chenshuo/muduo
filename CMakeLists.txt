@@ -9,9 +9,9 @@ set(CXX_FLAGS
  -Wall
  -Wextra
  # -m32
- # -Werror
+ -Werror
  -Wconversion
- -Wunused-parameter
+ -Wno-unused-parameter
  -Wold-style-cast
  -Woverloaded-virtual
  -Wpointer-arith

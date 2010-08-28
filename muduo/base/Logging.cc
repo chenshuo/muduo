@@ -118,6 +118,8 @@ Logger::~Logger()
   impl_->finish();
   std::string buf(impl_->stream_.str());
   ssize_t n = ::write(1, buf.data(), buf.size());
+  //FIXME check n
+  (void)n;
   if (impl_->level_ == FATAL)
   {
     abort();
