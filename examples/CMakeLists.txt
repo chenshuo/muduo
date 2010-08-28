@@ -8,3 +8,5 @@ add_subdirectory(asio/chat)
 add_subdirectory(netty/discard)
 add_subdirectory(netty/echo)
 add_subdirectory(netty/uptime)
+
+add_subdirectory(twisted/finger)
