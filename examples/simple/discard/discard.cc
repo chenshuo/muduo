@@ -12,10 +12,10 @@ DiscardServer::DiscardServer(muduo::net::EventLoop* loop,
   : loop_(loop),
     server_(loop, listenAddr, "DiscardServer")
 {
-    server_.setConnectionCallback(
-        boost::bind(&DiscardServer::onConnection, this, _1));
-    server_.setMessageCallback(
-        boost::bind(&DiscardServer::onMessage, this, _1, _2, _3));
+  server_.setConnectionCallback(
+      boost::bind(&DiscardServer::onConnection, this, _1));
+  server_.setMessageCallback(
+      boost::bind(&DiscardServer::onMessage, this, _1, _2, _3));
 }
 
 void DiscardServer::start()

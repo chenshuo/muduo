@@ -1,3 +1,4 @@
+#include "../chargen/chargen.h"
 #include "../daytime/daytime.h"
 #include "../discard/discard.h"
 #include "../echo/echo.h"
@@ -15,6 +16,9 @@ int main()
 {
   LOG_INFO << "pid = " << getpid();
   EventLoop loop;
+
+  ChargenServer ChargenServer(&loop, InetAddress(2019));
+  ChargenServer.start();
 
   DaytimeServer daytimeServer(&loop, InetAddress(2013));
   daytimeServer.start();

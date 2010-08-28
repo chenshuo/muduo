@@ -3,6 +3,7 @@
 
 #include <muduo/net/TcpServer.h>
 
+// RFC 863
 class DiscardServer
 {
  public:

@@ -13,10 +13,10 @@ TimeServer::TimeServer(muduo::net::EventLoop* loop,
   : loop_(loop),
     server_(loop, listenAddr, "TimeServer")
 {
-    server_.setConnectionCallback(
-        boost::bind(&TimeServer::onConnection, this, _1));
-    server_.setMessageCallback(
-        boost::bind(&TimeServer::onMessage, this, _1, _2, _3));
+  server_.setConnectionCallback(
+      boost::bind(&TimeServer::onConnection, this, _1));
+  server_.setMessageCallback(
+      boost::bind(&TimeServer::onMessage, this, _1, _2, _3));
 }
 
 void TimeServer::start()

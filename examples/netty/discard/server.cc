@@ -53,7 +53,7 @@ class DiscardServer
   void onMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp)
   {
     size_t len = buf->readableBytes();
-    transferred_.addAndGet(len);
+    transferred_.add(len);
     receivedMessages_.incrementAndGet();
     buf->retrieveAll();
   }
@@ -76,6 +76,7 @@ class DiscardServer
 
   EventLoop* loop_;
   TcpServer server_;
+
   AtomicInt64 transferred_;
   AtomicInt64 receivedMessages_;
   int64_t oldCounter_;
