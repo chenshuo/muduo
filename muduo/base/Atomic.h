@@ -55,6 +55,11 @@ class AtomicIntegerT : boost::noncopyable
     return addAndGet(1);
   }
 
+  void add(T x)
+  {
+    getAndAdd(x);
+  }
+
   void increment()
   {
     incrementAndGet();

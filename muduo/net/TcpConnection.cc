@@ -99,7 +99,7 @@ void TcpConnection::send(const StringPiece& message)
       loop_->runInLoop(
           boost::bind(&TcpConnection::sendInLoop,
                       this,
-                      message));
+                      message.as_string()));
                     //std::forward<string>(message)));
     }
   }
@@ -135,6 +135,7 @@ void TcpConnection::sendInLoop(const void* data, size_t len)
 {
   loop_->assertInLoopThread();
   ssize_t nwrote = 0;
+  // if no thing in output queue, try writing directly
   if (!channel_->isWriting() && outputBuffer_.readableBytes() == 0)
   {
     nwrote = ::write(channel_->fd(), data, len);

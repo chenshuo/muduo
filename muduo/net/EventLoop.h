@@ -53,9 +53,10 @@ class EventLoop : boost::noncopyable
 
   void quit();
 
+  ///
   /// Time when poll returns, usually means data arrivial.
   ///
-  Timestamp receiveTime();
+  Timestamp pollReturnTime() const { return pollReturnTime_; }
 
   // timers
 
@@ -82,11 +83,12 @@ class EventLoop : boost::noncopyable
   /// Safe to call from other threads.
   // void cancel(TimerId timerId);
 
+  // internal usage
   void wakeup();
   void updateChannel(Channel* channel);
   void removeChannel(Channel* channel);
 
-  pid_t threadId() { return threadId_; }
+  pid_t threadId() const { return threadId_; }
   void assertInLoopThread()
   {
     if (!isInLoopThread())
@@ -94,7 +96,8 @@ class EventLoop : boost::noncopyable
       abortNotInLoopThread();
     }
   }
-  bool isInLoopThread() { return threadId_ == CurrentThread::tid(); }
+  bool isInLoopThread() const { return threadId_ == CurrentThread::tid(); }
+  // bool callingPendingFunctors() const { return callingPendingFunctors_; }
 
  private:
   void abortNotInLoopThread();
@@ -108,7 +111,8 @@ class EventLoop : boost::noncopyable
   bool looping_; /* atomic */
   bool quit_; /* atomic */
   bool eventHandling_; /* atomic */
-  Timestamp happenTime_;
+  bool callingPendingFunctors_; /* atomic */
+  Timestamp pollReturnTime_;
   const pid_t threadId_;
   boost::scoped_ptr<Poller> poller_;
   boost::scoped_ptr<TimerQueue> timerQueue_;

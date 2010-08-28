@@ -59,6 +59,7 @@ EventLoop::EventLoop()
   : looping_(false),
     quit_(false),
     eventHandling_(false),
+    callingPendingFunctors_(false),
     threadId_(CurrentThread::tid()),
     poller_(Poller::newDefaultPoller(this)),
     timerQueue_(new TimerQueue(this)),
@@ -96,7 +97,7 @@ void EventLoop::loop()
   while (!quit_)
   {
     activeChannels_.clear();
-    happenTime_ = poller_->poll(kPollTimeMs, &activeChannels_);
+    pollReturnTime_ = poller_->poll(kPollTimeMs, &activeChannels_);
     if (Logger::logLevel() <= Logger::TRACE)
     {
       printActiveChannels();
@@ -106,7 +107,7 @@ void EventLoop::loop()
     for (ChannelList::iterator it = activeChannels_.begin();
         it != activeChannels_.end(); ++it)
     {
-      (*it)->handleEvent(happenTime_);
+      (*it)->handleEvent(pollReturnTime_);
     }
     eventHandling_ = false;
     doPendingFunctors();
@@ -149,8 +150,15 @@ void EventLoop::runInLoop(const Functor& cb)
 
 void EventLoop::queueInLoop(const Functor& cb)
 {
+  {
   MutexLockGuard lock(mutex_);
   pendingFunctors_.push_back(cb);
+  }
+
+  if (isInLoopThread() && callingPendingFunctors_)
+  {
+    wakeup();
+  }
 }
 
 TimerId EventLoop::runAt(const Timestamp& time, const TimerCallback& cb)
@@ -202,20 +210,18 @@ void EventLoop::handleRead()
 void EventLoop::doPendingFunctors()
 {
   std::vector<Functor> functors;
-  do
+  callingPendingFunctors_ = true;
+
   {
-    functors.clear();
+    MutexLockGuard lock(mutex_);
+    functors.swap(pendingFunctors_);
+  }
 
-    {
-      MutexLockGuard lock(mutex_);
-      functors.swap(pendingFunctors_);
-    }
-
-    for (size_t i = 0; i < functors.size(); ++i)
-    {
-      functors[i]();
-    }
-  } while (!functors.empty());
+  for (size_t i = 0; i < functors.size(); ++i)
+  {
+    functors[i]();
+  }
+  callingPendingFunctors_ = false;
 }
 
 void EventLoop::printActiveChannels() const
