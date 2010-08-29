@@ -13,60 +13,6 @@
 using namespace muduo;
 using namespace muduo::net;
 
-namespace
-{
-enum ParseResult
-{
-  kError,
-  kSuccess,
-  kContinue,
-};
-
-ParseResult parseMessage(Buffer* buf, string* cmd, string* topic, string* content)
-{
-  ParseResult result = kError;
-  const char* crlf = buf->findCRLF();
-  if (crlf)
-  {
-    const char* space = std::find(buf->peek(), crlf, ' ');
-    if (space != crlf)
-    {
-      cmd->assign(buf->peek(), space);
-      topic->assign(space+1, crlf);
-      if (*cmd == "pub")
-      {
-        const char* start = crlf + 2;
-        crlf = buf->findCRLF(start);
-        if (crlf)
-        {
-          content->assign(start, crlf);
-          buf->retrieveUntil(crlf+2);
-          result = kSuccess;
-        }
-        else
-        {
-          result = kContinue;
-        }
-      }
-      else
-      {
-        buf->retrieveUntil(crlf+2);
-        result = kSuccess;
-      }
-    }
-    else
-    {
-      result = kError;
-    }
-  }
-  else
-  {
-    result = kContinue;
-  }
-  return result;
-}
-}
-
 namespace pubsub
 {
 
@@ -164,32 +110,38 @@ class PubSubServer : boost::noncopyable
                  Buffer* buf,
                  Timestamp receiveTime)
   {
-    string cmd;
-    string topic;
-    string content;
-    ParseResult result = parseMessage(buf, &cmd, &topic, &content);
-    if (result == kSuccess)
+    ParseResult result = kSuccess;
+    while (result == kSuccess)
     {
-      if (cmd == "pub")
+      string cmd;
+      string topic;
+      string content;
+      result = parseMessage(buf, &cmd, &topic, &content);
+      if (result == kSuccess)
       {
-        doPublish(conn->name(), topic, content, receiveTime);
+        if (cmd == "pub")
+        {
+          doPublish(conn->name(), topic, content, receiveTime);
+        }
+        else if (cmd == "sub")
+        {
+          LOG_INFO << conn->name() << " subscribes " << topic;
+          doSubscribe(conn, topic);
+        }
+        else if (cmd == "unsub")
+        {
+          doUnsubscribe(conn, topic);
+        }
+        else
+        {
+          conn->shutdown();
+          result = kError;
+        }
       }
-      else if (cmd == "sub")
-      {
-        doSubscribe(conn, topic);
-      }
-      else if (cmd == "unsub")
-      {
-        doUnsubscribe(conn, topic);
-      }
-      else
+      else if (result == kError)
       {
         conn->shutdown();
       }
-    }
-    else if (result == kError)
-    {
-      conn->shutdown();
     }
   }
 
@@ -212,6 +164,7 @@ class PubSubServer : boost::noncopyable
   void doUnsubscribe(const TcpConnectionPtr& conn,
                      const string& topic)
   {
+    LOG_INFO << conn->name() << " unsubscribes " << topic;
     ConnectionSubscription& connSub
       = boost::any_cast<ConnectionSubscription&>(conn->getContext());
     connSub.erase(topic);
@@ -223,7 +176,6 @@ class PubSubServer : boost::noncopyable
                  const string& content,
                  Timestamp time)
   {
-    (void)source;
     getTopic(topic).publish(content, time);
   }
 

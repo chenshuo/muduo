@@ -1,7 +1,9 @@
 #include "pubsub.h"
 #include <muduo/base/ProcessInfo.h>
 #include <muduo/net/EventLoop.h>
+#include <muduo/net/EventLoopThread.h>
 
+#include <iostream>
 #include <stdio.h>
 
 using namespace muduo;
@@ -38,14 +40,32 @@ int main(int argc, char* argv[])
       g_topic = argv[2];
       g_content = argv[3];
 
-      EventLoop loop;
-      g_loop = &loop;
       string name = ProcessInfo::username()+"@"+ProcessInfo::hostname();
       name += ":" + ProcessInfo::pidString();
-      PubSubClient client(&loop, InetAddress(hostip, port), name);
-      client.setConnectionCallback(connection);
-      client.start();
-      loop.loop();
+
+      if (g_content == "-")
+      {
+        EventLoopThread loopThread;
+        g_loop = loopThread.startLoop();
+        PubSubClient client(g_loop, InetAddress(hostip, port), name);
+        client.start();
+        
+        string line;
+        while (getline(std::cin, line))
+        {
+          client.publish(g_topic, line);
+        }
+        client.stop();
+      }
+      else
+      {
+        EventLoop loop;
+        g_loop = &loop;
+        PubSubClient client(g_loop, InetAddress(hostip, port), name);
+        client.setConnectionCallback(connection);
+        client.start();
+        loop.loop();
+      }
     }
     else
     {
@@ -54,6 +74,8 @@ int main(int argc, char* argv[])
   }
   else
   {
-    printf("Usage: %s hub_ip:port topic content\n", argv[0]);
+    printf("Usage: %s hub_ip:port topic content\n"
+           "Read contents from stdin:\n"
+           "  %s hub_ip:port topic -\n", argv[0], argv[0]);
   }
 }
