@@ -26,3 +26,6 @@ target_link_libraries(simple_allinone muduo_net)
 add_executable(simple_timeclient timeclient/timeclient.cc)
 target_link_libraries(simple_timeclient muduo_net)
 
+add_executable(simple_chargenclient chargenclient/chargenclient.cc)
+target_link_libraries(simple_chargenclient muduo_net)
+
