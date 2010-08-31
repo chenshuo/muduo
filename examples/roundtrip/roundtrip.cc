@@ -10,12 +10,26 @@ using namespace muduo::net;
 
 const size_t frameLen = 2*sizeof(int64_t);
 
+void serverConnectionCallback(const TcpConnectionPtr& conn)
+{
+  LOG_TRACE << conn->name() << " " << conn->peerAddress().toHostPort() << " -> "
+        << conn->localAddress().toHostPort() << " is "
+        << (conn->connected() ? "UP" : "DOWN");
+  if (conn->connected())
+  {
+    conn->setTcpNoDelay(true);
+  }
+  else
+  {
+  }
+}
+
 void serverMessageCallback(const TcpConnectionPtr& conn,
                            Buffer* buffer,
                            muduo::Timestamp receiveTime)
 {
   int64_t message[2];
-  if (buffer->readableBytes() >= frameLen)
+  while (buffer->readableBytes() >= frameLen)
   {
     memcpy(message, buffer->peek(), frameLen);
     buffer->retrieve(frameLen);
@@ -28,6 +42,7 @@ void runServer(uint16_t port)
 {
   EventLoop loop;
   TcpServer server(&loop, InetAddress(port), "ClockServer");
+  server.setConnectionCallback(serverConnectionCallback);
   server.setMessageCallback(serverMessageCallback);
   server.start();
   loop.loop();
@@ -43,6 +58,7 @@ void clientConnectionCallback(const TcpConnectionPtr& conn)
   if (conn->connected())
   {
     clientConnection = conn;
+    conn->setTcpNoDelay(true);
   }
   else
   {
@@ -55,7 +71,7 @@ void clientMessageCallback(const TcpConnectionPtr&,
                            muduo::Timestamp receiveTime)
 {
   int64_t message[2];
-  if (buffer->readableBytes() >= frameLen)
+  while (buffer->readableBytes() >= frameLen)
   {
     memcpy(message, buffer->peek(), frameLen);
     buffer->retrieve(frameLen);

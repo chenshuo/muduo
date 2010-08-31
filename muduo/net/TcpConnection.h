@@ -63,6 +63,7 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
   // void send(const Buffer& message);
   void send(Buffer* message);  // this one will swap data
   void shutdown(); // NOT thread safe, no simultaneous calling
+  void setTcpNoDelay(bool on);
 
   void setContext(const boost::any& context)
   { context_ = context; }

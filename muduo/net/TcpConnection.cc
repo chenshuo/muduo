@@ -190,6 +190,11 @@ void TcpConnection::shutdownInLoop()
   }
 }
 
+void TcpConnection::setTcpNoDelay(bool on)
+{
+  socket_->setTcpNoDelay(on);
+}
+
 void TcpConnection::connectEstablished()
 {
   loop_->assertInLoopThread();
