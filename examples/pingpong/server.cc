@@ -29,7 +29,7 @@ void onMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp)
 
 int main(int argc, char* argv[])
 {
-  if (argc != 4)
+  if (argc < 4)
   {
     fprintf(stderr, "Usage: server <address> <port> <threads>\n");
   }

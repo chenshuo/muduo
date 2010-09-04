@@ -144,7 +144,7 @@ class Client : boost::noncopyable
                << " average message size";
       LOG_WARN << static_cast<double>(totalBytesRead) / (timeout_ * 1024 * 1024)
                << " MiB/s throughput";
-      loop_->quit();
+      loop_->queueInLoop(boost::bind(&EventLoop::quit, loop_));
     }
   }
 
