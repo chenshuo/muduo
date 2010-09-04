@@ -28,7 +28,7 @@ string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS}")
 set(CMAKE_CXX_COMPILER "g++")
 #set(CMAKE_CXX_COMPILER "icpc")
 set(CMAKE_CXX_FLAGS_DEBUG "-O0")
-set(CMAKE_CXX_FLAGS_RELEASE "-O2") # no NDEBUG in Release, keep asserting.
+set(CMAKE_CXX_FLAGS_RELEASE "-O2 -finline-limit=1000") # no NDEBUG in Release, keep asserting.
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 

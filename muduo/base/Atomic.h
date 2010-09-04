@@ -55,6 +55,11 @@ class AtomicIntegerT : boost::noncopyable
     return addAndGet(1);
   }
 
+  T decrementAndGet()
+  {
+    return addAndGet(-1);
+  }
+
   void add(T x)
   {
     getAndAdd(x);
@@ -67,7 +72,7 @@ class AtomicIntegerT : boost::noncopyable
 
   void decrement()
   {
-    getAndAdd(-1);
+    decrementAndGet();
   }
 
   T getAndSet(T newValue)

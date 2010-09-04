@@ -115,6 +115,9 @@ void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn)
   EventLoop* ioLoop = conn->getLoop();
   ioLoop->queueInLoop(
       boost::bind(&TcpConnection::connectDestroyed, conn));
-  // FIXME wake up ?
+  if (!ioLoop->isInLoopThread())
+  {
+    ioLoop->wakeup();
+  }
 }
 
