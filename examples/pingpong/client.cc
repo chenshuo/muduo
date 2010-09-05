@@ -23,7 +23,10 @@ class Client;
 class Session : boost::noncopyable
 {
  public:
-  Session(EventLoop* loop, const InetAddress& serverAddr, const string& name, Client* owner)
+  Session(EventLoop* loop,
+          const InetAddress& serverAddr,
+          const string& name,
+          Client* owner)
     : client_(loop, serverAddr, name),
       owner_(owner),
       bytesRead_(0),
@@ -60,7 +63,7 @@ class Session : boost::noncopyable
 
   void onConnection(const TcpConnectionPtr& conn);
 
-  void onMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp time)
+  void onMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp)
   {
     ++messagesRead_;
     bytesRead_ += buf->readableBytes();

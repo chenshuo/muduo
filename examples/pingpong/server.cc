@@ -19,7 +19,10 @@ using namespace muduo::net;
 
 void onConnection(const TcpConnectionPtr& conn)
 {
-  conn->setTcpNoDelay(true);
+  if (conn->connected())
+  {
+    conn->setTcpNoDelay(true);
+  }
 }
 
 void onMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp)
