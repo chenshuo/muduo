@@ -15,6 +15,7 @@
 #include <boost/noncopyable.hpp>
 
 #include <muduo/base/Timestamp.h>
+#include <muduo/net/EventLoop.h>
 
 namespace muduo
 {
@@ -22,7 +23,6 @@ namespace net
 {
 
 class Channel;
-class EventLoop;
 
 ///
 /// Base class for IO Multiplexing
@@ -50,7 +50,10 @@ class Poller : boost::noncopyable
 
   static Poller* newDefaultPoller(EventLoop* loop);
 
-  void assertInLoopThread();
+  void assertInLoopThread()
+  {
+    ownerLoop_->assertInLoopThread();
+  }
 
  private:
   EventLoop* ownerLoop_;

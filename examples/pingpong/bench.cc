@@ -26,16 +26,16 @@ int g_reads, g_writes, g_fired;
 
 void readCallback(Timestamp, int fd, int idx)
 {
-  int widx = idx+1;
-  if (widx >= numPipes)
-  {
-    widx -= numPipes;
-  }
   char ch;
 
   g_reads += static_cast<int>(::recv(fd, &ch, sizeof(ch), 0));
   if (g_writes > 0)
   {
+    int widx = idx+1;
+    if (widx >= numPipes)
+    {
+      widx -= numPipes;
+    }
     ::send(g_pipes[2 * widx + 1], "m", 1, 0);
     g_writes--;
     g_fired++;
@@ -48,11 +48,12 @@ void readCallback(Timestamp, int fd, int idx)
 
 std::pair<double, double> runOnce()
 {
-
   Timestamp beforeInit(Timestamp::now());
   for (int i = 0; i < numPipes; ++i)
   {
-    g_channels[i]->enableReading();
+    Channel* channel = g_channels[i];
+    channel->setReadCallback(boost::bind(readCallback, _1, channel->fd(), i));
+    channel->enableReading();
   }
 
   int space = numPipes / numActive;
@@ -69,11 +70,6 @@ std::pair<double, double> runOnce()
   g_loop->loop();
 
   Timestamp end(Timestamp::now());
-
-  for (int i = 0; i < numPipes; ++i)
-  {
-    //g_channels[i]->enableReading();
-  }
 
   return std::make_pair(timeDifference(end, beforeInit), timeDifference(end, beforeLoop));
 }
@@ -95,7 +91,7 @@ int main(int argc, char* argv[])
     if (::setrlimit(RLIMIT_NOFILE, &rl) == -1)
     {
       perror("setrlimit");
-      return 1;
+      return 1;  // comment out this line if under valgrind
     }
     g_pipes.resize(2 * numPipes);
     for (int i = 0; i < numPipes; ++i)
@@ -113,15 +109,18 @@ int main(int argc, char* argv[])
     for (int i = 0; i < numPipes; ++i)
     {
       Channel* channel = new Channel(&loop, g_pipes[i*2]);
-      channel->setReadCallback(boost::bind(readCallback, _1, channel->fd(), i));
-      channel->enableReading();
       g_channels.push_back(channel);
     }
 
     for (int i = 0; i < 25; ++i)
     {
       std::pair<double, double> t = runOnce();
-      printf("%f %f\n", t.first, t.second);
+      printf("%.3f %f\n", t.first, t.second);
+    }
+
+    for (int i = 0; i < numPipes; ++i)
+    {
+      delete g_channels[i];
     }
   }
 }
