@@ -106,6 +106,7 @@ void EPollPoller::updateChannel(Channel* channel)
   {
     // update existing one with EPOLL_CTL_MOD
     int fd = channel->fd();
+    (void)fd;
     assert(channels_.find(fd) != channels_.end());
     assert(channels_[fd] == channel);
     assert(channel->index() == 1);
@@ -123,9 +124,11 @@ void EPollPoller::removeChannel(Channel* channel)
   assert(channel->events() == Channel::kNoneEvent);
   assert(channel->index() == 1);
   size_t n = channels_.erase(fd);
+  (void)n;
   assert(n == 1);
 
   update(EPOLL_CTL_DEL, channel);
+  channel->set_index(-1);
 }
 
 void EPollPoller::update(int operation, Channel* channel)

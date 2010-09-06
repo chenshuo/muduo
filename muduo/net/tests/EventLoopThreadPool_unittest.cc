@@ -37,6 +37,7 @@ int main()
     model.setThreadNum(1);
     model.start();
     EventLoop* nextLoop = model.getNextLoop();
+    (void)nextLoop;
     assert(nextLoop != &loop);
     assert(nextLoop == model.getNextLoop());
     assert(nextLoop == model.getNextLoop());
@@ -48,6 +49,7 @@ int main()
     model.setThreadNum(3);
     model.start();
     EventLoop* nextLoop = model.getNextLoop();
+    (void)nextLoop;
     assert(nextLoop != &loop);
     assert(nextLoop != model.getNextLoop());
     assert(nextLoop != model.getNextLoop());

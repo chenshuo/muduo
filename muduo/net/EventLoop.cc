@@ -93,6 +93,7 @@ void EventLoop::loop()
   assert(!looping_);
   assertInLoopThread();
   looping_ = true;
+  quit_ = false;
   LOG_TRACE << "EventLoop " << this << " start looping";
   while (!quit_)
   {
