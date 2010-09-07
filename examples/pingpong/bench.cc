@@ -46,7 +46,7 @@ void readCallback(Timestamp, int fd, int idx)
   }
 }
 
-std::pair<double, double> runOnce()
+std::pair<int, int> runOnce()
 {
   Timestamp beforeInit(Timestamp::now());
   for (int i = 0; i < numPipes; ++i)
@@ -71,56 +71,70 @@ std::pair<double, double> runOnce()
 
   Timestamp end(Timestamp::now());
 
-  return std::make_pair(timeDifference(end, beforeInit), timeDifference(end, beforeLoop));
+  int iterTime = static_cast<int>(end.microSecondsSinceEpoch() - beforeInit.microSecondsSinceEpoch());
+  int loopTime = static_cast<int>(end.microSecondsSinceEpoch() - beforeLoop.microSecondsSinceEpoch());
+  return std::make_pair(iterTime, loopTime);
 }
 
 int main(int argc, char* argv[])
 {
-  if (argc != 4)
+  numPipes = 100;
+  numActive = 1;
+  numWrites = 100;
+  int c;
+  while ((c = getopt(argc, argv, "n:a:w:")) != -1)
   {
-    fprintf(stderr, "Usage: bench num_pipes num_actives num_writes\n");
-  }
-  else
-  {
-    numPipes = atoi(argv[1]);
-    numActive = atoi(argv[2]);
-    numWrites = atoi(argv[3]);
-
-    struct rlimit rl;
-    rl.rlim_cur = rl.rlim_max = numPipes * 2 + 50;
-    if (::setrlimit(RLIMIT_NOFILE, &rl) == -1)
+    switch (c)
     {
-      perror("setrlimit");
-      return 1;  // comment out this line if under valgrind
-    }
-    g_pipes.resize(2 * numPipes);
-    for (int i = 0; i < numPipes; ++i)
-    {
-      if (::socketpair(AF_UNIX, SOCK_STREAM, 0, &g_pipes[i*2]) == -1)
-      {
-        perror("pipe");
+      case 'n':
+        numPipes = atoi(optarg);
+        break;
+      case 'a':
+        numActive = atoi(optarg);
+        break;
+      case 'w':
+        numWrites = atoi(optarg);
+        break;
+      default:
+        fprintf(stderr, "Illegal argument \"%c\"\n", c);
         return 1;
-      }
     }
+  }
 
-    EventLoop loop;
-    g_loop = &loop;
-
-    for (int i = 0; i < numPipes; ++i)
+  struct rlimit rl;
+  rl.rlim_cur = rl.rlim_max = numPipes * 2 + 50;
+  if (::setrlimit(RLIMIT_NOFILE, &rl) == -1)
+  {
+    perror("setrlimit");
+    //return 1;  // comment out this line if under valgrind
+  }
+  g_pipes.resize(2 * numPipes);
+  for (int i = 0; i < numPipes; ++i)
+  {
+    if (::socketpair(AF_UNIX, SOCK_STREAM, 0, &g_pipes[i*2]) == -1)
     {
-      Channel* channel = new Channel(&loop, g_pipes[i*2]);
-      g_channels.push_back(channel);
+      perror("pipe");
+      return 1;
     }
+  }
 
-    for (int i = 0; i < 25; ++i)
-    {
-      std::pair<double, double> t = runOnce();
-      printf("%.3f %f\n", t.first, t.second);
-    }
+  EventLoop loop;
+  g_loop = &loop;
 
-    for (int i = 0; i < numPipes; ++i)
-    {
-      delete g_channels[i];
-    }
+  for (int i = 0; i < numPipes; ++i)
+  {
+    Channel* channel = new Channel(&loop, g_pipes[i*2]);
+    g_channels.push_back(channel);
+  }
+
+  for (int i = 0; i < 25; ++i)
+  {
+    std::pair<int, int> t = runOnce();
+    printf("%8d %8d\n", t.first, t.second);
+  }
+
+  for (int i = 0; i < numPipes; ++i)
+  {
+    delete g_channels[i];
   }
 }
