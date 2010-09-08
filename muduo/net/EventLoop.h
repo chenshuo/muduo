@@ -91,12 +91,10 @@ class EventLoop : boost::noncopyable
   pid_t threadId() const { return threadId_; }
   void assertInLoopThread()
   {
-#ifndef NDEBUG
     if (!isInLoopThread())
     {
       abortNotInLoopThread();
     }
-#endif
   }
   bool isInLoopThread() const { return threadId_ == CurrentThread::tid(); }
   // bool callingPendingFunctors() const { return callingPendingFunctors_; }
