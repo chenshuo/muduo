@@ -15,7 +15,11 @@
 
 #include <boost/bind.hpp>
 
+#include <errno.h>
+#include <fcntl.h>
 #include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 using namespace muduo;
 using namespace muduo::net;
@@ -24,7 +28,8 @@ Acceptor::Acceptor(EventLoop* loop, const InetAddress& listenAddr)
   : loop_(loop),
     acceptSocket_(sockets::createNonblockingOrDie()),
     acceptChannel_(loop, acceptSocket_.fd()),
-    listenning_(false)
+    listenning_(false),
+    idleFd_(::open("/dev/null", O_RDONLY))
 {
   acceptSocket_.setReuseAddr(true);
   acceptSocket_.bindAddress(listenAddr);
@@ -57,6 +62,19 @@ void Acceptor::handleRead()
     else
     {
       sockets::close(connfd);
+    }
+  }
+  else
+  {
+    // Read the section named "The special problem of
+    // accept()ing when you can't" in libev's doc.
+    // By Marc Lehmann, author of livev.
+    if (errno == EMFILE)
+    {
+      ::close(idleFd_);
+      idleFd_ = ::accept(acceptSocket_.fd(), NULL, NULL);
+      ::close(idleFd_);
+      idleFd_ = ::open("/dev/null", O_RDONLY);
     }
   }
 }

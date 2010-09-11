@@ -104,12 +104,13 @@ int sockets::accept(int sockfd, struct sockaddr_in* addr)
       case EINTR:
       case EPROTO: // ???
       case EPERM:
+      case EMFILE: // per-process lmit of open file desctiptor ???
         // expected errors
+        errno = savedErrno;
         break;
       case EBADF:
       case EFAULT:
       case EINVAL:
-      case EMFILE: // per-process lmit of open file desctiptor ???
       case ENFILE:
       case ENOBUFS:
       case ENOMEM:
