@@ -37,6 +37,11 @@ Acceptor::Acceptor(EventLoop* loop, const InetAddress& listenAddr)
       boost::bind(&Acceptor::handleRead, this));
 }
 
+Acceptor::~Acceptor()
+{
+  ::close(idleFd_);
+}
+
 void Acceptor::listen()
 {
   loop_->assertInLoopThread();
