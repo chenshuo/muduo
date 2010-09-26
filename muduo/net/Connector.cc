@@ -124,7 +124,14 @@ void Connector::handleWrite()
 
   assert(state_ == kConnecting);
   int sockfd = removeAndResetChannel();
-  if (sockets::isSelfConnect(sockfd))
+  int err = sockets::getSocketError(sockfd);
+  if (err)
+  {
+    LOG_WARN << "Connector::handleWrite - SO_ERROR = "
+             << err << " " << strerror_tl(err);
+    retry(sockfd);
+  }
+  else if (sockets::isSelfConnect(sockfd))
   {
     LOG_WARN << "Connector::handleWrite - Self connect";
     retry(sockfd);
