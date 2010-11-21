@@ -1,3 +1,11 @@
+2010-11-20  Shuo Chen  <chenshuo@chenshuo.com>
+
+  * Version 0.1.4
+
+2010-09-26  Shuo Chen  <chenshuo@chenshuo.com>
+
+  * Check SO_ERROR when connection is made.
+
 2010-09-11  Shuo Chen  <chenshuo@chenshuo.com>
 
   * Gracefully refuse clients when accept(2) returns EMFILE.

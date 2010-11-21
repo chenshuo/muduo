@@ -122,24 +122,26 @@ void Connector::handleWrite()
 {
   LOG_TRACE << "Connector::handleWrite";
 
-  assert(state_ == kConnecting);
-  int sockfd = removeAndResetChannel();
-  int err = sockets::getSocketError(sockfd);
-  if (err)
+  if (state_ == kConnecting)
   {
-    LOG_WARN << "Connector::handleWrite - SO_ERROR = "
-             << err << " " << strerror_tl(err);
-    retry(sockfd);
-  }
-  else if (sockets::isSelfConnect(sockfd))
-  {
-    LOG_WARN << "Connector::handleWrite - Self connect";
-    retry(sockfd);
-  }
-  else
-  {
-    setState(kConnected);
-    newConnectionCallback_(sockfd);
+    int sockfd = removeAndResetChannel();
+    int err = sockets::getSocketError(sockfd);
+    if (err)
+    {
+      LOG_WARN << "Connector::handleWrite - SO_ERROR = "
+               << err << " " << strerror_tl(err);
+      retry(sockfd);
+    }
+    else if (sockets::isSelfConnect(sockfd))
+    {
+      LOG_WARN << "Connector::handleWrite - Self connect";
+      retry(sockfd);
+    }
+    else
+    {
+      setState(kConnected);
+      newConnectionCallback_(sockfd);
+    }
   }
 }
 
