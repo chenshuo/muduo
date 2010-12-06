@@ -18,7 +18,7 @@ class CountDownLatch : boost::noncopyable
 {
  public:
 
-  CountDownLatch(int count);
+  explicit CountDownLatch(int count);
 
   void wait();
 

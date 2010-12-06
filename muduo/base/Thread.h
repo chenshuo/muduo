@@ -21,7 +21,7 @@ class Thread : boost::noncopyable
  public:
   typedef boost::function<void ()> ThreadFunc;
 
-  Thread(const ThreadFunc&, const string& name = string());
+  explicit Thread(const ThreadFunc&, const string& name = string());
   ~Thread();
 
   void start();
