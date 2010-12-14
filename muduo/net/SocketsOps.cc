@@ -55,6 +55,7 @@ void setNonBlockAndCloseOnExec(int sockfd)
 int sockets::createNonblockingOrDie()
 {
   // socket
+#if VALGRIND
   int sockfd = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (sockfd < 0)
   {
@@ -62,6 +63,13 @@ int sockets::createNonblockingOrDie()
   }
 
   setNonBlockAndCloseOnExec(sockfd);
+#else
+  int sockfd = ::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
+  if (sockfd < 0)
+  {
+    LOG_SYSFATAL << "sockets::createNonblockingOrDie";
+  }
+#endif
   return sockfd;
 }
 
