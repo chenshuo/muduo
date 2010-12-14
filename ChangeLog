@@ -1,5 +1,12 @@
+2010-12-15  Shuo Chen  <chenshuo@chenshuo.com>
+
+  * Add examples/multiplexer
+  * Fix epoll kNoneEvent
+  * Version 0.1.5
+
 2010-11-20  Shuo Chen  <chenshuo@chenshuo.com>
 
+  * Fix retry logic
   * Version 0.1.4
 
 2010-09-26  Shuo Chen  <chenshuo@chenshuo.com>
