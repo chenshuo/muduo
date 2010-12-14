@@ -93,7 +93,7 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
   void connectDestroyed();  // should be called only once
 
  private:
-  enum States { kDisconnected, kConnecting, kConnected, kDisconnecting };
+  enum StateE { kDisconnected, kConnecting, kConnected, kDisconnecting };
   void handleRead(Timestamp receiveTime);
   void handleWrite();
   void handleClose();
@@ -102,11 +102,11 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
   void sendInLoop(const StringPiece& message);
   void sendInLoop(const void* message, size_t len);
   void shutdownInLoop();
-  void setState(States s) { state_ = s; }
+  void setState(StateE s) { state_ = s; }
 
   EventLoop* loop_;
   string name_;
-  States state_;  // FIXME: use atomic variable
+  StateE state_;  // FIXME: use atomic variable
   // we don't expose those classes to client.
   boost::scoped_ptr<Socket> socket_;
   boost::scoped_ptr<Channel> channel_;

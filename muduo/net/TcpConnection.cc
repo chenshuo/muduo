@@ -279,6 +279,8 @@ void TcpConnection::handleWrite()
 void TcpConnection::handleClose()
 {
   loop_->assertInLoopThread();
+  LOG_TRACE << "TcpConnection::handleClose state = " << state_;
+  assert(state_ == kConnected || state_ == kDisconnecting);
   // we don't close fd, leave it to dtor, so we can find leaks easily.
   setState(kDisconnected);
   channel_->disableAll();
