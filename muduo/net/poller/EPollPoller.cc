@@ -34,7 +34,7 @@ namespace
 {
 const int kNew = -1;
 const int kAdded = 1;
-const int kRemoved = 2;
+const int kDeleted = 2;
 }
 
 EPollPoller::EPollPoller(EventLoop* loop)
@@ -103,7 +103,7 @@ void EPollPoller::updateChannel(Channel* channel)
   Poller::assertInLoopThread();
   LOG_TRACE << "fd = " << channel->fd() << " events = " << channel->events();
   const int index = channel->index();
-  if (index == kNew || index == kRemoved)
+  if (index == kNew || index == kDeleted)
   {
     // a new one, add with EPOLL_CTL_ADD
     int fd = channel->fd();
@@ -112,7 +112,7 @@ void EPollPoller::updateChannel(Channel* channel)
       assert(channels_.find(fd) == channels_.end());
       channels_[fd] = channel;
     }
-    else // index == kRemoved
+    else // index == kDeleted
     {
       assert(channels_.find(fd) != channels_.end());
       assert(channels_[fd] == channel);
@@ -131,7 +131,7 @@ void EPollPoller::updateChannel(Channel* channel)
     if (channel->events() == Channel::kNoneEvent)
     {
       update(EPOLL_CTL_DEL, channel);
-      channel->set_index(kRemoved);
+      channel->set_index(kDeleted);
     }
     else
     {
@@ -149,7 +149,7 @@ void EPollPoller::removeChannel(Channel* channel)
   assert(channels_[fd] == channel);
   assert(channel->events() == Channel::kNoneEvent);
   int index = channel->index();
-  assert(index == kAdded || index == kRemoved);
+  assert(index == kAdded || index == kDeleted);
   size_t n = channels_.erase(fd);
   (void)n;
   assert(n == 1);
