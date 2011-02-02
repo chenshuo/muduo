@@ -1,3 +1,8 @@
+2011-02-01  Shuo Chen  <chenshuo@chenshuo.com>
+
+  * Fix onConnection() in simple examples.
+  * Version 0.1.6
+
 2010-12-15  Shuo Chen  <chenshuo@chenshuo.com>
 
   * Add examples/multiplexer

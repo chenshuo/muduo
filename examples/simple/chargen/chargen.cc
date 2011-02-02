@@ -51,7 +51,10 @@ void ChargenServer::onConnection(const muduo::net::TcpConnectionPtr& conn)
   LOG_INFO << "ChargenServer - " << conn->peerAddress().toHostPort() << " -> "
     << conn->localAddress().toHostPort() << " is "
     << (conn->connected() ? "UP" : "DOWN");
-  conn->send(message_);
+  if (conn->connected())
+  {
+    conn->send(message_);
+  }
 }
 
 void ChargenServer::onMessage(const muduo::net::TcpConnectionPtr& conn,

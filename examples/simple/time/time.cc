@@ -29,9 +29,12 @@ void TimeServer::onConnection(const muduo::net::TcpConnectionPtr& conn)
   LOG_INFO << "TimeServer - " << conn->peerAddress().toHostPort() << " -> "
     << conn->localAddress().toHostPort() << " is "
     << (conn->connected() ? "UP" : "DOWN");
-  int32_t now = sockets::hostToNetwork32(static_cast<int>(::time(NULL)));
-  conn->send(&now, sizeof now);
-  conn->shutdown();
+  if (conn->connected())
+  {
+    int32_t now = sockets::hostToNetwork32(static_cast<int>(::time(NULL)));
+    conn->send(&now, sizeof now);
+    conn->shutdown();
+  }
 }
 
 void TimeServer::onMessage(const muduo::net::TcpConnectionPtr& conn,

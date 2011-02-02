@@ -29,8 +29,11 @@ void DaytimeServer::onConnection(const muduo::net::TcpConnectionPtr& conn)
   LOG_INFO << "DaytimeServer - " << conn->peerAddress().toHostPort() << " -> "
     << conn->localAddress().toHostPort() << " is "
     << (conn->connected() ? "UP" : "DOWN");
-  conn->send(Timestamp::now().toFormattedString() + "\n");
-  conn->shutdown();
+  if (conn->connected())
+  {
+    conn->send(Timestamp::now().toFormattedString() + "\n");
+    conn->shutdown();
+  }
 }
 
 void DaytimeServer::onMessage(const muduo::net::TcpConnectionPtr& conn,
