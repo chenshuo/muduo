@@ -1,6 +1,12 @@
+2011-02-03  Shuo Chen  <chenshuo@chenshuo.com>
+
+  * Fix LengthHeaderCodec::onMessage() in examples/asio/chat.
+  * Version 0.1.7
+
 2011-02-01  Shuo Chen  <chenshuo@chenshuo.com>
 
   * Fix onConnection() in simple examples.
+  * Reset t_cachedTid after fork().
   * Version 0.1.6
 
 2010-12-15  Shuo Chen  <chenshuo@chenshuo.com>

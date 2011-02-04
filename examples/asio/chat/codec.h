@@ -27,13 +27,7 @@ class LengthHeaderCodec : boost::noncopyable
                  muduo::net::Buffer* buf,
                  muduo::Timestamp receiveTime)
   {
-    muduo::Timestamp& receiveTime_ = boost::any_cast<muduo::Timestamp&>(conn->getContext());
-    if (!receiveTime_.valid())
-    {
-      receiveTime_ = receiveTime;
-    }
-
-    if (buf->readableBytes() >= kHeaderLen)
+    while (buf->readableBytes() >= kHeaderLen)
     {
       const void* data = buf->peek();
       int32_t tmp = *static_cast<const int32_t*>(data);
@@ -48,8 +42,11 @@ class LengthHeaderCodec : boost::noncopyable
         buf->retrieve(kHeaderLen);
         muduo::string message(buf->peek(), len);
         buf->retrieve(len);
-        messageCallback_(conn, message, receiveTime_);
-        receiveTime_ = muduo::Timestamp::invalid();
+        messageCallback_(conn, message, receiveTime);
+      }
+      else
+      {
+        break;
       }
     }
   }
