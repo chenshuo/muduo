@@ -17,30 +17,34 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-using namespace muduo;
-
-namespace
+namespace muduo
 {
-  __thread int t_numOpenedFiles = 0;
-  int fdDirFilter(const struct dirent* d)
+namespace detail
+{
+__thread int t_numOpenedFiles = 0;
+int fdDirFilter(const struct dirent* d)
+{
+  if (::isdigit(d->d_name[0]))
   {
-    if (::isdigit(d->d_name[0]))
-    {
-      ++t_numOpenedFiles;
-    }
-    return 0;
+    ++t_numOpenedFiles;
   }
-
-  __thread std::vector<pid_t>* t_pids = NULL;
-  int taskDirFilter(const struct dirent* d)
-  {
-    if (::isdigit(d->d_name[0]))
-    {
-      t_pids->push_back(atoi(d->d_name));
-    }
-    return 0;
-  }
+  return 0;
 }
+
+__thread std::vector<pid_t>* t_pids = NULL;
+int taskDirFilter(const struct dirent* d)
+{
+  if (::isdigit(d->d_name[0]))
+  {
+    t_pids->push_back(atoi(d->d_name));
+  }
+  return 0;
+}
+}
+}
+
+using namespace muduo;
+using namespace muduo::detail;
 
 pid_t ProcessInfo::pid()
 {

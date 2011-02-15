@@ -16,9 +16,8 @@ namespace CurrentThread
 {
   __thread const char* t_threadName = "unknown";
 }
-}
 
-namespace
+namespace detail
 {
 __thread pid_t t_cachedTid = 0;
 
@@ -46,8 +45,10 @@ class ThreadNameInitializer
 
 ThreadNameInitializer init;
 }
+}
 
 using namespace muduo;
+using namespace muduo::detail;
 
 pid_t CurrentThread::tid()
 {

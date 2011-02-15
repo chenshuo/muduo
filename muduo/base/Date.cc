@@ -6,9 +6,9 @@
 #include <muduo/base/Date.h>
 #include <stdio.h>  // snprintf
 
-using namespace muduo;
-
-namespace
+namespace muduo
+{
+namespace detail
 {
 
 char require_32_bit_integer_at_least[sizeof(int) >= sizeof(int32_t) ? 1 : -1];
@@ -40,8 +40,11 @@ struct Date::YearMonthDay getYearMonthDay(int julianDayNumber)
   ymd.year = b * 100 + d - 4800 + (m / 10);
   return ymd;
 }
-
 }
+}
+
+using namespace muduo;
+using namespace muduo::detail;
 
 Date::Date(int y, int m, int d)
   : julianDayNumber_(getJulianDayNumber(y, m, d))
