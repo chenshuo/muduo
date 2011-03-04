@@ -60,13 +60,13 @@ class Buffer : public muduo::copyable
     std::swap(writerIndex_, rhs.writerIndex_);
   }
 
-  size_t readableBytes()
+  size_t readableBytes() const
   { return writerIndex_ - readerIndex_; }
 
-  size_t writableBytes()
+  size_t writableBytes() const
   { return buffer_.size() - writerIndex_; }
 
-  size_t prependableBytes()
+  size_t prependableBytes() const
   { return readerIndex_; }
 
   const char* peek() const

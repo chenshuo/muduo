@@ -83,6 +83,9 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
   void setWriteCompleteCallback(const WriteCompleteCallback& cb)
   { writeCompleteCallback_ = cb; }
 
+  Buffer* inputBuffer()
+  { return &inputBuffer_; }
+
   /// Internal use only.
   void setCloseCallback(const CloseCallback& cb)
   { closeCallback_ = cb; }

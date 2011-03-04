@@ -125,7 +125,7 @@ int sockets::accept(int sockfd, struct sockaddr_in* addr)
       case ENOTSOCK:
       case EOPNOTSUPP:
         // unexpected errors
-        LOG_FATAL << "unexpected error of ::accept";
+        LOG_FATAL << "unexpected error of ::accept " << savedErrno;
         break;
       default:
         LOG_FATAL << "unknown error of ::accept " << savedErrno;

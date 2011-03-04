@@ -176,6 +176,7 @@ void TcpConnection::shutdown()
   if (state_ == kConnected)
   {
     setState(kDisconnecting);
+    // FIXME: shared_from_this()?
     loop_->runInLoop(boost::bind(&TcpConnection::shutdownInLoop, this));
   }
 }
