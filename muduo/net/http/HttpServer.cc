@@ -107,7 +107,7 @@ void defaultHttpCallback(const HttpRequest&, HttpResponse* resp)
 
 }
 
-HttpServer::HttpServer(EventLoop* loop, 
+HttpServer::HttpServer(EventLoop* loop,
                        const InetAddress& listenAddr,
                        const string& name)
   : server_(loop, listenAddr, name),

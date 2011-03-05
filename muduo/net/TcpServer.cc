@@ -23,10 +23,10 @@ using namespace muduo::net;
 
 TcpServer::TcpServer(EventLoop* loop,
                      const InetAddress& listenAddr,
-                     const string& _name)
+                     const string& nameArg)
   : loop_(CHECK_NOTNULL(loop)),
     hostport_(listenAddr.toHostPort()),
-    name_(_name),
+    name_(nameArg),
     acceptor_(new Acceptor(loop, listenAddr)),
     threadPool_(new EventLoopThreadPool(loop)),
     connectionCallback_(defaultConnectionCallback),
