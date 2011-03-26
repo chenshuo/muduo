@@ -1,3 +1,13 @@
+2011-03-27  Shuo Chen  <chenshuo@chenshuo.com>
+
+  * Add file transfer download examples.
+  * Add max connection limit to simple echo example.
+  * Make inputBuffer accessible in TcpConnection.
+  * Const-ness correct in Buffer class.
+  * Add Mutex test for benchmarking.
+  * Replace anonymous namespace with muduo::detail in muduo/base.
+  * Version 0.1.8
+
 2011-02-03  Shuo Chen  <chenshuo@chenshuo.com>
 
   * Fix LengthHeaderCodec::onMessage() in examples/asio/chat.
