@@ -21,6 +21,9 @@ class EchoServer
 
   muduo::net::EventLoop* loop_;
   muduo::net::TcpServer server_;
+  int numConnected_;
+
+  static const int kMaxConnections = 256*1024;
 };
 
 #endif  // MUDUO_EXAMPLES_SIMPLE_ECHO_ECHO_H
