@@ -22,7 +22,7 @@ void testQuery()
 {
   muduo::Query query;
   query.set_id(1);
-  query.set_sender("Chen Shuo");
+  query.set_questioner("Chen Shuo");
   query.add_question("Running?");
 
   Buffer buf;
@@ -47,7 +47,7 @@ void testAnswer()
 {
   muduo::Answer answer;
   answer.set_id(1);
-  answer.set_sender("Chen Shuo");
+  answer.set_questioner("Chen Shuo");
   answer.set_answerer("blog.csdn.net/Solstice");
   answer.add_solution("Jump!");
   answer.add_solution("Win!");
