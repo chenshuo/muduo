@@ -86,6 +86,9 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
   Buffer* inputBuffer()
   { return &inputBuffer_; }
 
+  Buffer* outputBuffer()
+  { return &outputBuffer_; }
+
   /// Internal use only.
   void setCloseCallback(const CloseCallback& cb)
   { closeCallback_ = cb; }

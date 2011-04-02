@@ -12,6 +12,7 @@
 #define MUDUO_NET_SOCKETSOPS_H
 
 #include <arpa/inet.h>
+#include <endian.h>
 
 namespace muduo
 {
@@ -23,24 +24,34 @@ namespace sockets
 // the inline assembler code makes type blur,
 // so we disable warnings for a while.
 #pragma GCC diagnostic ignored "-Wconversion"
-inline uint32_t hostToNetwork32(uint32_t hostlong)
+inline uint64_t hostToNetwork64(uint64_t host64)
 {
-  return htonl(hostlong);
+  return htobe64(host64);
 }
 
-inline uint16_t hostToNetwork16(uint16_t hostshort)
+inline uint32_t hostToNetwork32(uint32_t host32)
 {
-  return htons(hostshort);
+  return htonl(host32);
 }
 
-inline uint32_t networkToHost32(uint32_t netlong)
+inline uint16_t hostToNetwork16(uint16_t host16)
 {
-  return ntohl(netlong);
+  return htons(host16);
 }
 
-inline uint16_t networkToHost16(uint16_t netshort)
+inline uint64_t networkToHost64(uint64_t net64)
 {
-  return ntohs(netshort);
+  return be64toh(net64);
+}
+
+inline uint32_t networkToHost32(uint32_t net32)
+{
+  return ntohl(net32);
+}
+
+inline uint16_t networkToHost16(uint16_t net16)
+{
+  return ntohs(net16);
 }
 #pragma GCC diagnostic error "-Wconversion"
 

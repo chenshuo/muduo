@@ -1,0 +1,20 @@
+package muduo;
+
+message Query {
+  required int64 id = 1;
+  required string sender = 2;
+
+  repeated string question = 3;
+}
+
+message Answer {
+  required int64 id = 1;
+  required string sender = 2;
+  required string answerer = 3;
+
+  repeated string solution = 4;
+}
+
+message Empty {
+  optional int32 id = 1;
+}
