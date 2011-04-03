@@ -88,6 +88,7 @@ class ProtobufCodec : boost::noncopyable
 
   ProtobufMessageCallback messageCallback_;
   ErrorCallback errorCallback_;
+
   const static int kHeaderLen = sizeof(int32_t);
   const static int kMinMessageLen = 2*kHeaderLen + 2; // nameLen + typeName + checkSum
   const static int kMaxMessageLen = 64*1024*1024;
