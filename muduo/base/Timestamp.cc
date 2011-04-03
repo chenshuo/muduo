@@ -12,11 +12,6 @@ using namespace muduo;
 
 BOOST_STATIC_ASSERT(sizeof(Timestamp) == sizeof(int64_t));
 
-Timestamp::Timestamp()
-  : microSecondsSinceEpoch_(0)
-{
-}
-
 Timestamp::Timestamp(int64_t microseconds)
   : microSecondsSinceEpoch_(microseconds)
 {

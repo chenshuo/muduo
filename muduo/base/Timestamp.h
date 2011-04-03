@@ -22,7 +22,10 @@ class Timestamp : public muduo::copyable,
   ///
   /// Constucts an invalid Timestamp.
   ///
-  Timestamp();
+  Timestamp()
+    : microSecondsSinceEpoch_(0)
+  {
+  }
 
   ///
   /// Constucts a Timestamp at specific time

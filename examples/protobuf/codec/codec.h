@@ -6,8 +6,8 @@
 //
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
-#ifndef MUDUO_EXAMPLES_PROTOBUF_TUTORIAL_CODEC_H
-#define MUDUO_EXAMPLES_PROTOBUF_TUTORIAL_CODEC_H
+#ifndef MUDUO_EXAMPLES_PROTOBUF_CODEC_CODEC_H
+#define MUDUO_EXAMPLES_PROTOBUF_CODEC_CODEC_H
 
 #include <muduo/net/Buffer.h>
 #include <muduo/net/TcpConnection.h>
@@ -94,4 +94,4 @@ class ProtobufCodec : boost::noncopyable
   const static int kMaxMessageLen = 64*1024*1024;
 };
 
-#endif  // MUDUO_EXAMPLES_PROTOBUF_TUTORIAL_CODEC_H
+#endif  // MUDUO_EXAMPLES_PROTOBUF_CODEC_CODEC_H

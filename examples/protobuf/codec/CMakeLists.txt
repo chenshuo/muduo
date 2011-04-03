@@ -18,3 +18,11 @@ target_link_libraries(query_proto protobuf)
 add_executable(protobuf_codec_test codec_test.cc)
 target_link_libraries(protobuf_codec_test protobuf_codec query_proto)
 
+add_executable(protobuf_dispatcher_lite_test dispatcher_lite_test.cc)
+target_link_libraries(protobuf_dispatcher_lite_test query_proto)
+
+add_executable(protobuf_dispatcher_test dispatcher_test.cc)
+target_link_libraries(protobuf_dispatcher_test query_proto)
+
+add_custom_target(protobuf_all
+                  DEPENDS protobuf_codec_test protobuf_dispatcher_lite_test protobuf_dispatcher_test)
