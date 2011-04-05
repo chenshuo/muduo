@@ -17,9 +17,9 @@ using namespace muduo::net;
 class TimeClient : boost::noncopyable
 {
  public:
-  TimeClient(EventLoop* loop, const InetAddress& listenAddr)
+  TimeClient(EventLoop* loop, const InetAddress& serverAddr)
     : loop_(loop),
-      client_(loop, listenAddr, "TimeClient")
+      client_(loop, serverAddr, "TimeClient")
   {
     client_.setConnectionCallback(
         boost::bind(&TimeClient::onConnection, this, _1));
@@ -58,7 +58,7 @@ class TimeClient : boost::noncopyable
     else
     {
       LOG_INFO << conn->name() << " no enough data " << buf->readableBytes()
-       << " at " << receiveTime.toFormattedString();
+               << " at " << receiveTime.toFormattedString();
     }
   }
 
