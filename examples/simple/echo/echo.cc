@@ -7,11 +7,12 @@
 using namespace muduo;
 using namespace muduo::net;
 
+const int kMaxConnections = 1024*1024;
+
 EchoServer::EchoServer(EventLoop* loop,
                        const InetAddress& listenAddr)
   : loop_(loop),
-    server_(loop, listenAddr, "EchoServer"),
-    numConnected_(0)
+    server_(loop, listenAddr, "EchoServer")
 {
   server_.setConnectionCallback(
       boost::bind(&EchoServer::onConnection, this, _1));
@@ -24,6 +25,7 @@ void EchoServer::start()
   server_.start();
 }
 
+int numConnected = 0;
 void EchoServer::onConnection(const TcpConnectionPtr& conn)
 {
   LOG_INFO << "EchoServer - " << conn->peerAddress().toHostPort() << " -> "
@@ -31,17 +33,17 @@ void EchoServer::onConnection(const TcpConnectionPtr& conn)
     << (conn->connected() ? "UP" : "DOWN");
   if (conn->connected())
   {
-    ++numConnected_;
-    if (numConnected_ > kMaxConnections)
+    ++numConnected;
+    if (numConnected > kMaxConnections)
     {
       conn->shutdown();
     }
   }
   else
   {
-    --numConnected_;
+    --numConnected;
   }
-  LOG_INFO << "numConnected = " << numConnected_;
+  LOG_INFO << "numConnected = " << numConnected;
 }
 
 void EchoServer::onMessage(const TcpConnectionPtr& conn,
