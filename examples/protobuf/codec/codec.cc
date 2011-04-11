@@ -8,6 +8,7 @@
 
 #include "codec.h"
 
+#include <muduo/base/Logging.h>
 #include <muduo/net/SocketsOps.h>
 
 #include <google/protobuf/descriptor.h>
@@ -135,11 +136,44 @@ void ProtobufCodec::fillEmptyBuffer(Buffer* buf, const google::protobuf::Message
 // no more google code after this
 //
 
+namespace
+{
+  const string kNoErrorStr = "NoError";
+  const string kInvalidLengthStr = "InvalidLength";
+  const string kCheckSumErrorStr = "CheckSumError";
+  const string kInvalidNameLenStr = "InvalidNameLen";
+  const string kUnknownMessageTypeStr = "UnknownMessageType";
+  const string kParseErrorStr = "ParseError";
+  const string kUnknownErrorStr = "UnknownError";
+}
+
+const string& ProtobufCodec::errorCodeToString(ErrorCode errorCode)
+{
+  switch (errorCode)
+  {
+   case kNoError:
+     return kNoErrorStr;
+   case kInvalidLength:
+     return kInvalidLengthStr;
+   case kCheckSumError:
+     return kCheckSumErrorStr;
+   case kInvalidNameLen:
+     return kInvalidNameLenStr;
+   case kUnknownMessageType:
+     return kUnknownMessageTypeStr;
+   case kParseError:
+     return kParseErrorStr;
+   default:
+     return kUnknownErrorStr;
+  }
+}
+
 void ProtobufCodec::defaultErrorCallback(const muduo::net::TcpConnectionPtr& conn,
                                          muduo::net::Buffer* buf,
                                          muduo::Timestamp,
                                          ErrorCode errorCode)
 {
+  LOG_ERROR << "ProtobufCodec::defaultErrorCallback - " << errorCodeToString(errorCode);
   if (conn && conn->connected())
   {
     conn->shutdown();

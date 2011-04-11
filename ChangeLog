@@ -1,3 +1,10 @@
+2011-04-11  Shuo Chen  <chenshuo@chenshuo.com>
+
+  * Add Google Protobuf codec and dispatcher
+  * Revert 'Add max connection limit to simple echo example.'
+  * Add max connection limit example in examples/maxconnection.
+  * Version 0.1.9
+
 2011-03-27  Shuo Chen  <chenshuo@chenshuo.com>
 
   * Add file transfer download examples.

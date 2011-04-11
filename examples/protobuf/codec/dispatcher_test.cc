@@ -45,9 +45,9 @@ int main()
   boost::shared_ptr<muduo::Query> query(new muduo::Query);
   boost::shared_ptr<muduo::Answer> answer(new muduo::Answer);
   boost::shared_ptr<muduo::Empty> empty(new muduo::Empty);
-  dispatcher.onMessage(conn, query, t);
-  dispatcher.onMessage(conn, answer, t);
-  dispatcher.onMessage(conn, empty, t);
+  dispatcher.onProtobufMessage(conn, query, t);
+  dispatcher.onProtobufMessage(conn, answer, t);
+  dispatcher.onProtobufMessage(conn, empty, t);
 
   google::protobuf::ShutdownProtobufLibrary();
 }

@@ -50,6 +50,7 @@ class LengthHeaderCodec : boost::noncopyable
     }
   }
 
+  // FIXME: TcpConnectionPtr
   void send(muduo::net::TcpConnection* conn, const muduo::string& message)
   {
     muduo::net::Buffer buf;

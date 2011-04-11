@@ -68,9 +68,9 @@ class ProtobufDispatcher
   {
   }
 
-  void onMessage(const muduo::net::TcpConnectionPtr& conn,
-                 const MessagePtr& message,
-                 muduo::Timestamp receiveTime) const
+  void onProtobufMessage(const muduo::net::TcpConnectionPtr& conn,
+                         const MessagePtr& message,
+                         muduo::Timestamp receiveTime) const
   {
     CallbackMap::const_iterator it = callbacks_.find(message->GetDescriptor());
     if (it != callbacks_.end())

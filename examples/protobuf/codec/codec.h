@@ -67,7 +67,7 @@ class ProtobufCodec : boost::noncopyable
                  muduo::net::Buffer* buf,
                  muduo::Timestamp receiveTime);
 
-  void send(muduo::net::TcpConnection* conn,
+  void send(const muduo::net::TcpConnectionPtr& conn,
             const google::protobuf::Message& message)
   {
     // FIXME: serialize to TcpConnection::outputBuffer()
@@ -76,6 +76,7 @@ class ProtobufCodec : boost::noncopyable
     conn->send(&buf);
   }
 
+  static const muduo::string& errorCodeToString(ErrorCode errorCode);
   static void fillEmptyBuffer(muduo::net::Buffer* buf, const google::protobuf::Message& message);
   static google::protobuf::Message* createMessage(const std::string& type_name);
   static MessagePtr parse(const char* buf, int len, ErrorCode* errorCode);
@@ -91,7 +92,7 @@ class ProtobufCodec : boost::noncopyable
 
   const static int kHeaderLen = sizeof(int32_t);
   const static int kMinMessageLen = 2*kHeaderLen + 2; // nameLen + typeName + checkSum
-  const static int kMaxMessageLen = 64*1024*1024;
+  const static int kMaxMessageLen = 64*1024*1024; // same as codec_stream.h kDefaultTotalBytesLimit
 };
 
 #endif  // MUDUO_EXAMPLES_PROTOBUF_CODEC_CODEC_H
