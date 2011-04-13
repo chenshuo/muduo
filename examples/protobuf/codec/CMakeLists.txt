@@ -11,7 +11,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=conversion")
 include_directories(${PROJECT_BINARY_DIR})
 
 add_library(query_proto query.pb.cc)
-target_link_libraries(query_proto protobuf)
+target_link_libraries(query_proto protobuf pthread)
 
 #TODO set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=conversion")
 
