@@ -19,6 +19,11 @@
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
 
+#ifndef NDEBUG
+#include <boost/static_assert.hpp>
+#include <boost/type_traits/is_base_of.hpp>
+#endif
+
 typedef boost::shared_ptr<google::protobuf::Message> MessagePtr;
 
 class Callback : boost::noncopyable
@@ -33,6 +38,9 @@ class Callback : boost::noncopyable
 template <typename T>
 class CallbackT : public Callback
 {
+#ifndef NDEBUG
+  BOOST_STATIC_ASSERT((boost::is_base_of<google::protobuf::Message, T>::value));
+#endif
  public:
   typedef boost::function<void (const muduo::net::TcpConnectionPtr&,
                                 const boost::shared_ptr<T>& message,

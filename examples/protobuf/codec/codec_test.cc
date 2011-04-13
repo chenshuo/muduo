@@ -1,4 +1,5 @@
 #include "codec.h"
+#include <muduo/net/SocketsOps.h>
 #include <examples/protobuf/codec/query.pb.h>
 
 #include <stdio.h>
@@ -90,7 +91,7 @@ void testEmpty()
 
 void redoCheckSum(string& data, int len)
 {
-  int32_t checkSum = ::htonl(static_cast<int32_t>(
+  int32_t checkSum = sockets::hostToNetwork32(static_cast<int32_t>(
       ::adler32(0,
                 reinterpret_cast<const Bytef*>(data.c_str()),
                 static_cast<int>(len - 4))));
