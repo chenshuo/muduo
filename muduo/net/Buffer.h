@@ -216,13 +216,14 @@ class Buffer : public muduo::copyable
     else
     {
       // move readable data to the front, make space inside buffer
-      size_t used = readableBytes();
+      assert(kCheapPrepend < readerIndex_);
+      size_t readable = readableBytes();
       std::copy(begin()+readerIndex_,
                 begin()+writerIndex_,
                 begin()+kCheapPrepend);
       readerIndex_ = kCheapPrepend;
-      writerIndex_ = readerIndex_ + used;
-      assert(used == readableBytes());
+      writerIndex_ = readerIndex_ + readable;
+      assert(readable == readableBytes());
     }
   }
 
