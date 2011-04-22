@@ -86,9 +86,6 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
   Buffer* inputBuffer()
   { return &inputBuffer_; }
 
-  Buffer* outputBuffer()
-  { return &outputBuffer_; }
-
   /// Internal use only.
   void setCloseCallback(const CloseCallback& cb)
   { closeCallback_ = cb; }
@@ -124,6 +121,7 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
   ConnectionCallback closeCallback_;
   Buffer inputBuffer_;
   // MutexLock mutex_;
+  // FIXME: use list<Buffer> as output buffer.
   Buffer outputBuffer_;
   boost::any context_;
 };
