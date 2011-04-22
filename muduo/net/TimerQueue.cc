@@ -6,6 +6,7 @@
 
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
+#define __STDC_LIMIT_MACROS
 #include <muduo/net/TimerQueue.h>
 
 #include <muduo/base/Logging.h>
@@ -17,10 +18,11 @@
 
 #include <sys/timerfd.h>
 
-using namespace muduo;
-using namespace muduo::net;
-
-namespace
+namespace muduo
+{
+namespace net
+{
+namespace detail
 {
 
 int createTimerfd()
@@ -50,6 +52,17 @@ struct timespec howMuchTimeFromNow(Timestamp when)
   return ts;
 }
 
+void readTimerfd(int timerfd, Timestamp now)
+{
+  uint64_t howmany;
+  ssize_t n = ::read(timerfd, &howmany, sizeof howmany);
+  LOG_TRACE << "TimerQueue::handleRead() " << howmany << " at " << now.toString();
+  if (n != sizeof howmany)
+  {
+    LOG_ERROR << "TimerQueue::handleRead() reads " << n << " bytes instead of 8";
+  }
+}
+
 void resetTimerfd(int timerfd, Timestamp when)
 {
   // wake up loop by timerfd_settime()
@@ -66,6 +79,12 @@ void resetTimerfd(int timerfd, Timestamp when)
 }
 
 }
+}
+}
+
+using namespace muduo;
+using namespace muduo::net;
+using namespace muduo::net::detail;
 
 TimerQueue::TimerQueue(EventLoop* loop)
   : loop_(loop),
@@ -86,7 +105,7 @@ TimerQueue::~TimerQueue()
   for (TimerList::iterator it = timers_.begin();
       it != timers_.end(); ++it)
   {
-    delete *it;
+    delete it->second;
   }
 }
 
@@ -95,58 +114,59 @@ void TimerQueue::handleRead()
 {
   loop_->assertInLoopThread();
   Timestamp now(Timestamp::now());
-  uint64_t howmany;
-  ssize_t n = ::read(timerfd_, &howmany, sizeof howmany);
-  LOG_TRACE << "TimerQueue::handleRead() " << howmany << " at " << now.toString();
-  if (n != sizeof howmany)
-  {
-    LOG_ERROR << "TimerQueue::handleRead() reads " << n << " bytes instead of 8";
-  }
+  readTimerfd(timerfd_, now);
 
-  TimerList expired;
-
-  // move out all expired timers
-  {
-    MutexLockGuard lock(mutex_);
-    // shall never callback in critical section
-    TimerList::iterator it = timers_.begin();
-    while (it != timers_.end() && (*it)->expiration() <= now)
-    {
-      ++it;
-    }
-    assert(it == timers_.end() || (*it)->expiration() > now);
-    expired.splice(expired.begin(), timers_, timers_.begin(), it);
-  }
+  std::vector<Entry> expired = getExpired(now);
 
   // safe to callback outside critical section
-  for (TimerList::iterator it = expired.begin();
+  for (std::vector<Entry>::iterator it = expired.begin();
       it != expired.end(); ++it)
   {
-    (*it)->run();
+    it->second->run();
   }
 
+  reset(expired, now);
+}
+
+std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now)
+{
+  std::vector<Entry> expired;
+  MutexLockGuard lock(mutex_);
+  // shall never callback in critical section
+  Entry sentry = std::make_pair(now, reinterpret_cast<Timer*>(UINTPTR_MAX));
+  TimerList::iterator it = timers_.lower_bound(sentry);
+  assert(it == timers_.end() || it->first > now);
+  std::copy(timers_.begin(), it, back_inserter(expired));
+  timers_.erase(timers_.begin(), it);
+
+  return expired;
+}
+
+void TimerQueue::reset(const std::vector<Entry>& expired, Timestamp now)
+{
   Timestamp nextExpire;
   {
     MutexLockGuard lock(mutex_);
     // shall never callback in critical section
 
-    for (TimerList::iterator it = expired.begin();
+    for (std::vector<Entry>::const_iterator it = expired.begin();
         it != expired.end(); ++it)
     {
-      if ((*it)->repeat())
+      if (it->second->repeat())
       {
-        (*it)->restart(now);
-        insertWithLockHold(*it);
+        it->second->restart(now);
+        insertWithLockHold(it->second);
       }
       else
       {
         // FIXME move to a free list
-        delete *it;
+        delete it->second;
       }
     }
+
     if (!timers_.empty())
     {
-      nextExpire = timers_.front()->expiration();
+      nextExpire = timers_.begin()->second->expiration();
     }
   }
 
@@ -181,19 +201,12 @@ bool TimerQueue::insertWithLockHold(Timer* timer)
   bool earliestChanged = false;
   Timestamp when = timer->expiration();
   TimerList::iterator it = timers_.begin();
-  if (it == timers_.end() || (*it)->expiration() > when)
+  if (it == timers_.end() || it->first > when)
   {
-    timers_.push_front(timer);
     earliestChanged = true;
   }
-  else
-  {
-    while (it != timers_.end() && (*it)->expiration() < when)
-    {
-      ++it;
-    }
-    timers_.insert(it, timer);
-  }
+  std::pair<TimerList::iterator, bool> result = timers_.insert(std::make_pair(when, timer));
+  assert(result.second);
   return earliestChanged;
 }
 

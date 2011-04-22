@@ -11,7 +11,8 @@
 #ifndef MUDUO_NET_TIMERQUEUE_H
 #define MUDUO_NET_TIMERQUEUE_H
 
-#include <list>
+#include <set>
+#include <vector>
 
 #include <boost/noncopyable.hpp>
 
@@ -51,13 +52,18 @@ class TimerQueue : boost::noncopyable
   // void cancel(TimerId timerId);
 
  private:
-  // called when timerfd arms
-  void handleRead();
-  // insert timer in sorted list.
-  bool insertWithLockHold(Timer* timer);
 
   // FIXME: use unique_ptr<Timer> instead of raw pointers.
-  typedef std::list<Timer*> TimerList;
+  typedef std::pair<Timestamp, Timer*> Entry;
+  typedef std::set<Entry> TimerList;
+
+  // called when timerfd arms
+  void handleRead();
+  // move out all expired timers
+  std::vector<Entry> getExpired(Timestamp now);
+  void reset(const std::vector<Entry>& expired, Timestamp now);
+  // insert timer in sorted list.
+  bool insertWithLockHold(Timer* timer);
 
   EventLoop* loop_;
   const int timerfd_;

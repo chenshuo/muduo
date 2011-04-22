@@ -24,7 +24,7 @@ void print(const char* msg)
 int main()
 {
   printf("pid = %d, tid = %d\n", getpid(), CurrentThread::tid());
-  sleep(10);
+  sleep(1);
   {
     EventLoop loop;
     g_loop = &loop;
@@ -40,5 +40,5 @@ int main()
     loop.loop();
     print("exit");
   }
-  sleep(30);
+  sleep(3);
 }
