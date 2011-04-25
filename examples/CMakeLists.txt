@@ -1,10 +1,11 @@
 add_subdirectory(simple)
 add_subdirectory(roundtrip)
-add_subdirectory(hub)
 add_subdirectory(pingpong)
 add_subdirectory(protobuf/codec EXCLUDE_FROM_ALL)
+add_subdirectory(idleconnection)
 add_subdirectory(maxconnection)
 add_subdirectory(multiplexer)
+add_subdirectory(hub)
 add_subdirectory(filetransfer)
 
 add_subdirectory(asio/tutorial)
