@@ -19,12 +19,12 @@
 using namespace muduo;
 using namespace muduo::net;
 
-const int kMaxConns = 3;
+const int kMaxConns = 10;  // 65535
 const size_t kMaxPacketLen = 255;
 const size_t kHeaderLen = 3;
 
 const uint16_t kClientPort = 3333;
-const char* kBackendIp = "127.0.0.1";
+const char* backendIp = "127.0.0.1";
 const uint16_t kBackendPort = 9999;
 
 class MultiplexServer
@@ -98,9 +98,10 @@ class MultiplexServer
   {
     while (buf->readableBytes() > kMaxPacketLen)
     {
-      string msg(buf->peek(), kMaxPacketLen);
+      Buffer packet;
+      packet.append(buf->peek(), kMaxPacketLen);
       buf->retrieve(kMaxPacketLen);
-      sendBackendString(id, msg);
+      sendBackendPacket(id, &packet);
     }
     if (buf->readableBytes() > 0)
     {
@@ -202,9 +203,16 @@ class MultiplexServer
     size_t len = buf->readableBytes();
     transferred_.addAndGet(len);
     receivedMessages_.incrementAndGet();
-    int id = boost::any_cast<int>(conn->getContext());
-    sendBackendBuffer(id, buf);
-    // assert(buf->readableBytes() == 0);
+    if (!conn->getContext().empty())
+    {
+      int id = boost::any_cast<int>(conn->getContext());
+      sendBackendBuffer(id, buf);
+      // assert(buf->readableBytes() == 0);
+    }
+    else
+    {
+      buf->retrieveAll();
+    }
   }
 
   void onBackendConnection(const TcpConnectionPtr& conn)
@@ -290,14 +298,18 @@ class MultiplexServer
 int main(int argc, char* argv[])
 {
   LOG_INFO << "pid = " << getpid() << ", tid = " << CurrentThread::tid();
-  int numThreads = 0;
+  int numThreads = 4;
   if (argc > 1)
   {
-    numThreads = atoi(argv[1]);
+    backendIp = argv[1];
+  }
+  if (argc > 2)
+  {
+    numThreads = atoi(argv[2]);
   }
   EventLoop loop;
   InetAddress listenAddr(kClientPort);
-  InetAddress backendAddr(kBackendIp, kBackendPort);
+  InetAddress backendAddr(backendIp, kBackendPort);
   MultiplexServer server(&loop, listenAddr, backendAddr, numThreads);
 
   server.start();
