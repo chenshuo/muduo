@@ -1,3 +1,10 @@
+2011-04-27  Shuo Chen  <chenshuo@chenshuo.com>
+
+  * Add kick idle connection example in examples/idleconnection.
+  * Add test harness to example/multiplexer
+  * Replace std::list with std::set in TimerQueue.
+  * Version 0.2.0
+
 2011-04-11  Shuo Chen  <chenshuo@chenshuo.com>
 
   * Add Google Protobuf codec and dispatcher
