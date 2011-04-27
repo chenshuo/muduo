@@ -114,7 +114,7 @@ public class MockBackendServer {
             @Override
             public ChannelPipeline getPipeline() throws Exception {
                 return Channels.pipeline(
-                        new LengthFieldBasedFrameDecoder(255+3, 0, 1, 2, 0),
+                        new LengthFieldBasedFrameDecoder(255 + 3, 0, 1, 2, 0),
                         new Handler());
             }
         });
@@ -123,6 +123,4 @@ public class MockBackendServer {
         bootstrap.setOption("child.bufferFactory", MultiplexerTest.bufferFactory);
         return bootstrap;
     }
-
-
 }

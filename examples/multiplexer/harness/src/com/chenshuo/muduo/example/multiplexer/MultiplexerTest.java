@@ -35,7 +35,7 @@ public class MultiplexerTest {
     private MockBackendServer backend;
     private ArrayList<TestCase> testCases;
 
-    public MultiplexerTest(String testCaseDataPath, String multiplexerHost) {
+    public MultiplexerTest(String multiplexerHost) {
         multiplexerAddress = new InetSocketAddress(multiplexerHost, kMultiplexerServerPort);
         boss = Executors.newCachedThreadPool();
         worker = Executors.newCachedThreadPool();
@@ -46,10 +46,9 @@ public class MultiplexerTest {
     }
 
     public static void main(String[] args) {
-        if (args.length >= 2) {
-            String testCaseDataPath = args[0];
-            String multiplexerHost = args[1];
-            MultiplexerTest test = new MultiplexerTest(testCaseDataPath, multiplexerHost);
+        if (args.length >= 1) {
+            String multiplexerHost = args[0];
+            MultiplexerTest test = new MultiplexerTest(multiplexerHost);
             test.addTestCase(new TestOneClientNoData());
             test.addTestCase(new TestOneClientSend());
             test.addTestCase(new TestOneClientBackendSend());
@@ -58,7 +57,7 @@ public class MultiplexerTest {
             test.run();
         } else {
             System.out.println("Usage: ./run.sh path_to_test_data multiplexer_host");
-            System.out.println("Example: ./run.sh ./tests localhost");
+            System.out.println("Example: ./run.sh localhost");
         }
     }
 
@@ -68,6 +67,7 @@ public class MultiplexerTest {
     }
 
     private void run() {
+        logger.info("Waiting for connection");
         backend.start();
         latch.awaitUninterruptibly();
 
