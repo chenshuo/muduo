@@ -195,7 +195,9 @@ void EventLoop::removeChannel(Channel* channel)
 
 void EventLoop::abortNotInLoopThread()
 {
-  LOG_FATAL << "threadId_=" << threadId_;
+  LOG_FATAL << "EventLoop::abortNotInLoopThread - EventLoop " << this
+            << " was created in threadId_ = " << threadId_
+            << ", current thread id = " <<  CurrentThread::tid();
 }
 
 void EventLoop::handleRead()
