@@ -181,14 +181,14 @@ TimerId EventLoop::runEvery(double interval, const TimerCallback& cb)
 
 void EventLoop::updateChannel(Channel* channel)
 {
-  assert(channel->getLoop() == this);
+  assert(channel->ownerLoop() == this);
   assertInLoopThread();
   poller_->updateChannel(channel);
 }
 
 void EventLoop::removeChannel(Channel* channel)
 {
-  assert(channel->getLoop() == this);
+  assert(channel->ownerLoop() == this);
   assertInLoopThread();
   poller_->removeChannel(channel);
 }

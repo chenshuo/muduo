@@ -13,6 +13,7 @@
 #include <muduo/net/Channel.h>
 
 #include <assert.h>
+#include <poll.h>
 
 using namespace muduo;
 using namespace muduo::net;

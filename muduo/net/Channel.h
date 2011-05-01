@@ -73,7 +73,7 @@ class Channel : boost::noncopyable
   // for debug
   string reventsToString() const;
 
-  EventLoop* getLoop() { return loop_; }
+  EventLoop* ownerLoop() { return loop_; }
 
  private:
   void update();
