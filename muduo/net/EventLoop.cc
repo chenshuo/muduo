@@ -126,16 +126,6 @@ void EventLoop::quit()
   }
 }
 
-void EventLoop::wakeup()
-{
-  uint64_t one = 1;
-  ssize_t n = ::write(wakeupFd_, &one, sizeof one);
-  if (n != sizeof one)
-  {
-    LOG_ERROR << "EventLoop::wakeup() writes " << n << " bytes instead of 8";
-  }
-}
-
 void EventLoop::runInLoop(const Functor& cb)
 {
   if (isInLoopThread())
@@ -200,13 +190,23 @@ void EventLoop::abortNotInLoopThread()
             << ", current thread id = " <<  CurrentThread::tid();
 }
 
+void EventLoop::wakeup()
+{
+  uint64_t one = 1;
+  ssize_t n = ::write(wakeupFd_, &one, sizeof one);
+  if (n != sizeof one)
+  {
+    LOG_ERROR << "EventLoop::wakeup() writes " << n << " bytes instead of 8";
+  }
+}
+
 void EventLoop::handleRead()
 {
   uint64_t one = 1;
   ssize_t n = ::read(wakeupFd_, &one, sizeof one);
   if (n != sizeof one)
   {
-    LOG_ERROR << "EventLoop::wakeup() reads " << n << " bytes instead of 8";
+    LOG_ERROR << "EventLoop::handleRead() reads " << n << " bytes instead of 8";
   }
 }
 

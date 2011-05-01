@@ -58,8 +58,6 @@ class EventLoop : boost::noncopyable
   ///
   Timestamp pollReturnTime() const { return pollReturnTime_; }
 
-  // timers
-
   /// Runs callback immediately in the loop thread.
   /// It wakes up the loop, and run the cb.
   /// If in the same loop thread, cb is run within the function.
@@ -69,18 +67,28 @@ class EventLoop : boost::noncopyable
   /// Runs after finish pooling.
   /// Safe to call from other threads.
   void queueInLoop(const Functor& cb);
+
+  // timers
+
+  ///
+  /// Runs callback at 'time'.
+  /// Safe to call from other threads.
   ///
   TimerId runAt(const Timestamp& time, const TimerCallback& cb);
   ///
   /// Runs callback after @c delay seconds.
   /// Safe to call from other threads.
+  ///
   TimerId runAfter(double delay, const TimerCallback& cb);
   ///
   /// Runs callback every @c interval seconds.
   /// Safe to call from other threads.
+  ///
   TimerId runEvery(double interval, const TimerCallback& cb);
+  ///
   /// Cancels the timer.
   /// Safe to call from other threads.
+  ///
   // void cancel(TimerId timerId);
 
   // internal usage

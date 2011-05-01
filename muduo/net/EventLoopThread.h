@@ -19,9 +19,6 @@
 
 namespace muduo
 {
-
-class Thread;
-
 namespace net
 {
 

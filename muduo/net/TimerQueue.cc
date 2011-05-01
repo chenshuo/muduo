@@ -114,11 +114,12 @@ TimerId TimerQueue::addTimer(const TimerCallback& cb,
                              double interval)
 {
   Timer* timer = new Timer(cb, when, interval);
-  loop_->runInLoop(boost::bind(&TimerQueue::schedule, this, timer));
+  loop_->runInLoop(
+      boost::bind(&TimerQueue::scheduleInLoop, this, timer));
   return TimerId(timer, timer->sequence());
 }
 
-void TimerQueue::schedule(Timer* timer)
+void TimerQueue::scheduleInLoop(Timer* timer)
 {
   loop_->assertInLoopThread();
   bool earliestChanged = insert(timer);
