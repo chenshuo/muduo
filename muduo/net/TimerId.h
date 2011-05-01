@@ -26,13 +26,17 @@ class Timer;
 class TimerId : public muduo::copyable
 {
  public:
-  explicit TimerId(Timer* timer)
-    : value_(timer)
+  TimerId(Timer* timer, int64_t seq)
+    : value_(timer),
+      seq_(seq)
   {
   }
 
+  // default copy-ctor, dtor and assignment are okay
+
  private:
   Timer* value_;
+  int64_t seq_;
 };
 
 }

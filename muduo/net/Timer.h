@@ -11,10 +11,9 @@
 #ifndef MUDUO_NET_TIMER_H
 #define MUDUO_NET_TIMER_H
 
-#include <map>
-
 #include <boost/noncopyable.hpp>
 
+#include <muduo/base/Atomic.h>
 #include <muduo/base/Timestamp.h>
 #include <muduo/net/Callbacks.h>
 
@@ -32,7 +31,8 @@ class Timer : boost::noncopyable
     : callback_(cb),
       expiration_(when),
       interval_(interval),
-      repeat_(interval > 0.0)
+      repeat_(interval > 0.0),
+      sequence_(s_numCreated_.incrementAndGet())
   { }
 
   void run() const
@@ -42,14 +42,20 @@ class Timer : boost::noncopyable
 
   Timestamp expiration() const  { return expiration_; }
   bool repeat() const { return repeat_; }
+  int64_t sequence() const { return sequence_; }
 
   void restart(Timestamp now);
+
+  static int64_t numCreated() { return s_numCreated_.get(); }
 
  private:
   const TimerCallback callback_;
   Timestamp expiration_;
   const double interval_;
   const bool repeat_;
+  const int64_t sequence_;
+
+  static AtomicInt64 s_numCreated_;
 };
 }
 }

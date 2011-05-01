@@ -115,7 +115,7 @@ TimerId TimerQueue::addTimer(const TimerCallback& cb,
 {
   Timer* timer = new Timer(cb, when, interval);
   loop_->runInLoop(boost::bind(&TimerQueue::schedule, this, timer));
-  return TimerId(timer);
+  return TimerId(timer, timer->sequence());
 }
 
 void TimerQueue::schedule(Timer* timer)
@@ -152,7 +152,7 @@ std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now)
   std::vector<Entry> expired;
   Entry sentry = std::make_pair(now, reinterpret_cast<Timer*>(UINTPTR_MAX));
   TimerList::iterator it = timers_.lower_bound(sentry);
-  assert(it == timers_.end() || it->first > now);
+  assert(it == timers_.end() || now < it->first);
   std::copy(timers_.begin(), it, back_inserter(expired));
   timers_.erase(timers_.begin(), it);
 
@@ -194,7 +194,7 @@ bool TimerQueue::insert(Timer* timer)
   bool earliestChanged = false;
   Timestamp when = timer->expiration();
   TimerList::iterator it = timers_.begin();
-  if (it == timers_.end() || it->first > when)
+  if (it == timers_.end() || when < it->first)
   {
     earliestChanged = true;
   }
