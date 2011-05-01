@@ -45,7 +45,7 @@ class TimerQueue : boost::noncopyable
   /// repeats if @c interval > 0.0.
   ///
   /// Must be thread safe. Usually be called from other threads.
-  TimerId schedule(const TimerCallback& cb,
+  TimerId addTimer(const TimerCallback& cb,
                    Timestamp when,
                    double interval);
 
@@ -57,19 +57,19 @@ class TimerQueue : boost::noncopyable
   typedef std::pair<Timestamp, Timer*> Entry;
   typedef std::set<Entry> TimerList;
 
+  void schedule(Timer* timer);
   // called when timerfd arms
   void handleRead();
   // move out all expired timers
   std::vector<Entry> getExpired(Timestamp now);
   void reset(const std::vector<Entry>& expired, Timestamp now);
-  // insert timer in sorted list.
-  bool insertWithLockHold(Timer* timer);
+
+  bool insert(Timer* timer);
 
   EventLoop* loop_;
   const int timerfd_;
   Channel timerfdChannel_;
-  MutexLock mutex_;
-  // Timer list sorted by expiration, @GuardedBy mutex_
+  // Timer list sorted by expiration
   TimerList timers_;
 };
 

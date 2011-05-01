@@ -1,4 +1,5 @@
 #include <muduo/net/EventLoop.h>
+#include <muduo/net/EventLoopThread.h>
 #include <muduo/base/Thread.h>
 
 #include <boost/bind.hpp>
@@ -12,6 +13,12 @@ using namespace muduo::net;
 int cnt = 0;
 EventLoop* g_loop;
 
+void printTid()
+{
+  printf("pid = %d, tid = %d\n", getpid(), CurrentThread::tid());
+  printf("now %s\n", Timestamp::now().toString().c_str());
+}
+
 void print(const char* msg)
 {
   printf("msg %s %s\n", Timestamp::now().toString().c_str(), msg);
@@ -23,7 +30,7 @@ void print(const char* msg)
 
 int main()
 {
-  printf("pid = %d, tid = %d\n", getpid(), CurrentThread::tid());
+  printTid();
   sleep(1);
   {
     EventLoop loop;
@@ -38,7 +45,14 @@ int main()
     loop.runEvery(3, boost::bind(print, "every3"));
 
     loop.loop();
-    print("exit");
+    print("main loop exits");
   }
-  sleep(3);
+  sleep(1);
+  {
+    EventLoopThread loopThread;
+    EventLoop* loop = loopThread.startLoop();
+    loop->runAfter(2, printTid);
+    sleep(3);
+    print("thread loop exits");
+  }
 }

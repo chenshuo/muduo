@@ -38,9 +38,11 @@ int main()
     model.start();
     EventLoop* nextLoop = model.getNextLoop();
     (void)nextLoop;
+    nextLoop->runAfter(2, print);
     assert(nextLoop != &loop);
     assert(nextLoop == model.getNextLoop());
     assert(nextLoop == model.getNextLoop());
+    ::sleep(3);
   }
 
   {

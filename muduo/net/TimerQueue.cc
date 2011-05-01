@@ -63,14 +63,14 @@ void readTimerfd(int timerfd, Timestamp now)
   }
 }
 
-void resetTimerfd(int timerfd, Timestamp when)
+void resetTimerfd(int timerfd, Timestamp expiration)
 {
   // wake up loop by timerfd_settime()
   struct itimerspec newValue;
   struct itimerspec oldValue;
   bzero(&newValue, sizeof newValue);
   bzero(&oldValue, sizeof oldValue);
-  newValue.it_value = howMuchTimeFromNow(when);
+  newValue.it_value = howMuchTimeFromNow(expiration);
   int ret = timerfd_settime(timerfd, 0, &newValue, &oldValue);
   if (ret)
   {
@@ -109,7 +109,26 @@ TimerQueue::~TimerQueue()
   }
 }
 
-// FIXME replace linked-list operations with binary-heap.
+TimerId TimerQueue::addTimer(const TimerCallback& cb,
+                             Timestamp when,
+                             double interval)
+{
+  Timer* timer = new Timer(cb, when, interval);
+  loop_->runInLoop(boost::bind(&TimerQueue::schedule, this, timer));
+  return TimerId(timer);
+}
+
+void TimerQueue::schedule(Timer* timer)
+{
+  loop_->assertInLoopThread();
+  bool earliestChanged = insert(timer);
+
+  if (earliestChanged)
+  {
+    resetTimerfd(timerfd_, timer->expiration());
+  }
+}
+
 void TimerQueue::handleRead()
 {
   loop_->assertInLoopThread();
@@ -131,8 +150,6 @@ void TimerQueue::handleRead()
 std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now)
 {
   std::vector<Entry> expired;
-  MutexLockGuard lock(mutex_);
-  // shall never callback in critical section
   Entry sentry = std::make_pair(now, reinterpret_cast<Timer*>(UINTPTR_MAX));
   TimerList::iterator it = timers_.lower_bound(sentry);
   assert(it == timers_.end() || it->first > now);
@@ -145,29 +162,25 @@ std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now)
 void TimerQueue::reset(const std::vector<Entry>& expired, Timestamp now)
 {
   Timestamp nextExpire;
+
+  for (std::vector<Entry>::const_iterator it = expired.begin();
+      it != expired.end(); ++it)
   {
-    MutexLockGuard lock(mutex_);
-    // shall never callback in critical section
-
-    for (std::vector<Entry>::const_iterator it = expired.begin();
-        it != expired.end(); ++it)
+    if (it->second->repeat())
     {
-      if (it->second->repeat())
-      {
-        it->second->restart(now);
-        insertWithLockHold(it->second);
-      }
-      else
-      {
-        // FIXME move to a free list
-        delete it->second;
-      }
+      it->second->restart(now);
+      insert(it->second);
     }
-
-    if (!timers_.empty())
+    else
     {
-      nextExpire = timers_.begin()->second->expiration();
+      // FIXME move to a free list
+      delete it->second;
     }
+  }
+
+  if (!timers_.empty())
+  {
+    nextExpire = timers_.begin()->second->expiration();
   }
 
   if (nextExpire.valid())
@@ -176,27 +189,7 @@ void TimerQueue::reset(const std::vector<Entry>& expired, Timestamp now)
   }
 }
 
-TimerId TimerQueue::schedule(const TimerCallback& cb,
-                             Timestamp when,
-                             double interval)
-{
-  Timer* timer = new Timer(cb, when, interval);
-
-  bool earliestChanged = false;
-  {
-    MutexLockGuard lock(mutex_);
-    // shall never callback in critical section
-    earliestChanged = insertWithLockHold(timer);
-  }
-  if (earliestChanged)
-  {
-    resetTimerfd(timerfd_, when);
-  }
-
-  return TimerId(timer);
-}
-
-bool TimerQueue::insertWithLockHold(Timer* timer)
+bool TimerQueue::insert(Timer* timer)
 {
   bool earliestChanged = false;
   Timestamp when = timer->expiration();

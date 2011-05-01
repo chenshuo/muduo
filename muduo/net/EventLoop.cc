@@ -164,7 +164,7 @@ void EventLoop::queueInLoop(const Functor& cb)
 
 TimerId EventLoop::runAt(const Timestamp& time, const TimerCallback& cb)
 {
-  return timerQueue_->schedule(cb, time, 0.0);
+  return timerQueue_->addTimer(cb, time, 0.0);
 }
 
 TimerId EventLoop::runAfter(double delay, const TimerCallback& cb)
@@ -176,7 +176,7 @@ TimerId EventLoop::runAfter(double delay, const TimerCallback& cb)
 TimerId EventLoop::runEvery(double interval, const TimerCallback& cb)
 {
   Timestamp time(addTime(Timestamp::now(), interval));
-  return timerQueue_->schedule(cb, time, interval);
+  return timerQueue_->addTimer(cb, time, interval);
 }
 
 void EventLoop::updateChannel(Channel* channel)
