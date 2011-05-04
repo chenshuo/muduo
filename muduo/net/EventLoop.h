@@ -120,8 +120,8 @@ class EventLoop : boost::noncopyable
   bool quit_; /* atomic */
   bool eventHandling_; /* atomic */
   bool callingPendingFunctors_; /* atomic */
-  Timestamp pollReturnTime_;
   const pid_t threadId_;
+  Timestamp pollReturnTime_;
   boost::scoped_ptr<Poller> poller_;
   boost::scoped_ptr<TimerQueue> timerQueue_;
   int wakeupFd_;

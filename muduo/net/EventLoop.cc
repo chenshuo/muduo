@@ -95,6 +95,7 @@ void EventLoop::loop()
   looping_ = true;
   quit_ = false;
   LOG_TRACE << "EventLoop " << this << " start looping";
+
   while (!quit_)
   {
     activeChannels_.clear();
@@ -113,6 +114,7 @@ void EventLoop::loop()
     eventHandling_ = false;
     doPendingFunctors();
   }
+
   LOG_TRACE << "EventLoop " << this << " stop looping";
   looping_ = false;
 }
@@ -216,8 +218,8 @@ void EventLoop::doPendingFunctors()
   callingPendingFunctors_ = true;
 
   {
-    MutexLockGuard lock(mutex_);
-    functors.swap(pendingFunctors_);
+  MutexLockGuard lock(mutex_);
+  functors.swap(pendingFunctors_);
   }
 
   for (size_t i = 0; i < functors.size(); ++i)

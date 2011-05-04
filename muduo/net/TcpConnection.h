@@ -120,6 +120,8 @@ class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
   WriteCompleteCallback writeCompleteCallback_;
   ConnectionCallback closeCallback_;
   Buffer inputBuffer_;
+  // FIXME: creationTime_, lastReceiveTime_
+  //        bytesReceived_, bytesSent_
   // MutexLock mutex_;
   // FIXME: use list<Buffer> as output buffer.
   Buffer outputBuffer_;
