@@ -30,8 +30,7 @@ class EchoServer
 
   typedef boost::weak_ptr<muduo::net::TcpConnection> WeakTcpConnectionPtr;
 
-  struct Entry : public muduo::copyable,
-                 public boost::enable_shared_from_this<Entry>
+  struct Entry : public muduo::copyable
   {
     Entry(const WeakTcpConnectionPtr& weakConn)
       : weakConn_(weakConn)
