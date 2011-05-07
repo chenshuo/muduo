@@ -24,7 +24,7 @@ const size_t kHeaderLen = 3;
 
 const uint16_t kListenPort = 9999;
 const char* socksIp = "127.0.0.1";
-const uint16_t kSocksPort = 2007;
+const uint16_t kSocksPort = 7777;
 
 struct Entry
 {
@@ -72,6 +72,8 @@ class DemuxServer : boost::noncopyable
       if (serverConn_ == conn)
       {
         serverConn_.reset();
+        socksConns_.clear();
+
         LOG_INFO << "onServerConnection reset serverConn_";
       }
     }
