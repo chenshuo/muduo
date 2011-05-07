@@ -24,7 +24,7 @@ const uint16_t kClientPort = 3333;
 const char* backendIp = "127.0.0.1";
 const uint16_t kBackendPort = 9999;
 
-class MultiplexServer
+class MultiplexServer : boost::noncopyable
 {
  public:
   MultiplexServer(EventLoop* loop, const InetAddress& listenAddr, const InetAddress& backendAddr)
@@ -220,10 +220,27 @@ class MultiplexServer
         }
         else
         {
-          // TODO: act on backend's command
-          LOG_INFO << "Backend cmd";
+          string cmd(buf->peek() + kHeaderLen, len);
+          LOG_INFO << "Backend cmd " << cmd;
+          doCommand(cmd);
         }
         buf->retrieve(len + kHeaderLen);
+      }
+    }
+  }
+
+  void doCommand(const string& cmd)
+  {
+    static const string kDisconnectCmd = "DISCONNECT ";
+
+    if (cmd.size() > kDisconnectCmd.size()
+        && std::equal(kDisconnectCmd.begin(), kDisconnectCmd.end(), cmd.begin()))
+    {
+      int connId = atoi(&cmd[kDisconnectCmd.size()]);
+      std::map<int, TcpConnectionPtr>::iterator it = clientConns_.find(connId);
+      if (it != clientConns_.end())
+      {
+        it->second->shutdown();
       }
     }
   }
