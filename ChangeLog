@@ -1,7 +1,15 @@
+2011-05-07  Shuo Chen  <chenshuo@chenshuo.com>
+
+  * Try making TcpClient destructable
+  * Add demux in examples/multiplexer
+  * Add examples/socks4a
+  * Changes for reactor tutorial
+  * Version 0.2.1
+
 2011-04-27  Shuo Chen  <chenshuo@chenshuo.com>
 
   * Add kick idle connection example in examples/idleconnection.
-  * Add test harness to example/multiplexer
+  * Add test harness to examples/multiplexer
   * Replace std::list with std::set in TimerQueue.
   * Version 0.2.0
 
