@@ -37,8 +37,8 @@ class Socket;
 /// TCP connection, for both client and server usage.
 ///
 /// This is an interface class, so don't expose too much details.
-class TcpConnection : public boost::enable_shared_from_this<TcpConnection>,
-                      boost::noncopyable
+class TcpConnection : boost::noncopyable,
+                      public boost::enable_shared_from_this<TcpConnection>
 {
  public:
   /// Constructs a TcpConnection with a connected sockfd

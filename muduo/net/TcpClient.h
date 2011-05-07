@@ -23,6 +23,7 @@ namespace net
 
 class Connector;
 class EventLoop;
+typedef boost::shared_ptr<Connector> ConnectorPtr;
 
 class TcpClient : boost::noncopyable
 {
@@ -36,6 +37,13 @@ class TcpClient : boost::noncopyable
 
   void connect();
   void disconnect();
+  void stop();
+
+  TcpConnectionPtr connection() const
+  {
+    MutexLockGuard lock(mutex_);
+    return connection_;
+  }
 
   bool retry() const;
   void enableRetry() { retry_ = true; }
@@ -62,7 +70,7 @@ class TcpClient : boost::noncopyable
   void removeConnection(const TcpConnectionPtr& conn);
 
   EventLoop* loop_;
-  boost::scoped_ptr<Connector> connector_; // avoid revealing Connector
+  ConnectorPtr connector_; // avoid revealing Connector
   const string name_;
   ConnectionCallback connectionCallback_;
   MessageCallback messageCallback_;
@@ -71,7 +79,7 @@ class TcpClient : boost::noncopyable
   bool connect_; // atomic
   // always in loop thread
   int nextConnId_;
-  MutexLock        mutex_;
+  mutable MutexLock mutex_;
   TcpConnectionPtr connection_; // @BuardedBy mutex_
 };
 
