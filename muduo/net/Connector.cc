@@ -148,7 +148,6 @@ void Connector::resetChannel()
 void Connector::handleWrite()
 {
   LOG_TRACE << "Connector::handleWrite " << state_;
-  assert(state_ == kConnecting);
 
   if (state_ == kConnecting)
   {
@@ -181,6 +180,7 @@ void Connector::handleWrite()
   else
   {
     // what happened?
+    assert(state_ == kDisconnected);
   }
 }
 
