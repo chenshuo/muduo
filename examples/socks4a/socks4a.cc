@@ -2,6 +2,7 @@
 
 #include <muduo/net/SocketsOps.h>
 #include <stdio.h>
+#include <netdb.h>
 
 using namespace muduo;
 using namespace muduo::net;
@@ -32,7 +33,7 @@ void onServerMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp)
   LOG_DEBUG << conn->name() << " " << buf->readableBytes();
   if (g_tunnels.find(conn->name()) == g_tunnels.end())
   {
-    if (buf->readableBytes() > 32)
+    if (buf->readableBytes() > 128)
     {
       conn->shutdown();
     }
@@ -52,9 +53,35 @@ void onServerMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp)
         addr.sin_family = AF_INET;
         addr.sin_port = *static_cast<const in_port_t*>(port);
         addr.sin_addr.s_addr = *static_cast<const uint32_t*>(ip);
-        InetAddress serverAddr(addr);
         bool socks4a = sockets::networkToHost32(addr.sin_addr.s_addr) < 256;
-        if (ver == 4 && cmd == 1 && !socks4a)
+        bool okay = false;
+        if (socks4a)
+        {
+          const char* endOfHostName = std::find(where+1, end, '\0');
+          if (endOfHostName != end)
+          {
+            string hostname = where+1;
+            where = endOfHostName;
+            LOG_INFO << "Socks4a host name " << hostname;
+            struct hostent* hent = gethostbyname(hostname.c_str());
+            if (hent)
+            {
+              addr.sin_addr = *reinterpret_cast<in_addr*>(hent->h_addr);
+              okay = true;
+            }
+          }
+          else
+          {
+            return;
+          }
+        }
+        else
+        {
+          okay = true;
+        }
+
+        InetAddress serverAddr(addr);
+        if (ver == 4 && cmd == 1 && okay)
         {
           TunnelPtr tunnel(new Tunnel(g_eventLoop, serverAddr, conn));
           tunnel->setup();
@@ -66,6 +93,8 @@ void onServerMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp)
         }
         else
         {
+          char response[] = "\000\x5bUVWXYZ";
+          conn->send(response, 8);
           conn->shutdown();
         }
       }
