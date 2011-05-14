@@ -25,8 +25,8 @@ using namespace muduo::net;
 void muduo::net::defaultConnectionCallback(const TcpConnectionPtr& conn)
 {
   LOG_TRACE << conn->localAddress().toHostPort() << " -> "
-        << conn->peerAddress().toHostPort() << " is "
-        << (conn->connected() ? "UP" : "DOWN");
+            << conn->peerAddress().toHostPort() << " is "
+            << (conn->connected() ? "UP" : "DOWN");
 }
 
 void muduo::net::defaultMessageCallback(const TcpConnectionPtr&,
@@ -37,12 +37,12 @@ void muduo::net::defaultMessageCallback(const TcpConnectionPtr&,
 }
 
 TcpConnection::TcpConnection(EventLoop* loop,
-                             const string& name__,
+                             const string& nameArg,
                              int sockfd,
                              const InetAddress& localAddr,
                              const InetAddress& peerAddr)
   : loop_(CHECK_NOTNULL(loop)),
-    name_(name__),
+    name_(nameArg),
     state_(kConnecting),
     socket_(new Socket(sockfd)),
     channel_(new Channel(loop, sockfd)),
@@ -58,13 +58,13 @@ TcpConnection::TcpConnection(EventLoop* loop,
   channel_->setErrorCallback(
       boost::bind(&TcpConnection::handleError, this));
   LOG_DEBUG << "TcpConnection::ctor[" <<  name_ << "] at " << this
-    << " fd=" << sockfd;
+            << " fd=" << sockfd;
 }
 
 TcpConnection::~TcpConnection()
 {
   LOG_DEBUG << "TcpConnection::dtor[" <<  name_ << "] at " << this
-    << " fd=" << channel_->fd();
+            << " fd=" << channel_->fd();
 }
 
 void TcpConnection::send(const void* data, size_t len)
@@ -210,6 +210,7 @@ void TcpConnection::connectEstablished()
 void TcpConnection::connectDestroyed()
 {
   loop_->assertInLoopThread();
+  assert(state_ == kConnected);
   if (state_ == kConnected)
   {
     setState(kDisconnected);

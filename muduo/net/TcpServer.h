@@ -60,7 +60,7 @@ class TcpServer : boost::noncopyable
   /// Starts the server if it's not listenning.
   ///
   /// It's harmless to call it multiple times.
-  /// Not thread safe.
+  /// Thread safe.
   void start();
 
   /// Set connection callback.

@@ -95,7 +95,8 @@ void PollPoller::updateChannel(Channel* channel)
     struct pollfd& pfd = pollfds_[idx];
     assert(pfd.fd == channel->fd() || pfd.fd == -channel->fd()-1);
     pfd.events = static_cast<short>(channel->events());
-    if (pfd.events == Channel::kNoneEvent)
+    pfd.revents = 0;
+    if (channel->isNoneEvent())
     {
       // ignore this pollfd
       pfd.fd = -channel->fd()-1;
@@ -109,12 +110,12 @@ void PollPoller::removeChannel(Channel* channel)
   LOG_TRACE << "fd = " << channel->fd();
   assert(channels_.find(channel->fd()) != channels_.end());
   assert(channels_[channel->fd()] == channel);
-  assert(channel->events() == Channel::kNoneEvent);
+  assert(channel->isNoneEvent());
   int idx = channel->index();
   assert(0 <= idx && idx < static_cast<int>(pollfds_.size()));
   const struct pollfd& pfd = pollfds_[idx];
   (void)pfd;
-  assert(pfd.fd == -channel->fd()-1 && pfd.events == Channel::kNoneEvent);
+  assert(pfd.fd == -channel->fd()-1 && pfd.events == channel->events());
   size_t n = channels_.erase(channel->fd());
   (void)n;
   assert(n == 1);

@@ -118,7 +118,7 @@ class TcpConnection : boost::noncopyable,
   ConnectionCallback connectionCallback_;
   MessageCallback messageCallback_;
   WriteCompleteCallback writeCompleteCallback_;
-  ConnectionCallback closeCallback_;
+  CloseCallback closeCallback_;
   Buffer inputBuffer_;
   // FIXME: creationTime_, lastReceiveTime_
   //        bytesReceived_, bytesSent_

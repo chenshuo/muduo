@@ -39,6 +39,7 @@ class Acceptor : boost::noncopyable
 
   void setNewConnectionCallback(const NewConnectionCallback& cb)
   { newConnectionCallback_ = cb; }
+
   bool listenning() const { return listenning_; }
   void listen();
 
