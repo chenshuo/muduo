@@ -13,6 +13,7 @@
 #include <muduo/base/Singleton.h>
 #include <muduo/net/Channel.h>
 #include <muduo/net/Poller.h>
+#include <muduo/net/SocketsOps.h>
 #include <muduo/net/TimerQueue.h>
 
 #include <boost/bind.hpp>
@@ -195,7 +196,7 @@ void EventLoop::abortNotInLoopThread()
 void EventLoop::wakeup()
 {
   uint64_t one = 1;
-  ssize_t n = ::write(wakeupFd_, &one, sizeof one);
+  ssize_t n = sockets::write(wakeupFd_, &one, sizeof one);
   if (n != sizeof one)
   {
     LOG_ERROR << "EventLoop::wakeup() writes " << n << " bytes instead of 8";
@@ -205,7 +206,7 @@ void EventLoop::wakeup()
 void EventLoop::handleRead()
 {
   uint64_t one = 1;
-  ssize_t n = ::read(wakeupFd_, &one, sizeof one);
+  ssize_t n = sockets::read(wakeupFd_, &one, sizeof one);
   if (n != sizeof one)
   {
     LOG_ERROR << "EventLoop::handleRead() reads " << n << " bytes instead of 8";

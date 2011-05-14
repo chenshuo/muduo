@@ -43,7 +43,7 @@ ssize_t Buffer::readFd(int fd, int* savedErrno)
   vec[0].iov_len = writable;
   vec[1].iov_base = extrabuf;
   vec[1].iov_len = sizeof extrabuf;
-  ssize_t n = readv(fd, vec, 2);
+  ssize_t n = sockets::readv(fd, vec, 2);
   if (n < 0)
   {
     *savedErrno = errno;

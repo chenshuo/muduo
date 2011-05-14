@@ -80,7 +80,7 @@ void TcpConnection::send(const void* data, size_t len)
       string message(static_cast<const char*>(data), len);
       loop_->runInLoop(
           boost::bind(&TcpConnection::sendInLoop,
-                      this,
+                      this,     // FIXME
                       message));
     }
   }
@@ -98,7 +98,7 @@ void TcpConnection::send(const StringPiece& message)
     {
       loop_->runInLoop(
           boost::bind(&TcpConnection::sendInLoop,
-                      this,
+                      this,     // FIXME
                       message.as_string()));
                     //std::forward<string>(message)));
     }
@@ -119,7 +119,7 @@ void TcpConnection::send(Buffer* buf)
     {
       loop_->runInLoop(
           boost::bind(&TcpConnection::sendInLoop,
-                      this,
+                      this,     // FIXME
                       buf->retrieveAsString()));
                     //std::forward<string>(message)));
     }
@@ -138,7 +138,7 @@ void TcpConnection::sendInLoop(const void* data, size_t len)
   // if no thing in output queue, try writing directly
   if (!channel_->isWriting() && outputBuffer_.readableBytes() == 0)
   {
-    nwrote = ::write(channel_->fd(), data, len);
+    nwrote = sockets::write(channel_->fd(), data, len);
     if (nwrote >= 0)
     {
       if (implicit_cast<size_t>(nwrote) < len)
@@ -173,6 +173,7 @@ void TcpConnection::sendInLoop(const void* data, size_t len)
 
 void TcpConnection::shutdown()
 {
+  // FIXME: use compare and swap
   if (state_ == kConnected)
   {
     setState(kDisconnecting);
@@ -224,7 +225,7 @@ void TcpConnection::connectDestroyed()
 void TcpConnection::handleRead(Timestamp receiveTime)
 {
   loop_->assertInLoopThread();
-  int savedErrno;
+  int savedErrno = 0;
   ssize_t n = inputBuffer_.readFd(channel_->fd(), &savedErrno);
   if (n > 0)
   {
@@ -236,7 +237,8 @@ void TcpConnection::handleRead(Timestamp receiveTime)
   }
   else
   {
-    // check savedErrno
+    // FIXME: check savedErrno
+    handleError();
   }
 }
 
@@ -245,7 +247,9 @@ void TcpConnection::handleWrite()
   loop_->assertInLoopThread();
   if (channel_->isWriting())
   {
-    ssize_t n = ::write(channel_->fd(), outputBuffer_.peek(), outputBuffer_.readableBytes());
+    ssize_t n = sockets::write(channel_->fd(),
+                               outputBuffer_.peek(),
+                               outputBuffer_.readableBytes());
     if (n > 0)
     {
       outputBuffer_.retrieve(n);

@@ -71,7 +71,7 @@ void resetTimerfd(int timerfd, Timestamp expiration)
   bzero(&newValue, sizeof newValue);
   bzero(&oldValue, sizeof oldValue);
   newValue.it_value = howMuchTimeFromNow(expiration);
-  int ret = timerfd_settime(timerfd, 0, &newValue, &oldValue);
+  int ret = ::timerfd_settime(timerfd, 0, &newValue, &oldValue);
   if (ret)
   {
     LOG_SYSERR << "timerfd_settime()";
