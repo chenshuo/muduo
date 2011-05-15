@@ -211,7 +211,6 @@ void TcpConnection::connectEstablished()
 void TcpConnection::connectDestroyed()
 {
   loop_->assertInLoopThread();
-  assert(state_ == kConnected);
   if (state_ == kConnected)
   {
     setState(kDisconnected);
