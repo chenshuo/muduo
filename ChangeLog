@@ -1,3 +1,8 @@
+2011-05-15  Shuo Chen  <chenshuo@chenshuo.com>
+
+  * Changes from reactor tutorial
+  * Version 0.2.2
+
 2011-05-07  Shuo Chen  <chenshuo@chenshuo.com>
 
   * Try making TcpClient destructable
