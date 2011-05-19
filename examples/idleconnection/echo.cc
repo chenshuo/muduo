@@ -94,7 +94,7 @@ void EchoServer::dumpConnectionBuckets() const
         ++it)
     {
       bool connectionDead = (*it)->weakConn_.expired();
-      printf("%p(%zd)%s, ", get_pointer(*it), it->use_count(),
+      printf("%p(%ld)%s, ", get_pointer(*it), it->use_count(),
           connectionDead ? " DEAD" : "");
     }
     puts("");

@@ -4,7 +4,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+namespace
+{
 __thread int x = 0;
+}
 
 void print()
 {
