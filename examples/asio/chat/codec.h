@@ -3,7 +3,7 @@
 
 #include <muduo/base/Logging.h>
 #include <muduo/net/Buffer.h>
-#include <muduo/net/SocketsOps.h>
+#include <muduo/net/Endian.h>
 #include <muduo/net/TcpConnection.h>
 
 #include <boost/function.hpp>

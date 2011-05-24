@@ -8,6 +8,7 @@
 
 #include <muduo/net/InetAddress.h>
 
+#include <muduo/net/Endian.h>
 #include <muduo/net/SocketsOps.h>
 
 #include <strings.h>  // bzero

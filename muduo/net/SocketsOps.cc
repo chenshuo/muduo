@@ -7,8 +7,10 @@
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
 #include <muduo/net/SocketsOps.h>
+
 #include <muduo/base/Logging.h>
 #include <muduo/base/Types.h>
+#include <muduo/net/Endian.h>
 
 #include <errno.h>
 #include <fcntl.h>
@@ -48,6 +50,8 @@ void setNonBlockAndCloseOnExec(int sockfd)
   flags |= FD_CLOEXEC;
   ret = ::fcntl(sockfd, F_SETFD, flags);
   // FIXME check
+
+  (void)ret;
 }
 
 }

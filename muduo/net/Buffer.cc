@@ -8,6 +8,8 @@
 //
 
 #include <muduo/net/Buffer.h>
+
+#include <muduo/net/Endian.h>
 #include <muduo/net/SocketsOps.h>
 
 #include <errno.h>
