@@ -37,7 +37,7 @@ inline uint32_t hostToNetwork32(uint32_t host32)
 
 inline uint16_t hostToNetwork16(uint16_t host16)
 {
-  return htobe32(host16);
+  return htobe16(host16);
 }
 
 inline uint64_t networkToHost64(uint64_t net64)
