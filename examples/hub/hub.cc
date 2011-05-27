@@ -21,7 +21,7 @@ typedef std::set<string> ConnectionSubscription;
 class Topic : public muduo::copyable
 {
  public:
-  Topic(const string topic)
+  Topic(const string& topic)
     : topic_(topic)
   {
   }

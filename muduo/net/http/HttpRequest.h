@@ -71,6 +71,32 @@ class HttpRequest : public muduo::copyable
   Method method() const
   { return method_; }
 
+  const char* methodString() const
+  {
+    const char* result = "UNKNOWN";
+    switch(method_)
+    {
+      case kGet:
+        result = "GET";
+        break;
+      case kPost:
+        result = "POST";
+        break;
+      case kHead:
+        result = "HEAD";
+        break;
+      case kPut:
+        result = "PUT";
+        break;
+      case kDelete:
+        result = "DELETE";
+        break;
+      default:
+        break;
+    }
+    return result;
+  }
+
   void setPath(const char* start, const char* end)
   {
     path_.assign(start, end);

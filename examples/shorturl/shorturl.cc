@@ -4,7 +4,6 @@
 #include <muduo/net/EventLoop.h>
 #include <muduo/base/Logging.h>
 
-#include <iostream>
 #include <map>
 
 using namespace muduo;
@@ -12,25 +11,46 @@ using namespace muduo::net;
 
 extern char favicon[555];
 
+std::map<string, string> redirections;
+
 void onRequest(const HttpRequest& req, HttpResponse* resp)
 {
-  std::cout << "Headers " << req.methodString() << " " << req.path() << std::endl;
+  LOG_INFO << "Headers " << req.methodString() << " " << req.path();
   const std::map<string, string>& headers = req.headers();
   for (std::map<string, string>::const_iterator it = headers.begin();
        it != headers.end();
        ++it)
   {
-    std::cout << it->first << ": " << it->second << std::endl;
+    LOG_DEBUG << it->first << ": " << it->second;
   }
 
-  if (req.path() == "/")
+  // TODO: support PUT and DELETE to create new redirections on-the-fly.
+
+  std::map<string, string>::const_iterator it = redirections.find(req.path());
+  if (it != redirections.end())
+  {
+    resp->setStatusCode(HttpResponse::k301MovedPermanently);
+    resp->setStatusMessage("Moved Permanently");
+    resp->addHeader("Location", it->second);
+    // resp->setCloseConnection(true);
+  }
+  else if (req.path() == "/")
   {
     resp->setStatusCode(HttpResponse::k200Ok);
     resp->setStatusMessage("OK");
     resp->setContentType("text/html");
     string now = Timestamp::now().toFormattedString();
-    resp->setBody("<html><head><title>This is title</title></head>"
-        "<body><h1>Hello</h1>Now is " + now + 
+    std::map<string, string>::const_iterator i = redirections.begin();
+    string text;
+    for (; i != redirections.end(); ++i)
+    {
+      text.append("<ul>" + i->first + " =&gt; " + i->second + "</ul>");
+    }
+
+    resp->setBody("<html><head><title>My tiny short url service</title></head>"
+        "<body><h1>Known redirections</h1>"
+        + text +
+        "Now is " + now + 
         "</body></html>");
   }
   else if (req.path() == "/favicon.ico")
@@ -50,8 +70,11 @@ void onRequest(const HttpRequest& req, HttpResponse* resp)
 
 int main()
 {
+  redirections["/1"] = "http://chenshuo.com";
+  redirections["/2"] = "http://blog.csdn.net/Solstice";
+
   EventLoop loop;
-  HttpServer server(&loop, InetAddress(8000), "dummy");
+  HttpServer server(&loop, InetAddress(8000), "shorturl");
   server.setHttpCallback(onRequest);
   server.start();
   loop.loop();
