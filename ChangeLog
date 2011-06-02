@@ -1,3 +1,8 @@
+2011-06-02  Shuo Chen  <chenshuo@chenshuo.com>
+
+  * Add examples/shorturl.
+  * Version 0.2.4
+
 2011-05-24  Shuo Chen  <chenshuo@chenshuo.com>
 
   * Fix warnings on Arch Linux (GCC 4.6.0), thanks to ifreedom
