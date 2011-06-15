@@ -3,6 +3,7 @@
 #include <muduo/base/Atomic.h>
 #include <muduo/base/Logging.h>
 #include <muduo/base/Thread.h>
+#include <muduo/base/ThreadPool.h>
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/InetAddress.h>
 #include <muduo/net/TcpServer.h>
@@ -31,12 +32,12 @@ class SudokuServer
         boost::bind(&SudokuServer::onConnection, this, _1));
     server_.setMessageCallback(
         boost::bind(&SudokuServer::onMessage, this, _1, _2, _3));
-    server_.setThreadNum(numThreads);
   }
 
   void start()
   {
     LOG_INFO << "starting " << numThreads_ << " threads.";
+    threadPool_.start(numThreads_);
     server_.start();
   }
 
@@ -68,15 +69,7 @@ class SudokuServer
         }
         if (request.size() == implicit_cast<size_t>(kCells))
         {
-          string result = solveSudoku(request);
-          if (id.empty())
-          {
-            conn->send(result+"\r\n");
-          }
-          else
-          {
-            conn->send(id+":"+result+"\r\n");
-          }
+          threadPool_.run(boost::bind(solve, conn, request, id));
         }
         else
         {
@@ -91,8 +84,23 @@ class SudokuServer
     }
   }
 
+  static void solve(const TcpConnectionPtr& conn, const string& request, const string& id)
+  {
+    LOG_DEBUG << conn->name();
+    string result = solveSudoku(request);
+    if (id.empty())
+    {
+      conn->send(result+"\r\n");
+    }
+    else
+    {
+      conn->send(id+":"+result+"\r\n");
+    }
+  }
+
   EventLoop* loop_;
   TcpServer server_;
+  ThreadPool threadPool_;
   int numThreads_;
   Timestamp startTime_;
 };
