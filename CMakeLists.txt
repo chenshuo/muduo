@@ -35,10 +35,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O2 -finline-limit=1000 -DNDEBUG")
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
-find_package( Boost )
-if(NOT Boost_FOUND)
-  message(FATAL_ERROR "Can not find Boost!")
-endif()
+find_package(Boost REQUIRED)
 
 include_directories(${Boost_INCLUDE_DIRS})
 

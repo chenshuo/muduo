@@ -9,6 +9,7 @@ add_subdirectory(hub)
 add_subdirectory(filetransfer)
 add_subdirectory(socks4a)
 add_subdirectory(shorturl)
+add_subdirectory(sudoku)
 
 add_subdirectory(asio/tutorial)
 add_subdirectory(asio/chat)
