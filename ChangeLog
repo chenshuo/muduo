@@ -1,3 +1,8 @@
+2011-06-XX  Shuo Chen  <chenshuo@chenshuo.com>
+
+  * Fix decoding of Sudoku request.
+  * Version 0.2.6
+
 2011-06-15  Shuo Chen  <chenshuo@chenshuo.com>
 
   * Add examples/sudoku.
