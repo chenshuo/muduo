@@ -55,8 +55,9 @@ class SudokuServer
       if (crlf)
       {
         string request(buf->peek(), crlf);
-        string id;
         buf->retrieveUntil(crlf + 2);
+        len = buf->readableBytes();
+        string id;
         string::iterator colon = find(request.begin(), request.end(), ':');
         if (colon != request.end())
         {
@@ -79,7 +80,14 @@ class SudokuServer
         {
           conn->send("Bad Request!\r\n");
           conn->shutdown();
+          break;
         }
+      }
+      else if (len > 100)
+      {
+        conn->send("Bad Request!\r\n");
+        conn->shutdown();
+        break;
       }
       else
       {
