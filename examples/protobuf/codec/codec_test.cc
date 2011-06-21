@@ -1,5 +1,5 @@
 #include "codec.h"
-#include <muduo/net/SocketsOps.h>
+#include <muduo/net/Endian.h>
 #include <examples/protobuf/codec/query.pb.h>
 
 #include <stdio.h>

@@ -9,7 +9,7 @@
 #include "codec.h"
 
 #include <muduo/base/Logging.h>
-#include <muduo/net/SocketsOps.h>
+#include <muduo/net/Endian.h>
 
 #include <google/protobuf/descriptor.h>
 
