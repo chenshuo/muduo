@@ -4,6 +4,9 @@ add_executable(atomic_unittest Atomic_unittest.cc)
 add_executable(blockingqueue_test BlockingQueue_test.cc)
 target_link_libraries(blockingqueue_test muduo_base)
 
+add_executable(boundedblockingqueue_test BoundedBlockingQueue_test.cc)
+target_link_libraries(boundedblockingqueue_test muduo_base)
+
 add_executable(date_unittest Date_unittest.cc)
 target_link_libraries(date_unittest muduo_base)
 
