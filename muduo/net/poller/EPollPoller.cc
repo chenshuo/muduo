@@ -26,7 +26,6 @@ using namespace muduo::net;
 BOOST_STATIC_ASSERT(EPOLLIN == POLLIN);
 BOOST_STATIC_ASSERT(EPOLLPRI == POLLPRI);
 BOOST_STATIC_ASSERT(EPOLLOUT == POLLOUT);
-BOOST_STATIC_ASSERT(EPOLLRDHUP == POLLRDHUP);
 BOOST_STATIC_ASSERT(EPOLLERR == POLLERR);
 BOOST_STATIC_ASSERT(EPOLLHUP == POLLHUP);
 
@@ -39,7 +38,7 @@ const int kDeleted = 2;
 
 EPollPoller::EPollPoller(EventLoop* loop)
   : Poller(loop),
-    epollfd_(::epoll_create1(EPOLL_CLOEXEC)),
+    epollfd_(::epoll_create(32)),
     events_(kInitEventListSize)
 {
   if (epollfd_ < 0)
