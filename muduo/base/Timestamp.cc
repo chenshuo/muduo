@@ -4,7 +4,7 @@
 #include <stdio.h>
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
-#undef __STDC_FORMAT_MACROS
+//#undef __STDC_FORMAT_MACROS
 
 #include <boost/static_assert.hpp>
 

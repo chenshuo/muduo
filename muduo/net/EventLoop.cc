@@ -30,7 +30,6 @@ __thread EventLoop* t_loopInThisThread = 0;
 
 const int kPollTimeMs = 10000;
 
-#pragma GCC diagnostic ignored "-Wold-style-cast"
 class IgnoreSigPipe
 {
  public:
@@ -40,7 +39,6 @@ class IgnoreSigPipe
     LOG_TRACE << "Ignore SIGPIPE";
   }
 };
-#pragma GCC diagnostic error "-Wold-style-cast"
 
 IgnoreSigPipe initObj;
 }
