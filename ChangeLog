@@ -1,6 +1,8 @@
-2011-06-XX  Shuo Chen  <chenshuo@chenshuo.com>
+2011-06-27  Shuo Chen  <chenshuo@chenshuo.com>
 
   * Fix decoding of Sudoku request.
+  * Backport to older Linux.
+  * Add BoundedBlockingQueue
   * Version 0.2.6
 
 2011-06-15  Shuo Chen  <chenshuo@chenshuo.com>
