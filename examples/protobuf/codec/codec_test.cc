@@ -92,7 +92,7 @@ void testEmpty()
 void redoCheckSum(string& data, int len)
 {
   int32_t checkSum = sockets::hostToNetwork32(static_cast<int32_t>(
-      ::adler32(0,
+      ::adler32(1,
                 reinterpret_cast<const Bytef*>(data.c_str()),
                 static_cast<int>(len - 4))));
   data[len-4] = reinterpret_cast<const char*>(&checkSum)[0];

@@ -123,7 +123,7 @@ void ProtobufCodec::fillEmptyBuffer(Buffer* buf, const google::protobuf::Message
   buf->hasWritten(byte_size);
 
   int32_t checkSum = static_cast<int32_t>(
-      ::adler32(0,
+      ::adler32(1,
                 reinterpret_cast<const Bytef*>(buf->peek()),
                 static_cast<int>(buf->readableBytes())));
   buf->appendInt32(checkSum);
@@ -243,7 +243,7 @@ MessagePtr ProtobufCodec::parse(const char* buf, int len, ErrorCode* error)
   // check sum
   int32_t expectedCheckSum = asInt32(buf + len - kHeaderLen);
   int32_t checkSum = static_cast<int32_t>(
-      ::adler32(0,
+      ::adler32(1,
                 reinterpret_cast<const Bytef*>(buf),
                 static_cast<int>(len - kHeaderLen)));
   if (checkSum == expectedCheckSum)

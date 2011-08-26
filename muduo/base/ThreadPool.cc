@@ -99,7 +99,7 @@ void ThreadPool::runInThread()
     fprintf(stderr, "stack trace: %s\n", ex.stackTrace());
     abort();
   }
-  catch (const std::exception ex)
+  catch (const std::exception& ex)
   {
     fprintf(stderr, "exception caught in ThreadPool %s\n", name_.c_str());
     fprintf(stderr, "reason: %s\n", ex.what());

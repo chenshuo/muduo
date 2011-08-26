@@ -30,7 +30,7 @@ target_link_libraries(protobuf_server protobuf_codec query_proto)
 add_executable(protobuf_client client.cc)
 target_link_libraries(protobuf_client protobuf_codec query_proto)
 
-add_custom_target(protobuf_all
+add_custom_target(protobuf_codec_all
                   DEPENDS
                         protobuf_codec_test
                         protobuf_dispatcher_lite_test
