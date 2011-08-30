@@ -12,7 +12,6 @@
 #define MUDUO_NET_SOCKETSOPS_H
 
 #include <arpa/inet.h>
-#include <endian.h>
 
 namespace muduo
 {

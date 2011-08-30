@@ -1,5 +1,5 @@
 add_executable(protoc-gen-rpc gen.cc)
-target_link_libraries(protoc-gen-rpc protoc)
+target_link_libraries(protoc-gen-rpc protoc pthread)
 
 add_custom_command(OUTPUT rpc.pb.cc rpc.pb.h
   COMMAND protoc
