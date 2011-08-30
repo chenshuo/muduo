@@ -1,0 +1,18 @@
+package sudoku;
+option cc_generic_services = true;
+option java_generic_services = true;
+option py_generic_services = true;
+
+message SudokuRequest {
+  required string checkerboard = 1;
+}
+
+message SudokuResponse {
+  optional bool solved = 1 [default=false];
+  optional string checkerboard = 2;
+}
+
+service SudokuService {
+  rpc Solve (SudokuRequest) returns (SudokuResponse);
+}
+
