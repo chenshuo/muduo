@@ -43,3 +43,4 @@ add_subdirectory(http)
 add_subdirectory(inspect)
 add_subdirectory(tests)
 
+add_subdirectory(protorpc EXCLUDE_FROM_ALL)

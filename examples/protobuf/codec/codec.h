@@ -29,9 +29,13 @@
 
 typedef boost::shared_ptr<google::protobuf::Message> MessagePtr;
 
+//
+// FIXME: merge with RpcCodec
+//
 class ProtobufCodec : boost::noncopyable
 {
  public:
+
   enum ErrorCode
   {
     kNoError = 0,
