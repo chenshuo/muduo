@@ -26,15 +26,20 @@ class RpcServer
   RpcServer(EventLoop* loop,
             const InetAddress& listenAddr);
 
+  void setThreadNum(int numThreads)
+  {
+    server_.setThreadNum(numThreads);
+  }
+
   void registerService(Service*);
   void start();
 
  private:
   void onConnection(const TcpConnectionPtr& conn);
 
-  void onMessage(const TcpConnectionPtr& conn,
-                 Buffer* buf,
-                 Timestamp time);
+  // void onMessage(const TcpConnectionPtr& conn,
+  //                Buffer* buf,
+  //                Timestamp time);
 
   EventLoop* loop_;
   TcpServer server_;

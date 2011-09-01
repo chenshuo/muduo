@@ -12,6 +12,7 @@
 #define MUDUO_NET_PROTORPC_RPCCHANNEL_H
 
 #include <muduo/base/Atomic.h>
+#include <muduo/base/Mutex.h>
 #include <muduo/net/protorpc/RpcCodec.h>
 
 #include <boost/shared_ptr.hpp>
@@ -138,7 +139,7 @@ class RpcChannel : boost::noncopyable
   TcpConnectionPtr conn_;
   AtomicInt64 id_;
 
-  // FIXME: Mutex ?
+  MutexLock mutex_;
   std::map<int64_t, OutstandingCall> outstandings_;
 
   const std::map<std::string, Service*>* services_;

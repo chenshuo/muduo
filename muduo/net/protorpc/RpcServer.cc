@@ -26,8 +26,8 @@ RpcServer::RpcServer(EventLoop* loop,
 {
   server_.setConnectionCallback(
       boost::bind(&RpcServer::onConnection, this, _1));
-  server_.setMessageCallback(
-      boost::bind(&RpcServer::onMessage, this, _1, _2, _3));
+//   server_.setMessageCallback(
+//       boost::bind(&RpcServer::onMessage, this, _1, _2, _3));
 }
 
 void RpcServer::registerService(muduo::net::Service* service)
@@ -50,20 +50,22 @@ void RpcServer::onConnection(const TcpConnectionPtr& conn)
   {
     RpcChannelPtr channel(new RpcChannel(conn));
     channel->setServices(&services_);
+    conn->setMessageCallback(
+        boost::bind(&RpcChannel::onMessage, get_pointer(channel), _1, _2, _3));
     conn->setContext(channel);
   }
   else
   {
+    conn->setContext(RpcChannelPtr());
     // FIXME:
   }
 }
 
-void RpcServer::onMessage(const TcpConnectionPtr& conn,
-                          Buffer* buf,
-                          Timestamp time)
-{
-  RpcChannelPtr& channel = boost::any_cast<RpcChannelPtr&>(conn->getContext());
-  LOG_INFO << channel.use_count();
-  channel->onMessage(conn, buf, time);
-}
+// void RpcServer::onMessage(const TcpConnectionPtr& conn,
+//                           Buffer* buf,
+//                           Timestamp time)
+// {
+//   RpcChannelPtr& channel = boost::any_cast<RpcChannelPtr&>(conn->getContext());
+//   channel->onMessage(conn, buf, time);
+// }
 

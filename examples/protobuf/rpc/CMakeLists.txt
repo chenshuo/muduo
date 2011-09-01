@@ -14,15 +14,15 @@ target_link_libraries(sudoku_proto protobuf pthread)
 
 #TODO set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=conversion")
 
-add_executable(protobuf_rpc_client client.cc)
-target_link_libraries(protobuf_rpc_client sudoku_proto muduo_protorpc)
+add_executable(protobuf_rpc_sudoku_client client.cc)
+target_link_libraries(protobuf_rpc_sudoku_client sudoku_proto muduo_protorpc)
 
-add_executable(protobuf_rpc_server server.cc)
-target_link_libraries(protobuf_rpc_server sudoku_proto muduo_protorpc)
+add_executable(protobuf_rpc_sudoku_server server.cc)
+target_link_libraries(protobuf_rpc_sudoku_server sudoku_proto muduo_protorpc)
 
 add_custom_target(protobuf_rpc_all
                   DEPENDS
                         protoc-gen-rpc
                         muduo_protorpc
-                        protobuf_rpc_client
-                        protobuf_rpc_server)
+                        protobuf_rpc_sudoku_client
+                        protobuf_rpc_sudoku_server)

@@ -8,6 +8,7 @@
 
 #include <muduo/net/protorpc/RpcChannel.h>
 
+#include <muduo/base/Logging.h>
 #include <muduo/net/protorpc/service.h>
 #include <muduo/net/protorpc/rpc.pb.h>
 
@@ -21,16 +22,19 @@ using namespace muduo::net;
 RpcChannel::RpcChannel()
   : codec_(boost::bind(&RpcChannel::onRpcMessage, this, _1, _2, _3))
 {
+  LOG_INFO << "RpcChannel::ctor - " << this;
 }
 
 RpcChannel::RpcChannel(const TcpConnectionPtr& conn)
   : codec_(boost::bind(&RpcChannel::onRpcMessage, this, _1, _2, _3)),
     conn_(conn)
 {
+  LOG_INFO << "RpcChannel::ctor - " << this;
 }
 
 RpcChannel::~RpcChannel()
 {
+  LOG_INFO << "RpcChannel::dtor - " << this;
 }
 
   // Call the given method of the remote service.  The signature of this
@@ -54,6 +58,7 @@ void RpcChannel::CallMethod(const ::google::protobuf::MethodDescriptor* method,
   RpcCodec::send(conn_, message);
 
   OutstandingCall out = { response, done };
+  MutexLockGuard lock(mutex_);
   outstandings_[id] = out;
 }
 
@@ -75,14 +80,26 @@ void RpcChannel::onRpcMessage(const TcpConnectionPtr& conn,
     int64_t id = message.id();
     assert(message.has_response());
 
-    std::map<int64_t, OutstandingCall>::iterator it = outstandings_.find(id);
-    if (it != outstandings_.end())
+    OutstandingCall out = { NULL, NULL };
+
     {
-      OutstandingCall out = it->second;
+      MutexLockGuard lock(mutex_);
+      std::map<int64_t, OutstandingCall>::iterator it = outstandings_.find(id);
+      if (it != outstandings_.end())
+      {
+        out = it->second;
+        outstandings_.erase(it);
+      }
+    }
+
+    if (out.response)
+    {
       out.response->ParseFromString(message.response());
-      out.done->Run();
+      if (out.done)
+      {
+        out.done->Run();
+      }
       // delete out.response;
-      outstandings_.erase(it);
     }
   }
   else if (message.type() == REQUEST)
@@ -121,6 +138,9 @@ void RpcChannel::onRpcMessage(const TcpConnectionPtr& conn,
     {
       // FIXME:
     }
+  }
+  else if (message.type() == ERROR)
+  {
   }
 }
 
