@@ -99,7 +99,7 @@ void RpcChannel::onRpcMessage(const TcpConnectionPtr& conn,
       {
         out.done->Run();
       }
-      // delete out.response;
+      delete out.response;
     }
   }
   else if (message.type() == REQUEST)
@@ -123,6 +123,7 @@ void RpcChannel::onRpcMessage(const TcpConnectionPtr& conn,
           int64_t id = message.id();
           service->CallMethod(method, NULL, request, response,
               NewCallback(this, &RpcChannel::doneCallback, response, id));
+          delete request;
         }
         else
         {
@@ -151,5 +152,6 @@ void RpcChannel::doneCallback(::google::protobuf::Message* response, int64_t id)
   message.set_id(id);
   message.set_response(response->SerializeAsString()); // FIXME: error check
   RpcCodec::send(conn_, message);
+  delete response;
 }
 

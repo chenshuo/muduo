@@ -82,7 +82,7 @@ class RpcCodec
   ErrorCallback errorCallback_;
 
   const static int kHeaderLen = sizeof(int32_t);
-  const static int kMinMessageLen = kHeaderLen; // checkSum
+  const static int kMinMessageLen = 2*kHeaderLen; // RPC0 + checkSum
   const static int kMaxMessageLen = 64*1024*1024; // same as codec_stream.h kDefaultTotalBytesLimit
 };
 
