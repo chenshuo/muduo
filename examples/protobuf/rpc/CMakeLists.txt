@@ -25,4 +25,7 @@ add_custom_target(protobuf_rpc_all
                         protoc-gen-rpc
                         muduo_protorpc
                         protobuf_rpc_sudoku_client
-                        protobuf_rpc_sudoku_server)
+                        protobuf_rpc_sudoku_server
+                        protobuf_rpc_echo_client
+                        protobuf_rpc_echo_server
+                        )
