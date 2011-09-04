@@ -12,7 +12,6 @@ add_dependencies(muduo_protorpc2 protoc-gen-rpc)
 install(TARGETS protoc-gen-rpc DESTINATION bin)
 install(TARGETS muduo_protorpc2 DESTINATION lib)
 set(HEADERS
-  RpcCodec.h
   RpcChannel.h
   RpcServer.h
   )

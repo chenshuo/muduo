@@ -1,6 +1,14 @@
+2011-09-04  Shuo Chen  <chenshuo@chenshuo.com>
+
+  * Refactored RPC implementation of version 1 and 2,
+  programming interface differ, interoperable.
+  version 2 is incomplete yet.
+  * Find protobuf with cmake find_package().
+  * Version 0.2.8
+
 2011-09-03  Shuo Chen  <chenshuo@chenshuo.com>
 
-  * Add a simple implementation of Protobuf RPC.
+  * Add a proof of concept implementation of Protobuf RPC.
   * Version 0.2.7
 
 2011-06-27  Shuo Chen  <chenshuo@chenshuo.com>
