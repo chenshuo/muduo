@@ -10,3 +10,11 @@ include_directories(${PROJECT_BINARY_DIR})
 add_library(muduo_protorpc rpc.pb.cc RpcCodec.cc RpcChannel.cc RpcServer.cc)
 target_link_libraries(muduo_protorpc muduo_net protobuf)
 
+install(TARGETS muduo_protorpc DESTINATION lib)
+set(HEADERS
+  RpcCodec.h
+  RpcChannel.h
+  RpcServer.h
+  )
+install(FILES ${HEADERS} DESTINATION include/muduo/net/protorpc)
+
