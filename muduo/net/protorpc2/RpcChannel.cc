@@ -10,7 +10,7 @@
 
 #include <muduo/base/Logging.h>
 #include <muduo/net/protorpc2/service.h>
-#include <muduo/net/protorpc2/rpc.pb.h>
+#include <muduo/net/protorpc/rpc.pb.h>
 
 #include <google/protobuf/descriptor.h>
 

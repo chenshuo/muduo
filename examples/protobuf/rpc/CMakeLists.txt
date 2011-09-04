@@ -19,7 +19,6 @@ target_link_libraries(protobuf_rpc_sudoku_server sudoku_proto muduo_protorpc)
 
 add_custom_target(protobuf_rpc_all
                   DEPENDS
-                        protoc-gen-rpc
                         muduo_protorpc
                         protobuf_rpc_sudoku_client
                         protobuf_rpc_sudoku_server
