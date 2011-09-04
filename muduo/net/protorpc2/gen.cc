@@ -39,7 +39,7 @@
 #include <google/protobuf/compiler/plugin.h>
 #include <google/protobuf/io/printer.h>
 
-#include <muduo/net/protorpc/cpp_service.h>
+#include <muduo/net/protorpc2/cpp_service.h>
 
 #include <stdio.h>
 

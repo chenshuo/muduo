@@ -12,7 +12,7 @@
 #define MUDUO_NET_PROTORPC_SERVICE_H
 
 #include <boost/noncopyable.hpp>
-#include <muduo/net/protorpc/RpcChannel.h>
+#include <muduo/net/protorpc2/RpcChannel.h>
 
 // Service and RpcChannel classes are incorporated from
 // google/protobuf/service.h

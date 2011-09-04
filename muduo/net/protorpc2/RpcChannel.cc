@@ -6,10 +6,11 @@
 
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
-#include <muduo/net/protorpc/RpcChannel.h>
+#include <muduo/net/protorpc2/RpcChannel.h>
 
 #include <muduo/base/Logging.h>
-#include <muduo/net/protorpc/rpc.pb.h>
+#include <muduo/net/protorpc2/service.h>
+#include <muduo/net/protorpc2/rpc.pb.h>
 
 #include <google/protobuf/descriptor.h>
 
@@ -42,7 +43,7 @@ RpcChannel::~RpcChannel()
   // need not be of any specific class as long as their descriptors are
   // method->input_type() and method->output_type().
 void RpcChannel::CallMethod(const ::google::protobuf::MethodDescriptor* method,
-                  google::protobuf::RpcController* controller,
+                  RpcController* controller,
                   const ::google::protobuf::Message* request,
                   ::google::protobuf::Message* response,
                   ::google::protobuf::Closure* done)
@@ -106,10 +107,10 @@ void RpcChannel::onRpcMessage(const TcpConnectionPtr& conn,
     // FIXME: extract to a function
     if (services_)
     {
-      std::map<std::string, google::protobuf::Service*>::const_iterator it = services_->find(message.service());
+      std::map<std::string, Service*>::const_iterator it = services_->find(message.service());
       if (it != services_->end())
       {
-        google::protobuf::Service* service = it->second;
+        Service* service = it->second;
         assert(service != NULL);
         const google::protobuf::ServiceDescriptor* desc = service->GetDescriptor();
         const google::protobuf::MethodDescriptor* method

@@ -6,13 +6,13 @@
 
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
-#include <muduo/net/protorpc/RpcServer.h>
+#include <muduo/net/protorpc2/RpcServer.h>
 
 #include <muduo/base/Logging.h>
-#include <muduo/net/protorpc/RpcChannel.h>
+#include <muduo/net/protorpc2/RpcChannel.h>
+#include <muduo/net/protorpc2/service.h>
 
 #include <google/protobuf/descriptor.h>
-#include <google/protobuf/service.h>
 
 #include <boost/bind.hpp>
 
@@ -30,7 +30,7 @@ RpcServer::RpcServer(EventLoop* loop,
 //       boost::bind(&RpcServer::onMessage, this, _1, _2, _3));
 }
 
-void RpcServer::registerService(google::protobuf::Service* service)
+void RpcServer::registerService(muduo::net::Service* service)
 {
   const google::protobuf::ServiceDescriptor* desc = service->GetDescriptor();
   services_[desc->full_name()] = service;

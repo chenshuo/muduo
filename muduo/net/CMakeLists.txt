@@ -44,3 +44,4 @@ add_subdirectory(inspect)
 add_subdirectory(tests)
 
 add_subdirectory(protorpc EXCLUDE_FROM_ALL)
+add_subdirectory(protorpc2 EXCLUDE_FROM_ALL)

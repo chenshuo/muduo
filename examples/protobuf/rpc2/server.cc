@@ -1,8 +1,8 @@
-#include <examples/protobuf/rpc/sudoku.pb.h>
+#include <examples/protobuf/rpc2/sudoku.pb.h>
 
 #include <muduo/base/Logging.h>
 #include <muduo/net/EventLoop.h>
-#include <muduo/net/protorpc/RpcServer.h>
+#include <muduo/net/protorpc2/RpcServer.h>
 
 #include <boost/bind.hpp>
 
@@ -15,7 +15,7 @@ namespace sudoku
 class SudokuServiceImpl : public SudokuService
 {
  public:
-  virtual void Solve(::google::protobuf::RpcController* controller,
+  virtual void Solve(::muduo::net::RpcController* controller,
                        const ::sudoku::SudokuRequest* request,
                        ::sudoku::SudokuResponse* response,
                        ::google::protobuf::Closure* done)

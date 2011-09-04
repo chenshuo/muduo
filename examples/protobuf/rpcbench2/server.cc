@@ -1,8 +1,8 @@
-#include <examples/protobuf/rpcbench/echo.pb.h>
+#include <examples/protobuf/rpcbench2/echo.pb.h>
 
 #include <muduo/base/Logging.h>
 #include <muduo/net/EventLoop.h>
-#include <muduo/net/protorpc/RpcServer.h>
+#include <muduo/net/protorpc2/RpcServer.h>
 
 #include <boost/bind.hpp>
 
@@ -15,7 +15,7 @@ namespace echo
 class EchoServiceImpl : public EchoService
 {
  public:
-  virtual void Echo(::google::protobuf::RpcController* controller,
+  virtual void Echo(::muduo::net::RpcController* controller,
                     const ::echo::EchoRequest* request,
                     ::echo::EchoResponse* response,
                     ::google::protobuf::Closure* done)

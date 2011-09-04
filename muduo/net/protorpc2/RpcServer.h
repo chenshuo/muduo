@@ -13,18 +13,12 @@
 
 #include <muduo/net/TcpServer.h>
 
-namespace google {
-namespace protobuf {
-
-class Service;
-
-}  // namespace protobuf
-}  // namespace google
-
 namespace muduo
 {
 namespace net
 {
+
+class Service;
 
 class RpcServer
 {
@@ -37,7 +31,7 @@ class RpcServer
     server_.setThreadNum(numThreads);
   }
 
-  void registerService(::google::protobuf::Service*);
+  void registerService(Service*);
   void start();
 
  private:
@@ -49,7 +43,7 @@ class RpcServer
 
   EventLoop* loop_;
   TcpServer server_;
-  std::map<std::string, ::google::protobuf::Service*> services_;
+  std::map<std::string, Service*> services_;
 };
 
 }

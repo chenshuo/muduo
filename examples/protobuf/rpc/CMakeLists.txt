@@ -1,12 +1,9 @@
 add_custom_command(OUTPUT sudoku.pb.cc sudoku.pb.h
   COMMAND protoc
-  ARGS --plugin=${PROJECT_BINARY_DIR}/bin/protoc-gen-rpc --rpc_out . ${CMAKE_CURRENT_SOURCE_DIR}/sudoku.proto -I${CMAKE_CURRENT_SOURCE_DIR}
-  COMMAND sed
-  ARGS -i "'s/#include <google\\/protobuf\\/service.h>/#include <muduo\\/net\\/protorpc\\/service.h>/'" sudoku.pb.h
-  MAIN_DEPENDENCY sudoku.proto
-  DEPENDS protoc-gen-rpc)
+  ARGS --cpp_out . ${CMAKE_CURRENT_SOURCE_DIR}/sudoku.proto -I${CMAKE_CURRENT_SOURCE_DIR}
+  DEPENDS sudoku.proto)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=conversion -Wno-extra")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=conversion -Wno-extra -Wno-shadow")
 include_directories(${PROJECT_BINARY_DIR})
 
 add_library(sudoku_proto sudoku.pb.cc)

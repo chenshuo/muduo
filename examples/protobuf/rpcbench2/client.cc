@@ -1,4 +1,4 @@
-#include <examples/protobuf/rpcbench/echo.pb.h>
+#include <examples/protobuf/rpcbench2/echo.pb.h>
 
 #include <muduo/base/CountDownLatch.h>
 #include <muduo/base/Logging.h>
@@ -7,7 +7,6 @@
 #include <muduo/net/InetAddress.h>
 #include <muduo/net/TcpClient.h>
 #include <muduo/net/TcpConnection.h>
-#include <muduo/net/protorpc/RpcChannel.h>
 
 #include <boost/bind.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>

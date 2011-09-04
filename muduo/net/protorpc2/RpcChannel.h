@@ -15,8 +15,6 @@
 #include <muduo/base/Mutex.h>
 #include <muduo/net/protorpc/RpcCodec.h>
 
-#include <google/protobuf/service.h>
-
 #include <boost/shared_ptr.hpp>
 
 #include <map>
@@ -69,9 +67,6 @@ class Message;               // message.h
 
 class Closure;
 
-class RpcController;
-class Service;
-
 }  // namespace protobuf
 }  // namespace google
 
@@ -80,6 +75,9 @@ namespace muduo
 {
 namespace net
 {
+
+class RpcController;
+class Service;
 
 // Abstract interface for an RPC channel.  An RpcChannel represents a
 // communication line to a Service which can be used to call that Service's
@@ -90,7 +88,7 @@ namespace net
 //   RpcChannel* channel = new MyRpcChannel("remotehost.example.com:1234");
 //   MyService* service = new MyService::Stub(channel);
 //   service->MyMethod(request, &response, callback);
-class RpcChannel : public ::google::protobuf::RpcChannel
+class RpcChannel : boost::noncopyable
 {
  public:
   RpcChannel();
@@ -104,7 +102,7 @@ class RpcChannel : public ::google::protobuf::RpcChannel
     conn_ = conn;
   }
 
-  void setServices(const std::map<std::string, ::google::protobuf::Service*>* services)
+  void setServices(const std::map<std::string, Service*>* services)
   {
     services_ = services;
   }
@@ -115,7 +113,7 @@ class RpcChannel : public ::google::protobuf::RpcChannel
   // need not be of any specific class as long as their descriptors are
   // method->input_type() and method->output_type().
   void CallMethod(const ::google::protobuf::MethodDescriptor* method,
-                  ::google::protobuf::RpcController* controller,
+                  RpcController* controller,
                   const ::google::protobuf::Message* request,
                   ::google::protobuf::Message* response,
                   ::google::protobuf::Closure* done);
@@ -144,7 +142,7 @@ class RpcChannel : public ::google::protobuf::RpcChannel
   MutexLock mutex_;
   std::map<int64_t, OutstandingCall> outstandings_;
 
-  const std::map<std::string, ::google::protobuf::Service*>* services_;
+  const std::map<std::string, Service*>* services_;
 };
 typedef boost::shared_ptr<RpcChannel> RpcChannelPtr;
 
