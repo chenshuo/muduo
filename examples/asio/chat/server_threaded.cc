@@ -29,6 +29,11 @@ class ChatServer : boost::noncopyable
         boost::bind(&LengthHeaderCodec::onMessage, &codec_, _1, _2, _3));
   }
 
+  void setThreadNum(int numThreads)
+  {
+    server_.setThreadNum(numThreads);
+  }
+
   void start()
   {
     server_.start();
@@ -41,6 +46,7 @@ class ChatServer : boost::noncopyable
         << conn->peerAddress().toHostPort() << " is "
         << (conn->connected() ? "UP" : "DOWN");
 
+    MutexLockGuard lock(mutex_);
     if (conn->connected())
     {
       connections_.insert(conn);
@@ -55,6 +61,7 @@ class ChatServer : boost::noncopyable
                        const string& message,
                        Timestamp)
   {
+    MutexLockGuard lock(mutex_);
     for (ConnectionList::iterator it = connections_.begin();
         it != connections_.end();
         ++it)
@@ -67,6 +74,7 @@ class ChatServer : boost::noncopyable
   EventLoop* loop_;
   TcpServer server_;
   LengthHeaderCodec codec_;
+  MutexLock mutex_;
   ConnectionList connections_;
 };
 
@@ -79,12 +87,16 @@ int main(int argc, char* argv[])
     uint16_t port = static_cast<uint16_t>(atoi(argv[1]));
     InetAddress serverAddr(port);
     ChatServer server(&loop, serverAddr);
+    if (argc > 2)
+    {
+      server.setThreadNum(atoi(argv[2]));
+    }
     server.start();
     loop.loop();
   }
   else
   {
-    printf("Usage: %s port\n", argv[0]);
+    printf("Usage: %s port [thread_num]\n", argv[0]);
   }
 }
 

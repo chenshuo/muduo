@@ -20,6 +20,16 @@
 using namespace muduo;
 using namespace muduo::net;
 
+namespace
+{
+  int ProtobufVersionCheck()
+  {
+    GOOGLE_PROTOBUF_VERIFY_VERSION;
+    return 0;
+  }
+  int dummy = ProtobufVersionCheck();
+}
+
 void RpcCodec::send(const TcpConnectionPtr& conn,
                     const RpcMessage& message)
 {

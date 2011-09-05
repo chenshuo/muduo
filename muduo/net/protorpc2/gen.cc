@@ -338,6 +338,7 @@ namespace gpbc = google::protobuf::compiler;
 
 int main(int argc, char* argv[])
 {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
   gpbc::cpp::CppGenerator generator;
   return gpbc::PluginMain(argc, argv, &generator);
 }
