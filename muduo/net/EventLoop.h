@@ -89,7 +89,7 @@ class EventLoop : boost::noncopyable
   /// Cancels the timer.
   /// Safe to call from other threads.
   ///
-  // void cancel(TimerId timerId);
+  void cancel(TimerId timerId);
 
   // internal usage
   void wakeup();
