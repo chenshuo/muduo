@@ -25,7 +25,7 @@ class Thread : boost::noncopyable
   ~Thread();
 
   void start();
-  void join();
+  int join(); // return pthread_join()
 
   bool started() const { return started_; }
   // pthread_t pthreadId() const { return pthreadId_; }

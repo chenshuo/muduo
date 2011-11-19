@@ -4,7 +4,9 @@
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
 #include <muduo/base/Thread.h>
+#include <muduo/base/Logging.h>
 
+#include <errno.h>
 #include <unistd.h>
 #include <sys/syscall.h>
 #include <sys/types.h>
@@ -89,13 +91,17 @@ void Thread::start()
 {
   assert(!started_);
   started_ = true;
-  pthread_create(&pthreadId_, NULL, &startThread, this);
+  errno = pthread_create(&pthreadId_, NULL, &startThread, this);
+  if (errno != 0)
+  {
+    LOG_SYSFATAL << "Failed in pthread_create";
+  }
 }
 
-void Thread::join()
+int Thread::join()
 {
   assert(started_);
-  pthread_join(pthreadId_, NULL);
+  return pthread_join(pthreadId_, NULL);
 }
 
 void* Thread::startThread(void* obj)
