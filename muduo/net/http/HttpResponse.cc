@@ -31,6 +31,7 @@ void HttpResponse::appendToBuffer(Buffer* output) const
   {
     snprintf(buf, sizeof buf, "Content-Length: %zd\r\n", body_.size());
     output->append(buf);
+    output->append("Connection: Keep-Alive\r\n");
   }
 
   for (std::map<string, string>::const_iterator it = headers_.begin();

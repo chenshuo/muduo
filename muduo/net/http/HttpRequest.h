@@ -29,17 +29,30 @@ class HttpRequest : public muduo::copyable
  public:
   enum Method
   {
-    kUnknown, kGet, kPost, kHead, kPut, kDelete
+    kInvalid, kGet, kPost, kHead, kPut, kDelete
+  };
+  enum Version
+  {
+    kUnknown, kHttp10, kHttp11
   };
 
   HttpRequest()
-    : method_(kUnknown)
+    : method_(kInvalid),
+      version_(kUnknown)
   {
   }
 
+  void setVersion(Version v)
+  {
+    version_ = v;
+  }
+
+  Version getVersion() const
+  { return version_; }
+
   bool setMethod(const char* start, const char* end)
   {
-    assert(method_ == kUnknown);
+    assert(method_ == kInvalid);
     string m(start, end);
     if (m == "GET")
     {
@@ -63,9 +76,9 @@ class HttpRequest : public muduo::copyable
     }
     else
     {
-      method_ = kUnknown;
+      method_ = kInvalid;
     }
-    return method_ != kUnknown;
+    return method_ != kInvalid;
   }
 
   Method method() const
@@ -151,6 +164,7 @@ class HttpRequest : public muduo::copyable
 
  private:
   Method method_;
+  Version version_;
   string path_;
   Timestamp receiveTime_;
   std::map<string, string> headers_;

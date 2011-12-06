@@ -26,15 +26,31 @@ bool processRequestLine(const char* begin, const char* end, HttpContext* context
   bool succeed = false;
   const char* start = begin;
   const char* space = std::find(start, end, ' ');
-  if (space != end && context->request().setMethod(start, space))
+  HttpRequest& request = context->request();
+  if (space != end && request.setMethod(start, space))
   {
     start = space+1;
     space = std::find(start, end, ' ');
     if (space != end)
     {
-      context->request().setPath(start, space);
+      request.setPath(start, space);
       start = space+1;
-      succeed = end-start == 8 && std::equal(start, end, "HTTP/1.1");
+      succeed = end-start == 8 && std::equal(start, end-1, "HTTP/1.");
+      if (succeed)
+      {
+        if (*(end-1) == '1')
+        {
+          request.setVersion(HttpRequest::kHttp11);
+        }
+        else if (*(end-1) == '0')
+        {
+          request.setVersion(HttpRequest::kHttp10);
+        }
+        else
+        {
+          succeed = false;
+        }
+      }
     }
   }
   return succeed;
@@ -159,7 +175,10 @@ void HttpServer::onMessage(const TcpConnectionPtr& conn,
 
 void HttpServer::onRequest(const TcpConnectionPtr& conn, const HttpRequest& req)
 {
-  HttpResponse response(req.getHeader("Connection") == "close");
+  const string& connection = req.getHeader("Connection");
+  bool close = connection == "close" ||
+    (req.getVersion() == HttpRequest::kHttp10 && connection != "Keep-Alive");
+  HttpResponse response(close);
   httpCallback_(req, &response);
   Buffer buf;
   response.appendToBuffer(&buf);
