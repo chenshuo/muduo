@@ -40,7 +40,7 @@ void RpcCodec::send(const TcpConnectionPtr& conn,
   GOOGLE_DCHECK(message.IsInitialized()) << InitializationErrorMessage("serialize", message);
 
   int byte_size = message.ByteSize();
-  buf.ensureWritableBytes(byte_size);
+  buf.ensureWritableBytes(byte_size + kHeaderLen);
 
   uint8_t* start = reinterpret_cast<uint8_t*>(buf.beginWrite());
   uint8_t* end = message.SerializeWithCachedSizesToArray(start);

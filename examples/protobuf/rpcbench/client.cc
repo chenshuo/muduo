@@ -61,6 +61,7 @@ class RpcClient : boost::noncopyable
     if (conn->connected())
     {
       //channel_.reset(new RpcChannel(conn));
+      conn->setTcpNoDelay(true);
       channel_->setConnection(conn);
       allConnected_->countDown();
     }
