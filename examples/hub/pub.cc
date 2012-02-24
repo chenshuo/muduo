@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
         g_loop = loopThread.startLoop();
         PubSubClient client(g_loop, InetAddress(hostip, port), name);
         client.start();
-        
+
         string line;
         while (getline(std::cin, line))
         {

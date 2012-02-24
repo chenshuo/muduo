@@ -25,7 +25,7 @@ namespace ProcessInfo
   string username();
 
   string hostname();
-  
+
   /// read /proc/self/status
   string procStatus();
 

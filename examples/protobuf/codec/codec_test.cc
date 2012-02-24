@@ -194,7 +194,7 @@ int g_count = 0;
 
 void onMessage(const muduo::net::TcpConnectionPtr& conn,
                const MessagePtr& message,
-               muduo::Timestamp receiveTime) 
+               muduo::Timestamp receiveTime)
 {
   g_count++;
 }

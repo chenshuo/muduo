@@ -76,7 +76,7 @@ class RpcCodec
                                    Buffer*,
                                    Timestamp,
                                    ErrorCode);
- 
+
  private:
   ProtobufMessageCallback messageCallback_;
   ErrorCallback errorCallback_;
