@@ -1,8 +1,14 @@
+2012-02-24  Shuo Chen  <chenshuo@chenshuo.com>
+
+  * Support Keep-Alive for HTTP/1.0.
+  * Minor fixes.
+  * Version 0.3.0
+
 2011-09-18  Shuo Chen  <chenshuo@chenshuo.com>
 
   * EventLoop now supports cancelling timer.
   * Add two examples of asio chat server, demo copy-on-write
-  in mulrithreaded program.
+  in multithreaded program.
   * Version 0.2.9
 
 2011-09-04  Shuo Chen  <chenshuo@chenshuo.com>
