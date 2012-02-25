@@ -53,6 +53,7 @@ void ChargenServer::onConnection(const muduo::net::TcpConnectionPtr& conn)
     << (conn->connected() ? "UP" : "DOWN");
   if (conn->connected())
   {
+    conn->setTcpNoDelay(true);
     conn->send(message_);
   }
 }

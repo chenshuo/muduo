@@ -43,7 +43,15 @@ class EchoClient : boost::noncopyable
         << conn->peerAddress().toHostPort() << " is "
         << (conn->connected() ? "UP" : "DOWN");
 
-    conn->send(message_);
+    if (conn->connected())
+    {
+      conn->setTcpNoDelay(true);
+      conn->send(message_);
+    }
+    else
+    {
+      loop_->quit();
+    }
   }
 
   void onMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp time)
