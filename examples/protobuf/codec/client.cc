@@ -5,7 +5,6 @@
 #include <muduo/base/Logging.h>
 #include <muduo/base/Mutex.h>
 #include <muduo/net/EventLoop.h>
-#include <muduo/net/SocketsOps.h>
 #include <muduo/net/TcpClient.h>
 
 #include <boost/bind.hpp>

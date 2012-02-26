@@ -3,7 +3,6 @@
 #include <muduo/base/Logging.h>
 #include <muduo/base/Mutex.h>
 #include <muduo/net/EventLoop.h>
-#include <muduo/net/SocketsOps.h>
 #include <muduo/net/TcpServer.h>
 
 #include <boost/bind.hpp>

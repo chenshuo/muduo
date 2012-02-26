@@ -31,7 +31,6 @@ set(HEADERS
   EventLoop.h
   EventLoopThread.h
   InetAddress.h
-  SocketsOps.h
   TcpClient.h
   TcpConnection.h
   TcpServer.h
