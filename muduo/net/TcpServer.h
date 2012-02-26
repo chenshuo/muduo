@@ -12,7 +12,6 @@
 #define MUDUO_NET_TCPSERVER_H
 
 #include <muduo/base/Types.h>
-#include <muduo/net/Callbacks.h>
 #include <muduo/net/TcpConnection.h>
 
 #include <map>
@@ -25,7 +24,6 @@ namespace net
 {
 
 class Acceptor;
-class EventLoop;
 class EventLoopThreadPool;
 
 ///

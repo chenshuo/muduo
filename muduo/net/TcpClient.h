@@ -22,7 +22,6 @@ namespace net
 {
 
 class Connector;
-class EventLoop;
 typedef boost::shared_ptr<Connector> ConnectorPtr;
 
 class TcpClient : boost::noncopyable
