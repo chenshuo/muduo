@@ -1,7 +1,14 @@
+2012-03-01  Shuo Chen  <chenshuo@chenshuo.com>
+
+  * Support multi-threaded http server.
+  * Do not install SocketsOps.h
+  * Version 0.3.1
+
 2012-02-24  Shuo Chen  <chenshuo@chenshuo.com>
 
   * Support Keep-Alive for HTTP/1.0.
-  * Minor fixes.
+  * Check return value of pthread_create.
+  * Minor fixes (set TcpNoDelay, stop() in ThreadPool::dtor)
   * Version 0.3.0
 
 2011-09-18  Shuo Chen  <chenshuo@chenshuo.com>

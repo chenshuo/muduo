@@ -37,6 +37,7 @@ class BlockingQueue : boost::noncopyable
   T take()
   {
     MutexLockGuard lock(mutex_);
+    // always use a while-loop, due to spurious wakeup
     while (queue_.empty())
     {
       notEmpty_.wait();

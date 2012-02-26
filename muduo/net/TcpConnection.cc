@@ -272,7 +272,6 @@ void TcpConnection::handleWrite()
     else
     {
       LOG_SYSERR << "TcpConnection::handleWrite";
-      abort();  // FIXME
     }
   }
   else
