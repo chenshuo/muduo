@@ -48,6 +48,7 @@ class EchoServer
     LOG_TRACE << conn->peerAddress().toHostPort() << " -> "
         << conn->localAddress().toHostPort() << " is "
         << (conn->connected() ? "UP" : "DOWN");
+    conn->setTcpNoDelay(true);
   }
 
   void onMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp)

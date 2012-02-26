@@ -46,9 +46,14 @@ class DiscardClient : boost::noncopyable
         << (conn->connected() ? "UP" : "DOWN");
 
     if (conn->connected())
+    {
+      conn->setTcpNoDelay(true);
       conn->send(message_);
+    }
     else
+    {
       loop_->quit();
+    }
   }
 
   void onMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp time)
@@ -58,6 +63,7 @@ class DiscardClient : boost::noncopyable
 
   void onWriteComplete(const TcpConnectionPtr& conn)
   {
+    LOG_INFO << "write complete " << message_.size();
     conn->send(message_);
   }
 
