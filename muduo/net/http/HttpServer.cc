@@ -141,7 +141,7 @@ HttpServer::~HttpServer()
 
 void HttpServer::start()
 {
-  LOG_INFO << "HttpServer[" << server_.name()
+  LOG_WARN << "HttpServer[" << server_.name()
     << "] starts listenning on " << server_.hostport();
   server_.start();
 }
