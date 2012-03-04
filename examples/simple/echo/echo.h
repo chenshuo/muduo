@@ -10,7 +10,7 @@ class EchoServer
   EchoServer(muduo::net::EventLoop* loop,
              const muduo::net::InetAddress& listenAddr);
 
-  void start();
+  void start();  // calls server_.start();
 
  private:
   void onConnection(const muduo::net::TcpConnectionPtr& conn);

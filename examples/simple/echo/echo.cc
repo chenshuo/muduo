@@ -35,7 +35,8 @@ void EchoServer::onMessage(const TcpConnectionPtr& conn,
                            Timestamp time)
 {
   string msg(buf->retrieveAsString());
-  LOG_INFO << conn->name() << " echo " << msg.size() << " bytes at " << time.toString();
+  LOG_INFO << conn->name() << " echo " << msg.size() << " bytes, "
+           << "data received at " << time.toString();
   conn->send(msg);
 }
 
