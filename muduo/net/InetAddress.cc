@@ -47,10 +47,10 @@ InetAddress::InetAddress(uint16_t port)
   addr_.sin_port = sockets::hostToNetwork16(port);
 }
 
-InetAddress::InetAddress(const string& ip, uint16_t port)
+InetAddress::InetAddress(const StringPiece& ip, uint16_t port)
 {
   bzero(&addr_, sizeof addr_);
-  sockets::fromHostPort(ip.c_str(), port, &addr_);
+  sockets::fromHostPort(ip.data(), port, &addr_);
 }
 
 string InetAddress::toHostPort() const

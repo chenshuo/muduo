@@ -27,6 +27,7 @@ install(TARGETS muduo_net DESTINATION lib)
 set(HEADERS
   Buffer.h
   Callbacks.h
+  Channel.h
   Endian.h
   EventLoop.h
   EventLoopThread.h
