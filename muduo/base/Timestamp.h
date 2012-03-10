@@ -47,6 +47,8 @@ class Timestamp : public muduo::copyable,
 
   // for internal usage.
   int64_t microSecondsSinceEpoch() const { return microSecondsSinceEpoch_; }
+  time_t secondsSinceEpoch() const
+  { return microSecondsSinceEpoch_ / kMicroSecondsPerSecond; }
 
   ///
   /// Get time of now.
