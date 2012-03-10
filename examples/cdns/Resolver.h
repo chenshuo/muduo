@@ -57,10 +57,12 @@ class Resolver : boost::noncopyable
 
   muduo::net::EventLoop* loop_;
   ares_channel ctx_;
+  bool timerActive_;
   typedef boost::ptr_map<int, muduo::net::Channel> ChannelList;
   ChannelList channels_;
 
   void onRead(int sockfd, muduo::Timestamp t);
+  void onTimer();
   void onQueryResult(int status, struct hostent* result, const Callback& cb);
   void onSockCreate(int sockfd, int type);
   void onSockStateChange(int sockfd, bool read, bool write);

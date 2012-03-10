@@ -1,5 +1,6 @@
 #include <examples/cdns/Resolver.h>
 
+#include <muduo/base/Logging.h>
 #include <muduo/net/Channel.h>
 #include <muduo/net/EventLoop.h>
 
@@ -17,9 +18,21 @@ using namespace muduo;
 using namespace muduo::net;
 using namespace cdns;
 
+namespace
+{
+double getSeconds(struct timeval* tv)
+{
+  if (tv)
+    return double(tv->tv_sec) + double(tv->tv_usec)/1000000.0;
+  else
+    return -1.0;
+}
+}
+
 Resolver::Resolver(EventLoop* loop, Option opt)
   : loop_(loop),
-    ctx_(NULL)
+    ctx_(NULL),
+    timerActive_(false)
 {
   static char lookups[] = "b";
   struct ares_options options;
@@ -30,6 +43,8 @@ Resolver::Resolver(EventLoop* loop, Option opt)
   optmask |= ARES_OPT_SOCK_STATE_CB;
   options.sock_state_cb = &Resolver::ares_sock_state_callback;
   options.sock_state_cb_data = this;
+  optmask |= ARES_OPT_TIMEOUT;
+  options.timeout = 2;
   if (opt == kDNSonly)
   {
     optmask |= ARES_OPT_LOOKUPS;
@@ -58,20 +73,45 @@ bool Resolver::resolve(const StringPiece& hostname, const Callback& cb)
       &Resolver::ares_host_callback, queryData);
   struct timeval tv;
   struct timeval* tvp = ares_timeout(ctx_, NULL, &tv);
-  // FIXME timer
-  printf("timeout %ld.%06ld\n", tvp->tv_sec, tv.tv_usec);
+  double timeout = getSeconds(tvp);
+  LOG_DEBUG << "timeout " <<  timeout << " active " << timerActive_ << " " << queryData;
+  if (!timerActive_)
+  {
+    loop_->runAfter(timeout, boost::bind(&Resolver::onTimer, this));
+    timerActive_ = true;
+  }
   return queryData != NULL;
 }
 
 void Resolver::onRead(int sockfd, Timestamp t)
 {
-  printf("onRead %d\n", sockfd);
+  LOG_DEBUG << "onRead " << sockfd << " at " << t.toString();
   ares_process_fd(ctx_, sockfd, ARES_SOCKET_BAD);
+}
+
+void Resolver::onTimer()
+{
+  assert(timerActive_ == true);
+  ares_process_fd(ctx_, ARES_SOCKET_BAD, ARES_SOCKET_BAD);
+  struct timeval tv;
+  struct timeval* tvp = ares_timeout(ctx_, NULL, &tv);
+  double timeout = getSeconds(tvp);
+  LOG_DEBUG << "onTimer " << loop_->pollReturnTime().toString()
+            << " timeout " <<  timeout;
+
+  if (timeout < 0)
+  {
+    timerActive_ = false;
+  }
+  else
+  {
+    loop_->runAfter(timeout, boost::bind(&Resolver::onTimer, this));
+  }
 }
 
 void Resolver::onQueryResult(int status, struct hostent* result, const Callback& callback)
 {
-  printf("onQueryResult %p %d\n", result, status);
+  LOG_DEBUG << "onQueryResult " << status;
   struct sockaddr_in addr;
   bzero(&addr, sizeof addr);
   addr.sin_family = AF_INET;
