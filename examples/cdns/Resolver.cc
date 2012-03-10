@@ -9,6 +9,7 @@
 #include <ares.h>
 #include <netdb.h>
 #include <arpa/inet.h>  // inet_ntop
+#include <netinet/in.h>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -27,6 +28,18 @@ double getSeconds(struct timeval* tv)
   else
     return -1.0;
 }
+
+const char* getSocketType(int type)
+{
+  if (type == SOCK_DGRAM)
+    return "UDP";
+  else if (type == SOCK_STREAM)
+    return "TCP";
+  else
+    return "Unknown";
+}
+
+const bool kDebug = false;
 }
 
 Resolver::Resolver(EventLoop* loop, Option opt)
@@ -67,14 +80,13 @@ Resolver::~Resolver()
 bool Resolver::resolve(const StringPiece& hostname, const Callback& cb)
 {
   loop_->assertInLoopThread();
-  printf("resolve %s\n", hostname.data());
   QueryData* queryData = new QueryData(this, cb);
   ares_gethostbyname(ctx_, hostname.data(), AF_INET,
       &Resolver::ares_host_callback, queryData);
   struct timeval tv;
   struct timeval* tvp = ares_timeout(ctx_, NULL, &tv);
   double timeout = getSeconds(tvp);
-  LOG_DEBUG << "timeout " <<  timeout << " active " << timerActive_ << " " << queryData;
+  LOG_DEBUG << "timeout " <<  timeout << " active " << timerActive_;
   if (!timerActive_)
   {
     loop_->runAfter(timeout, boost::bind(&Resolver::onTimer, this));
@@ -96,8 +108,7 @@ void Resolver::onTimer()
   struct timeval tv;
   struct timeval* tvp = ares_timeout(ctx_, NULL, &tv);
   double timeout = getSeconds(tvp);
-  LOG_DEBUG << "onTimer " << loop_->pollReturnTime().toString()
-            << " timeout " <<  timeout;
+  LOG_DEBUG << loop_->pollReturnTime().toString() << " next timeout " <<  timeout;
 
   if (timeout < 0)
   {
@@ -118,20 +129,23 @@ void Resolver::onQueryResult(int status, struct hostent* result, const Callback&
   addr.sin_port = 0;
   if (result)
   {
-    printf("h_name %s\n", result->h_name);
-    for (char** alias = result->h_aliases; *alias != NULL; ++alias)
-    {
-      printf("alias: %s\n", *alias);
-    }
-    // printf("ttl %d\n", ttl);
-    // printf("h_length %d\n", result->h_length);
-    for (char** haddr = result->h_addr_list; *haddr != NULL; ++haddr)
-    {
-      char buf[32];
-      inet_ntop(AF_INET, *haddr, buf, sizeof buf);
-      printf("  %s\n", buf);
-    }
     addr.sin_addr = *reinterpret_cast<in_addr*>(result->h_addr);
+    if (kDebug)
+    {
+      printf("h_name %s\n", result->h_name);
+      for (char** alias = result->h_aliases; *alias != NULL; ++alias)
+      {
+        printf("alias: %s\n", *alias);
+      }
+      // printf("ttl %d\n", ttl);
+      // printf("h_length %d\n", result->h_length);
+      for (char** haddr = result->h_addr_list; *haddr != NULL; ++haddr)
+      {
+        char buf[32];
+        inet_ntop(AF_INET, *haddr, buf, sizeof buf);
+        printf("  %s\n", buf);
+      }
+    }
   }
   InetAddress inet(addr);
   callback(inet);
@@ -170,21 +184,20 @@ void Resolver::ares_host_callback(void* data, int status, int timeouts, struct h
 {
   QueryData* query = static_cast<QueryData*>(data);
 
-  printf("ares_host_callback %p\n", query);
   query->owner->onQueryResult(status, hostent, query->callback);
   delete query;
 }
 
 int Resolver::ares_sock_create_callback(int sockfd, int type, void* data)
 {
-  printf("fd %d type %d\n", sockfd, type);
+  LOG_TRACE << "sockfd=" << sockfd << " type=" << getSocketType(type);
   static_cast<Resolver*>(data)->onSockCreate(sockfd, type);
   return 0;
 }
 
 void Resolver::ares_sock_state_callback(void* data, int sockfd, int read, int write)
 {
-  printf("sock_state %d read %d write %d\n", sockfd, read ,write);
+  LOG_TRACE << "sockfd=" << sockfd << " read=" << read << " write=" << write;
   static_cast<Resolver*>(data)->onSockStateChange(sockfd, read, write);
 }
 
