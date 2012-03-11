@@ -12,7 +12,6 @@ set(CXX_FLAGS
  # -DMUDUO_STD_STRING
  -Wall
  -Wextra
- # -m32
  -Werror
  -Wconversion
  -Wno-unused-parameter
@@ -26,6 +25,9 @@ set(CXX_FLAGS
  # -std=c++0x
  -rdynamic
  )
+if(CMAKE_BUILD_BITS EQUAL 32)
+  list(APPEND CXX_FLAGS "-m32")
+endif()
 string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS}")
 
 set(CMAKE_CXX_COMPILER "g++")
@@ -47,7 +49,6 @@ include_directories(${PROJECT_SOURCE_DIR})
 
 string(TOUPPER ${CMAKE_BUILD_TYPE} BUILD_TYPE)
 message(STATUS "CXX_FLAGS = " ${CMAKE_CXX_FLAGS} " " ${CMAKE_CXX_FLAGS_${BUILD_TYPE}})
-# message(STATUS "INCLUDE_DIRS = " ??? )
 
 add_subdirectory(muduo/base)
 add_subdirectory(muduo/net)
