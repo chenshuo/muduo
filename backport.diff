@@ -1,7 +1,7 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -9,19 +9,19 @@ endif()
+@@ -9,18 +9,18 @@ endif()
  set(CXX_FLAGS
   -g
   # -DVALGRIND
@@ -9,7 +9,6 @@ diff --git a/CMakeLists.txt b/CMakeLists.txt
 + -DMUDUO_STD_STRING
   -Wall
   -Wextra
-  # -m32
   -Werror
   -Wconversion
   -Wno-unused-parameter
@@ -25,14 +24,6 @@ diff --git a/CMakeLists.txt b/CMakeLists.txt
   # -MMD
   # -std=c++0x
   -rdynamic
-@@ -29,6 +29,7 @@ set(CXX_FLAGS
- string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS}")
- 
- set(CMAKE_CXX_COMPILER "g++")
-+#set(CMAKE_CXX_COMPILER "g++4")
- #set(CMAKE_CXX_COMPILER "icpc")
- set(CMAKE_CXX_FLAGS_DEBUG "-O0")
- set(CMAKE_CXX_FLAGS_RELEASE "-O2 -finline-limit=1000 -DNDEBUG")
 diff --git a/examples/idleconnection/CMakeLists.txt b/examples/idleconnection/CMakeLists.txt
 --- a/examples/idleconnection/CMakeLists.txt
 +++ b/examples/idleconnection/CMakeLists.txt
@@ -220,7 +211,7 @@ diff --git a/muduo/net/EventLoop.cc b/muduo/net/EventLoop.cc
      // TODO sort channel by priority
      eventHandling_ = true;
      for (ChannelList::iterator it = activeChannels_.begin();
-@@ -196,7 +190,7 @@ void EventLoop::abortNotInLoopThread()
+@@ -201,7 +195,7 @@ void EventLoop::abortNotInLoopThread()
  void EventLoop::wakeup()
  {
    uint64_t one = 1;
@@ -229,7 +220,7 @@ diff --git a/muduo/net/EventLoop.cc b/muduo/net/EventLoop.cc
    if (n != sizeof one)
    {
      LOG_ERROR << "EventLoop::wakeup() writes " << n << " bytes instead of 8";
-@@ -206,7 +200,7 @@ void EventLoop::wakeup()
+@@ -211,7 +205,7 @@ void EventLoop::wakeup()
  void EventLoop::handleRead()
  {
    uint64_t one = 1;
@@ -376,13 +367,14 @@ diff --git a/muduo/net/TimerQueue.cc b/muduo/net/TimerQueue.cc
  }
  
  }
-@@ -88,19 +44,12 @@ using namespace muduo::net::detail;
+@@ -88,20 +44,13 @@ using namespace muduo::net::detail;
  
  TimerQueue::TimerQueue(EventLoop* loop)
    : loop_(loop),
 -    timerfd_(createTimerfd()),
 -    timerfdChannel_(loop, timerfd_),
-     timers_()
+     timers_(),
+     callingExpiredTimers_(false)
  {
 -  timerfdChannel_.setReadCallback(
 -      boost::bind(&TimerQueue::handleRead, this));
@@ -396,7 +388,7 @@ diff --git a/muduo/net/TimerQueue.cc b/muduo/net/TimerQueue.cc
    // do not remove channel, since we're in EventLoop::dtor();
    for (TimerList::iterator it = timers_.begin();
        it != timers_.end(); ++it)
-@@ -122,19 +71,26 @@ TimerId TimerQueue::addTimer(const TimerCallback& cb,
+@@ -129,11 +78,19 @@ void TimerQueue::cancel(TimerId timerId)
  void TimerQueue::scheduleInLoop(Timer* timer)
  {
    loop_->assertInLoopThread();
@@ -419,6 +411,10 @@ diff --git a/muduo/net/TimerQueue.cc b/muduo/net/TimerQueue.cc
    }
  }
  
+@@ -157,11 +114,10 @@ void TimerQueue::cancelInLoop(TimerId ti
+   assert(timers_.size() == activeTimers_.size());
+ }
+ 
 -void TimerQueue::handleRead()
 +void TimerQueue::processTimers()
  {
@@ -428,7 +424,7 @@ diff --git a/muduo/net/TimerQueue.cc b/muduo/net/TimerQueue.cc
  
    std::vector<Entry> expired = getExpired(now);
  
-@@ -183,11 +139,6 @@ void TimerQueue::reset(const std::vector<Entry>& expired, Timestamp now)
+@@ -225,11 +181,6 @@ void TimerQueue::reset(const std::vector
    {
      nextExpire = timers_.begin()->second->expiration();
    }
@@ -443,26 +439,26 @@ diff --git a/muduo/net/TimerQueue.cc b/muduo/net/TimerQueue.cc
 diff --git a/muduo/net/TimerQueue.h b/muduo/net/TimerQueue.h
 --- a/muduo/net/TimerQueue.h
 +++ b/muduo/net/TimerQueue.h
-@@ -49,6 +49,9 @@ class TimerQueue : boost::noncopyable
-                    Timestamp when,
-                    double interval);
+@@ -51,6 +51,9 @@ class TimerQueue : boost::noncopyable
+ 
+   void cancel(TimerId timerId);
  
 +  int getTimeout() const;
 +  void processTimers();
 +
-   // void cancel(TimerId timerId);
- 
   private:
-@@ -58,8 +61,6 @@ class TimerQueue : boost::noncopyable
-   typedef std::set<Entry> TimerList;
+ 
+   // FIXME: use unique_ptr<Timer> instead of raw pointers.
+@@ -61,8 +64,6 @@ class TimerQueue : boost::noncopyable
  
    void scheduleInLoop(Timer* timer);
+   void cancelInLoop(TimerId timerId);
 -  // called when timerfd arms
 -  void handleRead();
    // move out all expired timers
    std::vector<Entry> getExpired(Timestamp now);
    void reset(const std::vector<Entry>& expired, Timestamp now);
-@@ -67,9 +68,6 @@ class TimerQueue : boost::noncopyable
+@@ -70,9 +71,6 @@ class TimerQueue : boost::noncopyable
    bool insert(Timer* timer);
  
    EventLoop* loop_;
@@ -470,8 +466,8 @@ diff --git a/muduo/net/TimerQueue.h b/muduo/net/TimerQueue.h
 -  Channel timerfdChannel_;
 -  // Timer list sorted by expiration
    TimerList timers_;
- };
  
+   // for cancel()
 diff --git a/muduo/net/poller/EPollPoller.cc b/muduo/net/poller/EPollPoller.cc
 --- a/muduo/net/poller/EPollPoller.cc
 +++ b/muduo/net/poller/EPollPoller.cc
