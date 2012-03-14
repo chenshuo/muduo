@@ -23,6 +23,7 @@ namespace sockets
 
 // the inline assembler code makes type blur,
 // so we disable warnings for a while.
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 inline uint64_t hostToNetwork64(uint64_t host64)
@@ -54,8 +55,7 @@ inline uint16_t networkToHost16(uint16_t net16)
 {
   return be16toh(net16);
 }
-#pragma GCC diagnostic error "-Wconversion"
-#pragma GCC diagnostic error "-Wold-style-cast"
+#pragma GCC diagnostic pop
 
 }
 }
