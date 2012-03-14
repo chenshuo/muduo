@@ -39,7 +39,6 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
 find_package(Boost REQUIRED)
 find_package(Protobuf)
-find_path(PROTOBUF_PLUGIN google/protobuf/compiler/cpp/cpp_generator.h)
 find_path(CARES_INCLUDE_DIR ares.h)
 find_library(CARES_LIBRARY NAMES cares)
 
