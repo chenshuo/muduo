@@ -31,6 +31,7 @@ set(HEADERS
   Endian.h
   EventLoop.h
   EventLoopThread.h
+  EventLoopThreadPool.h
   InetAddress.h
   TcpClient.h
   TcpConnection.h

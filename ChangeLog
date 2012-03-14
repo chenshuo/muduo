@@ -1,3 +1,10 @@
+2012-03-16  Shuo Chen  <chenshuo@chenshuo.com>
+
+  * Remove net/protorpc2
+    moved to http://github.com/chenshuo/muduo-protorpc
+  * Install EventLoopThreadPool.h, rpc.proto and rpc.pb.h
+  * Version 0.3.3
+
 2012-03-11  Shuo Chen  <chenshuo@chenshuo.com>
 
   * Add asynchronous DNS stub resolver based on c-ares.
