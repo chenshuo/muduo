@@ -7,15 +7,13 @@
 #include <muduo/base/Logging.h>
 #include <muduo/net/EventLoop.h>
 
-#include <boost/bind.hpp>
-
 using namespace muduo;
 using namespace muduo::net;
 
 int main()
 {
   LOG_INFO << "pid = " << getpid();
-  EventLoop loop;
+  EventLoop loop;  // one loop shared by multiple servers
 
   ChargenServer ChargenServer(&loop, InetAddress(2019));
   ChargenServer.start();

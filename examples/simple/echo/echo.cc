@@ -4,11 +4,11 @@
 
 #include <boost/bind.hpp>
 
-using namespace muduo;
-using namespace muduo::net;
+// using namespace muduo;
+// using namespace muduo::net;
 
-EchoServer::EchoServer(EventLoop* loop,
-                       const InetAddress& listenAddr)
+EchoServer::EchoServer(muduo::net::EventLoop* loop,
+                       const muduo::net::InetAddress& listenAddr)
   : loop_(loop),
     server_(loop, listenAddr, "EchoServer")
 {
@@ -23,18 +23,18 @@ void EchoServer::start()
   server_.start();
 }
 
-void EchoServer::onConnection(const TcpConnectionPtr& conn)
+void EchoServer::onConnection(const muduo::net::TcpConnectionPtr& conn)
 {
   LOG_INFO << "EchoServer - " << conn->peerAddress().toHostPort() << " -> "
-    << conn->localAddress().toHostPort() << " is "
-    << (conn->connected() ? "UP" : "DOWN");
+           << conn->localAddress().toHostPort() << " is "
+           << (conn->connected() ? "UP" : "DOWN");
 }
 
-void EchoServer::onMessage(const TcpConnectionPtr& conn,
-                           Buffer* buf,
-                           Timestamp time)
+void EchoServer::onMessage(const muduo::net::TcpConnectionPtr& conn,
+                           muduo::net::Buffer* buf,
+                           muduo::Timestamp time)
 {
-  string msg(buf->retrieveAsString());
+  muduo::string msg(buf->retrieveAsString());
   LOG_INFO << conn->name() << " echo " << msg.size() << " bytes, "
            << "data received at " << time.toString();
   conn->send(msg);

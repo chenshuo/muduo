@@ -8,8 +8,8 @@
 using namespace muduo;
 using namespace muduo::net;
 
-DaytimeServer::DaytimeServer(muduo::net::EventLoop* loop,
-                             const muduo::net::InetAddress& listenAddr)
+DaytimeServer::DaytimeServer(EventLoop* loop,
+                             const InetAddress& listenAddr)
   : loop_(loop),
     server_(loop, listenAddr, "DaytimeServer")
 {
@@ -24,11 +24,11 @@ void DaytimeServer::start()
   server_.start();
 }
 
-void DaytimeServer::onConnection(const muduo::net::TcpConnectionPtr& conn)
+void DaytimeServer::onConnection(const TcpConnectionPtr& conn)
 {
   LOG_INFO << "DaytimeServer - " << conn->peerAddress().toHostPort() << " -> "
-    << conn->localAddress().toHostPort() << " is "
-    << (conn->connected() ? "UP" : "DOWN");
+           << conn->localAddress().toHostPort() << " is "
+           << (conn->connected() ? "UP" : "DOWN");
   if (conn->connected())
   {
     conn->send(Timestamp::now().toFormattedString() + "\n");
@@ -36,11 +36,12 @@ void DaytimeServer::onConnection(const muduo::net::TcpConnectionPtr& conn)
   }
 }
 
-void DaytimeServer::onMessage(const muduo::net::TcpConnectionPtr& conn,
-                 muduo::net::Buffer* buf,
-                 muduo::Timestamp time)
+void DaytimeServer::onMessage(const TcpConnectionPtr& conn,
+                              Buffer* buf,
+                              Timestamp time)
 {
   string msg(buf->retrieveAsString());
-  LOG_INFO << conn->name() << " discards " << msg.size() << " bytes at " << time.toString();
+  LOG_INFO << conn->name() << " discards " << msg.size()
+           << " bytes received at " << time.toString();
 }
 

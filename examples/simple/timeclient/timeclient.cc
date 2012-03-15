@@ -34,14 +34,20 @@ class TimeClient : boost::noncopyable
   }
 
  private:
+
+  EventLoop* loop_;
+  TcpClient client_;
+
   void onConnection(const TcpConnectionPtr& conn)
   {
     LOG_INFO << conn->localAddress().toHostPort() << " -> "
-        << conn->peerAddress().toHostPort() << " is "
-        << (conn->connected() ? "UP" : "DOWN");
+             << conn->peerAddress().toHostPort() << " is "
+             << (conn->connected() ? "UP" : "DOWN");
 
     if (!conn->connected())
+    {
       loop_->quit();
+    }
   }
 
   void onMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp receiveTime)
@@ -49,11 +55,11 @@ class TimeClient : boost::noncopyable
     if (buf->readableBytes() >= sizeof(int32_t))
     {
       const void* data = buf->peek();
-      int32_t time = *static_cast<const int32_t*>(data);
+      int32_t be32 = *static_cast<const int32_t*>(data);
       buf->retrieve(sizeof(int32_t));
-      time_t servertime = sockets::networkToHost32(time);
-      Timestamp t(servertime * Timestamp::kMicroSecondsPerSecond);
-      LOG_INFO << "Server time = " << servertime << ", " << t.toFormattedString();
+      time_t time = sockets::networkToHost32(be32);
+      Timestamp ts(time * Timestamp::kMicroSecondsPerSecond);
+      LOG_INFO << "Server time = " << time << ", " << ts.toFormattedString();
     }
     else
     {
@@ -61,9 +67,6 @@ class TimeClient : boost::noncopyable
                << " at " << receiveTime.toFormattedString();
     }
   }
-
-  EventLoop* loop_;
-  TcpClient client_;
 };
 
 int main(int argc, char* argv[])

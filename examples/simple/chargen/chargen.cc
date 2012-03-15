@@ -9,8 +9,8 @@
 using namespace muduo;
 using namespace muduo::net;
 
-ChargenServer::ChargenServer(muduo::net::EventLoop* loop,
-                             const muduo::net::InetAddress& listenAddr,
+ChargenServer::ChargenServer(EventLoop* loop,
+                             const InetAddress& listenAddr,
                              bool print)
   : loop_(loop),
     server_(loop, listenAddr, "ChargenServer"),
@@ -46,11 +46,11 @@ void ChargenServer::start()
   server_.start();
 }
 
-void ChargenServer::onConnection(const muduo::net::TcpConnectionPtr& conn)
+void ChargenServer::onConnection(const TcpConnectionPtr& conn)
 {
   LOG_INFO << "ChargenServer - " << conn->peerAddress().toHostPort() << " -> "
-    << conn->localAddress().toHostPort() << " is "
-    << (conn->connected() ? "UP" : "DOWN");
+           << conn->localAddress().toHostPort() << " is "
+           << (conn->connected() ? "UP" : "DOWN");
   if (conn->connected())
   {
     conn->setTcpNoDelay(true);
@@ -58,12 +58,13 @@ void ChargenServer::onConnection(const muduo::net::TcpConnectionPtr& conn)
   }
 }
 
-void ChargenServer::onMessage(const muduo::net::TcpConnectionPtr& conn,
-                 muduo::net::Buffer* buf,
-                 muduo::Timestamp time)
+void ChargenServer::onMessage(const TcpConnectionPtr& conn,
+                              Buffer* buf,
+                              Timestamp time)
 {
   string msg(buf->retrieveAsString());
-  LOG_INFO << conn->name() << " discards " << msg.size() << " bytes at " << time.toString();
+  LOG_INFO << conn->name() << " discards " << msg.size()
+           << " bytes received at " << time.toString();
 }
 
 void ChargenServer::onWriteComplete(const TcpConnectionPtr& conn)

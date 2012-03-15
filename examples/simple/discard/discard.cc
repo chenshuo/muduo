@@ -7,8 +7,8 @@
 using namespace muduo;
 using namespace muduo::net;
 
-DiscardServer::DiscardServer(muduo::net::EventLoop* loop,
-                             const muduo::net::InetAddress& listenAddr)
+DiscardServer::DiscardServer(EventLoop* loop,
+                             const InetAddress& listenAddr)
   : loop_(loop),
     server_(loop, listenAddr, "DiscardServer")
 {
@@ -23,18 +23,19 @@ void DiscardServer::start()
   server_.start();
 }
 
-void DiscardServer::onConnection(const muduo::net::TcpConnectionPtr& conn)
+void DiscardServer::onConnection(const TcpConnectionPtr& conn)
 {
   LOG_INFO << "DiscardServer - " << conn->peerAddress().toHostPort() << " -> "
-    << conn->localAddress().toHostPort() << " is "
-    << (conn->connected() ? "UP" : "DOWN");
+           << conn->localAddress().toHostPort() << " is "
+           << (conn->connected() ? "UP" : "DOWN");
 }
 
-void DiscardServer::onMessage(const muduo::net::TcpConnectionPtr& conn,
-                 muduo::net::Buffer* buf,
-                 muduo::Timestamp time)
+void DiscardServer::onMessage(const TcpConnectionPtr& conn,
+                              Buffer* buf,
+                              Timestamp time)
 {
   string msg(buf->retrieveAsString());
-  LOG_INFO << conn->name() << " discards " << msg.size() << " bytes at " << time.toString();
+  LOG_INFO << conn->name() << " discards " << msg.size()
+           << " bytes received at " << time.toString();
 }
 
