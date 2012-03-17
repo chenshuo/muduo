@@ -16,6 +16,8 @@ add_subdirectory(shorturl)
 add_subdirectory(sudoku)
 if(CARES_INCLUDE_DIR AND CARES_LIBRARY)
   add_subdirectory(cdns)
+else()
+  add_subdirectory(cdns EXCLUDE_FROM_ALL)
 endif()
 
 add_subdirectory(asio/tutorial)
