@@ -10,6 +10,17 @@ using std::endl;
 typedef boost::shared_ptr<muduo::Query> QueryPtr;
 typedef boost::shared_ptr<muduo::Answer> AnswerPtr;
 
+void test_down_pointer_cast()
+{
+  ::boost::shared_ptr<google::protobuf::Message> msg(new muduo::Query);
+  ::boost::shared_ptr<muduo::Query> query(muduo::down_pointer_cast<muduo::Query>(msg));
+  assert(msg && query);
+  if (!query)
+  {
+    abort();
+  }
+}
+
 void onQuery(const muduo::net::TcpConnectionPtr&,
              const QueryPtr& message,
              muduo::Timestamp)
@@ -34,6 +45,7 @@ void onUnknownMessageType(const muduo::net::TcpConnectionPtr&,
 int main()
 {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
+  test_down_pointer_cast();
 
   ProtobufDispatcher dispatcher(onUnknownMessageType);
   dispatcher.registerMessageCallback<muduo::Query>(onQuery);

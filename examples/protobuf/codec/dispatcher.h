@@ -55,7 +55,7 @@ class CallbackT : public Callback
                          const MessagePtr& message,
                          muduo::Timestamp receiveTime) const
   {
-    boost::shared_ptr<T> concrete = boost::dynamic_pointer_cast<T>(message);
+    boost::shared_ptr<T> concrete = muduo::down_pointer_cast<T>(message);
     assert(concrete != NULL);
     callback_(conn, concrete, receiveTime);
   }

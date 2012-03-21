@@ -18,6 +18,21 @@
 
 namespace muduo
 {
+
+// Adapted from google-protobuf stubs/common.h
+// see License in muduo/base/Types.h
+template<typename To, typename From>
+inline ::boost::shared_ptr<To> down_pointer_cast(const ::boost::shared_ptr<From>& f) {
+  if (false) {
+    implicit_cast<From*, To*>(0);
+  }
+
+#ifndef NDEBUG
+  assert(f == NULL || dynamic_cast<To*>(get_pointer(f)) != NULL);
+#endif
+  return ::boost::static_pointer_cast<To>(f);
+}
+
 namespace net
 {
 

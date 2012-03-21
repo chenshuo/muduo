@@ -19,7 +19,7 @@ void onQuery(const muduo::net::TcpConnectionPtr&,
              muduo::Timestamp)
 {
   cout << "onQuery: " << message->GetTypeName() << endl;
-  boost::shared_ptr<muduo::Query> query = boost::dynamic_pointer_cast<muduo::Query>(message);
+  boost::shared_ptr<muduo::Query> query = muduo::down_pointer_cast<muduo::Query>(message);
   assert(query != NULL);
 }
 
@@ -28,7 +28,7 @@ void onAnswer(const muduo::net::TcpConnectionPtr&,
               muduo::Timestamp)
 {
   cout << "onAnswer: " << message->GetTypeName() << endl;
-  boost::shared_ptr<muduo::Answer> answer = boost::dynamic_pointer_cast<muduo::Answer>(message);
+  boost::shared_ptr<muduo::Answer> answer = muduo::down_pointer_cast<muduo::Answer>(message);
   assert(answer != NULL);
 }
 
