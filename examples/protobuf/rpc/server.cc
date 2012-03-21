@@ -39,5 +39,6 @@ int main()
   server.registerService(&impl);
   server.start();
   loop.loop();
+  google::protobuf::ShutdownProtobufLibrary();
 }
 

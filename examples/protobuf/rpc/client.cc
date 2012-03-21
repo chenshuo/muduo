@@ -73,6 +73,7 @@ int main(int argc, char* argv[])
     RpcClient rpcClient(&loop, serverAddr);
     rpcClient.connect();
     loop.loop();
+    google::protobuf::ShutdownProtobufLibrary();
   }
   else
   {

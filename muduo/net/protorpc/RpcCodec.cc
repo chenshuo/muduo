@@ -33,6 +33,7 @@ namespace
 void RpcCodec::send(const TcpConnectionPtr& conn,
                     const RpcMessage& message)
 {
+  // FIXME: can we move serialization & checksum to other thread?
   Buffer buf;
   buf.append("RPC0", 4);
 
@@ -76,9 +77,11 @@ void RpcCodec::onMessage(const TcpConnectionPtr& conn,
     else if (buf->readableBytes() >= implicit_cast<size_t>(len + kHeaderLen))
     {
       RpcMessage message;
+      // FIXME: can we move deserialization & callback to other thread?
       ErrorCode errorCode = parse(buf->peek()+kHeaderLen, len, &message);
       if (errorCode == kNoError)
       {
+        // FIXME: try { } catch (...) { }
         messageCallback_(conn, message, receiveTime);
         buf->retrieve(kHeaderLen+len);
       }
