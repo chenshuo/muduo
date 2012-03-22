@@ -233,7 +233,7 @@ void testOnMessage()
     codec.onMessage(conn, &input, t);
     int expected = len < buf1.readableBytes() ? 0 : 1;
     if (len == totalLen) expected = 2;
-    assert(g_count == expected);
+    assert(g_count == expected); (void) expected;
     // printf("%2zd %d\n", len, g_count);
 
     input.append(all.peek() + len, totalLen - len);
