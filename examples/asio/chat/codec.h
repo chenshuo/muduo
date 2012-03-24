@@ -25,9 +25,9 @@ class LengthHeaderCodec : boost::noncopyable
                  muduo::net::Buffer* buf,
                  muduo::Timestamp receiveTime)
   {
-    while (buf->readableBytes() >= kHeaderLen)
+    while (buf->readableBytes() >= kHeaderLen) // kHeaderLen == 4
     {
-      // FIXME: use Buffer::readInt32()
+      // FIXME: use Buffer::peekInt32()
       const void* data = buf->peek();
       int32_t be32 = *static_cast<const int32_t*>(data);
       const int32_t len = muduo::net::sockets::networkToHost32(be32);
@@ -40,8 +40,8 @@ class LengthHeaderCodec : boost::noncopyable
       {
         buf->retrieve(kHeaderLen);
         muduo::string message(buf->peek(), len);
-        buf->retrieve(len);
         messageCallback_(conn, message, receiveTime);
+        buf->retrieve(len);
       }
       else
       {
@@ -55,8 +55,9 @@ class LengthHeaderCodec : boost::noncopyable
   {
     muduo::net::Buffer buf;
     buf.append(message.data(), message.size());
-    int32_t len = muduo::net::sockets::hostToNetwork32(static_cast<int32_t>(message.size()));
-    buf.prepend(&len, sizeof len);
+    int32_t len = static_cast<int32_t>(message.size());
+    int32_t be32 = muduo::net::sockets::hostToNetwork32(len);
+    buf.prepend(&be32, sizeof be32);
     conn->send(&buf);
   }
 
