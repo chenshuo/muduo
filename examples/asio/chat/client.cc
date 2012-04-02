@@ -39,7 +39,7 @@ class ChatClient : boost::noncopyable
     // client_.disconnect();
   }
 
-  void write(const string& message)
+  void write(const StringPiece& message)
   {
     MutexLockGuard lock(mutex_);
     if (connection_)
@@ -94,8 +94,7 @@ int main(int argc, char* argv[])
     std::string line;
     while (std::getline(std::cin, line))
     {
-      string message(line.c_str());
-      client.write(message);
+      client.write(line);
     }
     client.disconnect();
   }

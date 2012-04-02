@@ -34,11 +34,12 @@ string readFile(const char* filename)
 void onConnection(const TcpConnectionPtr& conn)
 {
   LOG_INFO << "FileServer - " << conn->peerAddress().toHostPort() << " -> "
-    << conn->localAddress().toHostPort() << " is "
-    << (conn->connected() ? "UP" : "DOWN");
+           << conn->localAddress().toHostPort() << " is "
+           << (conn->connected() ? "UP" : "DOWN");
   if (conn->connected())
   {
-    LOG_INFO << "FileServer - Sending file " << g_file << " to " << conn->peerAddress().toHostPort();
+    LOG_INFO << "FileServer - Sending file " << g_file
+             << " to " << conn->peerAddress().toHostPort();
     string fileContent = readFile(g_file);
     conn->send(fileContent);
     conn->shutdown();

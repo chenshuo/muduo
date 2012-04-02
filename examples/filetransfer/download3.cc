@@ -11,20 +11,22 @@ using namespace muduo::net;
 
 const int kBufSize = 64*1024;
 const char* g_file = NULL;
+typedef boost::shared_ptr<FILE> FilePtr;
 
 void onConnection(const TcpConnectionPtr& conn)
 {
   LOG_INFO << "FileServer - " << conn->peerAddress().toHostPort() << " -> "
-    << conn->localAddress().toHostPort() << " is "
-    << (conn->connected() ? "UP" : "DOWN");
+           << conn->localAddress().toHostPort() << " is "
+           << (conn->connected() ? "UP" : "DOWN");
   if (conn->connected())
   {
-    LOG_INFO << "FileServer - Sending file " << g_file << " to " << conn->peerAddress().toHostPort();
+    LOG_INFO << "FileServer - Sending file " << g_file
+             << " to " << conn->peerAddress().toHostPort();
 
     FILE* fp = ::fopen(g_file, "rb");
     if (fp)
     {
-      boost::shared_ptr<FILE> ctx(fp, ::fclose);
+      FilePtr ctx(fp, ::fclose);
       conn->setContext(ctx);
       char buf[kBufSize];
       size_t nread = ::fread(buf, 1, sizeof buf, fp);
@@ -40,7 +42,7 @@ void onConnection(const TcpConnectionPtr& conn)
 
 void onWriteComplete(const TcpConnectionPtr& conn)
 {
-  boost::shared_ptr<FILE> fp = boost::any_cast<boost::shared_ptr<FILE> >(conn->getContext());
+  FilePtr fp = boost::any_cast<FilePtr>(conn->getContext());
   char buf[kBufSize];
   size_t nread = ::fread(buf, 1, sizeof buf, get_pointer(fp));
   if (nread > 0)

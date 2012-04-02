@@ -37,7 +37,7 @@ int32_t Buffer::peekInt32() const
 
 ssize_t Buffer::readFd(int fd, int* savedErrno)
 {
-  // FIXME: use ioctl/FIONREAD to tell how much to read
+  // saved an ioctl()/FIONREAD call to tell how much to read
   char extrabuf[65536];
   struct iovec vec[2];
   size_t writable = writableBytes();

@@ -57,10 +57,10 @@ class TcpConnection : boost::noncopyable,
   const InetAddress& peerAddress() { return peerAddr_; }
   bool connected() const { return state_ == kConnected; }
 
-  // void send(string&& message);
+  // void send(string&& message); // C++11
   void send(const void* message, size_t len);
   void send(const StringPiece& message);
-  // void send(const Buffer& message);
+  // void send(Buffer&& message); // C++11
   void send(Buffer* message);  // this one will swap data
   void shutdown(); // NOT thread safe, no simultaneous calling
   void setTcpNoDelay(bool on);
