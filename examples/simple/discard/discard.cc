@@ -25,8 +25,8 @@ void DiscardServer::start()
 
 void DiscardServer::onConnection(const TcpConnectionPtr& conn)
 {
-  LOG_INFO << "DiscardServer - " << conn->peerAddress().toHostPort() << " -> "
-           << conn->localAddress().toHostPort() << " is "
+  LOG_INFO << "DiscardServer - " << conn->peerAddress().toIpPort() << " -> "
+           << conn->localAddress().toIpPort() << " is "
            << (conn->connected() ? "UP" : "DOWN");
 }
 

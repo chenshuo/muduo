@@ -12,8 +12,8 @@ const size_t frameLen = 2*sizeof(int64_t);
 
 void serverConnectionCallback(const TcpConnectionPtr& conn)
 {
-  LOG_TRACE << conn->name() << " " << conn->peerAddress().toHostPort() << " -> "
-        << conn->localAddress().toHostPort() << " is "
+  LOG_TRACE << conn->name() << " " << conn->peerAddress().toIpPort() << " -> "
+        << conn->localAddress().toIpPort() << " is "
         << (conn->connected() ? "UP" : "DOWN");
   if (conn->connected())
   {
@@ -52,8 +52,8 @@ TcpConnectionPtr clientConnection;
 
 void clientConnectionCallback(const TcpConnectionPtr& conn)
 {
-  LOG_TRACE << conn->localAddress().toHostPort() << " -> "
-        << conn->peerAddress().toHostPort() << " is "
+  LOG_TRACE << conn->localAddress().toIpPort() << " -> "
+        << conn->peerAddress().toIpPort() << " is "
         << (conn->connected() ? "UP" : "DOWN");
   if (conn->connected())
   {

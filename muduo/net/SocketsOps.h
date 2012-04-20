@@ -35,8 +35,8 @@ ssize_t write(int sockfd, const void *buf, size_t count);
 void close(int sockfd);
 void shutdownWrite(int sockfd);
 
-void toHostPort(char* buf, size_t size,
-                const struct sockaddr_in& addr);
+void toIpPort(char* buf, size_t size,
+              const struct sockaddr_in& addr);
 void fromHostPort(const char* ip, uint16_t port,
                   struct sockaddr_in* addr);
 

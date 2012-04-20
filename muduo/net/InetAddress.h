@@ -42,7 +42,9 @@ class InetAddress : public muduo::copyable
     : addr_(addr)
   { }
 
-  string toHostPort() const;
+  string toIpPort() const;
+  string toHostPort() const __attribute__ ((deprecated))
+  { return toIpPort(); }
 
   // default copy/assignment are Okay
 

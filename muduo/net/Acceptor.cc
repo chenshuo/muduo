@@ -56,7 +56,7 @@ void Acceptor::handleRead()
   int connfd = acceptSocket_.accept(&peerAddr);
   if (connfd >= 0)
   {
-    // string hostport = peerAddr.toHostPort();
+    // string hostport = peerAddr.toIpPort();
     // LOG_TRACE << "Accepts of " << hostport;
     if (newConnectionCallback_)
     {

@@ -25,7 +25,7 @@ TcpServer::TcpServer(EventLoop* loop,
                      const InetAddress& listenAddr,
                      const string& nameArg)
   : loop_(CHECK_NOTNULL(loop)),
-    hostport_(listenAddr.toHostPort()),
+    hostport_(listenAddr.toIpPort()),
     name_(nameArg),
     acceptor_(new Acceptor(loop, listenAddr)),
     threadPool_(new EventLoopThreadPool(loop)),
@@ -86,7 +86,7 @@ void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
 
   LOG_INFO << "TcpServer::newConnection [" << name_
            << "] - new connection [" << connName
-           << "] from " << peerAddr.toHostPort();
+           << "] from " << peerAddr.toIpPort();
   InetAddress localAddr(sockets::getLocalAddr(sockfd));
   // FIXME poll with zero timeout to double confirm the new connection
   TcpConnectionPtr conn(

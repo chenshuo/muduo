@@ -39,8 +39,8 @@ class EchoClient : boost::noncopyable
  private:
   void onConnection(const TcpConnectionPtr& conn)
   {
-    LOG_TRACE << conn->localAddress().toHostPort() << " -> "
-        << conn->peerAddress().toHostPort() << " is "
+    LOG_TRACE << conn->localAddress().toIpPort() << " -> "
+        << conn->peerAddress().toIpPort() << " is "
         << (conn->connected() ? "UP" : "DOWN");
 
     if (conn->connected())

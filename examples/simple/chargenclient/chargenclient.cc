@@ -35,8 +35,8 @@ class ChargenClient : boost::noncopyable
  private:
   void onConnection(const TcpConnectionPtr& conn)
   {
-    LOG_INFO << conn->localAddress().toHostPort() << " -> "
-        << conn->peerAddress().toHostPort() << " is "
+    LOG_INFO << conn->localAddress().toIpPort() << " -> "
+        << conn->peerAddress().toIpPort() << " is "
         << (conn->connected() ? "UP" : "DOWN");
 
     if (!conn->connected())

@@ -9,6 +9,7 @@ using namespace muduo::net;
 
 const char* g_file = NULL;
 
+// FIXME: use FileUtil::readFile()
 string readFile(const char* filename)
 {
   string content;
@@ -33,13 +34,13 @@ string readFile(const char* filename)
 
 void onConnection(const TcpConnectionPtr& conn)
 {
-  LOG_INFO << "FileServer - " << conn->peerAddress().toHostPort() << " -> "
-           << conn->localAddress().toHostPort() << " is "
+  LOG_INFO << "FileServer - " << conn->peerAddress().toIpPort() << " -> "
+           << conn->localAddress().toIpPort() << " is "
            << (conn->connected() ? "UP" : "DOWN");
   if (conn->connected())
   {
     LOG_INFO << "FileServer - Sending file " << g_file
-             << " to " << conn->peerAddress().toHostPort();
+             << " to " << conn->peerAddress().toIpPort();
     string fileContent = readFile(g_file);
     conn->send(fileContent);
     conn->shutdown();

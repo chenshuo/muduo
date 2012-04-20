@@ -53,10 +53,10 @@ InetAddress::InetAddress(const StringPiece& ip, uint16_t port)
   sockets::fromHostPort(ip.data(), port, &addr_);
 }
 
-string InetAddress::toHostPort() const
+string InetAddress::toIpPort() const
 {
   char buf[32];
-  sockets::toHostPort(buf, sizeof buf, addr_);
+  sockets::toIpPort(buf, sizeof buf, addr_);
   return buf;
 }
 

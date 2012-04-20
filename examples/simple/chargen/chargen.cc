@@ -48,8 +48,8 @@ void ChargenServer::start()
 
 void ChargenServer::onConnection(const TcpConnectionPtr& conn)
 {
-  LOG_INFO << "ChargenServer - " << conn->peerAddress().toHostPort() << " -> "
-           << conn->localAddress().toHostPort() << " is "
+  LOG_INFO << "ChargenServer - " << conn->peerAddress().toIpPort() << " -> "
+           << conn->localAddress().toIpPort() << " is "
            << (conn->connected() ? "UP" : "DOWN");
   if (conn->connected())
   {

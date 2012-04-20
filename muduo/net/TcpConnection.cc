@@ -24,8 +24,8 @@ using namespace muduo::net;
 
 void muduo::net::defaultConnectionCallback(const TcpConnectionPtr& conn)
 {
-  LOG_TRACE << conn->localAddress().toHostPort() << " -> "
-            << conn->peerAddress().toHostPort() << " is "
+  LOG_TRACE << conn->localAddress().toIpPort() << " -> "
+            << conn->peerAddress().toIpPort() << " is "
             << (conn->connected() ? "UP" : "DOWN");
 }
 

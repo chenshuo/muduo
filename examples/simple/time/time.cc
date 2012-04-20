@@ -26,8 +26,8 @@ void TimeServer::start()
 
 void TimeServer::onConnection(const muduo::net::TcpConnectionPtr& conn)
 {
-  LOG_INFO << "TimeServer - " << conn->peerAddress().toHostPort() << " -> "
-           << conn->localAddress().toHostPort() << " is "
+  LOG_INFO << "TimeServer - " << conn->peerAddress().toIpPort() << " -> "
+           << conn->localAddress().toIpPort() << " is "
            << (conn->connected() ? "UP" : "DOWN");
   if (conn->connected())
   {

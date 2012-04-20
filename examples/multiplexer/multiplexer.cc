@@ -143,8 +143,8 @@ class MultiplexServer
 
   void onClientConnection(const TcpConnectionPtr& conn)
   {
-    LOG_TRACE << "Client " << conn->peerAddress().toHostPort() << " -> "
-        << conn->localAddress().toHostPort() << " is "
+    LOG_TRACE << "Client " << conn->peerAddress().toIpPort() << " -> "
+        << conn->localAddress().toIpPort() << " is "
         << (conn->connected() ? "UP" : "DOWN");
     if (conn->connected())
     {
@@ -168,7 +168,7 @@ class MultiplexServer
         conn->setContext(id);
         char buf[256];
         snprintf(buf, sizeof(buf), "CONN %d FROM %s IS UP\r\n", id,
-                 conn->peerAddress().toHostPort().c_str());
+                 conn->peerAddress().toIpPort().c_str());
         sendBackendString(0, buf);
       }
     }
@@ -180,7 +180,7 @@ class MultiplexServer
         assert(id > 0 && id <= kMaxConns);
         char buf[256];
         snprintf(buf, sizeof(buf), "CONN %d FROM %s IS DOWN\r\n",
-                 id, conn->peerAddress().toHostPort().c_str());
+                 id, conn->peerAddress().toIpPort().c_str());
         sendBackendString(0, buf);
 
         MutexLockGuard lock(mutex_);
@@ -217,8 +217,8 @@ class MultiplexServer
 
   void onBackendConnection(const TcpConnectionPtr& conn)
   {
-    LOG_TRACE << "Backend " << conn->localAddress().toHostPort() << " -> "
-              << conn->peerAddress().toHostPort() << " is "
+    LOG_TRACE << "Backend " << conn->localAddress().toIpPort() << " -> "
+              << conn->peerAddress().toIpPort() << " is "
               << (conn->connected() ? "UP" : "DOWN");
     std::vector<TcpConnectionPtr> connsToDestroy;
     if (conn->connected())

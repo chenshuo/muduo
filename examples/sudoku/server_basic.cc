@@ -40,8 +40,8 @@ class SudokuServer
  private:
   void onConnection(const TcpConnectionPtr& conn)
   {
-    LOG_TRACE << conn->peerAddress().toHostPort() << " -> "
-        << conn->localAddress().toHostPort() << " is "
+    LOG_TRACE << conn->peerAddress().toIpPort() << " -> "
+        << conn->localAddress().toIpPort() << " is "
         << (conn->connected() ? "UP" : "DOWN");
   }
 

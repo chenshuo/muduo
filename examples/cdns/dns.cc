@@ -18,7 +18,7 @@ void quit()
 
 void resolveCallback(const string& host, const InetAddress& addr)
 {
-  printf("resolveCallback %s -> %s\n", host.c_str(), addr.toHostPort().c_str());
+  printf("resolveCallback %s -> %s\n", host.c_str(), addr.toIpPort().c_str());
   if (++count == total)
     quit();
 }
