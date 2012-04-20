@@ -9,4 +9,5 @@ int main()
   printf("hostname = %s\n", muduo::ProcessInfo::hostname().c_str());
   printf("opened files = %d\n", muduo::ProcessInfo::openedFiles());
   printf("threads = %zd\n", muduo::ProcessInfo::threads().size());
+  printf("status = %s\n", muduo::ProcessInfo::procStatus().c_str());
 }

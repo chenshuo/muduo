@@ -8,13 +8,14 @@
 //
 
 #include <muduo/base/ProcessInfo.h>
+#include <muduo/base/FileUtil.h>
 
 #include <algorithm>
 
 #include <assert.h>
 #include <dirent.h>
 #include <pwd.h>
-#include <stdio.h>
+#include <stdio.h> // snprintf
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -104,17 +105,8 @@ string ProcessInfo::hostname()
 string ProcessInfo::procStatus()
 {
   string result;
-  FILE* fp = fopen("/proc/self/status", "r");
-  if (fp)
-  {
-    while (!feof(fp))
-    {
-      char buf[8192];
-      size_t n = fread(buf, 1, sizeof buf, fp);
-      result.append(buf, n);
-    }
-    fclose(fp);
-  }
+  FileUtil::readFile("/proc/self/status", 65536, &result, NULL);
+
   return result;
 }
 

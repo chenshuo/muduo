@@ -2,6 +2,7 @@ set(base_SRCS
   CountDownLatch.cc
   Date.cc
   Exception.cc
+  FileUtil.cc
   Logging.cc
   ProcessInfo.cc
   Timestamp.cc
