@@ -23,6 +23,7 @@ namespace ProcessInfo
   string pidString();
   uid_t uid();
   string username();
+  uid_t euid();
 
   string hostname();
 

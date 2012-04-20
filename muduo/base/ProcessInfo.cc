@@ -11,6 +11,7 @@
 
 #include <algorithm>
 
+#include <assert.h>
 #include <dirent.h>
 #include <pwd.h>
 #include <stdio.h>
@@ -40,6 +41,15 @@ int taskDirFilter(const struct dirent* d)
   }
   return 0;
 }
+
+int scanDir(const char *dirpath, int (*filter)(const struct dirent *))
+{
+  struct dirent** namelist = NULL;
+  int result = ::scandir(dirpath, &namelist, filter, alphasort);
+  assert(namelist == NULL);
+  return result;
+}
+
 }
 }
 
@@ -78,11 +88,16 @@ string ProcessInfo::username()
   return name;
 }
 
+uid_t ProcessInfo::euid()
+{
+  return ::geteuid();
+}
+
 string ProcessInfo::hostname()
 {
   char buf[64] = "unknownhost";
   buf[sizeof(buf)-1] = '\0';
-  gethostname(buf, sizeof buf);
+  ::gethostname(buf, sizeof buf);
   return buf;
 }
 
@@ -106,8 +121,7 @@ string ProcessInfo::procStatus()
 int ProcessInfo::openedFiles()
 {
   t_numOpenedFiles = 0;
-  struct dirent** namelist;
-  scandir("/proc/self/fd", &namelist, fdDirFilter, alphasort);
+  scanDir("/proc/self/fd", fdDirFilter);
   return t_numOpenedFiles;
 }
 
@@ -115,8 +129,8 @@ std::vector<pid_t> ProcessInfo::threads()
 {
   std::vector<pid_t> result;
   t_pids = &result;
-  struct dirent** namelist;
-  scandir("/proc/self/task", &namelist, taskDirFilter, alphasort);
+  scanDir("/proc/self/task", taskDirFilter);
+  t_pids = NULL;
   std::sort(result.begin(), result.end());
   return result;
 }
