@@ -27,7 +27,7 @@ Acceptor::Acceptor(EventLoop* loop, const InetAddress& listenAddr)
     acceptSocket_(sockets::createNonblockingOrDie()),
     acceptChannel_(loop, acceptSocket_.fd()),
     listenning_(false),
-    idleFd_(::open("/dev/null", O_RDONLY))
+    idleFd_(::open("/dev/null", O_RDONLY | O_CLOEXEC))
 {
   acceptSocket_.setReuseAddr(true);
   acceptSocket_.bindAddress(listenAddr);
@@ -77,7 +77,7 @@ void Acceptor::handleRead()
       ::close(idleFd_);
       idleFd_ = ::accept(acceptSocket_.fd(), NULL, NULL);
       ::close(idleFd_);
-      idleFd_ = ::open("/dev/null", O_RDONLY);
+      idleFd_ = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
     }
   }
 }
