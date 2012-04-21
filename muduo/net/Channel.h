@@ -74,6 +74,8 @@ class Channel : boost::noncopyable
   // for debug
   string reventsToString() const;
 
+  void doNotLogHup() { logHup_ = false; }
+
   EventLoop* ownerLoop() { return loop_; }
 
  private:
@@ -89,6 +91,7 @@ class Channel : boost::noncopyable
   int        events_;
   int        revents_;
   int        index_; // used by Poller.
+  bool       logHup_;
 
   boost::weak_ptr<void> tie_;
   bool tied_;

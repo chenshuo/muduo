@@ -106,6 +106,7 @@ class EventLoop : boost::noncopyable
   }
   bool isInLoopThread() const { return threadId_ == CurrentThread::tid(); }
   // bool callingPendingFunctors() const { return callingPendingFunctors_; }
+  bool eventHandling() const { return eventHandling_; }
 
  private:
   void abortNotInLoopThread();

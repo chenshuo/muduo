@@ -27,6 +27,7 @@ Channel::Channel(EventLoop* loop, int fd__)
     events_(0),
     revents_(0),
     index_(-1),
+    logHup_(true),
     tied_(false),
     eventHandling_(false)
 {
@@ -70,7 +71,8 @@ void Channel::handleEventWithGuard(Timestamp receiveTime)
   eventHandling_ = true;
   if ((revents_ & POLLHUP) && !(revents_ & POLLIN))
   {
-    LOG_WARN << "Channel::handle_event() POLLHUP";
+    if (logHup_)
+      LOG_WARN << "Channel::handle_event() POLLHUP";
     if (closeCallback_) closeCallback_();
   }
 
