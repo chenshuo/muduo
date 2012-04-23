@@ -16,6 +16,7 @@ set(HEADERS
   RpcChannel.h
   RpcServer.h
   rpc.proto
+  rpcservice.proto
   ${PROJECT_BINARY_DIR}/muduo/net/protorpc/rpc.pb.h
   )
 install(FILES ${HEADERS} DESTINATION include/muduo/net/protorpc)
