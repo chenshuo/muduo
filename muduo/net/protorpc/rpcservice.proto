@@ -31,6 +31,8 @@ message GetServiceRequest
 message GetServiceResponse
 {
   required ErrorCode error = 1;
+  repeated string proto_file = 2;
+  repeated string proto_file_name = 3;
 }
 
 // the meta service
