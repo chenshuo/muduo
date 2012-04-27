@@ -18,6 +18,7 @@
 #include <stdio.h> // snprintf
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/resource.h>
 
 namespace muduo
 {
@@ -115,6 +116,19 @@ int ProcessInfo::openedFiles()
   t_numOpenedFiles = 0;
   scanDir("/proc/self/fd", fdDirFilter);
   return t_numOpenedFiles;
+}
+
+int ProcessInfo::maxOpenFiles()
+{
+  struct rlimit rl;
+  if (::getrlimit(RLIMIT_NOFILE, &rl))
+  {
+    return openedFiles();
+  }
+  else
+  {
+    return static_cast<int>(rl.rlim_cur);
+  }
 }
 
 std::vector<pid_t> ProcessInfo::threads()

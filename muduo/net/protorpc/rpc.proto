@@ -11,6 +11,7 @@ enum MessageType
 
 enum ErrorCode
 {
+  NO_ERROR = 0;
   WRONG_PROTO = 1;
   NO_SERVICE = 2;
   NO_METHOD = 3;

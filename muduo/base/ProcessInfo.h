@@ -31,6 +31,7 @@ namespace ProcessInfo
   string procStatus();
 
   int openedFiles();
+  int maxOpenFiles();
 
   std::vector<pid_t> threads();
 }
