@@ -33,6 +33,7 @@ namespace ProcessInfo
   int openedFiles();
   int maxOpenFiles();
 
+  int numThreads();
   std::vector<pid_t> threads();
 }
 

@@ -13,49 +13,50 @@
 
 #include <assert.h>
 #include <errno.h>
-#include <stdio.h>
+#include <fcntl.h>
 #include <sys/stat.h>
 
 using namespace muduo;
 
+FileUtil::SmallFile::SmallFile(StringPiece filename)
+  : fd_(::open(filename.data(), O_RDONLY | O_CLOEXEC)),
+    err_(0)
+{
+  buf_[0] = '\0';
+  if (fd_ < 0)
+  {
+    err_ = errno;
+  }
+}
+
+FileUtil::SmallFile::~SmallFile()
+{
+  if (fd_ >= 0)
+  {
+    ::close(fd_); // FIXME: check EINTR
+  }
+}
+
+// return errno
 template<typename String>
-int FileUtil::readFile(StringPiece filename,
-                       size_t maxSize,
-                       String* content,
-                       int64_t* fileSize)
+int FileUtil::SmallFile::readToString(int maxSize, String* content, int64_t* fileSize)
 {
   BOOST_STATIC_ASSERT(sizeof(off_t) == 8);
   assert(content != NULL);
-  content->clear();
-  int err = 0;
-
-  FILE* fp = fopen(filename.data(), "r");
-  if (fp)
+  int err = err_;
+  if (fd_ >= 0)
   {
-    // FIXME: ::setbuffer()
-    while (!feof(fp) && content->size() < maxSize)
-    {
-      char buf[8192];
-      size_t n = fread(buf, 1, sizeof buf, fp);
-      if (n == 0)
-      {
-        err = ferror(fp);
-        break;
-      }
-      if (content->size() + n > maxSize) // FIXME: interger overflow
-      {
-        n = maxSize - content->size();
-      }
-      content->append(buf, n);
-    }
+    content->clear();
+
     if (fileSize)
     {
       struct stat statbuf;
-      if (fstat(fileno(fp), &statbuf) == 0)
+      if (::fstat(fd_, &statbuf) == 0)
       {
         if (S_ISREG(statbuf.st_mode))
         {
           *fileSize = statbuf.st_size;
+          content->reserve(std::min(implicit_cast<int64_t>(maxSize), *fileSize));
         }
         else if (S_ISDIR(statbuf.st_mode))
         {
@@ -67,23 +68,58 @@ int FileUtil::readFile(StringPiece filename,
         err = errno;
       }
     }
-    fclose(fp);
+
+    while (content->size() < implicit_cast<size_t>(maxSize))
+    {
+      size_t toRead = std::min(implicit_cast<size_t>(maxSize) - content->size(), sizeof(buf_));
+      ssize_t n = ::read(fd_, buf_, toRead);
+      if (n > 0)
+      {
+        content->append(buf_, n);
+      }
+      else
+      {
+        if (n < 0)
+        {
+          err = errno;
+        }
+        break;
+      }
+    }
   }
-  else
+  return err;
+}
+
+int FileUtil::SmallFile::readToBuffer(int* size)
+{
+  int err = err_;
+  if (fd_ >= 0)
   {
-    err = errno;
+    ssize_t n = ::read(fd_, buf_, sizeof(buf_)-1);
+    if (n >= 0)
+    {
+      if (size)
+      {
+        *size = static_cast<int>(n);
+      }
+      buf_[n] = '\0';
+    }
+    else
+    {
+      err = errno;
+    }
   }
   return err;
 }
 
 template int FileUtil::readFile(StringPiece filename,
-                                size_t maxSize,
+                                int maxSize,
                                 string* content,
                                 int64_t* fileSize);
 
 #ifndef MUDUO_STD_STRING
 template int FileUtil::readFile(StringPiece filename,
-                                size_t maxSize,
+                                int maxSize,
                                 std::string* content,
                                 int64_t* fileSize);
 #endif

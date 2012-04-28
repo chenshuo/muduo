@@ -13,18 +13,47 @@
 
 #include <muduo/base/Types.h>
 #include <muduo/base/StringPiece.h>
+#include <boost/noncopyable.hpp>
 
 namespace muduo
 {
 
 namespace FileUtil
 {
+
+  class SmallFile : boost::noncopyable
+  {
+   public:
+    SmallFile(StringPiece filename);
+    ~SmallFile();
+
+    // return errno
+    template<typename String>
+    int readToString(int maxSize, String* content, int64_t* fileSize);
+
+    // return errno
+    int readToBuffer(int* size);
+
+    const char* buffer() const { return buf_; }
+
+    static const int kBufferSize = 65536;
+
+   private:
+    int fd_;
+    int err_;
+    char buf_[kBufferSize];
+  };
+
   // read the file content, returns errno if error happens.
   template<typename String>
   int readFile(StringPiece filename,
-               size_t maxSize,
+               int maxSize,
                String* content,
-               int64_t* fileSize);
+               int64_t* fileSize)
+  {
+    SmallFile file(filename);
+    return file.readToString(maxSize, content, fileSize);
+  }
 
 }
 

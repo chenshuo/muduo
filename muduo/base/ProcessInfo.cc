@@ -131,6 +131,18 @@ int ProcessInfo::maxOpenFiles()
   }
 }
 
+int ProcessInfo::numThreads()
+{
+  int result = 0;
+  string status = procStatus();
+  size_t pos = status.find("Threads:");
+  if (pos != string::npos)
+  {
+    result = ::atoi(status.c_str() + pos + 8);
+  }
+  return result;
+}
+
 std::vector<pid_t> ProcessInfo::threads()
 {
   std::vector<pid_t> result;
