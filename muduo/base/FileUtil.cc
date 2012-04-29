@@ -117,10 +117,20 @@ template int FileUtil::readFile(StringPiece filename,
                                 string* content,
                                 int64_t* fileSize);
 
+template int FileUtil::SmallFile::readToString(
+    int maxSize,
+    string* content,
+    int64_t* fileSize);
+
 #ifndef MUDUO_STD_STRING
 template int FileUtil::readFile(StringPiece filename,
                                 int maxSize,
                                 std::string* content,
                                 int64_t* fileSize);
+
+template int FileUtil::SmallFile::readToString(
+    int maxSize,
+    std::string* content,
+    int64_t* fileSize);
 #endif
 
