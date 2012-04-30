@@ -65,7 +65,8 @@ EventLoop::EventLoop()
     poller_(Poller::newDefaultPoller(this)),
     timerQueue_(new TimerQueue(this)),
     wakeupFd_(createEventfd()),
-    wakeupChannel_(new Channel(this, wakeupFd_))
+    wakeupChannel_(new Channel(this, wakeupFd_)),
+    currentActiveChannel_(NULL)
 {
   LOG_TRACE << "EventLoop created " << this << " in thread " << threadId_;
   if (t_loopInThisThread)
@@ -110,8 +111,10 @@ void EventLoop::loop()
     for (ChannelList::iterator it = activeChannels_.begin();
         it != activeChannels_.end(); ++it)
     {
-      (*it)->handleEvent(pollReturnTime_);
+      currentActiveChannel_ = *it;
+      currentActiveChannel_->handleEvent(pollReturnTime_);
     }
+    currentActiveChannel_ = NULL;
     eventHandling_ = false;
     doPendingFunctors();
   }
@@ -190,8 +193,8 @@ void EventLoop::removeChannel(Channel* channel)
   assertInLoopThread();
   if (eventHandling_)
   {
-    assert(std::find(activeChannels_.begin(), activeChannels_.end(), channel)
-           == activeChannels_.end());
+    assert(currentActiveChannel_ == channel ||
+        std::find(activeChannels_.begin(), activeChannels_.end(), channel) == activeChannels_.end());
   }
   poller_->removeChannel(channel);
 }

@@ -130,6 +130,7 @@ class EventLoop : boost::noncopyable
   // we don't expose Channel to client.
   boost::scoped_ptr<Channel> wakeupChannel_;
   ChannelList activeChannels_;
+  Channel* currentActiveChannel_;
   MutexLock mutex_;
   std::vector<Functor> pendingFunctors_; // @BuardedBy mutex_
 };
