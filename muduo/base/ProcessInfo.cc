@@ -52,6 +52,7 @@ int scanDir(const char *dirpath, int (*filter)(const struct dirent *))
   return result;
 }
 
+Timestamp g_startTime = Timestamp::now();
 }
 }
 
@@ -93,6 +94,11 @@ string ProcessInfo::username()
 uid_t ProcessInfo::euid()
 {
   return ::geteuid();
+}
+
+Timestamp ProcessInfo::startTime()
+{
+  return g_startTime;
 }
 
 string ProcessInfo::hostname()

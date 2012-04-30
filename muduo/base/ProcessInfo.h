@@ -12,6 +12,7 @@
 #define MUDUO_BASE_PROCESSINFO_H
 
 #include <muduo/base/Types.h>
+#include <muduo/base/Timestamp.h>
 #include <vector>
 
 namespace muduo
@@ -24,6 +25,7 @@ namespace ProcessInfo
   uid_t uid();
   string username();
   uid_t euid();
+  Timestamp startTime();
 
   string hostname();
 
