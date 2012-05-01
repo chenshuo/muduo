@@ -95,7 +95,7 @@ int FileUtil::SmallFile::readToBuffer(int* size)
   int err = err_;
   if (fd_ >= 0)
   {
-    ssize_t n = ::read(fd_, buf_, sizeof(buf_)-1);
+    ssize_t n = ::pread(fd_, buf_, sizeof(buf_)-1, 0);
     if (n >= 0)
     {
       if (size)
