@@ -29,7 +29,11 @@ namespace FileUtil
 
     // return errno
     template<typename String>
-    int readToString(int maxSize, String* content, int64_t* fileSize);
+    int readToString(int maxSize,
+                     String* content,
+                     int64_t* fileSize,
+                     int64_t* modifyTime,
+                     int64_t* createTime);
 
     // return errno
     int readToBuffer(int* size);
@@ -49,10 +53,12 @@ namespace FileUtil
   int readFile(StringPiece filename,
                int maxSize,
                String* content,
-               int64_t* fileSize)
+               int64_t* fileSize = NULL,
+               int64_t* modifyTime = NULL,
+               int64_t* createTime = NULL)
   {
     SmallFile file(filename);
-    return file.readToString(maxSize, content, fileSize);
+    return file.readToString(maxSize, content, fileSize, modifyTime, createTime);
   }
 
 }

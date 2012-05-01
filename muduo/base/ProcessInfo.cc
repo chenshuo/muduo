@@ -112,7 +112,7 @@ string ProcessInfo::hostname()
 string ProcessInfo::procStatus()
 {
   string result;
-  FileUtil::readFile("/proc/self/status", 65536, &result, NULL);
+  FileUtil::readFile("/proc/self/status", 65536, &result);
 
   return result;
 }

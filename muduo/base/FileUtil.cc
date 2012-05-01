@@ -39,7 +39,11 @@ FileUtil::SmallFile::~SmallFile()
 
 // return errno
 template<typename String>
-int FileUtil::SmallFile::readToString(int maxSize, String* content, int64_t* fileSize)
+int FileUtil::SmallFile::readToString(int maxSize,
+                                      String* content,
+                                      int64_t* fileSize,
+                                      int64_t* modifyTime,
+                                      int64_t* createTime)
 {
   BOOST_STATIC_ASSERT(sizeof(off_t) == 8);
   assert(content != NULL);
@@ -61,6 +65,14 @@ int FileUtil::SmallFile::readToString(int maxSize, String* content, int64_t* fil
         else if (S_ISDIR(statbuf.st_mode))
         {
           err = EISDIR;
+        }
+        if (modifyTime)
+        {
+          *modifyTime = statbuf.st_mtime;
+        }
+        if (createTime)
+        {
+          *createTime = statbuf.st_ctime;
         }
       }
       else
@@ -115,22 +127,22 @@ int FileUtil::SmallFile::readToBuffer(int* size)
 template int FileUtil::readFile(StringPiece filename,
                                 int maxSize,
                                 string* content,
-                                int64_t* fileSize);
+                                int64_t*, int64_t*, int64_t*);
 
 template int FileUtil::SmallFile::readToString(
     int maxSize,
     string* content,
-    int64_t* fileSize);
+    int64_t*, int64_t*, int64_t*);
 
 #ifndef MUDUO_STD_STRING
 template int FileUtil::readFile(StringPiece filename,
                                 int maxSize,
                                 std::string* content,
-                                int64_t* fileSize);
+                                int64_t*, int64_t*, int64_t*);
 
 template int FileUtil::SmallFile::readToString(
     int maxSize,
     std::string* content,
-    int64_t* fileSize);
+    int64_t*, int64_t*, int64_t*);
 #endif
 
