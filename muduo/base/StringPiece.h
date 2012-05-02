@@ -143,6 +143,12 @@ class StringPiece {
     target->assign(ptr_, length_);
   }
 
+#ifndef MUDUO_STD_STRING
+  void CopyToStdString(std::string* target) const {
+    target->assign(ptr_, length_);
+  }
+#endif
+
   // Does "this" start with "x"
   bool starts_with(const StringPiece& x) const {
     return ((length_ >= x.length_) && (memcmp(ptr_, x.ptr_, x.length_) == 0));

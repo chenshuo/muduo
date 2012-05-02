@@ -1,5 +1,6 @@
 #include <muduo/base/Logging.h>
 
+#include <muduo/base/StringPiece.h>
 #include <muduo/base/Thread.h>
 #include <muduo/base/Timestamp.h>
 
@@ -138,3 +139,8 @@ void Logger::setLogLevel(Logger::LogLevel level)
   g_logLevel = level;
 }
 
+std::ostream& operator<<(std::ostream& o, const muduo::StringPiece& piece)
+{
+  o.write(piece.data(), piece.size());
+  return o;
+}
