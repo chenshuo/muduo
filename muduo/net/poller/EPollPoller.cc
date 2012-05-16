@@ -167,9 +167,17 @@ void EPollPoller::update(int operation, Channel* channel)
   bzero(&event, sizeof event);
   event.events = channel->events();
   event.data.ptr = channel;
-  if (::epoll_ctl(epollfd_, operation, channel->fd(), &event) < 0)
+  int fd = channel->fd();
+  if (::epoll_ctl(epollfd_, operation, fd, &event) < 0)
   {
-    LOG_SYSFATAL << "epoll_ctl op=" << operation;
+    if (operation == EPOLL_CTL_DEL)
+    {
+      LOG_SYSERR << "epoll_ctl op=" << operation << " fd=" << fd;
+    }
+    else
+    {
+      LOG_SYSFATAL << "epoll_ctl op=" << operation << " fd=" << fd;
+    }
   }
 }
 
