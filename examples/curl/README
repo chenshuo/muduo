@@ -1,0 +1,6 @@
+This is a proof-of-concept implementation of muduo-curl bridge.
+It demostrates the simplest use case of curl with muduo.
+
+Note:
+1. DNS resolving could be blocking, if your curl is not built with c-ares.
+2. Request object should survive doneCallback.

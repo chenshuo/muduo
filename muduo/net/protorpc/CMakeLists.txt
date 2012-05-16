@@ -8,7 +8,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=conversion -Wno-extra")
 include_directories(${PROJECT_BINARY_DIR})
 
 add_library(muduo_protorpc rpc.pb.cc RpcCodec.cc RpcChannel.cc RpcServer.cc)
-target_link_libraries(muduo_protorpc muduo_net protobuf)
+target_link_libraries(muduo_protorpc muduo_net protobuf z)
 
 install(TARGETS muduo_protorpc DESTINATION lib)
 set(HEADERS

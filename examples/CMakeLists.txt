@@ -19,6 +19,12 @@ if(CARES_INCLUDE_DIR AND CARES_LIBRARY)
 else()
   add_subdirectory(cdns EXCLUDE_FROM_ALL)
 endif()
+if(CURL_FOUND)
+  add_subdirectory(curl)
+else()
+  add_subdirectory(curl EXCLUDE_FROM_ALL)
+endif()
+
 
 add_subdirectory(asio/tutorial)
 add_subdirectory(asio/chat)

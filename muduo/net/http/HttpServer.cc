@@ -97,6 +97,7 @@ bool parseRequest(Buffer* buf, HttpContext* context, Timestamp receiveTime)
         }
         else
         {
+          // empty line, end of header
           context->receiveHeaders();
           hasMore = !context->gotAll();
         }
@@ -109,6 +110,7 @@ bool parseRequest(Buffer* buf, HttpContext* context, Timestamp receiveTime)
     }
     else if (context->expectBody())
     {
+      // FIXME:
     }
   }
   return ok;
