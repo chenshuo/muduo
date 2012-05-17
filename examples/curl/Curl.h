@@ -61,6 +61,7 @@ class Request : public boost::enable_shared_from_this<Request>,
 
   // internal
   muduo::net::Channel* setChannel(int fd);
+  void removeChannel();
   void done(int code);
   CURL* getCurl() { return curl_; }
   muduo::net::Channel* getChannel() { return get_pointer(channel_); }
@@ -73,7 +74,7 @@ class Request : public boost::enable_shared_from_this<Request>,
 
   class Curl* owner_;
   CURL* curl_;
-  boost::scoped_ptr<muduo::net::Channel> channel_;
+  boost::shared_ptr<muduo::net::Channel> channel_;
   DataCallback dataCb_;
   DoneCallback doneCb_;
 };
@@ -93,7 +94,7 @@ class Curl : boost::noncopyable
   explicit Curl(muduo::net::EventLoop* loop);
   ~Curl();
 
-  RequestPtr getUrl(muduo::StringPiece url);
+  RequestPtr getUrl(muduo::StringPiece url); // must be null-terminated string
 
   static void initialize(Option opt = kCURLnossl);
 

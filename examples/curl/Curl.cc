@@ -11,6 +11,10 @@ using namespace curl;
 using namespace muduo;
 using namespace muduo::net;
 
+static void dummy(const boost::shared_ptr<Channel>&)
+{
+}
+
 Request::Request(Curl* owner, StringPiece url)
   : owner_(owner),
     curl_(CHECK_NOTNULL(curl_easy_init()))
@@ -20,12 +24,13 @@ Request::Request(Curl* owner, StringPiece url)
   setopt(CURLOPT_WRITEDATA, this);
   setopt(CURLOPT_PRIVATE, this);
   // set useragent
+  LOG_DEBUG << curl_ << " " << url;
   curl_multi_add_handle(owner_->getCurlm(), curl_);
 }
 
 Request::~Request()
 {
-  assert(channel_->isNoneEvent());
+  assert(!channel_ || channel_->isNoneEvent());
   curl_multi_remove_handle(owner_->getCurlm(), curl_);
   curl_easy_cleanup(curl_);
 }
@@ -62,13 +67,20 @@ Channel* Request::setChannel(int fd)
   return get_pointer(channel_);
 }
 
+void Request::removeChannel()
+{
+  channel_->disableAll();
+  owner_->getLoop()->removeChannel(get_pointer(channel_));
+  owner_->getLoop()->queueInLoop(boost::bind(dummy, channel_));
+  channel_.reset();
+}
+
 void Request::done(int code)
 {
   if (doneCb_)
   {
     doneCb_(curl_, code);
   }
-  owner_->getLoop()->removeChannel(get_pointer(channel_));
 }
 
 void Request::dataCallback(const char* buffer, int len)
@@ -107,7 +119,9 @@ int Curl::socketCallback(CURL* c, int fd, int what, void* userp, void* socketp)
   {
     muduo::net::Channel* ch = static_cast<Channel*>(socketp);
     assert(req->getChannel() == ch);
-    ch->disableAll();
+    req->removeChannel();
+    ch = NULL;
+    curl_multi_assign(curl->curlm_, fd, ch);
   }
   else
   {
@@ -119,6 +133,7 @@ int Curl::socketCallback(CURL* c, int fd, int what, void* userp, void* socketp)
       ch->setWriteCallback(boost::bind(&Curl::onWrite, curl, fd));
       ch->enableReading();
       curl_multi_assign(curl->curlm_, fd, ch);
+      LOG_TRACE << "new channel for fd=" << fd;
     }
     assert(req->getChannel() == ch);
     // update
@@ -137,6 +152,7 @@ int Curl::socketCallback(CURL* c, int fd, int what, void* userp, void* socketp)
 int Curl::timerCallback(CURLM* curlm, long ms, void* userp)
 {
   Curl* curl = static_cast<Curl*>(userp);
+  LOG_DEBUG << curl << " " << ms << " ms";
   curl->loop_->runAfter(static_cast<int>(ms)/1000.0, boost::bind(&Curl::onTimer, curl));
   return 0;
 }
@@ -168,6 +184,7 @@ void Curl::onTimer()
 {
   CURLMcode rc = CURLM_OK;
   do {
+    LOG_TRACE;
     rc = curl_multi_socket_action(curlm_, CURL_SOCKET_TIMEOUT, 0, &runningHandles_);
     LOG_TRACE << rc << " " << runningHandles_;
   } while (rc == CURLM_CALL_MULTI_PERFORM);
@@ -178,6 +195,7 @@ void Curl::onRead(int fd)
 {
   CURLMcode rc = CURLM_OK;
   do {
+    LOG_TRACE << fd;
     rc = curl_multi_socket_action(curlm_, fd, CURL_POLL_IN, &runningHandles_);
     LOG_TRACE << fd << " " << rc << " " << runningHandles_;
   } while (rc == CURLM_CALL_MULTI_PERFORM);
@@ -188,6 +206,7 @@ void Curl::onWrite(int fd)
 {
   CURLMcode rc = CURLM_OK;
   do {
+    LOG_TRACE << fd;
     rc = curl_multi_socket_action(curlm_, fd, CURL_POLL_OUT, &runningHandles_);
     LOG_TRACE << fd << " " << rc << " " << runningHandles_;
   } while (rc == CURLM_CALL_MULTI_PERFORM);
@@ -209,6 +228,7 @@ void Curl::checkFinish()
         Request* req = NULL;
         curl_easy_getinfo(c, CURLINFO_PRIVATE, &req);
         assert(req->getCurl() == c);
+        LOG_TRACE << req << " done";
         req->done(res);
       }
     }
