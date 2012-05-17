@@ -34,7 +34,7 @@ class Request : public boost::enable_shared_from_this<Request>,
 {
  public:
   typedef boost::function<void(const char*, int)> DataCallback;
-  typedef boost::function<void(CURL*, int)> DoneCallback;
+  typedef boost::function<void(Request*, int)> DoneCallback;
 
   Request(Curl*, muduo::StringPiece url);
   ~Request();
@@ -45,7 +45,7 @@ class Request : public boost::enable_shared_from_this<Request>,
   void setDoneCallback(const DoneCallback& cb)
   { doneCb_ = cb; }
 
-  void allowRedirect(int redirects);
+  // void allowRedirect(int redirects);
 
   template<typename OPT>
   int setopt(OPT opt, long);
@@ -58,6 +58,10 @@ class Request : public boost::enable_shared_from_this<Request>,
 
   template<typename OPT>
   int setopt(OPT opt, size_t (*)(char *, size_t , size_t , void *));
+
+  const char* getEffectiveUrl();
+  const char* getRedirectUrl();
+  int getResponseCode();
 
   // internal
   muduo::net::Channel* setChannel(int fd);

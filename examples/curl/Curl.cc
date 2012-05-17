@@ -23,6 +23,7 @@ Request::Request(Curl* owner, StringPiece url)
   setopt(CURLOPT_WRITEFUNCTION, &Request::writeData);
   setopt(CURLOPT_WRITEDATA, this);
   setopt(CURLOPT_PRIVATE, this);
+  setopt(CURLOPT_USERAGENT, "curl");
   // set useragent
   LOG_DEBUG << curl_ << " " << url;
   curl_multi_add_handle(owner_->getCurlm(), curl_);
@@ -59,6 +60,33 @@ int Request::setopt(OPT opt, size_t (*p)(char*, size_t , size_t , void*))
   return curl_easy_setopt(curl_, opt, p);
 }
 
+// void Request::allowRedirect(int redirects)
+// {
+//   setopt(CURLOPT_FOLLOWLOCATION, 1);
+//   setopt(CURLOPT_MAXREDIRS, redirects);
+// }
+
+const char* Request::getEffectiveUrl()
+{
+  const char* p = NULL;
+  curl_easy_getinfo(curl_, CURLINFO_EFFECTIVE_URL, &p);
+  return p;
+}
+
+const char* Request::getRedirectUrl()
+{
+  const char* p = NULL;
+  curl_easy_getinfo(curl_, CURLINFO_REDIRECT_URL, &p);
+  return p;
+}
+
+int Request::getResponseCode()
+{
+  long code = 0;
+  curl_easy_getinfo(curl_, CURLINFO_RESPONSE_CODE, &code);
+  return static_cast<int>(code);
+}
+
 Channel* Request::setChannel(int fd)
 {
   assert(channel_.get() == NULL);
@@ -79,7 +107,7 @@ void Request::done(int code)
 {
   if (doneCb_)
   {
-    doneCb_(curl_, code);
+    doneCb_(this, code);
   }
 }
 
