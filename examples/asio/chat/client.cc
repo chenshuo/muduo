@@ -17,9 +17,9 @@ using namespace muduo::net;
 class ChatClient : boost::noncopyable
 {
  public:
-  ChatClient(EventLoop* loop, const InetAddress& listenAddr)
+  ChatClient(EventLoop* loop, const InetAddress& serverAddr)
     : loop_(loop),
-      client_(loop, listenAddr, "ChatClient"),
+      client_(loop, serverAddr, "ChatClient"),
       codec_(boost::bind(&ChatClient::onStringMessage, this, _1, _2, _3))
   {
     client_.setConnectionCallback(
@@ -52,8 +52,8 @@ class ChatClient : boost::noncopyable
   void onConnection(const TcpConnectionPtr& conn)
   {
     LOG_INFO << conn->localAddress().toIpPort() << " -> "
-        << conn->peerAddress().toIpPort() << " is "
-        << (conn->connected() ? "UP" : "DOWN");
+             << conn->peerAddress().toIpPort() << " is "
+             << (conn->connected() ? "UP" : "DOWN");
 
     MutexLockGuard lock(mutex_);
     if (conn->connected())
