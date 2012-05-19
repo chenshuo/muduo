@@ -1,13 +1,12 @@
-#ifndef MUDUO_LOG_LOGGING_H
-#define MUDUO_LOG_LOGGING_H
+#ifndef MUDUO_BASE_LOGGING_H
+#define MUDUO_BASE_LOGGING_H
 
-#include <ostream>
-#include <boost/scoped_ptr.hpp>
+#include <muduo/base/LogStream.h>
+#include <muduo/base/Timestamp.h>
 
 namespace muduo
 {
 
-class LoggerImpl;
 class Logger
 {
  public:
@@ -28,13 +27,36 @@ class Logger
   Logger(const char* file, int line, bool toAbort);
   ~Logger();
 
-  std::ostream& stream();
+  LogStream& stream() { return impl_.stream_; }
 
   static LogLevel logLevel();
   static void setLogLevel(LogLevel level);
 
+  typedef void (*OutputFunc)(const char* msg, int len);
+  typedef void (*FlushFunc)();
+  static void setOutput(OutputFunc);
+  static void setFlush(FlushFunc);
+
  private:
-  boost::scoped_ptr<LoggerImpl> impl_;
+
+class Impl
+{
+ public:
+  typedef Logger::LogLevel LogLevel;
+  Impl(LogLevel level, int old_errno, const char* file, int line);
+  void formatTime();
+  void finish();
+
+  Timestamp time_;
+  LogStream stream_;
+  LogLevel level_;
+  int line_;
+  const char* fullname_;
+  const char* basename_;
+};
+
+  Impl impl_;
+
 };
 
 #define LOG_TRACE if (muduo::Logger::logLevel() <= muduo::Logger::TRACE) \
@@ -70,4 +92,4 @@ T* CheckNotNull(const char *file, int line, const char *names, T* ptr) {
 
 }
 
-#endif  // MUDUO_LOG_LOGGING_H
+#endif  // MUDUO_BASE_LOGGING_H

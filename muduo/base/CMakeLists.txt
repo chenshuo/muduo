@@ -4,6 +4,7 @@ set(base_SRCS
   Exception.cc
   FileUtil.cc
   Logging.cc
+  LogStream.cc
   ProcessInfo.cc
   Timestamp.cc
   Thread.cc
