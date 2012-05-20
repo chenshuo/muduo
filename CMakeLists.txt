@@ -45,6 +45,7 @@ find_path(CARES_INCLUDE_DIR ares.h)
 find_library(CARES_LIBRARY NAMES cares)
 find_path(MHD_INCLUDE_DIR microhttpd.h)
 find_library(MHD_LIBRARY NAMES microhttpd)
+find_library(BOOSTTEST_LIBRARY NAMES boost_unit_test_framework)
 
 include_directories(${Boost_INCLUDE_DIRS})
 

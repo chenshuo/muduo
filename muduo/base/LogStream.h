@@ -27,7 +27,7 @@ class FixedBuffer : boost::noncopyable
   void append(const char* /*restrict*/ buf, size_t len)
   {
     // FIXME: append partially
-    if (cur_+len < end())
+    if (implicit_cast<size_t>(avail()) > len)
     {
       memcpy(cur_, buf, len);
       cur_ += len;
