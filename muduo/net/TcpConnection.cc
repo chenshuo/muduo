@@ -59,6 +59,7 @@ TcpConnection::TcpConnection(EventLoop* loop,
       boost::bind(&TcpConnection::handleError, this));
   LOG_DEBUG << "TcpConnection::ctor[" <<  name_ << "] at " << this
             << " fd=" << sockfd;
+  socket_->setKeepAlive(true);
 }
 
 TcpConnection::~TcpConnection()

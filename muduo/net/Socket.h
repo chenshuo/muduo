@@ -62,6 +62,11 @@ class Socket : boost::noncopyable
   ///
   void setReuseAddr(bool on);
 
+  ///
+  /// Enable/disable SO_KEEPALIVE
+  ///
+  void setKeepAlive(bool on);
+
  private:
   const int sockfd_;
 };
