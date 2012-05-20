@@ -15,6 +15,7 @@
 #include <muduo/base/Mutex.h>
 
 #include <vector>
+#include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
 
 namespace muduo
@@ -31,10 +32,12 @@ class EventLoopThread;
 class EventLoopThreadPool : boost::noncopyable
 {
  public:
+  typedef boost::function<void(EventLoop*)> ThreadInitCallback;
+
   EventLoopThreadPool(EventLoop* baseLoop);
   ~EventLoopThreadPool();
   void setThreadNum(int numThreads) { numThreads_ = numThreads; }
-  void start();
+  void start(const ThreadInitCallback& cb = ThreadInitCallback());
   EventLoop* getNextLoop();
 
  private:

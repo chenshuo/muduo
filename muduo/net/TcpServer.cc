@@ -65,7 +65,7 @@ void TcpServer::start()
   if (!started_)
   {
     started_ = true;
-    threadPool_->start();
+    threadPool_->start(threadInitCallback_);
   }
 
   if (!acceptor_->listenning())

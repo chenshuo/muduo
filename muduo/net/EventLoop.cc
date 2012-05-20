@@ -56,6 +56,11 @@ class IgnoreSigPipe
 IgnoreSigPipe initObj;
 }
 
+EventLoop* EventLoop::getEventLoopOfCurrentThread()
+{
+  return t_loopInThisThread;
+}
+
 EventLoop::EventLoop()
   : looping_(false),
     quit_(false),

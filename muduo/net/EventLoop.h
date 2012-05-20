@@ -108,6 +108,8 @@ class EventLoop : boost::noncopyable
   // bool callingPendingFunctors() const { return callingPendingFunctors_; }
   bool eventHandling() const { return eventHandling_; }
 
+  static EventLoop* getEventLoopOfCurrentThread();
+
  private:
   void abortNotInLoopThread();
   void handleRead();  // waked up

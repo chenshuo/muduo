@@ -16,12 +16,13 @@ using namespace muduo;
 using namespace muduo::net;
 
 
-EventLoopThread::EventLoopThread()
+EventLoopThread::EventLoopThread(const ThreadInitCallback& cb)
   : loop_(NULL),
     exiting_(false),
     thread_(boost::bind(&EventLoopThread::threadFunc, this)),
     mutex_(),
-    cond_(mutex_)
+    cond_(mutex_),
+    callback_(cb)
 {
 }
 
@@ -51,6 +52,11 @@ EventLoop* EventLoopThread::startLoop()
 void EventLoopThread::threadFunc()
 {
   EventLoop loop;
+
+  if (callback_)
+  {
+    callback_(&loop);
+  }
 
   {
     MutexLockGuard lock(mutex_);

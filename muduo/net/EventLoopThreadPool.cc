@@ -35,7 +35,7 @@ EventLoopThreadPool::~EventLoopThreadPool()
   }
 }
 
-void EventLoopThreadPool::start()
+void EventLoopThreadPool::start(const ThreadInitCallback& cb)
 {
   assert(!started_);
   baseLoop_->assertInLoopThread();
@@ -44,9 +44,13 @@ void EventLoopThreadPool::start()
 
   for (int i = 0; i < numThreads_; ++i)
   {
-    EventLoopThread* t = new EventLoopThread;
+    EventLoopThread* t = new EventLoopThread(cb);
     threads_.push_back(t);
     loops_.push_back(t->startLoop());
+  }
+  if (numThreads_ == 0 && cb)
+  {
+    cb(baseLoop_);
   }
 }
 

@@ -27,7 +27,9 @@ class EventLoop;
 class EventLoopThread : boost::noncopyable
 {
  public:
-  EventLoopThread();
+  typedef boost::function<void(EventLoop*)> ThreadInitCallback;
+
+  EventLoopThread(const ThreadInitCallback& cb = ThreadInitCallback());
   ~EventLoopThread();
   EventLoop* startLoop();
 
@@ -39,6 +41,7 @@ class EventLoopThread : boost::noncopyable
   Thread thread_;
   MutexLock mutex_;
   Condition cond_;
+  ThreadInitCallback callback_;
 };
 
 }
