@@ -32,6 +32,11 @@ string readFile(const char* filename)
   return content;
 }
 
+void onHighWaterMark(const TcpConnectionPtr& conn, size_t len)
+{
+  LOG_INFO << "HighWaterMark " << len;
+}
+
 void onConnection(const TcpConnectionPtr& conn)
 {
   LOG_INFO << "FileServer - " << conn->peerAddress().toIpPort() << " -> "
@@ -41,6 +46,7 @@ void onConnection(const TcpConnectionPtr& conn)
   {
     LOG_INFO << "FileServer - Sending file " << g_file
              << " to " << conn->peerAddress().toIpPort();
+    conn->setHighWaterMarkCallback(onHighWaterMark, 64*1024);
     string fileContent = readFile(g_file);
     conn->send(fileContent);
     conn->shutdown();

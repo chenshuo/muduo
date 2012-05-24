@@ -45,6 +45,7 @@ typedef boost::function<void()> TimerCallback;
 typedef boost::function<void (const TcpConnectionPtr&)> ConnectionCallback;
 typedef boost::function<void (const TcpConnectionPtr&)> CloseCallback;
 typedef boost::function<void (const TcpConnectionPtr&)> WriteCompleteCallback;
+typedef boost::function<void (const TcpConnectionPtr&, size_t)> HighWaterMarkCallback;
 
 // the data has been read to (buf, len)
 typedef boost::function<void (const TcpConnectionPtr&,

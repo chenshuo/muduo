@@ -47,7 +47,8 @@ TcpConnection::TcpConnection(EventLoop* loop,
     socket_(new Socket(sockfd)),
     channel_(new Channel(loop, sockfd)),
     localAddr_(localAddr),
-    peerAddr_(peerAddr)
+    peerAddr_(peerAddr),
+    highWaterMark_(64*1024*1024)
 {
   channel_->setReadCallback(
       boost::bind(&TcpConnection::handleRead, this, _1));
@@ -136,17 +137,15 @@ void TcpConnection::sendInLoop(const void* data, size_t len)
 {
   loop_->assertInLoopThread();
   ssize_t nwrote = 0;
+  size_t remaining = len;
   // if no thing in output queue, try writing directly
   if (!channel_->isWriting() && outputBuffer_.readableBytes() == 0)
   {
     nwrote = sockets::write(channel_->fd(), data, len);
     if (nwrote >= 0)
     {
-      if (implicit_cast<size_t>(nwrote) < len)
-      {
-        LOG_TRACE << "I am going to write more data";
-      }
-      else if (writeCompleteCallback_)
+      remaining = len - nwrote;
+      if (remaining == 0 && writeCompleteCallback_)
       {
         loop_->queueInLoop(boost::bind(writeCompleteCallback_, shared_from_this()));
       }
@@ -161,10 +160,18 @@ void TcpConnection::sendInLoop(const void* data, size_t len)
     }
   }
 
-  assert(nwrote >= 0);
-  if (implicit_cast<size_t>(nwrote) < len)
+  assert(remaining <= len);
+  if (remaining > 0)
   {
-    outputBuffer_.append(static_cast<const char*>(data)+nwrote, len-nwrote);
+    LOG_TRACE << "I am going to write more data";
+    size_t oldLen = outputBuffer_.readableBytes();
+    if (oldLen + remaining >= highWaterMark_
+        && oldLen < highWaterMark_
+        && highWaterMarkCallback_)
+    {
+      loop_->queueInLoop(boost::bind(highWaterMarkCallback_, shared_from_this(), oldLen + remaining));
+    }
+    outputBuffer_.append(static_cast<const char*>(data)+nwrote, remaining);
     if (!channel_->isWriting())
     {
       channel_->enableWriting();

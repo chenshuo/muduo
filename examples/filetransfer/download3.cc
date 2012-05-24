@@ -13,6 +13,11 @@ const int kBufSize = 64*1024;
 const char* g_file = NULL;
 typedef boost::shared_ptr<FILE> FilePtr;
 
+void onHighWaterMark(const TcpConnectionPtr& conn, size_t len)
+{
+  LOG_INFO << "HighWaterMark " << len;
+}
+
 void onConnection(const TcpConnectionPtr& conn)
 {
   LOG_INFO << "FileServer - " << conn->peerAddress().toIpPort() << " -> "
@@ -22,6 +27,7 @@ void onConnection(const TcpConnectionPtr& conn)
   {
     LOG_INFO << "FileServer - Sending file " << g_file
              << " to " << conn->peerAddress().toIpPort();
+    conn->setHighWaterMarkCallback(onHighWaterMark, kBufSize+1);
 
     FILE* fp = ::fopen(g_file, "rb");
     if (fp)
@@ -55,7 +61,6 @@ void onWriteComplete(const TcpConnectionPtr& conn)
     LOG_INFO << "FileServer - done";
   }
 }
-
 
 int main(int argc, char* argv[])
 {

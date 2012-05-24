@@ -66,6 +66,7 @@ EventLoop::EventLoop()
     quit_(false),
     eventHandling_(false),
     callingPendingFunctors_(false),
+    iteration_(0),
     threadId_(CurrentThread::tid()),
     poller_(Poller::newDefaultPoller(this)),
     timerQueue_(new TimerQueue(this)),
@@ -107,6 +108,7 @@ void EventLoop::loop()
   {
     activeChannels_.clear();
     pollReturnTime_ = poller_->poll(kPollTimeMs, &activeChannels_);
+    ++iteration_;
     if (Logger::logLevel() <= Logger::TRACE)
     {
       printActiveChannels();
