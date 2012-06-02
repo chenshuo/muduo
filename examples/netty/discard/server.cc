@@ -45,8 +45,8 @@ class DiscardServer
   void onConnection(const TcpConnectionPtr& conn)
   {
     LOG_TRACE << conn->peerAddress().toIpPort() << " -> "
-        << conn->localAddress().toIpPort() << " is "
-        << (conn->connected() ? "UP" : "DOWN");
+              << conn->localAddress().toIpPort() << " is "
+              << (conn->connected() ? "UP" : "DOWN");
   }
 
   void onMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp)

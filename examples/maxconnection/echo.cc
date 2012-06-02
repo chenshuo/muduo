@@ -13,7 +13,7 @@ EchoServer::EchoServer(EventLoop* loop,
   : loop_(loop),
     server_(loop, listenAddr, "EchoServer"),
     numConnected_(0),
-    kMaxConnections(maxConnections)
+    kMaxConnections_(maxConnections)
 {
   server_.setConnectionCallback(
       boost::bind(&EchoServer::onConnection, this, _1));
@@ -29,13 +29,13 @@ void EchoServer::start()
 void EchoServer::onConnection(const TcpConnectionPtr& conn)
 {
   LOG_INFO << "EchoServer - " << conn->peerAddress().toIpPort() << " -> "
-    << conn->localAddress().toIpPort() << " is "
-    << (conn->connected() ? "UP" : "DOWN");
+           << conn->localAddress().toIpPort() << " is "
+           << (conn->connected() ? "UP" : "DOWN");
 
   if (conn->connected())
   {
     ++numConnected_;
-    if (numConnected_ > kMaxConnections)
+    if (numConnected_ > kMaxConnections_)
     {
       conn->shutdown();
     }
