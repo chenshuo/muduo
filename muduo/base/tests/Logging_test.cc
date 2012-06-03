@@ -1,5 +1,6 @@
 #include <muduo/base/Logging.h>
 #include <muduo/base/LogFile.h>
+#include <muduo/base/ThreadPool.h>
 
 #include <stdio.h>
 
@@ -43,9 +44,24 @@ void bench(const char* type)
          type, seconds, g_total, n / seconds, g_total / seconds / (1024 * 1024));
 }
 
+void logInThread()
+{
+  LOG_INFO << "logInThread";
+  usleep(1000);
+}
+
 int main()
 {
   getppid(); // for ltrace and strace
+
+  muduo::ThreadPool pool("pool");
+  pool.start(5);
+  pool.run(logInThread);
+  pool.run(logInThread);
+  pool.run(logInThread);
+  pool.run(logInThread);
+  pool.run(logInThread);
+
   LOG_TRACE << "trace";
   LOG_DEBUG << "debug";
   LOG_INFO << "Hello";
@@ -56,8 +72,10 @@ int main()
   LOG_INFO << sizeof(muduo::Fmt);
   LOG_INFO << sizeof(muduo::LogStream::Buffer);
 
+  sleep(1);
   bench("nop");
 
+  return 0;
   char buffer[64*1024];
 
   g_file = fopen("/dev/null", "w");

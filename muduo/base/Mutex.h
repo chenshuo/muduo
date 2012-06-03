@@ -6,17 +6,13 @@
 #ifndef MUDUO_BASE_MUTEX_H
 #define MUDUO_BASE_MUTEX_H
 
+#include <muduo/base/CurrentThread.h>
 #include <boost/noncopyable.hpp>
 #include <assert.h>
 #include <pthread.h>
 
 namespace muduo
 {
-
-namespace CurrentThread
-{
-  pid_t tid();
-}
 
 class MutexLock : boost::noncopyable
 {

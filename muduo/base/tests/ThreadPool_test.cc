@@ -1,5 +1,6 @@
 #include <muduo/base/ThreadPool.h>
 #include <muduo/base/CountDownLatch.h>
+#include <muduo/base/CurrentThread.h>
 
 #include <boost/bind.hpp>
 #include <stdio.h>

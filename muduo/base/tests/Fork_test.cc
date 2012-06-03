@@ -1,4 +1,4 @@
-#include <muduo/base/Thread.h>
+#include <muduo/base/CurrentThread.h>
 
 #include <stdio.h>
 #include <sys/types.h>

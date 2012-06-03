@@ -4,9 +4,14 @@
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
 #include <muduo/base/Thread.h>
+#include <muduo/base/CurrentThread.h>
 #include <muduo/base/Logging.h>
 
+#include <boost/static_assert.hpp>
+#include <boost/type_traits/is_same.hpp>
+
 #include <errno.h>
+#include <stdio.h>
 #include <unistd.h>
 #include <sys/syscall.h>
 #include <sys/types.h>
@@ -16,12 +21,15 @@ namespace muduo
 {
 namespace CurrentThread
 {
+  __thread int t_cachedTid = 0;
+  __thread char t_tidString[32];
   __thread const char* t_threadName = "unknown";
+  const bool sameType = boost::is_same<int, pid_t>::value;
+  BOOST_STATIC_ASSERT(sameType);
 }
 
 namespace detail
 {
-__thread pid_t t_cachedTid = 0;
 
 pid_t gettid()
 {
@@ -30,8 +38,9 @@ pid_t gettid()
 
 void afterFork()
 {
-  t_cachedTid = gettid();
+  muduo::CurrentThread::t_cachedTid = 0;
   muduo::CurrentThread::t_threadName = "main";
+  CurrentThread::tid();
   // no need to call pthread_atfork(NULL, NULL, &afterFork);
 }
 
@@ -41,6 +50,7 @@ class ThreadNameInitializer
   ThreadNameInitializer()
   {
     muduo::CurrentThread::t_threadName = "main";
+    CurrentThread::tid();
     pthread_atfork(NULL, NULL, &afterFork);
   }
 };
@@ -50,20 +60,15 @@ ThreadNameInitializer init;
 }
 
 using namespace muduo;
-using namespace muduo::detail;
 
-pid_t CurrentThread::tid()
+void CurrentThread::cacheTid()
 {
   if (t_cachedTid == 0)
   {
-    t_cachedTid = gettid();
+    t_cachedTid = detail::gettid();
+    int n = snprintf(t_tidString, sizeof t_tidString, "%5d ", t_cachedTid);
+    assert(n == 6); (void) n;
   }
-  return t_cachedTid;
-}
-
-const char* CurrentThread::name()
-{
-  return t_threadName;
 }
 
 bool CurrentThread::isMainThread()

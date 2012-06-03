@@ -1,7 +1,7 @@
 #include <muduo/base/Logging.h>
 
+#include <muduo/base/CurrentThread.h>
 #include <muduo/base/StringPiece.h>
-#include <muduo/base/Thread.h>
 #include <muduo/base/Timestamp.h>
 
 #include <errno.h>
@@ -92,9 +92,8 @@ Logger::Impl::Impl(LogLevel level, int savedErrno, const char* file, int line)
   basename_ = (path_sep_pos != NULL) ? path_sep_pos + 1 : fullname_;
 
   formatTime();
-  Fmt tid("%5d ", CurrentThread::tid());
-  assert(tid.length() == 6);
-  stream_ << T(tid.data(), 6);
+  CurrentThread::tid();
+  stream_ << T(CurrentThread::tidString(), 6);
   stream_ << T(LogLevelName[level], 6);
   if (savedErrno != 0)
   {

@@ -47,12 +47,5 @@ class Thread : boost::noncopyable
   static AtomicInt32 numCreated_;
 };
 
-namespace CurrentThread
-{
-  pid_t tid();
-  const char* name();
-  bool isMainThread();
-}
-
 }
 #endif

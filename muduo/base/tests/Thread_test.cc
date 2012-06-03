@@ -1,4 +1,5 @@
 #include <muduo/base/Thread.h>
+#include <muduo/base/CurrentThread.h>
 
 #include <string>
 #include <boost/bind.hpp>

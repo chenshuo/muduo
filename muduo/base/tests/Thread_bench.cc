@@ -1,3 +1,4 @@
+#include <muduo/base/CurrentThread.h>
 #include <muduo/base/Thread.h>
 #include <muduo/base/Timestamp.h>
 
