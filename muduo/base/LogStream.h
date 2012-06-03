@@ -16,12 +16,22 @@ namespace muduo
 namespace detail
 {
 
+const int kSmallBuffer = 4000;
+const int kLargeBuffer = 4000*1000;
+
+template<int SIZE>
 class FixedBuffer : boost::noncopyable
 {
  public:
   FixedBuffer()
     : cur_(data_)
   {
+    setCookie(cookieStart);
+  }
+
+  ~FixedBuffer()
+  {
+    setCookie(cookieEnd);
   }
 
   void append(const char* /*restrict*/ buf, size_t len)
@@ -42,16 +52,23 @@ class FixedBuffer : boost::noncopyable
   int avail() const { return static_cast<int>(end() - cur_); }
   void add(size_t len) { cur_ += len; }
 
+  void reset() { cur_ = data_; }
+  void bzero() { ::bzero(data_, sizeof data_); }
+
   // for used by GDB
   const char* debugString();
+  void setCookie(void (*cookie)()) { cookie_ = cookie; }
   // for used by unit test
   string asString() const { return string(data_, length()); }
-  void reset() { cur_ = data_; }
 
  private:
   const char* end() const { return data_ + sizeof data_; }
+  // Must be outline function for cookies.
+  static void cookieStart();
+  static void cookieEnd();
 
-  char data_[4000];
+  void (*cookie_)();
+  char data_[SIZE];
   char* cur_;
 };
 
@@ -76,7 +93,7 @@ class LogStream : boost::noncopyable
 {
   typedef LogStream self;
  public:
-  typedef detail::FixedBuffer Buffer;
+  typedef detail::FixedBuffer<detail::kSmallBuffer> Buffer;
 
   self& operator<<(bool v)
   {

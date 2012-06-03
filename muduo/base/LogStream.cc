@@ -71,11 +71,25 @@ size_t convertHex(char buf[], uintptr_t value)
 }
 }
 
-const char* FixedBuffer::debugString()
+template<int SIZE>
+const char* FixedBuffer<SIZE>::debugString()
 {
   *cur_ = '\0';
   return data_;
 }
+
+template<int SIZE>
+void FixedBuffer<SIZE>::cookieStart()
+{
+}
+
+template<int SIZE>
+void FixedBuffer<SIZE>::cookieEnd()
+{
+}
+
+template class FixedBuffer<kSmallBuffer>;
+template class FixedBuffer<kLargeBuffer>;
 
 void LogStream::staticCheck()
 {
