@@ -75,7 +75,6 @@ int main()
   sleep(1);
   bench("nop");
 
-  return 0;
   char buffer[64*1024];
 
   g_file = fopen("/dev/null", "w");
