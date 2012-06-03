@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE(testLogStreamIntegerLimits)
   const muduo::LogStream::Buffer& buf = os.buffer();
   os << -2147483647;
   BOOST_CHECK_EQUAL(buf.asString(), string("-2147483647"));
-  os << static_cast<int>(-2147483648);
+  os << static_cast<int>(-2147483647 - 1);
   BOOST_CHECK_EQUAL(buf.asString(), string("-2147483647-2147483648"));
   os << ' ';
   os << 2147483647;

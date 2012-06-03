@@ -1,3 +1,14 @@
+2012-06-03  Shuo Chen  <chenshuo@chenshuo.com>
+
+  * Replace std::ostream with LogStream.
+  * Add LogFile and AsyncLogging.
+  * Set SO_KEEPALIVE by default.
+  * Add HighWaterMark callback to TcpConnection.
+  * Add EventLoop::getEventLoopOfCurrentThread(),
+    Add ThreadInitCallback to EventLoopThreadPool.
+  * Add asio_chat_server_threaded_highperformance
+  * Version 0.5.0
+
 2012-05-18  Shuo Chen  <chenshuo@chenshuo.com>
 
   * Add FileUtil.
