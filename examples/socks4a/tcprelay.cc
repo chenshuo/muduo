@@ -1,6 +1,8 @@
 #include "tunnel.h"
 
+#include <malloc.h>
 #include <stdio.h>
+#include <sys/resource.h>
 
 using namespace muduo;
 using namespace muduo::net;
@@ -38,6 +40,11 @@ void onServerMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp)
   }
 }
 
+void memstat()
+{
+  malloc_stats();
+}
+
 int main(int argc, char* argv[])
 {
   if (argc < 4)
@@ -47,7 +54,12 @@ int main(int argc, char* argv[])
   else
   {
     LOG_INFO << "pid = " << getpid() << ", tid = " << CurrentThread::tid();
-
+    {
+      // set max virtual memory to 256MB.
+      size_t kOneMB = 1024*1024;
+      rlimit rl = { 256*kOneMB, 256*kOneMB };
+      setrlimit(RLIMIT_AS, &rl);
+    }
     const char* ip = argv[1];
     uint16_t port = static_cast<uint16_t>(atoi(argv[2]));
     InetAddress serverAddr(ip, port);
@@ -58,6 +70,7 @@ int main(int argc, char* argv[])
 
     EventLoop loop;
     g_eventLoop = &loop;
+    loop.runEvery(3, memstat);
 
     TcpServer server(&loop, listenAddr, "TcpRelay");
 
