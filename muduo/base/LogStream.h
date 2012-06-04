@@ -74,21 +74,6 @@ class FixedBuffer : boost::noncopyable
 
 }
 
-// helper class for known string length at compile time
-class T
-{
- public:
-  T(const char* str, int len)
-    :str_(str),
-     len_(len)
-  {
-    assert(strlen(str) == len_);
-  }
-
-  const char* str_;
-  const size_t len_;
-};
-
 class LogStream : boost::noncopyable
 {
   typedef LogStream self;
@@ -132,12 +117,6 @@ class LogStream : boost::noncopyable
   self& operator<<(const char* v)
   {
     buffer_.append(v, strlen(v));
-    return *this;
-  }
-
-  self& operator<<(const T& v)
-  {
-    buffer_.append(v.str_, v.len_);
     return *this;
   }
 

@@ -21,10 +21,31 @@ class Logger
     NUM_LOG_LEVELS,
   };
 
-  Logger(const char* file, int line);
-  Logger(const char* file, int line, LogLevel level);
-  Logger(const char* file, int line, LogLevel level, const char* func);
-  Logger(const char* file, int line, bool toAbort);
+  // compile time calculation of basename of source file
+  class SourceFile
+  {
+   public:
+    template<int N>
+    inline SourceFile(const char (&arr)[N])
+      : data_(arr),
+        size_(N-1)
+    {
+      const char* slash = strrchr(data_, '/'); // builtin function
+      if (slash)
+      {
+        data_ = slash + 1;
+        size_ -= static_cast<int>(data_ - arr);
+      }
+    }
+
+    const char* data_;
+    int size_;
+  };
+
+  Logger(SourceFile file, int line);
+  Logger(SourceFile file, int line, LogLevel level);
+  Logger(SourceFile file, int line, LogLevel level, const char* func);
+  Logger(SourceFile file, int line, bool toAbort);
   ~Logger();
 
   LogStream& stream() { return impl_.stream_; }
@@ -43,7 +64,7 @@ class Impl
 {
  public:
   typedef Logger::LogLevel LogLevel;
-  Impl(LogLevel level, int old_errno, const char* file, int line);
+  Impl(LogLevel level, int old_errno, const SourceFile& file, int line);
   void formatTime();
   void finish();
 
@@ -51,13 +72,19 @@ class Impl
   LogStream stream_;
   LogLevel level_;
   int line_;
-  const char* fullname_;
-  const char* basename_;
+  SourceFile basename_;
 };
 
   Impl impl_;
 
 };
+
+extern Logger::LogLevel g_logLevel;
+
+inline Logger::LogLevel Logger::logLevel()
+{
+  return g_logLevel;
+}
 
 #define LOG_TRACE if (muduo::Logger::logLevel() <= muduo::Logger::TRACE) \
   muduo::Logger(__FILE__, __LINE__, muduo::Logger::TRACE, __func__).stream()
@@ -83,7 +110,7 @@ const char* strerror_tl(int savedErrno);
 
 // A small helper for CHECK_NOTNULL().
 template <typename T>
-T* CheckNotNull(const char *file, int line, const char *names, T* ptr) {
+T* CheckNotNull(Logger::SourceFile file, int line, const char *names, T* ptr) {
   if (ptr == NULL) {
    Logger(file, line, Logger::FATAL).stream() << names;
   }

@@ -61,6 +61,33 @@ const char* LogLevelName[Logger::NUM_LOG_LEVELS] =
   "FATAL ",
 };
 
+// helper class for known string length at compile time
+class T
+{
+ public:
+  T(const char* str, unsigned len)
+    :str_(str),
+     len_(len)
+  {
+    assert(strlen(str) == len_);
+  }
+
+  const char* str_;
+  const unsigned len_;
+};
+
+inline LogStream& operator<<(LogStream& s, T v)
+{
+  s.append(v.str_, v.len_);
+  return s;
+}
+
+inline LogStream& operator<<(LogStream& s, const Logger::SourceFile& v)
+{
+  s.append(v.data_, v.size_);
+  return s;
+}
+
 void defaultOutput(const char* msg, int len)
 {
   size_t n = fwrite(msg, 1, len, stdout);
@@ -80,17 +107,13 @@ Logger::FlushFunc g_flush = defaultFlush;
 
 using namespace muduo;
 
-Logger::Impl::Impl(LogLevel level, int savedErrno, const char* file, int line)
+Logger::Impl::Impl(LogLevel level, int savedErrno, const SourceFile& file, int line)
   : time_(Timestamp::now()),
     stream_(),
     level_(level),
     line_(line),
-    fullname_(file),
-    basename_(NULL)
+    basename_(file)
 {
-  const char* path_sep_pos = strrchr(fullname_, '/');
-  basename_ = (path_sep_pos != NULL) ? path_sep_pos + 1 : fullname_;
-
   formatTime();
   CurrentThread::tid();
   stream_ << T(CurrentThread::tidString(), 6);
@@ -127,23 +150,23 @@ void Logger::Impl::finish()
   stream_ << " - " << basename_ << ':' << line_ << '\n';
 }
 
-Logger::Logger(const char* file, int line)
+Logger::Logger(SourceFile file, int line)
   : impl_(INFO, 0, file, line)
 {
 }
 
-Logger::Logger(const char* file, int line, LogLevel level, const char* func)
+Logger::Logger(SourceFile file, int line, LogLevel level, const char* func)
   : impl_(level, 0, file, line)
 {
   impl_.stream_ << func << ' ';
 }
 
-Logger::Logger(const char* file, int line, LogLevel level)
+Logger::Logger(SourceFile file, int line, LogLevel level)
   : impl_(level, 0, file, line)
 {
 }
 
-Logger::Logger(const char* file, int line, bool toAbort)
+Logger::Logger(SourceFile file, int line, bool toAbort)
   : impl_(toAbort?FATAL:ERROR, errno, file, line)
 {
 }
@@ -158,11 +181,6 @@ Logger::~Logger()
     g_flush();
     abort();
   }
-}
-
-Logger::LogLevel Logger::logLevel()
-{
-  return g_logLevel;
 }
 
 void Logger::setLogLevel(Logger::LogLevel level)
