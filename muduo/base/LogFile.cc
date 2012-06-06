@@ -165,7 +165,7 @@ void LogFile::rollFile()
 string LogFile::getLogFileName(const string& basename, time_t* now)
 {
   string filename;
-  filename.reserve(basename.size() + 32);
+  filename.reserve(basename.size() + 64);
   filename = basename;
 
   char timebuf[32];
@@ -173,8 +173,9 @@ string LogFile::getLogFileName(const string& basename, time_t* now)
   struct tm tm;
   *now = time(NULL);
   gmtime_r(now, &tm); // FIXME: localtime_r ?
-  strftime(timebuf, sizeof timebuf, ".%Y%m%d-%H%M%S", &tm);
+  strftime(timebuf, sizeof timebuf, ".%Y%m%d-%H%M%S.", &tm);
   filename += timebuf;
+  filename += ProcessInfo::hostname();
   snprintf(pidbuf, sizeof pidbuf, ".%d", ProcessInfo::pid());
   filename += pidbuf;
   filename += ".log";
