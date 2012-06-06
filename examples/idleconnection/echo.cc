@@ -36,8 +36,8 @@ void EchoServer::start()
 void EchoServer::onConnection(const TcpConnectionPtr& conn)
 {
   LOG_INFO << "EchoServer - " << conn->peerAddress().toIpPort() << " -> "
-    << conn->localAddress().toIpPort() << " is "
-    << (conn->connected() ? "UP" : "DOWN");
+           << conn->localAddress().toIpPort() << " is "
+           << (conn->connected() ? "UP" : "DOWN");
 
   if (conn->connected())
   {
@@ -60,7 +60,8 @@ void EchoServer::onMessage(const TcpConnectionPtr& conn,
                            Timestamp time)
 {
   string msg(buf->retrieveAsString());
-  LOG_INFO << conn->name() << " echo " << msg.size() << " bytes at " << time.toString();
+  LOG_INFO << conn->name() << " echo " << msg.size()
+           << " bytes at " << time.toString();
   conn->send(msg);
 
   assert(!conn->getContext().empty());
