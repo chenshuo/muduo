@@ -67,8 +67,8 @@ class Bench
       if (t.valid())
       {
         int delay = static_cast<int>(timeDifference(now, t) * 1000000);
-        printf("tid=%d, latency = %d us\n",
-               muduo::CurrentThread::tid(), delay);
+        // printf("tid=%d, latency = %d us\n",
+        //        muduo::CurrentThread::tid(), delay);
         ++delays[delay];
       }
       running = t.valid();
