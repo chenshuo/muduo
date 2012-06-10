@@ -34,7 +34,8 @@ class LengthHeaderCodec : boost::noncopyable
       if (len > 65536 || len < 0)
       {
         LOG_ERROR << "Invalid length " << len;
-        conn->shutdown();
+        conn->shutdown();  // FIXME: disable reading
+        break;
       }
       else if (buf->readableBytes() >= len + kHeaderLen)
       {
