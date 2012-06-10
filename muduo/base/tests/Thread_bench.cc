@@ -1,15 +1,28 @@
 #include <muduo/base/CurrentThread.h>
+#include <muduo/base/Mutex.h>
 #include <muduo/base/Thread.h>
 #include <muduo/base/Timestamp.h>
 
+#include <map>
 #include <string>
 #include <boost/bind.hpp>
 #include <stdio.h>
 #include <sys/wait.h>
 
+muduo::MutexLock g_mutex;
+std::map<int, int> g_delays;
+
 void threadFunc()
 {
   //printf("tid=%d\n", muduo::CurrentThread::tid());
+}
+
+void threadFunc2(muduo::Timestamp start)
+{
+  muduo::Timestamp now(muduo::Timestamp::now());
+  int delay = static_cast<int>(timeDifference(now, start) * 1000000);
+  muduo::MutexLockGuard lock(g_mutex);
+  ++g_delays[delay];
 }
 
 void forkBench()
@@ -49,6 +62,23 @@ int main(int argc, char* argv[])
   double timeUsed = timeDifference(muduo::Timestamp::now(), start);
   printf("thread creation time %f us\n", timeUsed*1000000/kThreads);
   printf("number of created threads %d\n", muduo::Thread::numCreated());
+
+  for (int i = 0; i < kThreads; ++i)
+  {
+    muduo::Timestamp now(muduo::Timestamp::now());
+    muduo::Thread t2(boost::bind(threadFunc2, now));
+    t2.start();
+    t2.join();
+  }
+  {
+    muduo::MutexLockGuard lock(g_mutex);
+    for (std::map<int, int>::iterator it = g_delays.begin();
+        it != g_delays.end(); ++it)
+    {
+      printf("delay = %d, count = %d\n",
+             it->first, it->second);
+    }
+  }
 
   forkBench();
 }
