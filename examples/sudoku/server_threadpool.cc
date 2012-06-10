@@ -109,7 +109,9 @@ class SudokuServer
     return goodRequest;
   }
 
-  static void solve(const TcpConnectionPtr& conn, const string& puzzle, const string& id)
+  static void solve(const TcpConnectionPtr& conn,
+                    const string& puzzle,
+                    const string& id)
   {
     LOG_DEBUG << conn->name();
     string result = solveSudoku(puzzle);

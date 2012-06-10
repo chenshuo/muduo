@@ -9,14 +9,14 @@
 using namespace muduo;
 using namespace muduo::net;
 
-const int kBufSize = 64*1024;
-const char* g_file = NULL;
-typedef boost::shared_ptr<FILE> FilePtr;
-
 void onHighWaterMark(const TcpConnectionPtr& conn, size_t len)
 {
   LOG_INFO << "HighWaterMark " << len;
 }
+
+const int kBufSize = 64*1024;
+const char* g_file = NULL;
+typedef boost::shared_ptr<FILE> FilePtr;
 
 void onConnection(const TcpConnectionPtr& conn)
 {
