@@ -17,6 +17,7 @@
 #include <vector>
 #include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
 
 namespace muduo
 {
@@ -46,7 +47,7 @@ class EventLoopThreadPool : boost::noncopyable
   bool started_;
   int numThreads_;
   int next_;
-  std::vector<EventLoopThread*> threads_; // FIXME: use unique_ptr
+  boost::ptr_vector<EventLoopThread> threads_;
   std::vector<EventLoop*> loops_;
 };
 

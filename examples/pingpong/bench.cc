@@ -7,6 +7,7 @@
 #include <muduo/net/EventLoop.h>
 
 #include <boost/bind.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
 
 #include <stdio.h>
 #include <sys/resource.h>
@@ -20,7 +21,7 @@ int numPipes;
 int numActive;
 int numWrites;
 EventLoop* g_loop;
-std::vector<Channel*> g_channels;
+boost::ptr_vector<Channel> g_channels;
 
 int g_reads, g_writes, g_fired;
 
@@ -51,9 +52,9 @@ std::pair<int, int> runOnce()
   Timestamp beforeInit(Timestamp::now());
   for (int i = 0; i < numPipes; ++i)
   {
-    Channel* channel = g_channels[i];
-    channel->setReadCallback(boost::bind(readCallback, _1, channel->fd(), i));
-    channel->enableReading();
+    Channel& channel = g_channels[i];
+    channel.setReadCallback(boost::bind(readCallback, _1, channel.fd(), i));
+    channel.enableReading();
   }
 
   int space = numPipes / numActive;
@@ -131,10 +132,5 @@ int main(int argc, char* argv[])
   {
     std::pair<int, int> t = runOnce();
     printf("%8d %8d\n", t.first, t.second);
-  }
-
-  for (int i = 0; i < numPipes; ++i)
-  {
-    delete g_channels[i];
   }
 }

@@ -28,11 +28,6 @@ EventLoopThreadPool::EventLoopThreadPool(EventLoop* baseLoop)
 EventLoopThreadPool::~EventLoopThreadPool()
 {
   // Don't delete loop, it's stack variable
-
-  for (size_t i = 0; i < threads_.size(); ++i)
-  {
-    delete threads_[i];
-  }
 }
 
 void EventLoopThreadPool::start(const ThreadInitCallback& cb)

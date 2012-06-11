@@ -6,6 +6,7 @@
 #include <muduo/net/InetAddress.h>
 
 #include <boost/bind.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
 
 #include <utility>
 
@@ -18,7 +19,7 @@ using namespace muduo::net;
 
 int numThreads = 0;
 class EchoClient;
-std::vector<EchoClient*> clients;
+boost::ptr_vector<EchoClient> clients;
 int current = 0;
 
 class EchoClient : boost::noncopyable
@@ -53,7 +54,7 @@ class EchoClient : boost::noncopyable
       ++current;
       if (implicit_cast<size_t>(current) < clients.size())
       {
-        clients[current]->connect();
+        clients[current].connect();
       }
       LOG_INFO << "*** connected " << current;
     }
@@ -104,13 +105,8 @@ int main(int argc, char* argv[])
       clients.push_back(new EchoClient(&loop, serverAddr, buf));
     }
 
-    clients[current]->connect();
+    clients[current].connect();
     loop.loop();
-    while (!clients.empty())
-    {
-      delete clients.back();
-      clients.pop_back();
-    }
   }
   else
   {
