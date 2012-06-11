@@ -1,3 +1,13 @@
+2012-06-11   Shuo Chen  <chenshuo@chenshuo.com>
+  * Put hostname as part of log file name.
+  * Extract muduo/base/CurrentThread.h
+  * Optimize logging for thread id and source filename.
+  * Add BlockingQueue_bench, improve Thread_bench.
+  * Add examples/zeromq, for round-trip latency tests.
+  * Demonstrate HighWaterMark callback and weak callback in tcp tunnel.
+  * Fix chat codec for invalid length.
+  * Version 0.6.0
+
 2012-06-03  Shuo Chen  <chenshuo@chenshuo.com>
 
   * Replace std::ostream with LogStream.
