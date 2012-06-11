@@ -38,8 +38,8 @@ void threadFunc(const char* changeTo)
          &muduo::ThreadLocalSingleton<Test>::instance(),
          muduo::ThreadLocalSingleton<Test>::instance().name().c_str());
 
-  // manually delete it
-  muduo::ThreadLocalSingleton<Test>::destroy();
+  // no need to manually delete it
+  // muduo::ThreadLocalSingleton<Test>::destroy();
 }
 
 int main()
@@ -55,4 +55,6 @@ int main()
          &muduo::ThreadLocalSingleton<Test>::instance(),
          muduo::ThreadLocalSingleton<Test>::instance().name().c_str());
   t2.join();
+
+  pthread_exit(0);
 }
