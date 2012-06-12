@@ -6,8 +6,8 @@
 using namespace muduo;
 
 AsyncLogging::AsyncLogging(const string& basename,
-                              size_t rollSize,
-                              int flushInterval)
+                           size_t rollSize,
+                           int flushInterval)
   : flushInterval_(flushInterval),
     running_(false),
     basename_(basename),

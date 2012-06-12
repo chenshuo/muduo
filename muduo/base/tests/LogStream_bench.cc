@@ -8,7 +8,7 @@
 
 using namespace muduo;
 
-const int N = 1000000;
+const size_t N = 1000000;
 
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 
@@ -17,7 +17,7 @@ void benchPrintf(const char* fmt)
 {
   char buf[32];
   Timestamp start(Timestamp::now());
-  for (int i = 0; i < N; ++i)
+  for (size_t i = 0; i < N; ++i)
     snprintf(buf, sizeof buf, fmt, (T)(i));
   Timestamp end(Timestamp::now());
 
@@ -30,7 +30,7 @@ void benchStringStream()
   Timestamp start(Timestamp::now());
   std::ostringstream os;
 
-  for (int i = 0; i < N; ++i)
+  for (size_t i = 0; i < N; ++i)
   {
     os << (T)(i);
     os.seekp(0, std::ios_base::beg);
@@ -45,7 +45,7 @@ void benchLogStream()
 {
   Timestamp start(Timestamp::now());
   LogStream os;
-  for (int i = 0; i < N; ++i)
+  for (size_t i = 0; i < N; ++i)
   {
     os << (T)(i);
     os.resetBuffer();

@@ -53,6 +53,9 @@ class AsyncLogging : boost::noncopyable
   }
 
  private:
+  AsyncLogging(const AsyncLogging&);  // ptr_container
+  void operator=(const AsyncLogging&);  // ptr_container
+
   void threadFunc();
 
   const int flushInterval_;
