@@ -35,6 +35,7 @@ class Singleton : boost::noncopyable
 
   static void destroy()
   {
+    typedef char T_must_be_complete_type[sizeof(T) == 0 ? -1 : 1];
     delete value_;
   }
 
