@@ -18,6 +18,7 @@ class LogFile::File : boost::noncopyable
   {
     assert(fp_);
     ::setbuffer(fp_, buffer_, sizeof buffer_);
+    // posix_fadvise POSIX_FADV_DONTNEED ?
   }
 
   ~File()

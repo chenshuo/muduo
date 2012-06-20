@@ -5,6 +5,7 @@
 
 #include <muduo/base/Thread.h>
 #include <muduo/base/CurrentThread.h>
+#include <muduo/base/Exception.h>
 #include <muduo/base/Logging.h>
 
 #include <boost/static_assert.hpp>
@@ -90,6 +91,7 @@ Thread::Thread(const ThreadFunc& func, const string& n)
 
 Thread::~Thread()
 {
+  // no join
 }
 
 void Thread::start()
@@ -120,7 +122,31 @@ void Thread::runInThread()
 {
   tid_ = CurrentThread::tid();
   muduo::CurrentThread::t_threadName = name_.c_str();
-  func_();
-  muduo::CurrentThread::t_threadName = "finished";
+  try
+  {
+    func_();
+    muduo::CurrentThread::t_threadName = "finished";
+  }
+  catch (const Exception& ex)
+  {
+    muduo::CurrentThread::t_threadName = "crashed";
+    fprintf(stderr, "exception caught in Thread %s\n", name_.c_str());
+    fprintf(stderr, "reason: %s\n", ex.what());
+    fprintf(stderr, "stack trace: %s\n", ex.stackTrace());
+    abort();
+  }
+  catch (const std::exception& ex)
+  {
+    muduo::CurrentThread::t_threadName = "crashed";
+    fprintf(stderr, "exception caught in Thread %s\n", name_.c_str());
+    fprintf(stderr, "reason: %s\n", ex.what());
+    abort();
+  }
+  catch (...)
+  {
+    muduo::CurrentThread::t_threadName = "crashed";
+    fprintf(stderr, "unknown exception caught in Thread %s\n", name_.c_str());
+    throw; // rethrow
+  }
 }
 

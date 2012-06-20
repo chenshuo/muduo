@@ -113,7 +113,7 @@ void ThreadPool::runInThread()
   catch (...)
   {
     fprintf(stderr, "unknown exception caught in ThreadPool %s\n", name_.c_str());
-    abort();
+    throw; // rethrow
   }
 }
 
