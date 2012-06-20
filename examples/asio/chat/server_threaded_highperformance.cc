@@ -2,6 +2,7 @@
 
 #include <muduo/base/Logging.h>
 #include <muduo/base/Mutex.h>
+#include <muduo/base/ThreadLocalSingleton.h>
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/TcpServer.h>
 
@@ -49,11 +50,11 @@ class ChatServer : boost::noncopyable
 
     if (conn->connected())
     {
-      connections_->insert(conn);
+      connections_.instance().insert(conn);
     }
     else
     {
-      connections_->erase(conn);
+      connections_.instance().erase(conn);
     }
   }
 
@@ -79,8 +80,8 @@ class ChatServer : boost::noncopyable
   void distributeMessage(const string& message)
   {
     LOG_DEBUG << "begin";
-    for (ConnectionList::iterator it = connections_->begin();
-        it != connections_->end();
+    for (ConnectionList::iterator it = connections_.instance().begin();
+        it != connections_.instance().end();
         ++it)
     {
       codec_.send(get_pointer(*it), message);
@@ -90,22 +91,21 @@ class ChatServer : boost::noncopyable
 
   void threadInit(EventLoop* loop)
   {
+    assert(connections_.pointer() == NULL);
+    connections_.instance();
+    assert(connections_.pointer() != NULL);
     MutexLockGuard lock(mutex_);
     loops_.insert(loop);
-    assert(connections_ == NULL);
-    connections_ = new ConnectionList;
   }
 
   EventLoop* loop_;
   TcpServer server_;
   LengthHeaderCodec codec_;
-  static __thread ConnectionList* connections_;
+  ThreadLocalSingleton<ConnectionList> connections_;
 
   MutexLock mutex_;
   std::set<EventLoop*> loops_;
 };
-
- __thread ChatServer::ConnectionList* ChatServer::connections_;
 
 int main(int argc, char* argv[])
 {

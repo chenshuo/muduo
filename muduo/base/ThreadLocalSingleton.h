@@ -28,6 +28,11 @@ class ThreadLocalSingleton : boost::noncopyable
     return *t_value_;
   }
 
+  static T* pointer()
+  {
+    return t_value_;
+  }
+
  private:
 
   static void destructor(void* obj)
