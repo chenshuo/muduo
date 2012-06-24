@@ -29,7 +29,7 @@ class LengthHeaderCodec : boost::noncopyable
     {
       // FIXME: use Buffer::peekInt32()
       const void* data = buf->peek();
-      int32_t be32 = *static_cast<const int32_t*>(data);
+      int32_t be32 = *static_cast<const int32_t*>(data); // SIGBUS
       const int32_t len = muduo::net::sockets::networkToHost32(be32);
       if (len > 65536 || len < 0)
       {

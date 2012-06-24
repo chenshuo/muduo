@@ -14,10 +14,13 @@
 #include <muduo/base/copyable.h>
 #include <muduo/base/Types.h>
 
+#include <muduo/net/Endian.h>
+
 #include <algorithm>
 #include <vector>
 
 #include <assert.h>
+#include <string.h>
 //#include <unistd.h>  // ssize_t
 
 namespace muduo
@@ -158,7 +161,11 @@ class Buffer : public muduo::copyable
   ///
   /// Append int32_t using network endian
   ///
-  void appendInt32(int32_t x);
+  void appendInt32(int32_t x)
+  {
+    int32_t be32 = sockets::hostToNetwork32(x);
+    append(&be32, sizeof be32);
+  }
 
   ///
   /// Read int32_t from network endian
@@ -175,7 +182,13 @@ class Buffer : public muduo::copyable
   /// Peek int32_t from network endian
   ///
   /// Require: buf->readableBytes() >= sizeof(int32_t)
-  int32_t peekInt32() const;
+  int32_t peekInt32() const
+  {
+    assert(readableBytes() >= sizeof(int32_t));
+    int32_t be32 = 0;
+    ::memcpy(&be32, peek(), sizeof be32);
+    return sockets::networkToHost32(be32);
+  }
 
   void prepend(const void* /*restrict*/ data, size_t len)
   {

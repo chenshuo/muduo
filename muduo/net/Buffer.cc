@@ -9,31 +9,15 @@
 
 #include <muduo/net/Buffer.h>
 
-#include <muduo/net/Endian.h>
 #include <muduo/net/SocketsOps.h>
 
 #include <errno.h>
-#include <memory.h>
 #include <sys/uio.h>
 
 using namespace muduo;
 using namespace muduo::net;
 
 const char Buffer::kCRLF[] = "\r\n";
-
-void Buffer::appendInt32(int32_t x)
-{
-  int32_t be32 = sockets::hostToNetwork32(x);
-  append(&be32, sizeof be32);
-}
-
-int32_t Buffer::peekInt32() const
-{
-  assert(readableBytes() >= sizeof(int32_t));
-  int32_t be32 = 0;
-  ::memcpy(&be32, peek(), sizeof be32);
-  return sockets::networkToHost32(be32);
-}
 
 ssize_t Buffer::readFd(int fd, int* savedErrno)
 {
