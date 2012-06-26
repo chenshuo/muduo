@@ -1,4 +1,19 @@
+2012-06-26   Shuo Chen  <chenshuo@chenshuo.com>
+
+  * Add TimeZone class and unit tests.
+  * Inline Buffer::appendInt32() and Buffer::peekInt32().
+  * Catch exception in Thread::runInThread().
+    Rethrow in catch(...) to make pthread_cancel() working.
+  * Avoid deleting incomplete types.
+  * Replace delete with boost::ptr_vector
+  * Destructs ThreadLocalSingleton
+  * Replace __thread object with ThreadLocalSingleton in examples/asio/chat/
+  * Fix compile with g++ 4.6
+  * With armlinux.diff, muduo compiles on Raspberry Pi with g++ 4.5.
+  * Version 0.7.0
+
 2012-06-11   Shuo Chen  <chenshuo@chenshuo.com>
+
   * Put hostname as part of log file name.
   * Extract muduo/base/CurrentThread.h
   * Optimize logging for thread id and source filename.
