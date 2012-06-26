@@ -54,6 +54,9 @@ target_link_libraries(singleton_threadlocal_test muduo_base)
 add_executable(timestamp_unittest Timestamp_unittest.cc)
 target_link_libraries(timestamp_unittest muduo_base)
 
+add_executable(timezone_unittest TimeZone_unittest.cc)
+target_link_libraries(timezone_unittest muduo_base)
+
 add_executable(thread_bench Thread_bench.cc)
 target_link_libraries(thread_bench muduo_base)
 

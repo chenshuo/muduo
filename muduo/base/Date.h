@@ -34,6 +34,7 @@ class Date : public muduo::copyable
   };
 
   static const int kDaysPerWeek = 7;
+  static const int kJulianDayOf1970_01_01;
 
   ///
   /// Constucts an invalid Date.
