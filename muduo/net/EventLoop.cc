@@ -148,7 +148,6 @@ void EventLoop::runInLoop(const Functor& cb)
   else
   {
     queueInLoop(cb);
-    wakeup();
   }
 }
 
