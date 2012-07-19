@@ -21,14 +21,14 @@ class MutexLock : boost::noncopyable
     : holder_(0)
   {
     int ret = pthread_mutex_init(&mutex_, NULL);
-    assert(ret == 0);
+    assert(ret == 0); (void) ret;
   }
 
   ~MutexLock()
   {
     assert(holder_ == 0);
     int ret = pthread_mutex_destroy(&mutex_);
-    assert(ret = 0);
+    assert(ret = 0); (void) ret;
   }
 
   bool isLockedByThisThread()

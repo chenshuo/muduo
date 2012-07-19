@@ -12,6 +12,7 @@
 #define MUDUO_NET_BUFFER_H
 
 #include <muduo/base/copyable.h>
+#include <muduo/base/StringPiece.h>
 #include <muduo/base/Types.h>
 
 #include <muduo/net/Endian.h>
@@ -121,6 +122,11 @@ class Buffer : public muduo::copyable
     string str(peek(), readableBytes());
     retrieveAll();
     return str;
+  }
+
+  StringPiece toStringPiece() const
+  {
+    return StringPiece(peek(), readableBytes());
   }
 
   void append(const string& str)
