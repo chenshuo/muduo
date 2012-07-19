@@ -152,9 +152,9 @@ class Buffer : public muduo::copyable
     return StringPiece(peek(), readableBytes());
   }
 
-  void append(const string& str)
+  void append(const StringPiece& str)
   {
-    append(str.data(), str.length());
+    append(str.data(), str.size());
   }
 
   void append(const char* /*restrict*/ data, size_t len)
