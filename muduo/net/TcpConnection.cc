@@ -122,7 +122,7 @@ void TcpConnection::send(Buffer* buf)
       loop_->runInLoop(
           boost::bind(&TcpConnection::sendInLoop,
                       this,     // FIXME
-                      buf->retrieveAsString()));
+                      buf->retrieveAllAsString()));
                     //std::forward<string>(message)));
     }
   }

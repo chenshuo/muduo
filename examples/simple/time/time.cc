@@ -42,7 +42,7 @@ void TimeServer::onMessage(const muduo::net::TcpConnectionPtr& conn,
                  muduo::net::Buffer* buf,
                  muduo::Timestamp time)
 {
-  string msg(buf->retrieveAsString());
+  string msg(buf->retrieveAllAsString());
   LOG_INFO << conn->name() << " discards " << msg.size()
            << " bytes received at " << time.toString();
 }
