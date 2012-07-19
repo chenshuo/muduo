@@ -60,3 +60,10 @@ string InetAddress::toIpPort() const
   return buf;
 }
 
+string InetAddress::toIp() const
+{
+  char buf[32];
+  sockets::toIp(buf, sizeof buf, addr_);
+  return buf;
+}
+

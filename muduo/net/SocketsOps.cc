@@ -179,9 +179,16 @@ void sockets::toIpPort(char* buf, size_t size,
                        const struct sockaddr_in& addr)
 {
   char host[INET_ADDRSTRLEN] = "INVALID";
-  ::inet_ntop(AF_INET, &addr.sin_addr, host, sizeof host);
+  toIp(host, sizeof host, addr);
   uint16_t port = sockets::networkToHost16(addr.sin_port);
   snprintf(buf, size, "%s:%u", host, port);
+}
+
+void sockets::toIp(char* buf, size_t size,
+                   const struct sockaddr_in& addr)
+{
+  assert(size >= INET_ADDRSTRLEN);
+  ::inet_ntop(AF_INET, &addr.sin_addr, buf, static_cast<socklen_t>(size));
 }
 
 void sockets::fromHostPort(const char* ip, uint16_t port,
