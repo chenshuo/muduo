@@ -42,6 +42,7 @@ class InetAddress : public muduo::copyable
     : addr_(addr)
   { }
 
+  string toIp() const;
   string toIpPort() const;
   string toHostPort() const __attribute__ ((deprecated))
   { return toIpPort(); }

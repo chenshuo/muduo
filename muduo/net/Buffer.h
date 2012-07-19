@@ -110,6 +110,16 @@ class Buffer : public muduo::copyable
     retrieve(sizeof(int32_t));
   }
 
+  void retrieveInt16()
+  {
+	  retrieve(sizeof(int16_t));
+  }
+
+  void retrieveInt8()
+  {
+	  retrieve(sizeof(int8_t));
+  }
+
   void retrieveAll()
   {
     readerIndex_ = kCheapPrepend;
@@ -166,6 +176,17 @@ class Buffer : public muduo::copyable
     int32_t be32 = sockets::hostToNetwork32(x);
     append(&be32, sizeof be32);
   }
+  
+  void appendInt16(int16_t x)
+  {
+	int16_t be16 = sockets::hostToNetwork16(x);
+	append(&be16, sizeof be16);
+  }
+
+  void appendInt8(int8_t x)
+  {
+	append(&x, sizeof x);
+  } 
 
   ///
   /// Read int32_t from network endian
@@ -178,6 +199,31 @@ class Buffer : public muduo::copyable
     return result;
   }
 
+  int16_t readInt16()
+  {
+	  int16_t result = peekInt16();
+	  retrieveInt16();
+	  return result;
+  }
+
+  int8_t readInt8()
+  {
+	  int8_t result = peekInt8();
+	  retrieveInt8();
+	  return result;
+  }
+
+  string readString(int16_t n)
+  {
+	  assert(readableBytes() >= static_cast<size_t>(n));
+	  // FIXME. making result as a input reference to avoid constructing twice
+	  // or making it as R-value reference in C++0x
+	  string result(peek(), n);
+	  retrieve(n);
+	  return result;
+  }
+  
+  
   ///
   /// Peek int32_t from network endian
   ///
@@ -189,6 +235,22 @@ class Buffer : public muduo::copyable
     ::memcpy(&be32, peek(), sizeof be32);
     return sockets::networkToHost32(be32);
   }
+  
+  int16_t peekInt16() const
+  {
+	assert(readableBytes() >= sizeof(int16_t));
+	int16_t be16 = 0;
+	::memcpy(&be16, peek(), sizeof be16);
+	return sockets::networkToHost16(be16);
+  }  
+  
+  int8_t peekInt8() const
+  {
+	assert(readableBytes() >= sizeof(int8_t));
+	int8_t be8 = 0;
+	::memcpy(&be8, peek(), sizeof be8);
+	return be8;
+  }  
 
   void prepend(const void* /*restrict*/ data, size_t len)
   {
