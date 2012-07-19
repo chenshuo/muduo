@@ -96,6 +96,6 @@ int main(int argc, char* argv[])
   int threads = argc > 1 ? atoi(argv[1]) : 1;
 
   Bench t(threads);
-  t.run(1000);
+  t.run(10000);
   t.joinAll();
 }

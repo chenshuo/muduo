@@ -20,13 +20,15 @@ class MutexLock : boost::noncopyable
   MutexLock()
     : holder_(0)
   {
-    pthread_mutex_init(&mutex_, NULL);
+    int ret = pthread_mutex_init(&mutex_, NULL);
+    assert(ret == 0);
   }
 
   ~MutexLock()
   {
     assert(holder_ == 0);
-    pthread_mutex_destroy(&mutex_);
+    int ret = pthread_mutex_destroy(&mutex_);
+    assert(ret = 0);
   }
 
   bool isLockedByThisThread()
@@ -67,7 +69,8 @@ class MutexLock : boost::noncopyable
 class MutexLockGuard : boost::noncopyable
 {
  public:
-  explicit MutexLockGuard(MutexLock& mutex) : mutex_(mutex)
+  explicit MutexLockGuard(MutexLock& mutex)
+    : mutex_(mutex)
   {
     mutex_.lock();
   }
