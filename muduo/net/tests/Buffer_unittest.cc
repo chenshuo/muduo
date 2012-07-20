@@ -95,3 +95,29 @@ BOOST_AUTO_TEST_CASE(testBufferPrepend)
   BOOST_CHECK_EQUAL(buf.prependableBytes(), Buffer::kCheapPrepend - 4);
 }
 
+BOOST_AUTO_TEST_CASE(testBufferReadInt)
+{
+  Buffer buf;
+  buf.append("HTTP");
+
+  BOOST_CHECK_EQUAL(buf.readableBytes(), 4);
+  BOOST_CHECK_EQUAL(buf.peekInt8(), 'H');
+  int top16 = buf.peekInt16();
+  BOOST_CHECK_EQUAL(top16, 'H'*256 + 'T');
+  BOOST_CHECK_EQUAL(buf.peekInt32(), top16*65536 + 'T'*256 + 'P');
+
+  BOOST_CHECK_EQUAL(buf.readInt8(), 'H');
+  BOOST_CHECK_EQUAL(buf.readInt16(), 'T'*256 + 'T');
+  BOOST_CHECK_EQUAL(buf.readInt8(), 'P');
+  BOOST_CHECK_EQUAL(buf.readableBytes(), 0);
+  BOOST_CHECK_EQUAL(buf.writableBytes(), Buffer::kInitialSize);
+
+  buf.appendInt8(-1);
+  buf.appendInt16(-1);
+  buf.appendInt32(-1);
+  BOOST_CHECK_EQUAL(buf.readableBytes(), 7);
+  BOOST_CHECK_EQUAL(buf.readInt8(), -1);
+  BOOST_CHECK_EQUAL(buf.readInt32(), -1);
+  BOOST_CHECK_EQUAL(buf.readInt16(), -1);
+}
+

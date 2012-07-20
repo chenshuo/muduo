@@ -96,7 +96,14 @@ class Buffer : public muduo::copyable
   void retrieve(size_t len)
   {
     assert(len <= readableBytes());
-    readerIndex_ += len;
+    if (len < readableBytes())
+    {
+      readerIndex_ += len;
+    }
+    else
+    {
+      retrieveAll();
+    }
   }
 
   void retrieveUntil(const char* end)
@@ -134,16 +141,9 @@ class Buffer : public muduo::copyable
 
   string retrieveAsString(size_t len)
   {
-    assert(readableBytes() >= len);
+    assert(len <= readableBytes());
     string result(peek(), len);
-    if (len == readableBytes())
-    {
-      retrieveAll();
-    }
-    else
-    {
-      retrieve(len);
-    }
+    retrieve(len);
     return result;
   }
 
@@ -292,6 +292,7 @@ class Buffer : public muduo::copyable
   {
     if (writableBytes() + prependableBytes() < len + kCheapPrepend)
     {
+      // FIXME: move readable data
       buffer_.resize(writerIndex_+len);
     }
     else
