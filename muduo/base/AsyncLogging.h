@@ -20,9 +20,6 @@ namespace muduo
 class AsyncLogging : boost::noncopyable
 {
  public:
-  typedef muduo::detail::FixedBuffer<muduo::detail::kLargeBuffer> Buffer;
-  typedef boost::ptr_vector<Buffer> BufferVector;
-  typedef BufferVector::auto_type BufferPtr;
 
   AsyncLogging(const string& basename,
                size_t rollSize,
@@ -53,10 +50,16 @@ class AsyncLogging : boost::noncopyable
   }
 
  private:
+
+  // declare but not define, prevent compiler-synthesized functions
   AsyncLogging(const AsyncLogging&);  // ptr_container
   void operator=(const AsyncLogging&);  // ptr_container
 
   void threadFunc();
+
+  typedef muduo::detail::FixedBuffer<muduo::detail::kLargeBuffer> Buffer;
+  typedef boost::ptr_vector<Buffer> BufferVector;
+  typedef BufferVector::auto_type BufferPtr;
 
   const int flushInterval_;
   bool running_;

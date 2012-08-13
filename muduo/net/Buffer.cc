@@ -46,6 +46,10 @@ ssize_t Buffer::readFd(int fd, int* savedErrno)
     writerIndex_ = buffer_.size();
     append(extrabuf, n - writable);
   }
+  // if (n == writable + sizeof extrabuf)
+  // {
+  //   goto line_30;
+  // }
   return n;
 }
 

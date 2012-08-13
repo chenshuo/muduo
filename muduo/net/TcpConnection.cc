@@ -280,6 +280,10 @@ void TcpConnection::handleWrite()
     else
     {
       LOG_SYSERR << "TcpConnection::handleWrite";
+      // if (state_ == kDisconnecting)
+      // {
+      //   shutdownInLoop();
+      // }
     }
   }
   else
