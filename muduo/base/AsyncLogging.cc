@@ -58,7 +58,7 @@ void AsyncLogging::threadFunc()
   BufferPtr newBuffer2(new Buffer);
   newBuffer1->bzero();
   newBuffer2->bzero();
-  boost::ptr_vector<Buffer> buffersToWrite;
+  BufferVector buffersToWrite;
   buffersToWrite.reserve(16);
   while (running_)
   {
