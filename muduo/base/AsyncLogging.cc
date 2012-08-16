@@ -68,7 +68,10 @@ void AsyncLogging::threadFunc()
 
     {
       muduo::MutexLockGuard lock(mutex_);
-      cond_.waitForSeconds(flushInterval_);
+      if (buffers_.empty())  // unusual usage!
+      {
+        cond_.waitForSeconds(flushInterval_);
+      }
       buffers_.push_back(currentBuffer_.release());
       currentBuffer_ = boost::ptr_container::move(newBuffer1);
       buffersToWrite.swap(buffers_);
