@@ -124,6 +124,7 @@ class MultiplexServer : boost::noncopyable
     else
     {
       buf->retrieveAll();
+      // FIXME: error handling
     }
   }
 

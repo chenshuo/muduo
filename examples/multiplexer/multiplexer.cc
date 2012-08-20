@@ -212,6 +212,7 @@ class MultiplexServer
     else
     {
       buf->retrieveAll();
+      // FIXME: error handling
     }
   }
 
