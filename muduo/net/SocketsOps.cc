@@ -191,14 +191,14 @@ void sockets::toIp(char* buf, size_t size,
   ::inet_ntop(AF_INET, &addr.sin_addr, buf, static_cast<socklen_t>(size));
 }
 
-void sockets::fromHostPort(const char* ip, uint16_t port,
+void sockets::fromIpPort(const char* ip, uint16_t port,
                            struct sockaddr_in* addr)
 {
   addr->sin_family = AF_INET;
   addr->sin_port = hostToNetwork16(port);
   if (::inet_pton(AF_INET, ip, &addr->sin_addr) <= 0)
   {
-    LOG_SYSERR << "sockets::fromHostPort";
+    LOG_SYSERR << "sockets::fromIpPort";
   }
 }
 

@@ -50,7 +50,7 @@ InetAddress::InetAddress(uint16_t port)
 InetAddress::InetAddress(const StringPiece& ip, uint16_t port)
 {
   bzero(&addr_, sizeof addr_);
-  sockets::fromHostPort(ip.data(), port, &addr_);
+  sockets::fromIpPort(ip.data(), port, &addr_);
 }
 
 string InetAddress::toIpPort() const
