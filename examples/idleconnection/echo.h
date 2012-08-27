@@ -7,6 +7,15 @@
 #include <boost/circular_buffer.hpp>
 #include <boost/unordered_set.hpp>
 
+namespace boost
+{
+template <typename T>
+inline size_t hash_value(const boost::shared_ptr<T>& x)
+{
+  return boost::hash_value(x.get());
+}
+}
+
 // RFC 862
 class EchoServer
 {
@@ -32,7 +41,7 @@ class EchoServer
 
   struct Entry : public muduo::copyable
   {
-    Entry(const WeakTcpConnectionPtr& weakConn)
+    explicit Entry(const WeakTcpConnectionPtr& weakConn)
       : weakConn_(weakConn)
     {
     }
