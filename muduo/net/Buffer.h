@@ -259,6 +259,26 @@ class Buffer : public muduo::copyable
     return x;
   }
 
+  ///
+  /// Prepend int32_t using network endian
+  ///
+  void prependInt32(int32_t x)
+  {
+    int32_t be32 = sockets::hostToNetwork32(x);
+    prepend(&be32, sizeof be32);
+  }
+
+  void prependInt16(int16_t x)
+  {
+    int16_t be16 = sockets::hostToNetwork16(x);
+    prepend(&be16, sizeof be16);
+  }
+
+  void prependInt8(int8_t x)
+  {
+    prepend(&x, sizeof x);
+  }
+
   void prepend(const void* /*restrict*/ data, size_t len)
   {
     assert(len <= prependableBytes());
