@@ -45,14 +45,14 @@ class Buffer : public muduo::copyable
   static const size_t kCheapPrepend = 8;
   static const size_t kInitialSize = 1024;
 
-  Buffer()
-    : buffer_(kCheapPrepend + kInitialSize),
-      readerIndex_(kCheapPrepend),
-      writerIndex_(kCheapPrepend)
+  Buffer(size_t initSize=kInitialSize, size_t prependSize=kCheapPrepend)
+    : buffer_(prependSize + initSize),
+      readerIndex_(prependSize),
+      writerIndex_(prependSize)
   {
     assert(readableBytes() == 0);
-    assert(writableBytes() == kInitialSize);
-    assert(prependableBytes() == kCheapPrepend);
+    assert(writableBytes() == initSize);
+    assert(prependableBytes() == prependSize);
   }
 
   // default copy-ctor, dtor and assignment are fine
