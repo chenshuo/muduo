@@ -12,6 +12,7 @@ void testHash()
   boost::hash<boost::shared_ptr<int> > h;
   boost::shared_ptr<int> x1(new int(10));
   boost::shared_ptr<int> x2(new int(10));
+  h(x1);
   assert(h(x1) != h(x2));
   x1 = x2;
   assert(h(x1) == h(x2));
