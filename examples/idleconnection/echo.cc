@@ -82,7 +82,7 @@ void EchoServer::onTimer()
 
 void EchoServer::dumpConnectionBuckets() const
 {
-  LOG_DEBUG << "size = " << connectionBuckets_.size();
+  LOG_INFO << "size = " << connectionBuckets_.size();
   int idx = 0;
   for (WeakConnectionList::const_iterator bucketI = connectionBuckets_.begin();
       bucketI != connectionBuckets_.end();

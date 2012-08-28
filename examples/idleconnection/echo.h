@@ -1,5 +1,5 @@
-#ifndef MUDUO_EXAMPLES_SIMPLE_ECHO_ECHO_H
-#define MUDUO_EXAMPLES_SIMPLE_ECHO_ECHO_H
+#ifndef MUDUO_EXAMPLES_IDLECONNECTION_ECHO_H
+#define MUDUO_EXAMPLES_IDLECONNECTION_ECHO_H
 
 #include <muduo/net/TcpServer.h>
 //#include <muduo/base/Types.h>
@@ -70,4 +70,4 @@ class EchoServer
   WeakConnectionList connectionBuckets_;
 };
 
-#endif  // MUDUO_EXAMPLES_SIMPLE_ECHO_ECHO_H
+#endif  // MUDUO_EXAMPLES_IDLECONNECTION_ECHO_H
