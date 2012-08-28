@@ -95,9 +95,9 @@ class PubSubServer : boost::noncopyable
     }
     else
     {
-      ConnectionSubscription& connSub
-        = boost::any_cast<ConnectionSubscription&>(conn->getContext());
-      for (ConnectionSubscription::iterator it = connSub.begin();
+      const ConnectionSubscription& connSub
+        = boost::any_cast<const ConnectionSubscription&>(conn->getContext());
+      for (ConnectionSubscription::const_iterator it = connSub.begin();
            it != connSub.end();
            ++it)
       {
@@ -154,10 +154,10 @@ class PubSubServer : boost::noncopyable
   void doSubscribe(const TcpConnectionPtr& conn,
                    const string& topic)
   {
-    ConnectionSubscription& connSub
-      = boost::any_cast<ConnectionSubscription&>(conn->getContext());
+    ConnectionSubscription* connSub
+      = boost::any_cast<ConnectionSubscription>(conn->getMutableContext());
 
-    connSub.insert(topic);
+    connSub->insert(topic);
     getTopic(topic).add(conn);
   }
 
@@ -165,9 +165,9 @@ class PubSubServer : boost::noncopyable
                      const string& topic)
   {
     LOG_INFO << conn->name() << " unsubscribes " << topic;
-    ConnectionSubscription& connSub
-      = boost::any_cast<ConnectionSubscription&>(conn->getContext());
-    connSub.erase(topic);
+    ConnectionSubscription* connSub
+      = boost::any_cast<ConnectionSubscription>(conn->getMutableContext());
+    connSub->erase(topic);
     getTopic(topic).remove(conn);
   }
 

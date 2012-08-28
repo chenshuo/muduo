@@ -68,11 +68,11 @@ class TcpConnection : boost::noncopyable,
   void setContext(const boost::any& context)
   { context_ = context; }
 
-  boost::any& getContext()
-  { return context_; }
-
   const boost::any& getContext() const
   { return context_; }
+
+  boost::any* getMutableContext()
+  { return &context_; }
 
   void setConnectionCallback(const ConnectionCallback& cb)
   { connectionCallback_ = cb; }
