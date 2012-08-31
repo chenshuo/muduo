@@ -61,7 +61,7 @@ class TimerQueue : boost::noncopyable
 
   void scheduleInLoop(Timer* timer);
   void cancelInLoop(TimerId timerId);
-  // called when timerfd arms
+  // called when timerfd alarms
   void handleRead();
   // move out all expired timers
   std::vector<Entry> getExpired(Timestamp now);
