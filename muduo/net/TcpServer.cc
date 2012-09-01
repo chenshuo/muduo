@@ -121,9 +121,5 @@ void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn)
   EventLoop* ioLoop = conn->getLoop();
   ioLoop->queueInLoop(
       boost::bind(&TcpConnection::connectDestroyed, conn));
-  if (!ioLoop->isInLoopThread())
-  {
-    ioLoop->wakeup();
-  }
 }
 
