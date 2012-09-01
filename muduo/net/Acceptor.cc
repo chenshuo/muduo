@@ -29,6 +29,7 @@ Acceptor::Acceptor(EventLoop* loop, const InetAddress& listenAddr)
     listenning_(false),
     idleFd_(::open("/dev/null", O_RDONLY | O_CLOEXEC))
 {
+  assert(idleFd_ >= 0);
   acceptSocket_.setReuseAddr(true);
   acceptSocket_.bindAddress(listenAddr);
   acceptChannel_.setReadCallback(
