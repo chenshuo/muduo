@@ -244,7 +244,8 @@ void TcpConnection::handleRead(Timestamp receiveTime)
   }
   else
   {
-    // FIXME: check savedErrno
+    errno = savedErrno;
+    LOG_SYSERR << "TcpConnection::handleRead";
     handleError();
   }
 }

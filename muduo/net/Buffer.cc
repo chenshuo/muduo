@@ -27,12 +27,12 @@ ssize_t Buffer::readFd(int fd, int* savedErrno)
   // saved an ioctl()/FIONREAD call to tell how much to read
   char extrabuf[65536];
   struct iovec vec[2];
-  size_t writable = writableBytes();
+  const size_t writable = writableBytes();
   vec[0].iov_base = begin()+writerIndex_;
   vec[0].iov_len = writable;
   vec[1].iov_base = extrabuf;
   vec[1].iov_len = sizeof extrabuf;
-  ssize_t n = sockets::readv(fd, vec, 2);
+  const ssize_t n = sockets::readv(fd, vec, 2);
   if (n < 0)
   {
     *savedErrno = errno;
