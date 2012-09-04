@@ -35,6 +35,7 @@ class Socket : boost::noncopyable
     : sockfd_(sockfd)
   { }
 
+  // Socket(Socket&&) // move constructor in C++11
   ~Socket();
 
   int fd() const { return sockfd_; }

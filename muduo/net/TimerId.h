@@ -28,13 +28,13 @@ class TimerId : public muduo::copyable
  public:
   TimerId()
     : timer_(NULL),
-      seq_(0)
+      sequence_(0)
   {
   }
 
   TimerId(Timer* timer, int64_t seq)
     : timer_(timer),
-      seq_(seq)
+      sequence_(seq)
   {
   }
 
@@ -44,7 +44,7 @@ class TimerId : public muduo::copyable
 
  private:
   Timer* timer_;
-  int64_t seq_;
+  int64_t sequence_;
 };
 
 }
