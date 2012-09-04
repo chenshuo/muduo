@@ -59,7 +59,7 @@ class TimerQueue : boost::noncopyable
   typedef std::pair<Timer*, int64_t> ActiveTimer;
   typedef std::set<ActiveTimer> ActiveTimerSet;
 
-  void scheduleInLoop(Timer* timer);
+  void addTimerInLoop(Timer* timer);
   void cancelInLoop(TimerId timerId);
   // called when timerfd alarms
   void handleRead();
