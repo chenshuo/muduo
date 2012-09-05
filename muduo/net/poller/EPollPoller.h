@@ -16,7 +16,7 @@
 #include <map>
 #include <vector>
 
-#include <sys/epoll.h>
+struct epoll_event;
 
 namespace muduo
 {
