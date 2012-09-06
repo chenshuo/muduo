@@ -1,3 +1,13 @@
+2012-09-06   Shuo Chen  <chenshuo@chenshuo.com>
+  * More Buffer member functions, contributed by SeasonLee
+  * Fix wait condition in AsyncLogging::threadFunc()
+  * Rename fromHostPort to fromIpPort
+  * Add hash_value for shared_ptr
+  * Add TcpConnection::getMutableContext()
+  * Remove unnecessary code, header
+  * Add another example in idleconnection
+  * Version 0.8.0
+
 2012-06-26   Shuo Chen  <chenshuo@chenshuo.com>
 
   * Add TimeZone class and unit tests.
