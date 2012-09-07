@@ -98,7 +98,7 @@ Channel* Request::setChannel(int fd)
 void Request::removeChannel()
 {
   channel_->disableAll();
-  owner_->getLoop()->removeChannel(get_pointer(channel_));
+  channel_->remove();
   owner_->getLoop()->queueInLoop(boost::bind(dummy, channel_));
   channel_.reset();
 }

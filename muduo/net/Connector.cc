@@ -133,7 +133,7 @@ void Connector::connecting(int sockfd)
 int Connector::removeAndResetChannel()
 {
   channel_->disableAll();
-  loop_->removeChannel(get_pointer(channel_));
+  channel_->remove();
   int sockfd = channel_->fd();
   // Can't reset channel_ here, because we are inside Channel::handleEvent
   loop_->queueInLoop(boost::bind(&Connector::resetChannel, this)); // FIXME: unsafe

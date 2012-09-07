@@ -175,7 +175,7 @@ void Resolver::onSockStateChange(int sockfd, bool read, bool write)
   {
     // remove
     it->second->disableAll();
-    loop_->removeChannel(it->second);
+    it->second->remove();
     channels_.erase(it);
   }
 }

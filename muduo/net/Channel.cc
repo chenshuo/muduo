@@ -49,6 +49,12 @@ void Channel::update()
   loop_->updateChannel(this);
 }
 
+void Channel::remove()
+{
+  assert(isNoneEvent());
+  loop_->removeChannel(this);
+}
+
 void Channel::handleEvent(Timestamp receiveTime)
 {
   boost::shared_ptr<void> guard;
@@ -72,7 +78,9 @@ void Channel::handleEventWithGuard(Timestamp receiveTime)
   if ((revents_ & POLLHUP) && !(revents_ & POLLIN))
   {
     if (logHup_)
+    {
       LOG_WARN << "Channel::handle_event() POLLHUP";
+    }
     if (closeCallback_) closeCallback_();
   }
 

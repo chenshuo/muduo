@@ -226,7 +226,7 @@ void TcpConnection::connectDestroyed()
 
     connectionCallback_(shared_from_this());
   }
-  loop_->removeChannel(get_pointer(channel_));
+  channel_->remove();
 }
 
 void TcpConnection::handleRead(Timestamp receiveTime)
