@@ -1,5 +1,6 @@
 2012-09-06   Shuo Chen  <chenshuo@chenshuo.com>
   * More Buffer member functions, contributed by SeasonLee
+  * Add unit tests for Buffer
   * Fix wait condition in AsyncLogging::threadFunc()
   * Rename fromHostPort to fromIpPort
   * Add hash_value for shared_ptr
