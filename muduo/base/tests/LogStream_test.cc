@@ -61,11 +61,11 @@ BOOST_AUTO_TEST_CASE(testLogStreamIntegerLimits)
   BOOST_CHECK_EQUAL(buf.asString(), string("32767"));
   os.resetBuffer();
 
-  os << std::numeric_limits<unsigned int16_t>::min();
+  os << std::numeric_limits<uint16_t>::min();
   BOOST_CHECK_EQUAL(buf.asString(), string("0"));
   os.resetBuffer();
 
-  os << std::numeric_limits<unsigned int16_t>::max();
+  os << std::numeric_limits<uint16_t>::max();
   BOOST_CHECK_EQUAL(buf.asString(), string("65535"));
   os.resetBuffer();
 
@@ -77,11 +77,11 @@ BOOST_AUTO_TEST_CASE(testLogStreamIntegerLimits)
   BOOST_CHECK_EQUAL(buf.asString(), string("2147483647"));
   os.resetBuffer();
 
-  os << std::numeric_limits<unsigned int32_t>::min();
+  os << std::numeric_limits<uint32_t>::min();
   BOOST_CHECK_EQUAL(buf.asString(), string("0"));
   os.resetBuffer();
 
-  os << std::numeric_limits<unsigned int32_t>::max();
+  os << std::numeric_limits<uint32_t>::max();
   BOOST_CHECK_EQUAL(buf.asString(), string("4294967295"));
   os.resetBuffer();
 
@@ -93,11 +93,11 @@ BOOST_AUTO_TEST_CASE(testLogStreamIntegerLimits)
   BOOST_CHECK_EQUAL(buf.asString(), string("9223372036854775807"));
   os.resetBuffer();
 
-  os << std::numeric_limits<unsigned int64_t>::min();
+  os << std::numeric_limits<uint64_t>::min();
   BOOST_CHECK_EQUAL(buf.asString(), string("0"));
   os.resetBuffer();
 
-  os << std::numeric_limits<unsigned int64_t>::max();
+  os << std::numeric_limits<uint64_t>::max();
   BOOST_CHECK_EQUAL(buf.asString(), string("18446744073709551615"));
   os.resetBuffer();
 
