@@ -149,7 +149,7 @@ class Buffer : public muduo::copyable
 
   StringPiece toStringPiece() const
   {
-    return StringPiece(peek(), readableBytes());
+    return StringPiece(peek(), static_cast<int>(readableBytes()));
   }
 
   void append(const StringPiece& str)
