@@ -15,8 +15,8 @@ int main()
   LOG_INFO << "pid = " << getpid();
   EventLoop loop;  // one loop shared by multiple servers
 
-  ChargenServer ChargenServer(&loop, InetAddress(2019));
-  ChargenServer.start();
+  ChargenServer chargenServer(&loop, InetAddress(2019));
+  chargenServer.start();
 
   DaytimeServer daytimeServer(&loop, InetAddress(2013));
   daytimeServer.start();
