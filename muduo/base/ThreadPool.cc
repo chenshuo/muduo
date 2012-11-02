@@ -46,8 +46,11 @@ void ThreadPool::start(int numThreads)
 
 void ThreadPool::stop()
 {
+  {
+  MutexLockGuard lock(mutex_);
   running_ = false;
   cond_.notifyAll();
+  }
   for_each(threads_.begin(),
            threads_.end(),
            boost::bind(&muduo::Thread::join, _1));
