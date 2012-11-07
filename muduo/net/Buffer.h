@@ -289,9 +289,11 @@ class Buffer : public muduo::copyable
 
   void shrink(size_t reserve)
   {
-   std::vector<char> buf(kCheapPrepend+readableBytes()+reserve);
-   std::copy(peek(), peek()+readableBytes(), buf.begin()+kCheapPrepend);
-   buf.swap(buffer_);
+    // FIXME: use vector::shrink_to_fit() in C++ 11 if possible.
+    Buffer other;
+    other.ensureWritableBytes(readableBytes()+reserve);
+    other.append(toStringPiece());
+    swap(other);
   }
 
   /// Read data directly into buffer.
