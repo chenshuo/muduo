@@ -1,5 +1,10 @@
+2012-11-06   Shuo Chen  <chenshuo@chenshuo.com>
+  * Version for the book
+  * Fix Buffer::shrink()
+  * Fix race condition of ThreadPool::stop()
+  * Version 0.8.2
+
 2012-09-30   Shuo Chen  <chenshuo@chenshuo.com>
-  * Version for the book.
   * Add Channel::remove()
   * Logger::SourceFile supports char*
   * Fix for g++ 4.7
