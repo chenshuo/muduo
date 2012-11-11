@@ -24,21 +24,27 @@ server_socket.listen(5)
 print "got connection from", client_address
 start = time.time()
 total_size = 0
+dot = bps
 
 while True:
 	data = client_socket.recv(BUFSIZE)
 	if data:
 		size = len(data)
 		total_size += size
+		if total_size >= dot:
+			dot += bps
+			sys.stdout.write('.')
+			sys.stdout.flush()
 		time.sleep(size / bps)
 	else:
-		print "disconnect", client_address
+		print "\ndisconnect"
 		client_socket.close()
 		break
 
 end = time.time()
 elapsed = end - start
 print "elapsed seconds %.3f" % elapsed
+print "total bytes", total_size
 print "throughput bytes/s %.2f" % (total_size / elapsed)
 print "throughput Mbytes/s %.3f" % (total_size / elapsed / 1000000)
 

@@ -1,0 +1,5 @@
+add_executable(wordcount_sender sender.cc)
+target_link_libraries(wordcount_sender muduo_net)
+
+add_executable(wordcount_receiver receiver.cc)
+target_link_libraries(wordcount_receiver muduo_net)
