@@ -45,7 +45,12 @@ class Request : public boost::enable_shared_from_this<Request>,
   void setDoneCallback(const DoneCallback& cb)
   { doneCb_ = cb; }
 
+  void setHeaderCallback(const DataCallback& cb)
+  { headerCb_ = cb; }
+
   // void allowRedirect(int redirects);
+  void headerOnly();
+  void setRange(muduo::StringPiece range);
 
   template<typename OPT>
   int setopt(OPT opt, long);
@@ -73,13 +78,16 @@ class Request : public boost::enable_shared_from_this<Request>,
  private:
 
   void dataCallback(const char* buffer, int len);
+  void headerCallback(const char* buffer, int len);
   static size_t writeData(char *buffer, size_t size, size_t nmemb, void *userp);
+  static size_t headerData(char *buffer, size_t size, size_t nmemb, void *userp);
   void doneCallback();
 
   class Curl* owner_;
   CURL* curl_;
   boost::shared_ptr<muduo::net::Channel> channel_;
   DataCallback dataCb_;
+  DataCallback headerCb_;
   DoneCallback doneCb_;
 };
 

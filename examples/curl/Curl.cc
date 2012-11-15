@@ -22,6 +22,8 @@ Request::Request(Curl* owner, StringPiece url)
   setopt(CURLOPT_URL, url.data());
   setopt(CURLOPT_WRITEFUNCTION, &Request::writeData);
   setopt(CURLOPT_WRITEDATA, this);
+  setopt(CURLOPT_HEADERFUNCTION, &Request::headerData);
+  setopt(CURLOPT_HEADERDATA, this);
   setopt(CURLOPT_PRIVATE, this);
   setopt(CURLOPT_USERAGENT, "curl");
   // set useragent
@@ -60,11 +62,23 @@ int Request::setopt(OPT opt, size_t (*p)(char*, size_t , size_t , void*))
   return curl_easy_setopt(curl_, opt, p);
 }
 
+// NOT implemented yet
+//
 // void Request::allowRedirect(int redirects)
 // {
 //   setopt(CURLOPT_FOLLOWLOCATION, 1);
 //   setopt(CURLOPT_MAXREDIRS, redirects);
 // }
+
+void Request::headerOnly()
+{
+  setopt(CURLOPT_NOBODY, 1);
+}
+
+void Request::setRange(muduo::StringPiece range)
+{
+  setopt(CURLOPT_RANGE, range.data());
+}
 
 const char* Request::getEffectiveUrl()
 {
@@ -119,11 +133,27 @@ void Request::dataCallback(const char* buffer, int len)
   }
 }
 
+void Request::headerCallback(const char* buffer, int len)
+{
+  if (headerCb_)
+  {
+    headerCb_(buffer, len);
+  }
+}
+
 size_t Request::writeData(char* buffer, size_t size, size_t nmemb, void* userp)
 {
   assert(size == 1);
   Request* req = static_cast<Request*>(userp);
   req->dataCallback(buffer, static_cast<int>(nmemb));
+  return nmemb;
+}
+
+size_t Request::headerData(char* buffer, size_t size, size_t nmemb, void* userp)
+{
+  assert(size == 1);
+  Request* req = static_cast<Request*>(userp);
+  req->headerCallback(buffer, static_cast<int>(nmemb));
   return nmemb;
 }
 
