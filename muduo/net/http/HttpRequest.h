@@ -128,7 +128,7 @@ class HttpRequest : public muduo::copyable
   {
     string field(start, colon);
     ++colon;
-    while (isspace(*colon))
+    while (isspace(*colon) && colon < end)
     {
       ++colon;
     }
