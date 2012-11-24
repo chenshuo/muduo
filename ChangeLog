@@ -1,3 +1,9 @@
+2012-mm-dd   Shuo Chen  <chenshuo@chenshuo.com>
+  * Add single thread concurrent download example in examples/curl.
+  * Add distributed word counting example.
+  * Fix HttpRequest for empty header value, contributed by SeasonLee
+  * Version 0.9.0
+
 2012-11-06   Shuo Chen  <chenshuo@chenshuo.com>
   * Version for the book
   * Fix Buffer::shrink()

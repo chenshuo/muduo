@@ -19,8 +19,14 @@
 using namespace muduo;
 using namespace muduo::net;
 
-namespace
+namespace muduo
 {
+namespace net
+{
+namespace detail
+{
+
+// FIXME: move to HttpContext class
 bool processRequestLine(const char* begin, const char* end, HttpContext* context)
 {
   bool succeed = false;
@@ -56,6 +62,7 @@ bool processRequestLine(const char* begin, const char* end, HttpContext* context
   return succeed;
 }
 
+// FIXME: move to HttpContext class
 // return false if any error
 bool parseRequest(Buffer* buf, HttpContext* context, Timestamp receiveTime)
 {
@@ -124,12 +131,14 @@ void defaultHttpCallback(const HttpRequest&, HttpResponse* resp)
 }
 
 }
+}
+}
 
 HttpServer::HttpServer(EventLoop* loop,
                        const InetAddress& listenAddr,
                        const string& name)
   : server_(loop, listenAddr, name),
-    httpCallback_(defaultHttpCallback)
+    httpCallback_(detail::defaultHttpCallback)
 {
   server_.setConnectionCallback(
       boost::bind(&HttpServer::onConnection, this, _1));
@@ -162,7 +171,7 @@ void HttpServer::onMessage(const TcpConnectionPtr& conn,
 {
   HttpContext* context = boost::any_cast<HttpContext>(conn->getMutableContext());
 
-  if (!parseRequest(buf, context, receiveTime))
+  if (!detail::parseRequest(buf, context, receiveTime))
   {
     conn->send("HTTP/1.1 400 Bad Request\r\n\r\n");
     conn->shutdown();
