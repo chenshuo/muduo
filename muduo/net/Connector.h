@@ -51,6 +51,7 @@ class Connector : boost::noncopyable,
 
   void setState(States s) { state_ = s; }
   void startInLoop();
+  void stopInLoop();
   void connect();
   void connecting(int sockfd);
   void handleWrite();

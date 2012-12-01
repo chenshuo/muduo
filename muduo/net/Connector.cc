@@ -59,6 +59,24 @@ void Connector::startInLoop()
   }
 }
 
+void Connector::stop()
+{
+  connect_ = false;
+  loop_->runInLoop(boost::bind(&Connector::stopInLoop, this)); // FIXME: unsafe
+  // FIXME: cancel timer
+}
+
+void Connector::stopInLoop()
+{
+  loop_->assertInLoopThread();
+  if (state_ == kConnecting)
+  {
+    setState(kDisconnected);
+    int sockfd = removeAndResetChannel();
+    retry(sockfd);
+  }
+}
+
 void Connector::connect()
 {
   int sockfd = sockets::createNonblockingOrDie();
@@ -107,12 +125,6 @@ void Connector::restart()
   retryDelayMs_ = kInitRetryDelayMs;
   connect_ = true;
   startInLoop();
-}
-
-void Connector::stop()
-{
-  connect_ = false;
-  // FIXME: cancel timer
 }
 
 void Connector::connecting(int sockfd)
