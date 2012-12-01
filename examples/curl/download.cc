@@ -46,7 +46,7 @@ class Piece : boost::noncopyable
 
   void onDone(curl::Request* c, int code)
   {
-    LOG_DEBUG << "[" << range_ << "]";
+    LOG_INFO << "[" << range_ << "] is done";
     req_.reset();
     out_.reset();
     doneCb_();

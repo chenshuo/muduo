@@ -1,5 +1,6 @@
 add_subdirectory(asio/chat)
 add_subdirectory(asio/tutorial)
+add_subdirectory(fastcgi)
 add_subdirectory(filetransfer)
 add_subdirectory(hub)
 add_subdirectory(idleconnection)
