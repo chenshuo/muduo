@@ -138,6 +138,12 @@ void TcpConnection::sendInLoop(const void* data, size_t len)
   loop_->assertInLoopThread();
   ssize_t nwrote = 0;
   size_t remaining = len;
+  bool error = false;
+  if (state_ != kConnected)
+  {
+    LOG_WARN << "state = " << state_ << ", give up writing";
+    return;
+  }
   // if no thing in output queue, try writing directly
   if (!channel_->isWriting() && outputBuffer_.readableBytes() == 0)
   {
@@ -156,12 +162,16 @@ void TcpConnection::sendInLoop(const void* data, size_t len)
       if (errno != EWOULDBLOCK)
       {
         LOG_SYSERR << "TcpConnection::sendInLoop";
+        if (errno == EPIPE) // FIXME: any others?
+        {
+          error = true;
+        }
       }
     }
   }
 
   assert(remaining <= len);
-  if (remaining > 0)
+  if (!error && remaining > 0)
   {
     LOG_TRACE << "I am going to write more data";
     size_t oldLen = outputBuffer_.readableBytes();
@@ -289,14 +299,15 @@ void TcpConnection::handleWrite()
   }
   else
   {
-    LOG_TRACE << "Connection is down, no more writing";
+    LOG_TRACE << "Connection fd = " << channel_->fd()
+              << " is down, no more writing";
   }
 }
 
 void TcpConnection::handleClose()
 {
   loop_->assertInLoopThread();
-  LOG_TRACE << "TcpConnection::handleClose state = " << state_;
+  LOG_TRACE << "fd = " << channel_->fd() << " state = " << state_;
   assert(state_ == kConnected || state_ == kDisconnecting);
   // we don't close fd, leave it to dtor, so we can find leaks easily.
   setState(kDisconnected);
