@@ -1,4 +1,4 @@
-2012-mm-dd   Shuo Chen  <chenshuo@chenshuo.com>
+2013-01-09   Shuo Chen  <chenshuo@chenshuo.com>
   * Add single thread concurrent download example in examples/curl.
   * Add distributed word counting example.
   * Add simple FastCGI example.
