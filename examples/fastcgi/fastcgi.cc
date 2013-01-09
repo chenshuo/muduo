@@ -1,5 +1,6 @@
 #include <examples/fastcgi/fastcgi.h>
 #include <muduo/base/Logging.h>
+#include <muduo/net/Endian.h>
 
 struct FastCgiCodec::RecordHeader
 {
@@ -126,7 +127,7 @@ void FastCgiCodec::endStdout(Buffer* buf)
   {
     1,
     kFcgiStdout,
-    htons(1),
+    sockets::hostToNetwork16(1),
     0,
     0,
     0,
@@ -140,8 +141,8 @@ void FastCgiCodec::endRequest(Buffer* buf)
   {
     1,
     kFcgiEndRequest,
-    htons(1),
-    htons(kRecordHeader),
+    sockets::hostToNetwork16(1),
+    sockets::hostToNetwork16(kRecordHeader),
     0,
     0,
   };
@@ -159,8 +160,8 @@ void FastCgiCodec::respond(Buffer* response)
     {
       1,
       kFcgiStdout,
-      htons(1),
-      htons(static_cast<uint16_t>(response->readableBytes())),
+      sockets::hostToNetwork16(1),
+      sockets::hostToNetwork16(static_cast<uint16_t>(response->readableBytes())),
       static_cast<uint8_t>(-response->readableBytes() & 7),
       0,
     };
@@ -182,8 +183,8 @@ bool FastCgiCodec::parseRequest(Buffer* buf)
   {
     RecordHeader header;
     memcpy(&header, buf->peek(), kRecordHeader);
-    header.id = ntohs(header.id);
-    header.length = ntohs(header.length);
+    header.id = sockets::networkToHost16(header.id);
+    header.length = sockets::networkToHost16(header.length);
     size_t total = kRecordHeader + header.length + header.padding;
     if (buf->readableBytes() >= total)
     {
@@ -224,7 +225,7 @@ uint16_t readInt16(const void* p)
 {
   uint16_t be16 = 0;
   ::memcpy(&be16, p, sizeof be16);
-  return ntohs(be16);
+  return sockets::networkToHost16(be16);
 }
 
 bool FastCgiCodec::onBeginRequest(const RecordHeader& header, const Buffer* buf)
