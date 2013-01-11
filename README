@@ -1,5 +1,6 @@
 Muduo is a multithreaded C++ network library based on
 the reactor pattern.
+It runs on Linux with kernel version >= 2.6.28.
 http://code.google.com/p/muduo/
 
 Copyright (c) 2010, Shuo Chen.  All rights reserved.
