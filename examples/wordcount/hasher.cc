@@ -48,7 +48,7 @@ class SendThrottler : boost::noncopyable
   {
     if (buffer_.readableBytes() > 0)
     {
-      LOG_DEBUG << "send " << buffer_.readableBytes();
+      LOG_DEBUG << "send " << buffer_.readableBytes() << " bytes";
       conn_->send(&buffer_);
     }
     conn_->shutdown();
@@ -58,6 +58,7 @@ class SendThrottler : boost::noncopyable
   void send(const string& word, int64_t count)
   {
     buffer_.append(word);
+    // FIXME: use LogStream
     char buf[64];
     snprintf(buf, sizeof buf, "\t%" PRId64 "\r\n", count);
     buffer_.append(buf);
@@ -186,8 +187,10 @@ void WordCountSender::processFile(const char* filename)
 {
   LOG_INFO << "processFile " << filename;
   WordCountMap wordcounts;
+  // FIXME: use mmap to read file
   std::ifstream in(filename);
   string word;
+  // FIXME: make local hash optional.
   boost::hash<string> hash;
   while (in)
   {
@@ -201,7 +204,7 @@ void WordCountSender::processFile(const char* filename)
       }
     }
 
-    LOG_DEBUG << "send " << wordcounts.size();
+    LOG_INFO << "send " << wordcounts.size() << " records";
     for (WordCountMap::iterator it = wordcounts.begin();
          it != wordcounts.end(); ++it)
     {

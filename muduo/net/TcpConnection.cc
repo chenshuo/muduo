@@ -139,9 +139,9 @@ void TcpConnection::sendInLoop(const void* data, size_t len)
   ssize_t nwrote = 0;
   size_t remaining = len;
   bool error = false;
-  if (state_ != kConnected)
+  if (state_ == kDisconnected)
   {
-    LOG_WARN << "state = " << state_ << ", give up writing";
+    LOG_WARN << "disconnected, give up writing";
     return;
   }
   // if no thing in output queue, try writing directly
