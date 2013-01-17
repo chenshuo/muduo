@@ -1,3 +1,7 @@
+2013-01-16   Shuo Chen  <chenshuo@chenshuo.com>
+  * Fix bug introduced in dd26871
+  * Version 0.9.1
+
 2013-01-09   Shuo Chen  <chenshuo@chenshuo.com>
   * Add single thread concurrent download example in examples/curl.
   * Add distributed word counting example.
