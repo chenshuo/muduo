@@ -256,9 +256,9 @@ class SudokuSolver
     }
 };
 
-string solveSudoku(const string& puzzle)
+string solveSudoku(const StringPiece& puzzle)
 {
-  assert(puzzle.size() == implicit_cast<size_t>(kCells));
+  assert(puzzle.size() == kCells);
 
   string result = "NoSolution";
 

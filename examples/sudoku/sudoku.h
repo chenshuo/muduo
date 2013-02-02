@@ -3,9 +3,9 @@
 
 
 #include <muduo/base/Types.h>
+#include <muduo/base/StringPiece.h>
 
-// FIXME, use (const char*, len) for saving memory copying.
-muduo::string solveSudoku(const muduo::string& puzzle);
+muduo::string solveSudoku(const muduo::StringPiece& puzzle);
 const int kCells = 81;
 
 #endif
