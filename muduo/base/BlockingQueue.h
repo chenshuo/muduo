@@ -31,7 +31,8 @@ class BlockingQueue : boost::noncopyable
   {
     MutexLockGuard lock(mutex_);
     queue_.push_back(x);
-    notEmpty_.notify(); // TODO: move outside of lock
+    notEmpty_.notify(); // wait morphing saves us
+    // http://www.domaigne.com/blog/computing/condvars-signal-with-mutex-locked-or-not/
   }
 
   T take()

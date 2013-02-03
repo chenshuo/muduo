@@ -37,7 +37,7 @@ class BoundedBlockingQueue : boost::noncopyable
     }
     assert(!queue_.full());
     queue_.push_back(x);
-    notEmpty_.notify(); // TODO: move outside of lock
+    notEmpty_.notify();
   }
 
   T take()
@@ -50,7 +50,7 @@ class BoundedBlockingQueue : boost::noncopyable
     assert(!queue_.empty());
     T front(queue_.front());
     queue_.pop_front();
-    notFull_.notify(); // TODO: move outside of lock
+    notFull_.notify();
     return front;
   }
 
