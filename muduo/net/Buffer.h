@@ -90,6 +90,20 @@ class Buffer : public muduo::copyable
     return crlf == beginWrite() ? NULL : crlf;
   }
 
+  const char* findEOL() const
+  {
+    const void* eol = memchr(peek(), '\n', readableBytes());
+    return static_cast<const char*>(eol);
+  }
+
+  const char* findEOL(const char* start) const
+  {
+    assert(peek() <= start);
+    assert(start <= beginWrite());
+    const void* eol = memchr(start, '\n', readableBytes());
+    return static_cast<const char*>(eol);
+  }
+
   // retrieve returns void, to prevent
   // string str(retrieve(readableBytes()), readableBytes());
   // the evaluation of two functions are unspecified
