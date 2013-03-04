@@ -10,7 +10,6 @@
 
 #include <muduo/base/Logging.h>
 #include <muduo/base/Mutex.h>
-#include <muduo/base/Singleton.h>
 #include <muduo/net/Channel.h>
 #include <muduo/net/Poller.h>
 #include <muduo/net/SocketsOps.h>
