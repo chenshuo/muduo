@@ -1,8 +1,8 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 0dad710..6b8cc06 100644
+index 2c8880a..af0d174 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -21,14 +21,14 @@ set(CXX_FLAGS
+@@ -21,7 +21,7 @@ set(CXX_FLAGS
   -Wpointer-arith
   -Wshadow
   -Wwrite-strings
@@ -11,7 +11,8 @@ index 0dad710..6b8cc06 100644
   # -MMD
   # -std=c++0x
   -rdynamic
-  )
+@@ -31,7 +31,7 @@ if(CMAKE_BUILD_BITS EQUAL 32)
+ endif()
  string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS}")
  
 -set(CMAKE_CXX_COMPILER "g++")
@@ -125,7 +126,9 @@ diff --git a/muduo/base/tests/CMakeLists.txt b/muduo/base/tests/CMakeLists.txt
 index 2c3f1c4..73d90fd 100644
 --- a/muduo/base/tests/CMakeLists.txt
 +++ b/muduo/base/tests/CMakeLists.txt
-@@ -1,5 +1,5 @@
+@@ -2,7 +2,7 @@
+ target_link_libraries(asynclogging_test muduo_base)
+ 
  add_executable(atomic_unittest Atomic_unittest.cc)
 -# target_link_libraries(atomic_unittest muduo_base)
 +target_link_libraries(atomic_unittest muduo_base)
