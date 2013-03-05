@@ -1,13 +1,14 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 85cd403..ac9f970 100644
+index 2c8880a..ea1432a 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -9,12 +9,13 @@ endif()
+@@ -9,13 +9,14 @@ endif()
  set(CXX_FLAGS
   -g
   # -DVALGRIND
 - # -DMUDUO_STD_STRING
 + -DMUDUO_STD_STRING
+  -D_FILE_OFFSET_BITS=64
   -Wall
   -Wextra
 - -Werror
@@ -18,7 +19,7 @@ index 85cd403..ac9f970 100644
   -Wold-style-cast
   -Woverloaded-virtual
   -Wpointer-arith
-@@ -23,17 +24,19 @@ set(CXX_FLAGS
+@@ -24,17 +25,19 @@ set(CXX_FLAGS
   -march=native
   # -MMD
   # -std=c++0x
@@ -41,8 +42,8 @@ index 85cd403..ac9f970 100644
  set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
  set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
  
-@@ -44,6 +47,8 @@ find_path(CARES_INCLUDE_DIR ares.h)
- find_library(CARES_LIBRARY NAMES cares)
+@@ -48,6 +51,8 @@ find_library(MHD_LIBRARY NAMES microhttpd)
+ find_library(BOOSTTEST_LIBRARY NAMES boost_unit_test_framework)
  
  include_directories(${Boost_INCLUDE_DIRS})
 +include_directories(/usr/lib/gcc/x86_64-linux-gnu/4.4/include/)
