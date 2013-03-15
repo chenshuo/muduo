@@ -34,6 +34,8 @@ class ThreadLocalSingleton : boost::noncopyable
   }
 
  private:
+  ThreadLocalSingleton();
+  ~ThreadLocalSingleton();
 
   static void destructor(void* obj)
   {
