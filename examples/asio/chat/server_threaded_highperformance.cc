@@ -50,11 +50,11 @@ class ChatServer : boost::noncopyable
 
     if (conn->connected())
     {
-      connections_.instance().insert(conn);
+      LocalConnections::instance().insert(conn);
     }
     else
     {
-      connections_.instance().erase(conn);
+      LocalConnections::instance().erase(conn);
     }
   }
 
@@ -80,8 +80,8 @@ class ChatServer : boost::noncopyable
   void distributeMessage(const string& message)
   {
     LOG_DEBUG << "begin";
-    for (ConnectionList::iterator it = connections_.instance().begin();
-        it != connections_.instance().end();
+    for (ConnectionList::iterator it = LocalConnections::instance().begin();
+        it != LocalConnections::instance().end();
         ++it)
     {
       codec_.send(get_pointer(*it), message);
@@ -91,9 +91,9 @@ class ChatServer : boost::noncopyable
 
   void threadInit(EventLoop* loop)
   {
-    assert(connections_.pointer() == NULL);
-    connections_.instance();
-    assert(connections_.pointer() != NULL);
+    assert(LocalConnections::pointer() == NULL);
+    LocalConnections::instance();
+    assert(LocalConnections::pointer() != NULL);
     MutexLockGuard lock(mutex_);
     loops_.insert(loop);
   }
@@ -101,7 +101,7 @@ class ChatServer : boost::noncopyable
   EventLoop* loop_;
   TcpServer server_;
   LengthHeaderCodec codec_;
-  ThreadLocalSingleton<ConnectionList> connections_;
+  typedef ThreadLocalSingleton<ConnectionList> LocalConnections;
 
   MutexLock mutex_;
   std::set<EventLoop*> loops_;
