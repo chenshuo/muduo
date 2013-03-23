@@ -122,6 +122,7 @@ void ProtobufCodec::onMessage(const TcpConnectionPtr& conn,
     if (len > kMaxMessageLen || len < kMinMessageLen)
     {
       errorCallback_(conn, buf, receiveTime, kInvalidLength);
+      break;
     }
     else if (buf->readableBytes() >= implicit_cast<size_t>(len + kHeaderLen))
     {
@@ -135,6 +136,7 @@ void ProtobufCodec::onMessage(const TcpConnectionPtr& conn,
       else
       {
         errorCallback_(conn, buf, receiveTime, errorCode);
+        break;
       }
     }
     else
