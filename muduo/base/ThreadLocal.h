@@ -43,6 +43,7 @@ class ThreadLocal : boost::noncopyable
   {
     T* obj = static_cast<T*>(x);
     typedef char T_must_be_complete_type[sizeof(T) == 0 ? -1 : 1];
+    T_must_be_complete_type dummy; (void) dummy;
     delete obj;
   }
 

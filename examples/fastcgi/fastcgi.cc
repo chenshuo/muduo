@@ -12,7 +12,7 @@ struct FastCgiCodec::RecordHeader
   uint8_t unused;
 };
 
-const unsigned FastCgiCodec::kRecordHeader = sizeof(FastCgiCodec::RecordHeader);
+const unsigned FastCgiCodec::kRecordHeader = static_cast<unsigned>(sizeof(FastCgiCodec::RecordHeader));
 
 enum FcgiType
 {
