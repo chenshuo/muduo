@@ -8,6 +8,7 @@
 
 #include <muduo/net/Socket.h>
 
+#include <muduo/base/Logging.h>
 #include <muduo/net/InetAddress.h>
 #include <muduo/net/SocketsOps.h>
 
@@ -64,6 +65,18 @@ void Socket::setReuseAddr(bool on)
   ::setsockopt(sockfd_, SOL_SOCKET, SO_REUSEADDR,
                &optval, static_cast<socklen_t>(sizeof optval));
   // FIXME CHECK
+}
+
+void Socket::setReusePort(bool on)
+{
+#ifdef SO_REUSEPORT
+  int optval = on ? 1 : 0;
+  ::setsockopt(sockfd_, SOL_SOCKET, SO_REUSEPORT,
+               &optval, static_cast<socklen_t>(sizeof optval));
+  // FIXME CHECK
+#else
+  LOG_ERROR << "SO_REUSEPORT is not supported.";
+#endif
 }
 
 void Socket::setKeepAlive(bool on)

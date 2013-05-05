@@ -22,7 +22,7 @@
 using namespace muduo;
 using namespace muduo::net;
 
-Acceptor::Acceptor(EventLoop* loop, const InetAddress& listenAddr)
+Acceptor::Acceptor(EventLoop* loop, const InetAddress& listenAddr, bool reuseport)
   : loop_(loop),
     acceptSocket_(sockets::createNonblockingOrDie()),
     acceptChannel_(loop, acceptSocket_.fd()),
@@ -31,6 +31,7 @@ Acceptor::Acceptor(EventLoop* loop, const InetAddress& listenAddr)
 {
   assert(idleFd_ >= 0);
   acceptSocket_.setReuseAddr(true);
+  acceptSocket_.setReusePort(reuseport);
   acceptSocket_.bindAddress(listenAddr);
   acceptChannel_.setReadCallback(
       boost::bind(&Acceptor::handleRead, this));
