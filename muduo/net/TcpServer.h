@@ -50,6 +50,7 @@ class TcpServer : boost::noncopyable
 
   const string& hostport() const { return hostport_; }
   const string& name() const { return name_; }
+  EventLoop* getLoop() const { return loop_; }
 
   /// Set the number of threads for handling input.
   ///

@@ -136,8 +136,9 @@ void defaultHttpCallback(const HttpRequest&, HttpResponse* resp)
 
 HttpServer::HttpServer(EventLoop* loop,
                        const InetAddress& listenAddr,
-                       const string& name)
-  : server_(loop, listenAddr, name),
+                       const string& name,
+                       TcpServer::Option option)
+  : server_(loop, listenAddr, name, option),
     httpCallback_(detail::defaultHttpCallback)
 {
   server_.setConnectionCallback(

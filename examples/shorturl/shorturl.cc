@@ -2,26 +2,35 @@
 #include <muduo/net/http/HttpRequest.h>
 #include <muduo/net/http/HttpResponse.h>
 #include <muduo/net/EventLoop.h>
+#include <muduo/net/EventLoopThreadPool.h>
 #include <muduo/base/Logging.h>
 
 #include <map>
+#include <boost/bind.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
+
+#include <sys/socket.h>  // SO_REUSEPORT
 
 using namespace muduo;
 using namespace muduo::net;
 
 extern char favicon[555];
+bool benchmark = false;
 
 std::map<string, string> redirections;
 
 void onRequest(const HttpRequest& req, HttpResponse* resp)
 {
   LOG_INFO << "Headers " << req.methodString() << " " << req.path();
-  const std::map<string, string>& headers = req.headers();
-  for (std::map<string, string>::const_iterator it = headers.begin();
-       it != headers.end();
-       ++it)
+  if (!benchmark)
   {
-    LOG_DEBUG << it->first << ": " << it->second;
+    const std::map<string, string>& headers = req.headers();
+    for (std::map<string, string>::const_iterator it = headers.begin();
+        it != headers.end();
+        ++it)
+    {
+      LOG_DEBUG << it->first << ": " << it->second;
+    }
   }
 
   // TODO: support PUT and DELETE to create new redirections on-the-fly.
@@ -68,16 +77,54 @@ void onRequest(const HttpRequest& req, HttpResponse* resp)
   }
 }
 
-int main()
+int main(int argc, char* argv[])
 {
   redirections["/1"] = "http://chenshuo.com";
   redirections["/2"] = "http://blog.csdn.net/Solstice";
 
+  int numThreads = 0;
+  if (argc > 1)
+  {
+    benchmark = true;
+    // Logger::setLogLevel(Logger::WARN);
+    numThreads = atoi(argv[1]);
+  }
+
+#ifdef SO_REUSEPORT
+  LOG_WARN << "SO_REUSEPORT";
+  EventLoop loop;
+  EventLoopThreadPool threadPool(&loop);
+  if (numThreads > 1)
+  {
+    threadPool.setThreadNum(numThreads);
+  }
+  else
+  {
+    numThreads = 1;
+  }
+  threadPool.start();
+
+  boost::ptr_vector<HttpServer> servers;
+  for (int i = 0; i < numThreads; ++i)
+  {
+    servers.push_back(new HttpServer(threadPool.getNextLoop(),
+                                     InetAddress(8000),
+                                     "shorturl",
+                                     TcpServer::kReusePort));
+    servers.back().setHttpCallback(onRequest);
+    servers.back().getLoop()->runInLoop(
+        boost::bind(&HttpServer::start, &servers.back()));
+  }
+  loop.loop();
+#else
+  LOG_WARN << "Normal";
   EventLoop loop;
   HttpServer server(&loop, InetAddress(8000), "shorturl");
   server.setHttpCallback(onRequest);
+  server.setThreadNum(numThreads);
   server.start();
   loop.loop();
+#endif
 }
 
 char favicon[555] = {

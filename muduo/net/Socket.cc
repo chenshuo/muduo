@@ -71,11 +71,17 @@ void Socket::setReusePort(bool on)
 {
 #ifdef SO_REUSEPORT
   int optval = on ? 1 : 0;
-  ::setsockopt(sockfd_, SOL_SOCKET, SO_REUSEPORT,
-               &optval, static_cast<socklen_t>(sizeof optval));
-  // FIXME CHECK
+  int ret = ::setsockopt(sockfd_, SOL_SOCKET, SO_REUSEPORT,
+                         &optval, static_cast<socklen_t>(sizeof optval));
+  if (ret < 0)
+  {
+    LOG_SYSERR << "SO_REUSEPORT failed.";
+  }
 #else
-  LOG_ERROR << "SO_REUSEPORT is not supported.";
+  if (on)
+  {
+    LOG_ERROR << "SO_REUSEPORT is not supported.";
+  }
 #endif
 }
 
