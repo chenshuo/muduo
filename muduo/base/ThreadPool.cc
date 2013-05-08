@@ -15,8 +15,10 @@ using namespace muduo;
 
 ThreadPool::ThreadPool(const string& name)
   : mutex_(),
-    cond_(mutex_),
+    notEmpty_(mutex_),
+    notFull_(mutex_),
     name_(name),
+    maxQueueSize_(0),
     running_(false)
 {
 }
@@ -49,7 +51,7 @@ void ThreadPool::stop()
   {
   MutexLockGuard lock(mutex_);
   running_ = false;
-  cond_.notifyAll();
+  notEmpty_.notifyAll();
   }
   for_each(threads_.begin(),
            threads_.end(),
@@ -65,8 +67,14 @@ void ThreadPool::run(const Task& task)
   else
   {
     MutexLockGuard lock(mutex_);
+    while (isFull())
+    {
+      notFull_.wait();
+    }
+    assert(!isFull());
+
     queue_.push_back(task);
-    cond_.notify();
+    notEmpty_.notify();
   }
 }
 
@@ -76,15 +84,25 @@ ThreadPool::Task ThreadPool::take()
   // always use a while-loop, due to spurious wakeup
   while (queue_.empty() && running_)
   {
-    cond_.wait();
+    notEmpty_.wait();
   }
   Task task;
-  if(!queue_.empty())
+  if (!queue_.empty())
   {
     task = queue_.front();
     queue_.pop_front();
+    if (maxQueueSize_ > 0)
+    {
+      notFull_.notify();
+    }
   }
   return task;
+}
+
+bool ThreadPool::isFull() const
+{
+  // FIXME: mutex_.assertLocked();
+  return maxQueueSize_ > 0 && queue_.size() >= maxQueueSize_;
 }
 
 void ThreadPool::runInThread()

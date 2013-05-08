@@ -31,12 +31,13 @@ class MutexLock : boost::noncopyable
     assert(ret == 0); (void) ret;
   }
 
-  bool isLockedByThisThread()
+  // FIXME: not correct when condvar unlocks a mutex.
+  bool isLockedByThisThread() const
   {
     return holder_ == CurrentThread::tid();
   }
 
-  void assertLocked()
+  void assertLocked() const
   {
     assert(isLockedByThisThread());
   }
@@ -46,11 +47,13 @@ class MutexLock : boost::noncopyable
   void lock()
   {
     pthread_mutex_lock(&mutex_);
+    // if (holder_ == 0)
     holder_ = CurrentThread::tid();
   }
 
   void unlock()
   {
+    // if (holder_ == CurrentThread::tid())
     holder_ = 0;
     pthread_mutex_unlock(&mutex_);
   }

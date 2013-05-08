@@ -28,20 +28,27 @@ class ThreadPool : boost::noncopyable
   explicit ThreadPool(const string& name = string());
   ~ThreadPool();
 
+  // Must be called before start().
+  void setMaxQueueSize(int maxSize) { maxQueueSize_ = maxSize; }
+
   void start(int numThreads);
   void stop();
 
+  // Could block if maxQueueSize > 0
   void run(const Task& f);
 
  private:
+  bool isFull() const;
   void runInThread();
   Task take();
 
   MutexLock mutex_;
-  Condition cond_;
+  Condition notEmpty_;
+  Condition notFull_;
   string name_;
   boost::ptr_vector<muduo::Thread> threads_;
   std::deque<Task> queue_;
+  size_t maxQueueSize_;
   bool running_;
 };
 
