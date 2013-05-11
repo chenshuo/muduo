@@ -31,7 +31,6 @@ class MutexLock : boost::noncopyable
     assert(ret == 0); (void) ret;
   }
 
-  // FIXME: not correct when condvar unlocks a mutex.
   bool isLockedByThisThread() const
   {
     return holder_ == CurrentThread::tid();
@@ -47,14 +46,12 @@ class MutexLock : boost::noncopyable
   void lock()
   {
     pthread_mutex_lock(&mutex_);
-    // if (holder_ == 0)
-    holder_ = CurrentThread::tid();
+    assignHolder();
   }
 
   void unlock()
   {
-    // if (holder_ == CurrentThread::tid())
-    holder_ = 0;
+    unassignHolder();
     pthread_mutex_unlock(&mutex_);
   }
 
@@ -64,6 +61,35 @@ class MutexLock : boost::noncopyable
   }
 
  private:
+  friend class Condition;
+
+  class UnassignGuard : boost::noncopyable
+  {
+   public:
+    UnassignGuard(MutexLock& owner)
+      : owner_(owner)
+    {
+      owner_.unassignHolder();
+    }
+
+    ~UnassignGuard()
+    {
+      owner_.assignHolder();
+    }
+
+   private:
+    MutexLock& owner_;
+  };
+
+  void unassignHolder()
+  {
+    holder_ = 0;
+  }
+
+  void assignHolder()
+  {
+    holder_ = CurrentThread::tid();
+  }
 
   pthread_mutex_t mutex_;
   pid_t holder_;
