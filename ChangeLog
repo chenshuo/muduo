@@ -1,3 +1,9 @@
+2013-05-11   Shuo Chen  <chenshuo@chenshuo.com>
+  * ThreadPool can be blocking
+  * Support SO_REUSEPORT, added in kernel 3.9.0
+  * Fix Mutex::isLockedByThisThread()
+  * Version 0.9.3
+
 2013-03-22   Shuo Chen  <chenshuo@chenshuo.com>
   * Fix bugs
   * Add Sudoku client
