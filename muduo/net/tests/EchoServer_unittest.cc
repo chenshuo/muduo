@@ -9,7 +9,6 @@
 
 #include <utility>
 
-#include <mcheck.h>
 #include <stdio.h>
 #include <unistd.h>
 
@@ -70,7 +69,6 @@ class EchoServer
 
 int main(int argc, char* argv[])
 {
-  mtrace();
   LOG_INFO << "pid = " << getpid() << ", tid = " << CurrentThread::tid();
   LOG_INFO << "sizeof TcpConnection = " << sizeof(TcpConnection);
   if (argc > 1)
