@@ -4,6 +4,9 @@
 
 #include <stdio.h>
 #include <sys/resource.h>
+#ifdef __MACH__
+#include <libgen.h>  // basename()
+#endif
 
 int kRollSize = 500*1000*1000;
 

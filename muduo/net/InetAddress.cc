@@ -19,10 +19,10 @@
 #include <boost/static_assert.hpp>
 
 // INADDR_ANY use (type)value casting.
-#pragma GCC diagnostic ignored "-Wold-style-cast"
+// #pragma GCC diagnostic ignored "-Wold-style-cast"
 static const in_addr_t kInaddrAny = INADDR_ANY;
 static const in_addr_t kInaddrLoopback = INADDR_LOOPBACK;
-#pragma GCC diagnostic error "-Wold-style-cast"
+// #pragma GCC diagnostic error "-Wold-style-cast"
 
 //     /* Structure describing an Internet socket address.  */
 //     struct sockaddr_in {
@@ -83,10 +83,15 @@ bool InetAddress::resolve(StringArg hostname, InetAddress* out)
   assert(out != NULL);
   struct hostent hent;
   struct hostent* he = NULL;
-  int herrno = 0;
   bzero(&hent, sizeof(hent));
 
+#ifndef __MACH__
+  int herrno = 0;
   int ret = gethostbyname_r(hostname.c_str(), &hent, t_resolveBuffer, sizeof t_resolveBuffer, &he, &herrno);
+#else
+  he = gethostbyname(hostname.c_str());
+  int ret = 0;
+#endif
   if (ret == 0 && he != NULL)
   {
     assert(he->h_addrtype == AF_INET && he->h_length == sizeof(uint32_t));

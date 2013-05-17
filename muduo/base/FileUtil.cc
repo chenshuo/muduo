@@ -64,8 +64,12 @@ void FileUtil::AppendFile::flush()
 
 size_t FileUtil::AppendFile::write(const char* logline, size_t len)
 {
+#ifdef fwrite_unlocked
   // #undef fwrite_unlocked
   return ::fwrite_unlocked(logline, 1, len, fp_);
+#else
+  return ::fwrite(logline, 1, len, fp_);
+#endif
 }
 
 FileUtil::ReadSmallFile::ReadSmallFile(StringArg filename)

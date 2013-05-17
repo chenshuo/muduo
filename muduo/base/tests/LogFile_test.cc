@@ -1,5 +1,8 @@
 #include <muduo/base/LogFile.h>
 #include <muduo/base/Logging.h>
+#ifdef __MACH__
+#include <libgen.h>  // basename()
+#endif
 
 boost::scoped_ptr<muduo::LogFile> g_logFile;
 

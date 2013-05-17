@@ -16,7 +16,6 @@ set(net_SRCS
   InetAddress.cc
   Poller.cc
   poller/DefaultPoller.cc
-  poller/EPollPoller.cc
   poller/PollPoller.cc
   Socket.cc
   SocketsOps.cc

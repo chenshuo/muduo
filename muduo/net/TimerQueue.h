@@ -56,6 +56,9 @@ class TimerQueue : boost::noncopyable
 
   void cancel(TimerId timerId);
 
+  int getTimeout() const;
+  void processTimers();
+
  private:
 
   // FIXME: use unique_ptr<Timer> instead of raw pointers.
@@ -66,8 +69,6 @@ class TimerQueue : boost::noncopyable
 
   void addTimerInLoop(Timer* timer);
   void cancelInLoop(TimerId timerId);
-  // called when timerfd alarms
-  void handleRead();
   // move out all expired timers
   std::vector<Entry> getExpired(Timestamp now);
   void reset(const std::vector<Entry>& expired, Timestamp now);
@@ -75,9 +76,6 @@ class TimerQueue : boost::noncopyable
   bool insert(Timer* timer);
 
   EventLoop* loop_;
-  const int timerfd_;
-  Channel timerfdChannel_;
-  // Timer list sorted by expiration
   TimerList timers_;
 
   // for cancel()

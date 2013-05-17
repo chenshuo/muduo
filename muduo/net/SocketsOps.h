@@ -24,6 +24,9 @@ namespace sockets
 /// Creates a non-blocking socket file descriptor,
 /// abort if any error.
 int createNonblockingOrDie();
+#ifdef __MACH__
+void setNonBlockAndCloseOnExec(int sockfd);
+#endif
 
 int  connect(int sockfd, const struct sockaddr_in& addr);
 void bindOrDie(int sockfd, const struct sockaddr_in& addr);
