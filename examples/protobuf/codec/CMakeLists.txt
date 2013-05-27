@@ -7,7 +7,7 @@ add_custom_command(OUTPUT query.pb.cc query.pb.h
   DEPENDS query.proto
   VERBATIM )
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=conversion -Wno-extra")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=conversion -Wno-extra -Wno-shadow")
 include_directories(${PROJECT_BINARY_DIR})
 
 add_library(query_proto query.pb.cc)
