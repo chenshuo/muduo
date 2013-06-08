@@ -32,6 +32,9 @@ namespace ProcessInfo
   /// read /proc/self/status
   string procStatus();
 
+  /// read /proc/self/stat
+  string procStat();
+
   int openedFiles();
   int maxOpenFiles();
 

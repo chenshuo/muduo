@@ -53,7 +53,7 @@ class Inspector : boost::noncopyable
   HttpServer server_;
   boost::scoped_ptr<ProcessInspector> processInspector_;
   MutexLock mutex_;
-  std::map<string, CommandList> commands_;
+  std::map<string, CommandList> modules_;
   std::map<string, HelpList> helps_;
 };
 
