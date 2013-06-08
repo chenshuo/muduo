@@ -38,6 +38,23 @@ long getLong(const string& procStatus, const char* key)
   return result;
 }
 
+string getProcessName(const string& procStatus)
+{
+  string result;
+  size_t pos = procStatus.find("Name:");
+  if (pos != string::npos)
+  {
+    pos += strlen("Name:");
+    while (procStatus[pos] == '\t')
+      ++pos;
+    size_t eol = pos;
+    while (procStatus[eol] != '\n')
+      ++eol;
+    result = procStatus.substr(pos, eol-pos);
+  }
+  return result;
+}
+
 long getStatField(const string& procStat, int field)
 {
   // 969 (inspector_test) S
@@ -101,20 +118,22 @@ string ProcessInspector::overview(HttpRequest::Method, const Inspector::ArgList&
   result.reserve(1024);
   result += "Page generated at ";
   result += Timestamp::now().toFormattedString();
-  result += " (UTZ), started at ";
+  result += " (UTC)\nStarted at ";
   result += ProcessInfo::startTime().toFormattedString();
   result += " (UTC), up for ";
   result += uptime();
   result += "\n";
 
-  // FIXME: add process name
-  result += "Run as ";
+  string procStatus = ProcessInfo::procStatus();
+  result += getProcessName(procStatus);
+  result += " (";
+  result += ProcessInfo::exePath();
+  result += ") running as ";
   result += username_;
   result += " on ";
   result += ProcessInfo::hostname(); // cache ?
   result += "\n";
 
-  string procStatus = ProcessInfo::procStatus();
   stringPrintf(&result, "pid %d, num of threads %ld\n",
                ProcessInfo::pid(), getLong(procStatus, "Threads:"));
 
