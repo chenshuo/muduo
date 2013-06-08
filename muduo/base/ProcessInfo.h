@@ -35,6 +35,9 @@ namespace ProcessInfo
   /// read /proc/self/stat
   string procStat();
 
+  /// readlink /proc/self/exe
+  string exePath();
+
   int openedFiles();
   int maxOpenFiles();
 

@@ -123,6 +123,18 @@ string ProcessInfo::procStat()
   return result;
 }
 
+string ProcessInfo::exePath()
+{
+  string result;
+  char buf[1024];
+  ssize_t n = ::readlink("/proc/self/exe", buf, sizeof buf);
+  if (n > 0)
+  {
+    result.assign(buf, n);
+  }
+  return result;
+}
+
 int ProcessInfo::openedFiles()
 {
   t_numOpenedFiles = 0;
