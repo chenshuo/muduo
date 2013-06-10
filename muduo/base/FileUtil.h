@@ -35,6 +35,7 @@ namespace FileUtil
                      int64_t* modifyTime,
                      int64_t* createTime);
 
+    /// Read at maxium kBufferSize into buf_
     // return errno
     int readToBuffer(int* size);
 
