@@ -113,7 +113,25 @@ string ProcessInfo::procStatus()
 {
   string result;
   FileUtil::readFile("/proc/self/status", 65536, &result);
+  return result;
+}
 
+string ProcessInfo::procStat()
+{
+  string result;
+  FileUtil::readFile("/proc/self/stat", 65536, &result);
+  return result;
+}
+
+string ProcessInfo::exePath()
+{
+  string result;
+  char buf[1024];
+  ssize_t n = ::readlink("/proc/self/exe", buf, sizeof buf);
+  if (n > 0)
+  {
+    result.assign(buf, n);
+  }
   return result;
 }
 
