@@ -6,6 +6,8 @@
 #ifndef MUDUO_BASE_CURRENTTHREAD_H
 #define MUDUO_BASE_CURRENTTHREAD_H
 
+#include <stdint.h>
+
 namespace muduo
 {
 namespace CurrentThread
@@ -36,6 +38,8 @@ namespace CurrentThread
   }
 
   bool isMainThread();
+
+  void sleepUsec(int64_t usec);
 }
 }
 
