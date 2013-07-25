@@ -62,7 +62,7 @@ void Connector::startInLoop()
 void Connector::stop()
 {
   connect_ = false;
-  loop_->runInLoop(boost::bind(&Connector::stopInLoop, this)); // FIXME: unsafe
+  loop_->queueInLoop(boost::bind(&Connector::stopInLoop, this)); // FIXME: unsafe
   // FIXME: cancel timer
 }
 
@@ -145,6 +145,7 @@ void Connector::connecting(int sockfd)
 int Connector::removeAndResetChannel()
 {
   channel_->disableAll();
+  channel_->remove();
   int sockfd = channel_->fd();
   // Can't reset channel_ here, because we are inside Channel::handleEvent
   loop_->queueInLoop(boost::bind(&Connector::resetChannel, this)); // FIXME: unsafe
@@ -153,7 +154,6 @@ int Connector::removeAndResetChannel()
 
 void Connector::resetChannel()
 {
-  channel_->remove();
   channel_.reset();
 }
 
