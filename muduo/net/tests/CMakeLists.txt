@@ -18,6 +18,9 @@ add_executable(inetaddress_unittest InetAddress_unittest.cc)
 target_link_libraries(inetaddress_unittest muduo_net boost_unit_test_framework)
 endif()
 
+add_executable(tcpclient_reg1 TcpClient_reg1.cc)
+target_link_libraries(tcpclient_reg1 muduo_net)
+
 add_executable(timerqueue_unittest TimerQueue_unittest.cc)
 target_link_libraries(timerqueue_unittest muduo_net)
 

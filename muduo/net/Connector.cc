@@ -145,7 +145,6 @@ void Connector::connecting(int sockfd)
 int Connector::removeAndResetChannel()
 {
   channel_->disableAll();
-  channel_->remove();
   int sockfd = channel_->fd();
   // Can't reset channel_ here, because we are inside Channel::handleEvent
   loop_->queueInLoop(boost::bind(&Connector::resetChannel, this)); // FIXME: unsafe
@@ -154,6 +153,7 @@ int Connector::removeAndResetChannel()
 
 void Connector::resetChannel()
 {
+  channel_->remove();
   channel_.reset();
 }
 
@@ -198,13 +198,14 @@ void Connector::handleWrite()
 
 void Connector::handleError()
 {
-  LOG_ERROR << "Connector::handleError";
-  assert(state_ == kConnecting);
-
-  int sockfd = removeAndResetChannel();
-  int err = sockets::getSocketError(sockfd);
-  LOG_TRACE << "SO_ERROR = " << err << " " << strerror_tl(err);
-  retry(sockfd);
+  LOG_ERROR << "Connector::handleError state=" << state_;
+  if (state_ == kConnecting)
+  {
+    int sockfd = removeAndResetChannel();
+    int err = sockets::getSocketError(sockfd);
+    LOG_TRACE << "SO_ERROR = " << err << " " << strerror_tl(err);
+    retry(sockfd);
+  }
 }
 
 void Connector::retry(int sockfd)

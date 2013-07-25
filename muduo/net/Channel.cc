@@ -75,6 +75,7 @@ void Channel::handleEvent(Timestamp receiveTime)
 void Channel::handleEventWithGuard(Timestamp receiveTime)
 {
   eventHandling_ = true;
+  LOG_TRACE << reventsToString();
   if ((revents_ & POLLHUP) && !(revents_ & POLLIN))
   {
     if (logHup_)
