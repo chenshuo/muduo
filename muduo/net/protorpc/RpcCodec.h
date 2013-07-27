@@ -27,6 +27,15 @@ typedef boost::shared_ptr<TcpConnection> TcpConnectionPtr;
 
 class RpcMessage;
 
+// wire format
+//
+// Field     Length  Content
+//
+// size      4-byte  N+8
+// "RPC0"    4-byte
+// payload   N-byte
+// checksum  4-byte  adler32 of "RPC0"+payload
+//
 class RpcCodec
 {
  public:
