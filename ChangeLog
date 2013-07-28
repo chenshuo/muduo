@@ -1,3 +1,12 @@
+2013-07-28   Shuo Chen  <chenshuo@chenshuo.com>
+  * Protobuf RPC wire protocol changed,
+    package name removed in 'service' field.
+  * Add roundtrip_udp as a UDP example
+  * More inspect
+  * Fix Connector::stop()
+  * Fix for protobuf 2.5.0
+  * Version 0.9.4
+
 2013-05-11   Shuo Chen  <chenshuo@chenshuo.com>
   * ThreadPool can be blocking
   * Support SO_REUSEPORT, added in kernel 3.9.0
