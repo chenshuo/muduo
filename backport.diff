@@ -188,7 +188,7 @@ diff --git a/muduo/net/EventLoop.cc b/muduo/net/EventLoop.cc
  
  IgnoreSigPipe initObj;
  }
-@@ -69,11 +57,15 @@ EventLoop::EventLoop()
+@@ -69,11 +57,17 @@ EventLoop::EventLoop()
      threadId_(CurrentThread::tid()),
      poller_(Poller::newDefaultPoller(this)),
      timerQueue_(new TimerQueue(this)),
@@ -201,12 +201,14 @@ diff --git a/muduo/net/EventLoop.cc b/muduo/net/EventLoop.cc
 +  {
 +    LOG_SYSFATAL << "Failed in socketpair";
 +  }
++  sockets::setNonBlockAndCloseOnExec(wakeupFd_[0]);
++  sockets::setNonBlockAndCloseOnExec(wakeupFd_[1]);
 +  wakeupChannel_.reset(new Channel(this, wakeupFd_[0]));
 +
    if (t_loopInThisThread)
    {
      LOG_FATAL << "Another EventLoop " << t_loopInThisThread
-@@ -93,7 +85,8 @@ EventLoop::~EventLoop()
+@@ -93,7 +87,8 @@ EventLoop::~EventLoop()
  {
    LOG_DEBUG << "EventLoop " << this << " of thread " << threadId_
              << " destructs in thread " << CurrentThread::tid();
@@ -216,7 +218,7 @@ diff --git a/muduo/net/EventLoop.cc b/muduo/net/EventLoop.cc
    t_loopInThisThread = NULL;
  }
  
-@@ -108,12 +101,13 @@ void EventLoop::loop()
+@@ -108,12 +103,13 @@ void EventLoop::loop()
    while (!quit_)
    {
      activeChannels_.clear();
@@ -231,24 +233,35 @@ diff --git a/muduo/net/EventLoop.cc b/muduo/net/EventLoop.cc
      // TODO sort channel by priority
      eventHandling_ = true;
      for (ChannelList::iterator it = activeChannels_.begin();
-@@ -216,7 +210,7 @@ void EventLoop::abortNotInLoopThread()
+@@ -215,22 +211,19 @@ void EventLoop::abortNotInLoopThread()
+ 
  void EventLoop::wakeup()
  {
-   uint64_t one = 1;
+-  uint64_t one = 1;
 -  ssize_t n = sockets::write(wakeupFd_, &one, sizeof one);
++  char one = '1';
 +  ssize_t n = sockets::write(wakeupFd_[1], &one, sizeof one);
    if (n != sizeof one)
    {
-     LOG_ERROR << "EventLoop::wakeup() writes " << n << " bytes instead of 8";
-@@ -226,7 +220,7 @@ void EventLoop::wakeup()
+-    LOG_ERROR << "EventLoop::wakeup() writes " << n << " bytes instead of 8";
++    LOG_ERROR << "EventLoop::wakeup() writes " << n << " bytes instead of 1";
+   }
+ }
+ 
  void EventLoop::handleRead()
  {
-   uint64_t one = 1;
+-  uint64_t one = 1;
 -  ssize_t n = sockets::read(wakeupFd_, &one, sizeof one);
-+  ssize_t n = sockets::read(wakeupFd_[0], &one, sizeof one);
-   if (n != sizeof one)
-   {
-     LOG_ERROR << "EventLoop::handleRead() reads " << n << " bytes instead of 8";
+-  if (n != sizeof one)
+-  {
+-    LOG_ERROR << "EventLoop::handleRead() reads " << n << " bytes instead of 8";
+-  }
++  char buf[4096] = { 0 };
++  ssize_t n = sockets::read(wakeupFd_[0], buf, sizeof buf);
++  (void)n;
+ }
+ 
+ void EventLoop::doPendingFunctors()
 diff --git a/muduo/net/EventLoop.h b/muduo/net/EventLoop.h
 --- a/muduo/net/EventLoop.h
 +++ b/muduo/net/EventLoop.h
@@ -277,7 +290,23 @@ diff --git a/muduo/net/InetAddress.cc b/muduo/net/InetAddress.cc
 diff --git a/muduo/net/SocketsOps.cc b/muduo/net/SocketsOps.cc
 --- a/muduo/net/SocketsOps.cc
 +++ b/muduo/net/SocketsOps.cc
-@@ -59,7 +59,6 @@ void setNonBlockAndCloseOnExec(int sockfd)
+@@ -37,7 +37,9 @@ SA* sockaddr_cast(struct sockaddr_in* addr)
+   return static_cast<SA*>(implicit_cast<void*>(addr));
+ }
+ 
+-void setNonBlockAndCloseOnExec(int sockfd)
++}
++
++void sockets::setNonBlockAndCloseOnExec(int sockfd)
+ {
+   // non-block
+   int flags = ::fcntl(sockfd, F_GETFL, 0);
+@@ -54,12 +56,9 @@ void setNonBlockAndCloseOnExec(int sockfd)
+   (void)ret;
+ }
+ 
+-}
+-
  int sockets::createNonblockingOrDie()
  {
    // socket
@@ -313,6 +342,18 @@ diff --git a/muduo/net/SocketsOps.cc b/muduo/net/SocketsOps.cc
    if (connfd < 0)
    {
      int savedErrno = errno;
+diff --git a/muduo/net/SocketsOps.h b/muduo/net/SocketsOps.h
+--- a/muduo/net/SocketsOps.h
++++ b/muduo/net/SocketsOps.h
+@@ -25,6 +25,8 @@ namespace sockets
+ /// abort if any error.
+ int createNonblockingOrDie();
+ 
++void setNonBlockAndCloseOnExec(int sockfd);
++
+ int  connect(int sockfd, const struct sockaddr_in& addr);
+ void bindOrDie(int sockfd, const struct sockaddr_in& addr);
+ void listenOrDie(int sockfd);
 diff --git a/muduo/net/TimerQueue.cc b/muduo/net/TimerQueue.cc
 --- a/muduo/net/TimerQueue.cc
 +++ b/muduo/net/TimerQueue.cc
