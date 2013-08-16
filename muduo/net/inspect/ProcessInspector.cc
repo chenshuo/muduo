@@ -100,11 +100,10 @@ int stringPrintf(string* out, const char* fmt, ...)
   return ret;
 }
 
-string ProcessInspector::username_;
+string ProcessInspector::username_ = ProcessInfo::username();
 
 void ProcessInspector::registerCommands(Inspector* ins)
 {
-  username_ += ProcessInfo::username(); //
   ins->add("proc", "basic", ProcessInspector::overview, "print basic overview");
   ins->add("proc", "pid", ProcessInspector::pid, "print pid");
   ins->add("proc", "status", ProcessInspector::procStatus, "print /proc/self/status");

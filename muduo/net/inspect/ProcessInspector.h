@@ -24,7 +24,6 @@ class ProcessInspector : boost::noncopyable
  public:
   void registerCommands(Inspector* ins);
 
- private:
   static string overview(HttpRequest::Method, const Inspector::ArgList&);
   static string pid(HttpRequest::Method, const Inspector::ArgList&);
   static string procStatus(HttpRequest::Method, const Inspector::ArgList&);
