@@ -1,6 +1,10 @@
 #include "Session.h"
 #include "MemcacheServer.h"
 
+#ifdef HAVE_TCMALLOC
+#include <google/malloc_extension.h>
+#endif
+
 using namespace muduo;
 using namespace muduo::net;
 
@@ -8,6 +12,9 @@ static bool isBinaryProtocol(uint8_t firstByte)
 {
   return firstByte == 0x80;
 }
+
+const int kLongestKeySize = 250;
+string Session::kLongestKey(kLongestKeySize, 'x');
 
 template <typename InputIterator, typename Token>
 bool Session::SpaceSeparator::operator()(InputIterator& next, InputIterator end, Token& tok)
@@ -83,7 +90,7 @@ void Session::onMessage(const muduo::net::TcpConnectionPtr& conn,
       assert(protocol_ == kAscii || protocol_ == kBinary);
       if (protocol_ == kBinary)
       {
-        // TODO
+        // FIXME
       }
       else  // ASCII protocol
       {
@@ -224,18 +231,27 @@ bool Session::processRequest(StringPiece request)
   if (command_ == "set" || command_ == "add" || command_ == "replace"
       || command_ == "append" || command_ == "prepend" || command_ == "cas")
   {
+    // this normally returns false
     return doUpdate(beg, tok.end());
   }
   else if (command_ == "get" || command_ == "gets")
   {
     Buffer output;
-    string key;
     bool cas = command_ == "gets";
 
+    // FIXME: send multiple chunks with write complete callback.
     while (beg != tok.end())
     {
-      (*beg).CopyToString(&key);
-      ConstItemPtr item = owner_->getItem(key);
+      StringPiece key = *beg;
+      bool good = key.size() <= kLongestKeySize;
+      if (!good)
+      {
+        reply("CLIENT_ERROR bad command line format\r\n");
+        return true;
+      }
+
+      needle_->resetKey(key);
+      ConstItemPtr item = owner_->getItem(needle_);
       ++beg;
       if (item)
       {
@@ -251,6 +267,22 @@ bool Session::processRequest(StringPiece request)
   {
     doDelete(beg, tok.end());
   }
+  else if (command_ == "version")
+  {
+#ifdef HAVE_TCMALLOC
+    reply("VERSION 0.01 muduo with tcmalloc\r\n");
+#else
+    reply("VERSION 0.01 muduo\r\n");
+#endif
+  }
+#ifdef HAVE_TCMALLOC
+  else if (command_ == "memstat")
+  {
+    char buf[1024*64];
+    MallocExtension::instance()->GetStats(buf, sizeof buf);
+    reply(buf);
+  }
+#endif
   else if (command_ == "quit")
   {
     conn_->shutdown();
@@ -304,8 +336,9 @@ bool Session::doUpdate(Session::Tokenizer::iterator& beg, Session::Tokenizer::it
     assert(false);
 
   // FIXME: check (beg != end)
-  string key = (*beg).as_string();
+  StringPiece key = (*beg);
   ++beg;
+  bool good = key.size() <= kLongestKeySize;
 
   uint32_t flags = 0;
   time_t exptime = 1;
@@ -313,7 +346,21 @@ bool Session::doUpdate(Session::Tokenizer::iterator& beg, Session::Tokenizer::it
   uint64_t cas = 0;
 
   Reader r(beg, end);
-  bool good = r.read(&flags) && r.read(&exptime) && r.read(&bytes);
+  good = good && r.read(&flags) && r.read(&exptime) && r.read(&bytes);
+
+  int rel_exptime = static_cast<int>(exptime);
+  if (exptime > 60*60*24*30)
+  {
+    rel_exptime = static_cast<int>(exptime - owner_->startTime());
+    if (rel_exptime < 1)
+    {
+      rel_exptime = 1;
+    }
+  }
+  else
+  {
+    // rel_exptime = exptime + currentTime;
+  }
 
   if (good && policy_ == Item::kCas)
   {
@@ -328,14 +375,15 @@ bool Session::doUpdate(Session::Tokenizer::iterator& beg, Session::Tokenizer::it
   if (bytes > 1024*1024)
   {
     reply("SERVER_ERROR object too large for cache\r\n");
-    owner_->deleteItem(key);
+    needle_->resetKey(key);
+    owner_->deleteItem(needle_);
     bytesToDiscard_ = bytes + 2;
     state_ = kDiscardValue;
     return false;
   }
   else
   {
-    currItem_.reset(new Item(key, flags, exptime, bytes + 2, cas));
+    currItem_ = Item::makeItem(key, flags, rel_exptime, bytes + 2, cas);
     state_ = kReceiveValue;
     return false;
   }
@@ -345,15 +393,21 @@ void Session::doDelete(Session::Tokenizer::iterator& beg, Session::Tokenizer::it
 {
   assert(command_ == "delete");
   // FIXME: check (beg != end)
-  string key = (*beg).as_string();
+  StringPiece key = *beg;
+  bool good = key.size() <= kLongestKeySize;
   ++beg;
-  if (beg != end && *beg != "0") // issue 108, old protocol
+  if (!good)
+  {
+    reply("CLIENT_ERROR bad command line format\r\n");
+  }
+  else if (beg != end && *beg != "0") // issue 108, old protocol
   {
     reply("CLIENT_ERROR bad command line format.  Usage: delete <key> [noreply]\r\n");
   }
   else
   {
-    if (owner_->deleteItem(key))
+    needle_->resetKey(key);
+    if (owner_->deleteItem(needle_))
     {
       reply("DELETED\r\n");
     }

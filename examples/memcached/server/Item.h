@@ -2,12 +2,15 @@
 #define MUDUO_EXAMPLES_MEMCACHED_SERVER_ITEM_H
 
 #include <muduo/base/Atomic.h>
+#include <muduo/base/StringPiece.h>
 #include <muduo/base/Types.h>
 
+#include <boost/make_shared.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
 
 using muduo::string;
+using muduo::StringPiece;
 
 namespace muduo
 {
@@ -16,6 +19,10 @@ namespace net
 class Buffer;
 }
 }
+
+class Item;
+typedef boost::shared_ptr<Item> ItemPtr;  // TODO: use unique_ptr
+typedef boost::shared_ptr<const Item> ConstItemPtr;  // TODO: use unique_ptr
 
 // Item is immutable once added into hash table
 class Item : boost::noncopyable
@@ -32,28 +39,30 @@ class Item : boost::noncopyable
     kCas,
   };
 
-  // TODO: make_shared()
-  Item(const string& keyArg, uint32_t flagsArg, time_t exptimeArg, int valuelen, uint64_t casArg)
-    : key_(keyArg),
-      flags_(flagsArg),
-      exptime_(exptimeArg),
-      valuelen_(valuelen),
-      receivedBytes_(0),
-      cas_(casArg),
-      value_(static_cast<char*>(::malloc(valuelen)))
+  static ItemPtr makeItem(StringPiece keyArg,
+                          uint32_t flagsArg,
+                          int exptimeArg,
+                          int valuelen,
+                          uint64_t casArg)
   {
-    assert(valuelen_ >= 2);
-    assert(receivedBytes_ < valuelen_);
+    return boost::make_shared<Item>(keyArg, flagsArg, exptimeArg, valuelen, casArg);
+    //return ItemPtr(new Item(keyArg, flagsArg, exptimeArg, valuelen, casArg));
   }
+
+  Item(StringPiece keyArg,
+       uint32_t flagsArg,
+       int exptimeArg,
+       int valuelen,
+       uint64_t casArg);
 
   ~Item()
   {
-    ::free(value_);
+    ::free(data_);
   }
 
-  const string& key() const
+  muduo::StringPiece key() const
   {
-    return key_;
+    return muduo::StringPiece(data_, keylen_);
   }
 
   uint32_t flags() const
@@ -61,14 +70,14 @@ class Item : boost::noncopyable
     return flags_;
   }
 
-  time_t exptime() const
+  int rel_exptime() const
   {
-    return exptime_;
+    return rel_exptime_;
   }
 
   const char* value() const
   {
-    return value_;
+    return data_+keylen_;
   }
 
   size_t valueLength() const
@@ -88,31 +97,32 @@ class Item : boost::noncopyable
 
   size_t neededBytes() const
   {
-    return valuelen_ - receivedBytes_;
+    return totalLen() - receivedBytes_;
   }
 
   void append(const char* data, size_t len);
 
   bool endsWithCRLF() const
   {
-    return receivedBytes_ == valuelen_
-        && value_[valuelen_-2] == '\r'
-        && value_[valuelen_-1] == '\n';
+    return receivedBytes_ == totalLen()
+        && data_[totalLen()-2] == '\r'
+        && data_[totalLen()-1] == '\n';
   }
 
   void output(muduo::net::Buffer* out, bool needCas = false) const;
 
- private:
-  const string key_;
-  uint32_t flags_;
-  time_t   exptime_;
-  int      valuelen_;
-  int      receivedBytes_;
-  uint64_t cas_;
-  char*    value_;
+  void resetKey(StringPiece k);
 
+ private:
+  int totalLen() const { return keylen_ + valuelen_; }
+
+  int            keylen_;
+  const uint32_t flags_;
+  const int      rel_exptime_;
+  const int      valuelen_;
+  int            receivedBytes_;  // FIXME: remove this member
+  uint64_t       cas_;
+  char*          data_;
 };
-typedef boost::shared_ptr<Item> ItemPtr;  // TODO: use unique_ptr
-typedef boost::shared_ptr<const Item> ConstItemPtr;  // TODO: use unique_ptr
 
 #endif  // MUDUO_EXAMPLES_MEMCACHED_SERVER_ITEM_H

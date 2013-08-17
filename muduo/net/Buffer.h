@@ -310,6 +310,11 @@ class Buffer : public muduo::copyable
     swap(other);
   }
 
+  size_t internalCapacity() const
+  {
+    return buffer_.capacity();
+  }
+
   /// Read data directly into buffer.
   ///
   /// It may implement with readv(2)
