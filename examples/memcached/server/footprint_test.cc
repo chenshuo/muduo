@@ -22,15 +22,15 @@ int main(int argc, char* argv[])
   MemcacheServer::Options options;
   MemcacheServer server(&loop, options);
 
-  printf("pid = %d\nitems = %d\nkeylen = %d\nvaluelen = %d\n",
-         getpid(), items, keylen, valuelen);
+  printf("sizeof(Item) = %zd\npid = %d\nitems = %d\nkeylen = %d\nvaluelen = %d\n",
+         sizeof(Item), getpid(), items, keylen, valuelen);
   char key[256] = { 0 };
   string value;
   for (int i = 0; i < items; ++i)
   {
     snprintf(key, sizeof key, "%0*d", keylen, i);
     value.assign(valuelen, '0' + i % 10);
-    ItemPtr item(new Item(key, 0, 0, valuelen+2, 1));
+    ItemPtr item(Item::makeItem(key, 0, 0, valuelen+2, 1));
     item->append(value.data(), value.size());
     item->append("\r\n", 2);
     assert(item->endsWithCRLF());

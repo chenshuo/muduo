@@ -23,6 +23,7 @@ struct MemcacheServer::Stats
 MemcacheServer::MemcacheServer(muduo::net::EventLoop* loop, const Options& options)
   : loop_(loop),
     options_(options),
+    startTime_(::time(NULL)-1),
     server_(loop, InetAddress(options.tcpport), "muduo-memcached"),
     stats_(new Stats)
 {
@@ -48,15 +49,19 @@ bool MemcacheServer::storeItem(const ItemPtr& item, const Item::UpdatePolicy pol
 {
   assert(item->neededBytes() == 0);
   MutexLockGuard lock(mutex_);
+  ItemMap::const_iterator it = items_.find(item);
+  *exists = it != items_.end();
   if (policy == Item::kSet)
   {
     item->setCas(g_cas.incrementAndGet());
-    items_[item->key()] = item;
+    if (*exists)
+    {
+      items_.erase(it);
+    }
+    items_.insert(item);
   }
   else
   {
-    boost::unordered_map<string, ConstItemPtr>::iterator it = items_.find(item->key());
-    *exists = it != items_.end();
     if (policy == Item::kAdd)
     {
       if (*exists)
@@ -66,7 +71,7 @@ bool MemcacheServer::storeItem(const ItemPtr& item, const Item::UpdatePolicy pol
       else
       {
         item->setCas(g_cas.incrementAndGet());
-        items_[item->key()] = item;
+        items_.insert(item);
       }
     }
     else if (policy == Item::kReplace)
@@ -74,7 +79,8 @@ bool MemcacheServer::storeItem(const ItemPtr& item, const Item::UpdatePolicy pol
       if (*exists)
       {
         item->setCas(g_cas.incrementAndGet());
-        it->second = item;
+        items_.erase(it);
+        items_.insert(item);
       }
       else
       {
@@ -85,13 +91,13 @@ bool MemcacheServer::storeItem(const ItemPtr& item, const Item::UpdatePolicy pol
     {
       if (*exists)
       {
-        const ConstItemPtr& oldItem = it->second;
+        const ConstItemPtr& oldItem = *it;
         int newLen = static_cast<int>(item->valueLength() + oldItem->valueLength() - 2);
-        ItemPtr newItem(new Item(item->key(),
-                                 item->flags(),
-                                 item->exptime(),
-                                 newLen,
-                                 g_cas.incrementAndGet()));
+        ItemPtr newItem(Item::makeItem(item->key(),
+                                       oldItem->flags(),
+                                       oldItem->rel_exptime(),
+                                       newLen,
+                                       g_cas.incrementAndGet()));
         if (policy == Item::kAppend)
         {
           newItem->append(oldItem->value(), oldItem->valueLength() - 2);
@@ -104,7 +110,8 @@ bool MemcacheServer::storeItem(const ItemPtr& item, const Item::UpdatePolicy pol
         }
         assert(newItem->neededBytes() == 0);
         assert(newItem->endsWithCRLF());
-        it->second = newItem;
+        items_.erase(it);
+        items_.insert(newItem);
       }
       else
       {
@@ -113,10 +120,11 @@ bool MemcacheServer::storeItem(const ItemPtr& item, const Item::UpdatePolicy pol
     }
     else if (policy == Item::kCas)
     {
-      if (*exists && it->second->cas() == item->cas())
+      if (*exists && (*it)->cas() == item->cas())
       {
         item->setCas(g_cas.incrementAndGet());
-        it->second = item;
+        items_.erase(it);
+        items_.insert(item);
       }
       else
       {
@@ -131,14 +139,14 @@ bool MemcacheServer::storeItem(const ItemPtr& item, const Item::UpdatePolicy pol
   return true;
 }
 
-ConstItemPtr MemcacheServer::getItem(const string& key) const
+ConstItemPtr MemcacheServer::getItem(const ConstItemPtr& key) const
 {
   MutexLockGuard lock(mutex_);
-  boost::unordered_map<string, ConstItemPtr>::const_iterator it = items_.find(key);
-  return it != items_.end() ? it->second : ConstItemPtr();
+  ItemMap::const_iterator it = items_.find(key);
+  return it != items_.end() ? *it : ConstItemPtr();
 }
 
-bool MemcacheServer::deleteItem(const string& key)
+bool MemcacheServer::deleteItem(const ConstItemPtr& key)
 {
   MutexLockGuard lock(mutex_);
   return items_.erase(key) == 1;
