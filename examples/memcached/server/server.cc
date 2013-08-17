@@ -1,6 +1,8 @@
 #include "MemcacheServer.h"
 
 #include <muduo/net/EventLoop.h>
+#include <muduo/net/EventLoopThread.h>
+#include <muduo/net/inspect/Inspector.h>
 
 #include <boost/program_options.hpp>
 
@@ -10,6 +12,7 @@ using namespace muduo::net;
 bool parseCommandLine(int argc, char* argv[], MemcacheServer::Options* options)
 {
   options->tcpport = 11211;
+  options->gperfport = 11212;
   options->threads = 0;
 
   po::options_description desc("Allowed options");
@@ -17,6 +20,7 @@ bool parseCommandLine(int argc, char* argv[], MemcacheServer::Options* options)
       ("help,h", "Help")
       ("port,p", po::value<uint16_t>(&options->tcpport), "TCP port")
       ("udpport,U", po::value<uint16_t>(&options->udpport), "UDP port")
+      ("gperf,g", po::value<uint16_t>(&options->gperfport), "port for gperftools")
       ("threads,t", po::value<int>(&options->threads), "Number of worker threads")
       ;
 
@@ -35,9 +39,11 @@ bool parseCommandLine(int argc, char* argv[], MemcacheServer::Options* options)
 int main(int argc, char* argv[])
 {
   EventLoop loop;
+  EventLoopThread inspectThread;
   MemcacheServer::Options options;
   if (parseCommandLine(argc, argv, &options))
   {
+    Inspector ins(inspectThread.startLoop(), InetAddress(options.gperfport), "memcached-debug");
     MemcacheServer server(&loop, options);
     server.start();
     loop.loop();

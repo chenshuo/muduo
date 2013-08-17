@@ -39,7 +39,16 @@ bool processRequestLine(const char* begin, const char* end, HttpContext* context
     space = std::find(start, end, ' ');
     if (space != end)
     {
-      request.setPath(start, space);
+      const char* question = std::find(start, space, '?');
+      if (question != space)
+      {
+        request.setPath(start, question);
+        request.setQuery(question, space);
+      }
+      else
+      {
+        request.setPath(start, space);
+      }
       start = space+1;
       succeed = end-start == 8 && std::equal(start, end-1, "HTTP/1.");
       if (succeed)

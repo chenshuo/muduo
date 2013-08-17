@@ -26,8 +26,10 @@ namespace net
 {
 
 class ProcessInspector;
+class PerformanceInspector;
 
-// A internal inspector of the running process, usually a singleton.
+// An internal inspector of the running process, usually a singleton.
+// Better to run in a seperated thread, as some method may block for seconds
 class Inspector : boost::noncopyable
 {
  public:
@@ -52,6 +54,7 @@ class Inspector : boost::noncopyable
 
   HttpServer server_;
   boost::scoped_ptr<ProcessInspector> processInspector_;
+  boost::scoped_ptr<PerformanceInspector> performanceInspector_;
   MutexLock mutex_;
   std::map<string, CommandList> modules_;
   std::map<string, HelpList> helps_;

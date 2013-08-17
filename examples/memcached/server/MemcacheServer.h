@@ -19,6 +19,7 @@ class MemcacheServer : boost::noncopyable
     Options();
     uint16_t tcpport;
     uint16_t udpport;
+    uint16_t gperfport;
     int threads;
   };
 

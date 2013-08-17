@@ -47,6 +47,13 @@ find_path(MHD_INCLUDE_DIR microhttpd.h)
 find_library(MHD_LIBRARY NAMES microhttpd)
 find_library(BOOSTTEST_LIBRARY NAMES boost_unit_test_framework)
 find_library(BOOSTPO_LIBRARY NAMES boost_program_options)
+find_path(TCMALLOC_INCLUDE_DIR google/heap-profiler.h)
+find_library(TCMALLOC_LIBRARY NAMES tcmalloc_and_profiler)
+if(TCMALLOC_INCLUDE_DIR AND TCMALLOC_LIBRARY)
+  message(STATUS "found tcmalloc")
+else()
+  message(STATUS "not found tcmalloc")
+endif()
 
 include_directories(${Boost_INCLUDE_DIRS})
 
