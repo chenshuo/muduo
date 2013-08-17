@@ -39,7 +39,7 @@ class Session : boost::noncopyable,
   ~Session()
   {
     LOG_INFO << "requests processed: " << requestsProcessed_
-             << "input buffer size: " << conn_->inputBuffer()->internalCapacity();
+             << " input buffer size: " << conn_->inputBuffer()->internalCapacity();
   }
 
  private:
