@@ -109,6 +109,19 @@ string ProcessInfo::hostname()
   return buf;
 }
 
+string ProcessInfo::procname()
+{
+  string name;
+  string stat = procStat();
+  size_t lp = stat.find('(');
+  size_t rp = stat.find(')');
+  if (lp != string::npos && rp != string::npos)
+  {
+    name = stat.substr(lp+1, rp-lp-1);
+  }
+  return name;
+}
+
 string ProcessInfo::procStatus()
 {
   string result;

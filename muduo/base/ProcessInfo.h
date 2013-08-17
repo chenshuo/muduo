@@ -28,6 +28,7 @@ namespace ProcessInfo
   Timestamp startTime();
 
   string hostname();
+  string procname();
 
   /// read /proc/self/status
   string procStatus();

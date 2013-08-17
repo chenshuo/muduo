@@ -118,6 +118,14 @@ class HttpRequest : public muduo::copyable
   const string& path() const
   { return path_; }
 
+  void setQuery(const char* start, const char* end)
+  {
+    query_.assign(start, end);
+  }
+
+  const string& query() const
+  { return query_; }
+
   void setReceiveTime(Timestamp t)
   { receiveTime_ = t; }
 
@@ -158,6 +166,7 @@ class HttpRequest : public muduo::copyable
   {
     std::swap(method_, that.method_);
     path_.swap(that.path_);
+    query_.swap(that.query_);
     receiveTime_.swap(that.receiveTime_);
     headers_.swap(that.headers_);
   }
@@ -166,6 +175,7 @@ class HttpRequest : public muduo::copyable
   Method method_;
   Version version_;
   string path_;
+  string query_;
   Timestamp receiveTime_;
   std::map<string, string> headers_;
 };
