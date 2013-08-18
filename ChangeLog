@@ -1,3 +1,8 @@
+2013-xx-xx   Shuo Chen  <chenshuo@chenshuo.com>
+  * Add PerformanceInspector, support remote profiling with gperftools
+  * Add examples of memcached server and client
+  * Version 0.9.5
+
 2013-07-28   Shuo Chen  <chenshuo@chenshuo.com>
   * Protobuf RPC wire protocol changed,
     package name removed in 'service' field.
