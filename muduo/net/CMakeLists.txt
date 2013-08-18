@@ -23,7 +23,13 @@ set(net_SRCS
 add_library(muduo_net ${net_SRCS})
 target_link_libraries(muduo_net muduo_base)
 
+add_library(muduo_net_cpp11 ${net_SRCS})
+target_link_libraries(muduo_net_cpp11 muduo_base_cpp11)
+set_target_properties(muduo_net_cpp11 PROPERTIES COMPILE_FLAGS "-std=c++0x")
+
 install(TARGETS muduo_net DESTINATION lib)
+install(TARGETS muduo_net_cpp11 DESTINATION lib)
+
 set(HEADERS
   Buffer.h
   Callbacks.h
