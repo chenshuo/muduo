@@ -86,8 +86,12 @@ class TcpConnection : boost::noncopyable,
   void setHighWaterMarkCallback(const HighWaterMarkCallback& cb, size_t highWaterMark)
   { highWaterMarkCallback_ = cb; highWaterMark_ = highWaterMark; }
 
+  /// Advanced interface
   Buffer* inputBuffer()
   { return &inputBuffer_; }
+
+  Buffer* outputBuffer()
+  { return &outputBuffer_; }
 
   /// Internal use only.
   void setCloseCallback(const CloseCallback& cb)

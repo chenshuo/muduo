@@ -34,12 +34,15 @@ class Session : boost::noncopyable,
   {
     conn_->setMessageCallback(
         boost::bind(&Session::onMessage, this, _1, _2, _3));
+    conn_->setWriteCompleteCallback(
+        boost::bind(&Session::onWriteComplete, this, _1));
   }
 
   ~Session()
   {
     LOG_INFO << "requests processed: " << requestsProcessed_
-             << " input buffer size: " << conn_->inputBuffer()->internalCapacity();
+             << " input buffer size: " << conn_->inputBuffer()->internalCapacity()
+             << " output buffer size: " << conn_->outputBuffer()->internalCapacity();
   }
 
  private:
@@ -60,6 +63,7 @@ class Session : boost::noncopyable,
   void onMessage(const muduo::net::TcpConnectionPtr& conn,
                  muduo::net::Buffer* buf,
                  muduo::Timestamp);
+  void onWriteComplete(const muduo::net::TcpConnectionPtr& conn);
   void receiveValue(muduo::net::Buffer* buf);
   void discardValue(muduo::net::Buffer* buf);
   // TODO: highWaterMark

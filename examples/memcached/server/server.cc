@@ -43,7 +43,9 @@ int main(int argc, char* argv[])
   MemcacheServer::Options options;
   if (parseCommandLine(argc, argv, &options))
   {
-    Inspector ins(inspectThread.startLoop(), InetAddress(options.gperfport), "memcached-debug");
+    // FIXME: how to destruct it safely ?
+    new Inspector(inspectThread.startLoop(), InetAddress(options.gperfport), "memcached-debug");
+
     MemcacheServer server(&loop, options);
     server.start();
     loop.loop();
