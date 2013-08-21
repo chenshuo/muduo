@@ -34,8 +34,6 @@ class Session : boost::noncopyable,
   {
     conn_->setMessageCallback(
         boost::bind(&Session::onMessage, this, _1, _2, _3));
-    conn_->setWriteCompleteCallback(
-        boost::bind(&Session::onWriteComplete, this, _1));
   }
 
   ~Session()
