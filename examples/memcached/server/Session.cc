@@ -133,15 +133,6 @@ void Session::onMessage(const muduo::net::TcpConnectionPtr& conn,
   bytesRead_ += initialReadable - buf->readableBytes();
 }
 
-void Session::onWriteComplete(const TcpConnectionPtr& conn)
-{
-  if (conn->outputBuffer()->writableBytes() > 65536)
-  {
-    LOG_DEBUG << "shrink output buffer from " << conn->outputBuffer()->internalCapacity();
-    conn->outputBuffer()->shrink(65536);
-  }
-}
-
 void Session::receiveValue(muduo::net::Buffer* buf)
 {
   assert(currItem_.get());
@@ -269,7 +260,12 @@ bool Session::processRequest(StringPiece request)
     }
     output.append("END\r\n");
 
-    // FIXME check large output buffer
+    if (conn->outputBuffer()->writableBytes() > 65536 + output.readableBytes())
+    {
+      LOG_DEBUG << "shrink output buffer from " << conn->outputBuffer()->internalCapacity();
+      conn->outputBuffer()->shrink(65536 + output.readableBytes());
+    }
+
     conn_->send(&output);
   }
   else if (command_ == "delete")
