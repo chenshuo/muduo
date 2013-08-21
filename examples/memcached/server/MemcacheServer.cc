@@ -48,17 +48,19 @@ void MemcacheServer::stop()
 bool MemcacheServer::storeItem(const ItemPtr& item, const Item::UpdatePolicy policy, bool* exists)
 {
   assert(item->neededBytes() == 0);
-  MutexLockGuard lock(mutex_);
-  ItemMap::const_iterator it = items_.find(item);
-  *exists = it != items_.end();
+  MutexLock& mutex = shards_[item->hash() % kShards].mutex;
+  ItemMap& items = shards_[item->hash() % kShards].items;
+  MutexLockGuard lock(mutex);
+  ItemMap::const_iterator it = items.find(item);
+  *exists = it != items.end();
   if (policy == Item::kSet)
   {
     item->setCas(g_cas.incrementAndGet());
     if (*exists)
     {
-      items_.erase(it);
+      items.erase(it);
     }
-    items_.insert(item);
+    items.insert(item);
   }
   else
   {
@@ -71,7 +73,7 @@ bool MemcacheServer::storeItem(const ItemPtr& item, const Item::UpdatePolicy pol
       else
       {
         item->setCas(g_cas.incrementAndGet());
-        items_.insert(item);
+        items.insert(item);
       }
     }
     else if (policy == Item::kReplace)
@@ -79,8 +81,8 @@ bool MemcacheServer::storeItem(const ItemPtr& item, const Item::UpdatePolicy pol
       if (*exists)
       {
         item->setCas(g_cas.incrementAndGet());
-        items_.erase(it);
-        items_.insert(item);
+        items.erase(it);
+        items.insert(item);
       }
       else
       {
@@ -110,8 +112,8 @@ bool MemcacheServer::storeItem(const ItemPtr& item, const Item::UpdatePolicy pol
         }
         assert(newItem->neededBytes() == 0);
         assert(newItem->endsWithCRLF());
-        items_.erase(it);
-        items_.insert(newItem);
+        items.erase(it);
+        items.insert(newItem);
       }
       else
       {
@@ -123,8 +125,8 @@ bool MemcacheServer::storeItem(const ItemPtr& item, const Item::UpdatePolicy pol
       if (*exists && (*it)->cas() == item->cas())
       {
         item->setCas(g_cas.incrementAndGet());
-        items_.erase(it);
-        items_.insert(item);
+        items.erase(it);
+        items.insert(item);
       }
       else
       {
@@ -141,15 +143,19 @@ bool MemcacheServer::storeItem(const ItemPtr& item, const Item::UpdatePolicy pol
 
 ConstItemPtr MemcacheServer::getItem(const ConstItemPtr& key) const
 {
-  MutexLockGuard lock(mutex_);
-  ItemMap::const_iterator it = items_.find(key);
-  return it != items_.end() ? *it : ConstItemPtr();
+  MutexLock& mutex = shards_[key->hash() % kShards].mutex;
+  const ItemMap& items = shards_[key->hash() % kShards].items;
+  MutexLockGuard lock(mutex);
+  ItemMap::const_iterator it = items.find(key);
+  return it != items.end() ? *it : ConstItemPtr();
 }
 
 bool MemcacheServer::deleteItem(const ConstItemPtr& key)
 {
-  MutexLockGuard lock(mutex_);
-  return items_.erase(key) == 1;
+  MutexLock& mutex = shards_[key->hash() % kShards].mutex;
+  ItemMap& items = shards_[key->hash() % kShards].items;
+  MutexLockGuard lock(mutex);
+  return items.erase(key) == 1;
 }
 
 void MemcacheServer::onConnection(const TcpConnectionPtr& conn)

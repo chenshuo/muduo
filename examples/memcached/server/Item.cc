@@ -2,6 +2,8 @@
 
 #include <muduo/net/Buffer.h>
 
+#include <boost/unordered_map.hpp>
+
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
 #include <string.h> // memcpy
@@ -20,6 +22,7 @@ Item::Item(StringPiece keyArg,
     valuelen_(valuelen),
     receivedBytes_(0),
     cas_(casArg),
+    hash_(boost::hash_range(keyArg.begin(), keyArg.end())),
     data_(static_cast<char*>(::malloc(totalLen())))
 {
   assert(valuelen_ >= 2);
@@ -59,4 +62,5 @@ void Item::resetKey(StringPiece k)
   keylen_ = k.size();
   receivedBytes_ = 0;
   append(k.data(), k.size());
+  hash_ = boost::hash_range(k.begin(), k.end());
 }

@@ -4,9 +4,11 @@
 #include "Item.h"
 #include "Session.h"
 
+#include <muduo/base/Mutex.h>
 #include <muduo/net/TcpServer.h>
 #include <examples/wordcount/hash.h>
 
+#include <boost/array.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
@@ -53,8 +55,7 @@ class MemcacheServer : boost::noncopyable
   {
     size_t operator()(const ConstItemPtr& x) const
     {
-      muduo::StringPiece key = x->key();
-      return boost::hash_range(key.begin(), key.end());
+      return x->hash();
     }
   };
 
@@ -67,7 +68,16 @@ class MemcacheServer : boost::noncopyable
   };
 
   typedef boost::unordered_set<ConstItemPtr, Hash, Equal> ItemMap;
-  ItemMap items_;
+
+  struct MapWithLock
+  {
+    ItemMap items;
+    mutable muduo::MutexLock mutex;
+  };
+
+  const static int kShards = 4096;
+
+  boost::array<MapWithLock, kShards> shards_;
 
   // NOT guarded by mutex_, but here because server_ has to destructs before
   // sessions_

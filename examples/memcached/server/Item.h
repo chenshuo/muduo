@@ -90,6 +90,11 @@ class Item : boost::noncopyable
     return cas_;
   }
 
+  size_t hash() const
+  {
+    return hash_;
+  }
+
   void setCas(uint64_t casArg)
   {
     cas_ = casArg;
@@ -122,6 +127,7 @@ class Item : boost::noncopyable
   const int      valuelen_;
   int            receivedBytes_;  // FIXME: remove this member
   uint64_t       cas_;
+  size_t         hash_;
   char*          data_;
 };
 
