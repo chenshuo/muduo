@@ -13,7 +13,7 @@ bool parseCommandLine(int argc, char* argv[], MemcacheServer::Options* options)
 {
   options->tcpport = 11211;
   options->gperfport = 11212;
-  options->threads = 0;
+  options->threads = 4;
 
   po::options_description desc("Allowed options");
   desc.add_options()
@@ -47,6 +47,7 @@ int main(int argc, char* argv[])
     new Inspector(inspectThread.startLoop(), InetAddress(options.gperfport), "memcached-debug");
 
     MemcacheServer server(&loop, options);
+    server.setThreadNum(options.threads);
     server.start();
     loop.loop();
   }

@@ -260,10 +260,10 @@ bool Session::processRequest(StringPiece request)
     }
     output.append("END\r\n");
 
-    if (conn->outputBuffer()->writableBytes() > 65536 + output.readableBytes())
+    if (conn_->outputBuffer()->writableBytes() > 65536 + output.readableBytes())
     {
-      LOG_DEBUG << "shrink output buffer from " << conn->outputBuffer()->internalCapacity();
-      conn->outputBuffer()->shrink(65536 + output.readableBytes());
+      LOG_DEBUG << "shrink output buffer from " << conn_->outputBuffer()->internalCapacity();
+      conn_->outputBuffer()->shrink(65536 + output.readableBytes());
     }
 
     conn_->send(&output);

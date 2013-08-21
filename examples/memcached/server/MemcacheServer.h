@@ -26,6 +26,7 @@ class MemcacheServer : boost::noncopyable
   MemcacheServer(muduo::net::EventLoop* loop, const Options&);
   ~MemcacheServer();
 
+  void setThreadNum(int threads) { server_.setThreadNum(threads); }
   void start();
   void stop();
 
