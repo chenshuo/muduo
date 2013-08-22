@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
   for (int i = 0; i < items; ++i)
   {
     snprintf(key, sizeof key, "%0*d", keylen, i);
-    value.assign(valuelen, '0' + i % 10);
+    value.assign(valuelen, "0123456789"[i % 10]);
     ItemPtr item(Item::makeItem(key, 0, 0, valuelen+2, 1));
     item->append(value.data(), value.size());
     item->append("\r\n", 2);

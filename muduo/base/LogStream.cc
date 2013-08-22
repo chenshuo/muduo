@@ -68,6 +68,9 @@ size_t convertHex(char buf[], uintptr_t value)
   return p - buf;
 }
 
+template class FixedBuffer<kSmallBuffer>;
+template class FixedBuffer<kLargeBuffer>;
+
 }
 }
 
@@ -87,9 +90,6 @@ template<int SIZE>
 void FixedBuffer<SIZE>::cookieEnd()
 {
 }
-
-template class FixedBuffer<kSmallBuffer>;
-template class FixedBuffer<kLargeBuffer>;
 
 void LogStream::staticCheck()
 {
