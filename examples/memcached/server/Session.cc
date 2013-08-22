@@ -236,7 +236,6 @@ bool Session::processRequest(StringPiece request)
   }
   else if (command_ == "get" || command_ == "gets")
   {
-    Buffer output;
     bool cas = command_ == "gets";
 
     // FIXME: send multiple chunks with write complete callback.
@@ -255,18 +254,18 @@ bool Session::processRequest(StringPiece request)
       ++beg;
       if (item)
       {
-        item->output(&output, cas);
+        item->output(&outputBuf_, cas);
       }
     }
-    output.append("END\r\n");
+    outputBuf_.append("END\r\n");
 
-    if (conn_->outputBuffer()->writableBytes() > 65536 + output.readableBytes())
+    if (conn_->outputBuffer()->writableBytes() > 65536 + outputBuf_.readableBytes())
     {
       LOG_DEBUG << "shrink output buffer from " << conn_->outputBuffer()->internalCapacity();
-      conn_->outputBuffer()->shrink(65536 + output.readableBytes());
+      conn_->outputBuffer()->shrink(65536 + outputBuf_.readableBytes());
     }
 
-    conn_->send(&output);
+    conn_->send(&outputBuf_);
   }
   else if (command_ == "delete")
   {

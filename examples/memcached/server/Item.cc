@@ -1,14 +1,14 @@
 #include "Item.h"
 
+#include <muduo/base/LogStream.h>
 #include <muduo/net/Buffer.h>
 
 #include <boost/unordered_map.hpp>
 
-#define __STDC_FORMAT_MACROS
-#include <inttypes.h>
 #include <string.h> // memcpy
 #include <stdio.h>
 
+using namespace muduo;
 using namespace muduo::net;
 
 Item::Item(StringPiece keyArg,
@@ -42,17 +42,14 @@ void Item::output(Buffer* out, bool needCas) const
 {
   out->append("VALUE ");
   out->append(data_, keylen_);
-  char buf[64];
-  // FIXME: replace with LogStream
+  LogStream buf;
+  buf << ' ' << flags_ << ' ' << valuelen_-2;
   if (needCas)
   {
-    snprintf(buf, sizeof buf, " %u %d %" PRIu64 "\r\n", flags_, valuelen_-2, cas_);
+    buf << ' ' << cas_;
   }
-  else
-  {
-    snprintf(buf, sizeof buf, " %u %d\r\n", flags_, valuelen_-2);
-  }
-  out->append(buf);
+  buf << "\r\n";
+  out->append(buf.buffer().data(), buf.buffer().length());
   out->append(value(), valuelen_);
 }
 
