@@ -25,11 +25,12 @@ int main(int argc, char* argv[])
   printf("sizeof(Item) = %zd\npid = %d\nitems = %d\nkeylen = %d\nvaluelen = %d\n",
          sizeof(Item), getpid(), items, keylen, valuelen);
   char key[256] = { 0 };
+  static const char digits[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
   string value;
   for (int i = 0; i < items; ++i)
   {
     snprintf(key, sizeof key, "%0*d", keylen, i);
-    value.assign(valuelen, '0' + i % 10);
+    value.assign(valuelen, digits[i % sizeof(digits)]);
     ItemPtr item(Item::makeItem(key, 0, 0, valuelen+2, 1));
     item->append(value.data(), value.size());
     item->append("\r\n", 2);
