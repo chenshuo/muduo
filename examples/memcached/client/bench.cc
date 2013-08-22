@@ -5,9 +5,12 @@
 #include <muduo/net/TcpClient.h>
 
 #include <boost/bind.hpp>
+#include <boost/program_options.hpp>
+#include <iostream>
 
 #include <stdio.h>
 
+namespace po = boost::program_options;
 using namespace muduo;
 using namespace muduo::net;
 
@@ -25,7 +28,7 @@ class Client : boost::noncopyable
          const InetAddress& serverAddr,
          Operation op,
          int requests,
-         int keynum,
+         int keys,
          int valuelen,
          CountDownLatch* connected,
          CountDownLatch* finished)
@@ -35,7 +38,7 @@ class Client : boost::noncopyable
       sent_(0),
       acked_(0),
       requests_(requests),
-      keynum_(keynum),
+      keys_(keys),
       valuelen_(valuelen),
       value_(valuelen_, 'a'),
       connected_(connected),
@@ -127,14 +130,14 @@ class Client : boost::noncopyable
     char req[256];
     if (op_ == kSet)
     {
-      snprintf(req, sizeof req, "set %s%d 42 0 %d\r\n", name_.c_str(), sent_ % keynum_, valuelen_);
+      snprintf(req, sizeof req, "set %s%d 42 0 %d\r\n", name_.c_str(), sent_ % keys_, valuelen_);
       ++sent_;
       buf->append(req);
       buf->append(value_);
     }
     else
     {
-      snprintf(req, sizeof req, "get %s%d\r\n", name_.c_str(), sent_ % keynum_);
+      snprintf(req, sizeof req, "get %s%d\r\n", name_.c_str(), sent_ % keys_);
       ++sent_;
       buf->append(req);
     }
@@ -147,7 +150,7 @@ class Client : boost::noncopyable
   int sent_;
   int acked_;
   const int requests_;
-  const int keynum_;
+  const int keys_;
   const int valuelen_;
   string value_;
   CountDownLatch* const connected_;
@@ -158,20 +161,48 @@ int main(int argc, char* argv[])
 {
   Logger::setLogLevel(Logger::WARN);
 
-  InetAddress serverAddr(argv[1], static_cast<uint16_t>(atoi(argv[2])));
+  uint16_t tcpport = 11211;
+  string hostIp = "127.0.0.1";
+  int threads = 4;
+  int clients = 100;
+  int requests = 100000;
+  int keys = 10000;
+  bool set = false;
+
+  po::options_description desc("Allowed options");
+  desc.add_options()
+      ("help,h", "Help")
+      ("port,p", po::value<uint16_t>(&tcpport), "TCP port")
+      ("ip,i", po::value<string>(&hostIp), "Host IP")
+      ("threads,t", po::value<int>(&threads), "Number of worker threads")
+      ("clients,c", po::value<int>(&clients), "Number of concurrent clients")
+      ("requests,r", po::value<int>(&requests), "Number of requests per clients")
+      ("keys,k", po::value<int>(&keys), "Number of keys per clients")
+      ("set,s", "Get or Set")
+      ;
+
+  po::variables_map vm;
+  po::store(po::parse_command_line(argc, argv, desc), vm);
+  po::notify(vm);
+
+  if (vm.count("help"))
+  {
+    std::cout << desc << "\n";
+    return 0;
+  }
+  set = vm.count("set");
+
+  InetAddress serverAddr(hostIp, tcpport);
   LOG_WARN << "Connecting " << serverAddr.toIpPort();
 
   EventLoop loop;
   EventLoopThreadPool pool(&loop);
 
-  int clients = 100;
-  int threads = 4;
-  int requests = 100000;
-  int keynum = 10000;
   int valuelen = 100;
+  Client::Operation op = set ? Client::kSet : Client::kGet;
 
-  double memoryMiB = 1.0 * clients * keynum * (32+72+valuelen+8) / 1024 / 1024;
-  LOG_WARN << "expected memcached-debug memory usage in MiB " << int(memoryMiB);
+  double memoryMiB = 1.0 * clients * keys * (32+80+valuelen+8) / 1024 / 1024;
+  LOG_WARN << "estimated memcached-debug memory usage " << int(memoryMiB) << " MiB";
 
   pool.setThreadNum(threads);
   pool.start();
@@ -186,15 +217,15 @@ int main(int argc, char* argv[])
     holder.push_back(new Client(buf,
                                 pool.getNextLoop(),
                                 serverAddr,
-                                Client::kGet,
+                                op,
                                 requests,
-                                keynum,
+                                keys,
                                 valuelen,
                                 &connected,
                                 &finished));
   }
   connected.wait();
-  LOG_WARN << "All connected";
+  LOG_WARN << clients << " clients all connected";
   Timestamp start = Timestamp::now();
   for (int i = 0; i < clients; ++i)
   {

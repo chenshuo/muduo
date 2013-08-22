@@ -99,6 +99,7 @@ class Session : boost::noncopyable,
   size_t bytesToDiscard_;
   // cached
   ItemPtr needle_;
+  muduo::net::Buffer outputBuf_;
 
   // per session stats
   size_t bytesRead_;
