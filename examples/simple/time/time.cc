@@ -10,8 +10,7 @@ using namespace muduo::net;
 
 TimeServer::TimeServer(muduo::net::EventLoop* loop,
                              const muduo::net::InetAddress& listenAddr)
-  : loop_(loop),
-    server_(loop, listenAddr, "TimeServer")
+  : server_(loop, listenAddr, "TimeServer")
 {
   server_.setConnectionCallback(
       boost::bind(&TimeServer::onConnection, this, _1));

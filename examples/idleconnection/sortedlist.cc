@@ -41,7 +41,6 @@ class EchoServer
     WeakConnectionList::iterator position;
   };
 
-  EventLoop* loop_;
   TcpServer server_;
   int idleSeconds_;
   WeakConnectionList connectionList_;
@@ -50,8 +49,7 @@ class EchoServer
 EchoServer::EchoServer(EventLoop* loop,
                        const InetAddress& listenAddr,
                        int idleSeconds)
-  : loop_(loop),
-    server_(loop, listenAddr, "EchoServer"),
+  : server_(loop, listenAddr, "EchoServer"),
     idleSeconds_(idleSeconds)
 {
   server_.setConnectionCallback(

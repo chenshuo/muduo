@@ -22,8 +22,7 @@ class SudokuServer
 {
  public:
   SudokuServer(EventLoop* loop, const InetAddress& listenAddr, int numThreads)
-    : loop_(loop),
-      server_(loop, listenAddr, "SudokuServer"),
+    : server_(loop, listenAddr, "SudokuServer"),
       numThreads_(numThreads),
       startTime_(Timestamp::now())
   {
@@ -124,7 +123,6 @@ class SudokuServer
     }
   }
 
-  EventLoop* loop_;
   TcpServer server_;
   ThreadPool threadPool_;
   int numThreads_;

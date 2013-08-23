@@ -27,8 +27,7 @@ class MultiplexServer : boost::noncopyable
 {
  public:
   MultiplexServer(EventLoop* loop, const InetAddress& listenAddr, const InetAddress& backendAddr)
-    : loop_(loop),
-      server_(loop, listenAddr, "MultiplexServer"),
+    : server_(loop, listenAddr, "MultiplexServer"),
       backend_(loop, backendAddr, "MultiplexBackend")
   {
     server_.setConnectionCallback(
@@ -245,7 +244,6 @@ class MultiplexServer : boost::noncopyable
     }
   }
 
-  EventLoop* loop_;
   TcpServer server_;
   TcpClient backend_;
   // MutexLock mutex_;

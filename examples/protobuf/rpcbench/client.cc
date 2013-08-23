@@ -27,7 +27,7 @@ class RpcClient : boost::noncopyable
             const InetAddress& serverAddr,
             CountDownLatch* allConnected,
             CountDownLatch* allFinished)
-    : loop_(loop),
+    : // loop_(loop),
       client_(loop, serverAddr, "RpcClient"),
       channel_(new RpcChannel),
       stub_(get_pointer(channel_)),
@@ -69,8 +69,8 @@ class RpcClient : boost::noncopyable
 
   void replied(echo::EchoResponse* resp)
   {
-    //LOG_INFO << "replied:\n" << resp->DebugString().c_str();
-    //loop_->quit();
+    // LOG_INFO << "replied:\n" << resp->DebugString().c_str();
+    // loop_->quit();
     ++count_;
     if (count_ < kRequests)
     {
@@ -83,7 +83,7 @@ class RpcClient : boost::noncopyable
     }
   }
 
-  EventLoop* loop_;
+  // EventLoop* loop_;
   TcpClient client_;
   RpcChannelPtr channel_;
   echo::EchoService::Stub stub_;

@@ -22,8 +22,7 @@ class DiscardServer
 {
  public:
   DiscardServer(EventLoop* loop, const InetAddress& listenAddr)
-    : loop_(loop),
-      server_(loop, listenAddr, "DiscardServer"),
+    : server_(loop, listenAddr, "DiscardServer"),
       oldCounter_(0),
       startTime_(Timestamp::now())
   {
@@ -73,7 +72,6 @@ class DiscardServer
     startTime_ = endTime;
   }
 
-  EventLoop* loop_;
   TcpServer server_;
 
   AtomicInt64 transferred_;

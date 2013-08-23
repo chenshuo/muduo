@@ -38,7 +38,6 @@ class PubSubClient : boost::noncopyable
                  muduo::Timestamp receiveTime);
   bool send(const string& message);
 
-  muduo::net::EventLoop* loop_;
   muduo::net::TcpClient client_;
   muduo::net::TcpConnectionPtr conn_;
   ConnectionCallback connectionCallback_;

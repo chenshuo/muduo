@@ -12,8 +12,7 @@ using namespace muduo::net;
 ChargenServer::ChargenServer(EventLoop* loop,
                              const InetAddress& listenAddr,
                              bool print)
-  : loop_(loop),
-    server_(loop, listenAddr, "ChargenServer"),
+  : server_(loop, listenAddr, "ChargenServer"),
     transferred_(0),
     startTime_(Timestamp::now())
 {

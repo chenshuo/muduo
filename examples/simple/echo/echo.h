@@ -19,7 +19,6 @@ class EchoServer
                  muduo::net::Buffer* buf,
                  muduo::Timestamp time);
 
-  muduo::net::EventLoop* loop_;
   muduo::net::TcpServer server_;
 };
 

@@ -10,8 +10,7 @@ using namespace muduo::net;
 EchoServer::EchoServer(EventLoop* loop,
                        const InetAddress& listenAddr,
                        int maxConnections)
-  : loop_(loop),
-    server_(loop, listenAddr, "EchoServer"),
+  : server_(loop, listenAddr, "EchoServer"),
     numConnected_(0),
     kMaxConnections_(maxConnections)
 {

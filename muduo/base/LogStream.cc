@@ -12,8 +12,12 @@
 using namespace muduo;
 using namespace muduo::detail;
 
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wtautological-compare"
+#else
 #pragma GCC diagnostic ignored "-Wtype-limits"
-//#pragma GCC diagnostic error "-Wtype-limits"
+#endif
+
 namespace muduo
 {
 namespace detail

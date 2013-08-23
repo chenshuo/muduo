@@ -22,8 +22,7 @@ class EchoServer
 {
  public:
   EchoServer(EventLoop* loop, const InetAddress& listenAddr)
-    : loop_(loop),
-      server_(loop, listenAddr, "EchoServer"),
+    : server_(loop, listenAddr, "EchoServer"),
       oldCounter_(0),
       startTime_(Timestamp::now())
   {
@@ -74,7 +73,6 @@ class EchoServer
     startTime_ = endTime;
   }
 
-  EventLoop* loop_;
   TcpServer server_;
   AtomicInt64 transferred_;
   AtomicInt64 receivedMessages_;

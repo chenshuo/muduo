@@ -10,8 +10,7 @@ using namespace pubsub;
 PubSubClient::PubSubClient(EventLoop* loop,
                            const InetAddress& hubAddr,
                            const string& name)
-  : loop_(loop),
-    client_(loop, hubAddr, name)
+  : client_(loop, hubAddr, name)
 {
   // FIXME: dtor is not thread safe
   client_.setConnectionCallback(
