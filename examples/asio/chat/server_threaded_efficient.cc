@@ -19,8 +19,7 @@ class ChatServer : boost::noncopyable
  public:
   ChatServer(EventLoop* loop,
              const InetAddress& listenAddr)
-  : loop_(loop),
-    server_(loop, listenAddr, "ChatServer"),
+  : server_(loop, listenAddr, "ChatServer"),
     codec_(boost::bind(&ChatServer::onStringMessage, this, _1, _2, _3)),
     connections_(new ConnectionList)
   {
@@ -86,7 +85,6 @@ class ChatServer : boost::noncopyable
     return connections_;
   }
 
-  EventLoop* loop_;
   TcpServer server_;
   LengthHeaderCodec codec_;
   MutexLock mutex_;

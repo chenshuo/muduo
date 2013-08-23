@@ -21,8 +21,7 @@ using namespace muduo::net;
 
 RpcServer::RpcServer(EventLoop* loop,
                        const InetAddress& listenAddr)
-  : loop_(loop),
-    server_(loop, listenAddr, "RpcServer")
+  : server_(loop, listenAddr, "RpcServer")
 {
   server_.setConnectionCallback(
       boost::bind(&RpcServer::onConnection, this, _1));

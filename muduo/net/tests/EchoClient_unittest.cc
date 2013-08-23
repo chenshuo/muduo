@@ -64,18 +64,19 @@ class EchoClient : boost::noncopyable
   {
     string msg(buf->retrieveAllAsString());
     LOG_TRACE << conn->name() << " recv " << msg.size() << " bytes at " << time.toString();
-    /*
-    if (msg == "exit\n")
+    if (msg == "quit\n")
     {
       conn->send("bye\n");
       conn->shutdown();
     }
-    if (msg == "quit\n")
+    else if (msg == "shutdown\n")
     {
       loop_->quit();
     }
-    conn->send(msg);
-    */
+    else
+    {
+      conn->send(msg);
+    }
   }
 
   EventLoop* loop_;

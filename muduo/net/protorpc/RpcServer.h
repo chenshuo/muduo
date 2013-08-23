@@ -47,7 +47,6 @@ class RpcServer
   //                Buffer* buf,
   //                Timestamp time);
 
-  EventLoop* loop_;
   TcpServer server_;
   std::map<std::string, ::google::protobuf::Service*> services_;
 };

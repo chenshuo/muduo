@@ -37,6 +37,7 @@ SA* sockaddr_cast(struct sockaddr_in* addr)
   return static_cast<SA*>(implicit_cast<void*>(addr));
 }
 
+#if VALGRIND
 void setNonBlockAndCloseOnExec(int sockfd)
 {
   // non-block
@@ -53,12 +54,12 @@ void setNonBlockAndCloseOnExec(int sockfd)
 
   (void)ret;
 }
+#endif
 
 }
 
 int sockets::createNonblockingOrDie()
 {
-  // socket
 #if VALGRIND
   int sockfd = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (sockfd < 0)

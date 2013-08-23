@@ -65,7 +65,6 @@ class EchoServer
   typedef boost::unordered_set<EntryPtr> Bucket;
   typedef boost::circular_buffer<Bucket> WeakConnectionList;
 
-  muduo::net::EventLoop* loop_;
   muduo::net::TcpServer server_;
   WeakConnectionList connectionBuckets_;
 };

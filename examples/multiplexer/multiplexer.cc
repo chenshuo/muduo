@@ -33,8 +33,7 @@ class MultiplexServer
                   const InetAddress& listenAddr,
                   const InetAddress& backendAddr,
                   int numThreads)
-    : loop_(loop),
-      server_(loop, listenAddr, "MultiplexServer"),
+    : server_(loop, listenAddr, "MultiplexServer"),
       backend_(loop, backendAddr, "MultiplexBackend"),
       numThreads_(numThreads),
       oldCounter_(0),
@@ -281,7 +280,6 @@ class MultiplexServer
     startTime_ = endTime;
   }
 
-  EventLoop* loop_;
   TcpServer server_;
   TcpClient backend_;
   int numThreads_;

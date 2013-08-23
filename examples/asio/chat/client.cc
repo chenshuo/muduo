@@ -18,8 +18,7 @@ class ChatClient : boost::noncopyable
 {
  public:
   ChatClient(EventLoop* loop, const InetAddress& serverAddr)
-    : loop_(loop),
-      client_(loop, serverAddr, "ChatClient"),
+    : client_(loop, serverAddr, "ChatClient"),
       codec_(boost::bind(&ChatClient::onStringMessage, this, _1, _2, _3))
   {
     client_.setConnectionCallback(
@@ -73,7 +72,6 @@ class ChatClient : boost::noncopyable
     printf("<<< %s\n", message.c_str());
   }
 
-  EventLoop* loop_;
   TcpClient client_;
   LengthHeaderCodec codec_;
   MutexLock mutex_;
