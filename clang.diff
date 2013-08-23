@@ -1,8 +1,7 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index b8ad65f..393b466 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -15,6 +15,7 @@ set(CXX_FLAGS
+@@ -15,6 +15,7 @@
   -Wextra
   -Werror
   -Wconversion
@@ -10,7 +9,7 @@ index b8ad65f..393b466 100644
   -Wno-unused-parameter
   -Wold-style-cast
   -Woverloaded-virtual
-@@ -24,17 +25,15 @@ set(CXX_FLAGS
+@@ -24,16 +25,15 @@
   -march=native
   # -MMD
   # -std=c++0x
@@ -22,7 +21,6 @@ index b8ad65f..393b466 100644
  string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS}")
  
 -set(CMAKE_CXX_COMPILER "g++")
--#set(CMAKE_CXX_COMPILER "icpc")
 +set(CMAKE_CXX_COMPILER "clang++")
  set(CMAKE_CXX_FLAGS_DEBUG "-O0")
 -set(CMAKE_CXX_FLAGS_RELEASE "-O2 -finline-limit=1000 -DNDEBUG")
@@ -30,7 +28,7 @@ index b8ad65f..393b466 100644
  set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
  set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
  
-@@ -56,6 +55,8 @@ else()
+@@ -55,6 +55,8 @@
  endif()
  
  include_directories(${Boost_INCLUDE_DIRS})
