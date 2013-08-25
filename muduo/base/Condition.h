@@ -20,18 +20,21 @@ class Condition : boost::noncopyable
   explicit Condition(MutexLock& mutex)
     : mutex_(mutex)
   {
-    pthread_cond_init(&pcond_, NULL);
+    int ret = pthread_cond_init(&pcond_, NULL);
+    assert(ret == 0); (void) ret;
   }
 
   ~Condition()
   {
-    pthread_cond_destroy(&pcond_);
+    int ret = pthread_cond_destroy(&pcond_);
+    assert(ret == 0); (void) ret;
   }
 
   void wait()
   {
     MutexLock::UnassignGuard ug(mutex_);
-    pthread_cond_wait(&pcond_, mutex_.getPthreadMutex());
+    int ret = pthread_cond_wait(&pcond_, mutex_.getPthreadMutex());
+    assert(ret == 0); (void) ret;
   }
 
   // returns true if time out, false otherwise.
@@ -39,12 +42,14 @@ class Condition : boost::noncopyable
 
   void notify()
   {
-    pthread_cond_signal(&pcond_);
+    int ret = pthread_cond_signal(&pcond_);
+    assert(ret == 0); (void) ret;
   }
 
   void notifyAll()
   {
-    pthread_cond_broadcast(&pcond_);
+    int ret = pthread_cond_broadcast(&pcond_);
+    assert(ret == 0); (void) ret;
   }
 
  private:
