@@ -31,6 +31,7 @@ class MutexLock : boost::noncopyable
     assert(ret == 0); (void) ret;
   }
 
+  // must be called when locked, i.e. for assertion
   bool isLockedByThisThread() const
   {
     return holder_ == CurrentThread::tid();
@@ -45,14 +46,16 @@ class MutexLock : boost::noncopyable
 
   void lock()
   {
-    pthread_mutex_lock(&mutex_);
+    int ret = pthread_mutex_lock(&mutex_);
+    assert(ret == 0); (void) ret;
     assignHolder();
   }
 
   void unlock()
   {
     unassignHolder();
-    pthread_mutex_unlock(&mutex_);
+    int ret = pthread_mutex_unlock(&mutex_);
+    assert(ret == 0); (void) ret;
   }
 
   pthread_mutex_t* getPthreadMutex() /* non-const */
