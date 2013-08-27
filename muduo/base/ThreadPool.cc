@@ -78,6 +78,28 @@ void ThreadPool::run(const Task& task)
   }
 }
 
+#ifdef __GXX_EXPERIMENTAL_CXX0X__
+void ThreadPool::run(Task&& task)
+{
+  if (threads_.empty())
+  {
+    task();
+  }
+  else
+  {
+    MutexLockGuard lock(mutex_);
+    while (isFull())
+    {
+      notFull_.wait();
+    }
+    assert(!isFull());
+
+    queue_.push_back(std::move(task));
+    notEmpty_.notify();
+  }
+}
+#endif
+
 ThreadPool::Task ThreadPool::take()
 {
   MutexLockGuard lock(mutex_);

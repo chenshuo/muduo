@@ -164,6 +164,20 @@ Thread::Thread(const ThreadFunc& func, const string& n)
   numCreated_.increment();
 }
 
+#ifdef __GXX_EXPERIMENTAL_CXX0X__
+Thread::Thread(ThreadFunc&& func, const string& n)
+  : started_(false),
+    joined_(false),
+    pthreadId_(0),
+    tid_(new pid_t(0)),
+    func_(func),
+    name_(n)
+{
+  numCreated_.increment();
+}
+
+#endif
+
 Thread::~Thread()
 {
   if (started_ && !joined_)
@@ -176,6 +190,7 @@ void Thread::start()
 {
   assert(!started_);
   started_ = true;
+  // FIXME: move(func_)
   detail::ThreadData* data = new detail::ThreadData(func_, name_, tid_);
   if (pthread_create(&pthreadId_, NULL, &detail::startThread, data))
   {

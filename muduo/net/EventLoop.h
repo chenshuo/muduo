@@ -70,6 +70,11 @@ class EventLoop : boost::noncopyable
   /// Safe to call from other threads.
   void queueInLoop(const Functor& cb);
 
+#ifdef __GXX_EXPERIMENTAL_CXX0X__
+  void runInLoop(Functor&& cb);
+  void queueInLoop(Functor&& cb);
+#endif
+
   // timers
 
   ///
@@ -92,6 +97,12 @@ class EventLoop : boost::noncopyable
   /// Safe to call from other threads.
   ///
   void cancel(TimerId timerId);
+
+#ifdef __GXX_EXPERIMENTAL_CXX0X__
+  TimerId runAt(const Timestamp& time, TimerCallback&& cb);
+  TimerId runAfter(double delay, TimerCallback&& cb);
+  TimerId runEvery(double interval, TimerCallback&& cb);
+#endif
 
   // internal usage
   void wakeup();
