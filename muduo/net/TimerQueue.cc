@@ -120,6 +120,18 @@ TimerId TimerQueue::addTimer(const TimerCallback& cb,
   return TimerId(timer, timer->sequence());
 }
 
+#ifdef __GXX_EXPERIMENTAL_CXX0X__
+TimerId TimerQueue::addTimer(TimerCallback&& cb,
+                             Timestamp when,
+                             double interval)
+{
+  Timer* timer = new Timer(std::move(cb), when, interval);
+  loop_->runInLoop(
+      boost::bind(&TimerQueue::addTimerInLoop, this, timer));
+  return TimerId(timer, timer->sequence());
+}
+#endif
+
 void TimerQueue::cancel(TimerId timerId)
 {
   loop_->runInLoop(

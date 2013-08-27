@@ -36,6 +36,9 @@ class ThreadPool : boost::noncopyable
 
   // Could block if maxQueueSize > 0
   void run(const Task& f);
+#ifdef __GXX_EXPERIMENTAL_CXX0X__
+  void run(Task&& f);
+#endif
 
  private:
   bool isFull() const;

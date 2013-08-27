@@ -182,6 +182,51 @@ TimerId EventLoop::runEvery(double interval, const TimerCallback& cb)
   return timerQueue_->addTimer(cb, time, interval);
 }
 
+#ifdef __GXX_EXPERIMENTAL_CXX0X__
+// FIXME: remove duplication
+void EventLoop::runInLoop(Functor&& cb)
+{
+  if (isInLoopThread())
+  {
+    cb();
+  }
+  else
+  {
+    queueInLoop(std::move(cb));
+  }
+}
+
+void EventLoop::queueInLoop(Functor&& cb)
+{
+  {
+  MutexLockGuard lock(mutex_);
+  pendingFunctors_.push_back(std::move(cb));  // emplace_back
+  }
+
+  if (!isInLoopThread() || callingPendingFunctors_)
+  {
+    wakeup();
+  }
+}
+
+TimerId EventLoop::runAt(const Timestamp& time, TimerCallback&& cb)
+{
+  return timerQueue_->addTimer(std::move(cb), time, 0.0);
+}
+
+TimerId EventLoop::runAfter(double delay, TimerCallback&& cb)
+{
+  Timestamp time(addTime(Timestamp::now(), delay));
+  return runAt(time, std::move(cb));
+}
+
+TimerId EventLoop::runEvery(double interval, TimerCallback&& cb)
+{
+  Timestamp time(addTime(Timestamp::now(), interval));
+  return timerQueue_->addTimer(std::move(cb), time, interval);
+}
+#endif
+
 void EventLoop::cancel(TimerId timerId)
 {
   return timerQueue_->cancel(timerId);
