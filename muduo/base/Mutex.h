@@ -11,24 +11,46 @@
 #include <assert.h>
 #include <pthread.h>
 
+#ifdef NDEBUG
+__BEGIN_DECLS
+extern void __assert_perror_fail (int errnum,
+                                  const char *file,
+                                  unsigned int line,
+                                  const char *function)
+    __THROW __attribute__ ((__noreturn__));
+__END_DECLS
+#endif
+
+#define MCHECK(errnum) ((errnum) == 0 ? (void) 0 : \
+                        __assert_perror_fail ((errnum), __FILE__, __LINE__, __func__))
+
 namespace muduo
 {
 
+// Use as data member of a class, eg.
+//
+// class Foo
+// {
+//  public:
+//   int size() const;
+//
+//  private:
+//   mutable MutexLock mutex_;
+//   std::vector<int> data_; // GUARDED BY mutex_
+// };
 class MutexLock : boost::noncopyable
 {
  public:
   MutexLock()
     : holder_(0)
   {
-    int ret = pthread_mutex_init(&mutex_, NULL);
-    assert(ret == 0); (void) ret;
+    MCHECK(pthread_mutex_init(&mutex_, NULL));
   }
 
   ~MutexLock()
   {
     assert(holder_ == 0);
-    int ret = pthread_mutex_destroy(&mutex_);
-    assert(ret == 0); (void) ret;
+    MCHECK(pthread_mutex_destroy(&mutex_));
   }
 
   // must be called when locked, i.e. for assertion
@@ -46,16 +68,14 @@ class MutexLock : boost::noncopyable
 
   void lock()
   {
-    int ret = pthread_mutex_lock(&mutex_);
-    assert(ret == 0); (void) ret;
+    MCHECK(pthread_mutex_lock(&mutex_));
     assignHolder();
   }
 
   void unlock()
   {
     unassignHolder();
-    int ret = pthread_mutex_unlock(&mutex_);
-    assert(ret == 0); (void) ret;
+    MCHECK(pthread_mutex_unlock(&mutex_));
   }
 
   pthread_mutex_t* getPthreadMutex() /* non-const */
@@ -98,6 +118,12 @@ class MutexLock : boost::noncopyable
   pid_t holder_;
 };
 
+// Use as a stack variable, eg.
+// int Foo::size() const
+// {
+//   MutexLockGuard lock(mutex_);
+//   return data_.size();
+// }
 class MutexLockGuard : boost::noncopyable
 {
  public:
