@@ -24,8 +24,24 @@ void threadFunc()
   }
 }
 
+int foo() __attribute__ ((noinline));
+
+int g_count = 0;
+int foo()
+{
+  ++g_count;
+  return 0;
+}
+
 int main()
 {
+  MCHECK(foo());
+  if (g_count != 1)
+  {
+    printf("MCHECK calls twice.\n");
+    abort();
+  }
+
   const int kMaxThreads = 8;
   g_vec.reserve(kMaxThreads * kCount);
 
