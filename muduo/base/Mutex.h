@@ -24,7 +24,7 @@ __END_DECLS
 #endif
 
 #define MCHECK(ret) ({ __typeof__ (ret) errnum = (ret);         \
-                       if (__builtin_expect(errnum != 0, 1))    \
+                       if (__builtin_expect(errnum != 0, 0))    \
                          __assert_perror_fail (errnum, __FILE__, __LINE__, __func__);})
 
 #else  // CHECK_PTHREAD_RETURN_VALUE

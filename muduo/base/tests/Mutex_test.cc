@@ -29,6 +29,7 @@ int foo() __attribute__ ((noinline));
 int g_count = 0;
 int foo()
 {
+  MutexLockGuard lock(g_mutex);
   ++g_count;
   return 0;
 }
