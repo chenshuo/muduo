@@ -30,6 +30,12 @@ int g_count = 0;
 int foo()
 {
   MutexLockGuard lock(g_mutex);
+  if (!g_mutex.isLockedByThisThread())
+  {
+    printf("FAIL\n");
+    return -1;
+  }
+
   ++g_count;
   return 0;
 }
