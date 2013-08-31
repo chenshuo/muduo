@@ -55,7 +55,8 @@ class Buffer : public muduo::copyable
     assert(prependableBytes() == kCheapPrepend);
   }
 
-  // default copy-ctor, dtor and assignment are fine
+  // implicit copy-ctor, move-ctor, dtor and assignment are fine
+  // NOTE: implicit move-ctor is added in g++ 4.6
 
   void swap(Buffer& rhs)
   {
