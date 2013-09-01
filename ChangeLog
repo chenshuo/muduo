@@ -1,4 +1,5 @@
-2013-xx-xx   Shuo Chen  <chenshuo@chenshuo.com>
+2013-08-31   Shuo Chen  <chenshuo@chenshuo.com>
+  * Add C++11 rvalue overloads for boost::function parameters
   * Add PerformanceInspector, support remote profiling with gperftools
   * Add examples of memcached server and client
   * Version 0.9.5
