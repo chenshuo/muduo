@@ -172,7 +172,7 @@ void EPollPoller::update(int operation, Channel* channel)
   {
     if (operation == EPOLL_CTL_DEL)
     {
-      LOG_SYSERR << "epoll_ctl op=" << operation << " fd=" << fd;
+      // LOG_SYSERR << "epoll_ctl op=" << operation << " fd=" << fd;
     }
     else
     {
