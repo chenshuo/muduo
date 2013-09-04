@@ -38,30 +38,6 @@ Request::~Request()
   curl_easy_cleanup(curl_);
 }
 
-template<typename OPT>
-int Request::setopt(OPT opt, long p)
-{
-  return curl_easy_setopt(curl_, opt, p);
-}
-
-template<typename OPT>
-int Request::setopt(OPT opt, const char* p)
-{
-  return curl_easy_setopt(curl_, opt, p);
-}
-
-template<typename OPT>
-int Request::setopt(OPT opt, void* p)
-{
-  return curl_easy_setopt(curl_, opt, p);
-}
-
-template<typename OPT>
-int Request::setopt(OPT opt, size_t (*p)(char*, size_t , size_t , void*))
-{
-  return curl_easy_setopt(curl_, opt, p);
-}
-
 // NOT implemented yet
 //
 // void Request::allowRedirect(int redirects)
