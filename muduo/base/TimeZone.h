@@ -23,7 +23,7 @@ class TimeZone : public muduo::copyable
 
   // default copy ctor/assignment/dtor are Okay.
 
-  bool valid() const { return data_; }
+  bool valid() const { return data_!=NULL; }
   struct tm toLocalTime(time_t secondsSinceEpoch) const;
   time_t fromLocalTime(const struct tm&) const;
 
