@@ -29,8 +29,11 @@ EventLoopThread::EventLoopThread(const ThreadInitCallback& cb)
 EventLoopThread::~EventLoopThread()
 {
   exiting_ = true;
-  loop_->quit();
-  thread_.join();
+  if (loop_ != NULL) // not 100% race-free, eg. threadFunc could be running callback_.
+  {
+    loop_->quit();
+    thread_.join();
+  }
 }
 
 EventLoop* EventLoopThread::startLoop()
