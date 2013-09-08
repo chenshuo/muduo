@@ -23,7 +23,12 @@ class TimeZone : public muduo::copyable
 
   // default copy ctor/assignment/dtor are Okay.
 
-  bool valid() const { return data_; }
+  bool valid() const
+  {
+    // 'explicit operator bool() const' in C++11
+    return static_cast<bool>(data_);
+  }
+
   struct tm toLocalTime(time_t secondsSinceEpoch) const;
   time_t fromLocalTime(const struct tm&) const;
 
