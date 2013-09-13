@@ -159,13 +159,10 @@ void TcpConnection::sendInLoop(const void* data, size_t len)
     else // nwrote < 0
     {
       nwrote = 0;
-      if (errno != EWOULDBLOCK)
+      if (errno != EAGAIN || errno != EINTR) // FIXME: any others?
       {
         LOG_SYSERR << "TcpConnection::sendInLoop";
-        if (errno == EPIPE) // FIXME: any others?
-        {
-          error = true;
-        }
+        error = true;
       }
     }
   }
@@ -254,9 +251,16 @@ void TcpConnection::handleRead(Timestamp receiveTime)
   }
   else
   {
-    errno = savedErrno;
-    LOG_SYSERR << "TcpConnection::handleRead";
-    handleError();
+    if (savedErrno == EINTR || savedErrno == EAGAIN) 
+    {
+      messageCallback_(shared_from_this(), &inputBuffer_, receiveTime);
+    }
+    else 
+    {
+      errno = savedErrno;
+      LOG_SYSERR << "TcpConnection::handleRead";
+      handleError();
+    }
   }
 }
 
