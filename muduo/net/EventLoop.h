@@ -51,6 +51,10 @@ class EventLoop : boost::noncopyable
   ///
   void loop();
 
+  /// Quits loop.
+  ///
+  /// This is not 100% thread safe, if you call through a raw pointer,
+  /// better to call through shared_ptr<EventLoop> for 100% safety.
   void quit();
 
   ///

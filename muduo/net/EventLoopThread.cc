@@ -31,6 +31,8 @@ EventLoopThread::~EventLoopThread()
   exiting_ = true;
   if (loop_ != NULL) // not 100% race-free, eg. threadFunc could be running callback_.
   {
+    // still a tiny chance to call destructed object, if threadFunc exits just now.
+    // but when EventLoopThread destructs, usually programming is exiting anyway.
     loop_->quit();
     thread_.join();
   }
@@ -69,5 +71,6 @@ void EventLoopThread::threadFunc()
 
   loop.loop();
   //assert(exiting_);
+  loop_ = NULL;
 }
 
