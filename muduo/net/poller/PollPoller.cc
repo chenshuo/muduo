@@ -31,6 +31,7 @@ Timestamp PollPoller::poll(int timeoutMs, ChannelList* activeChannels)
 {
   // XXX pollfds_ shouldn't change
   int numEvents = ::poll(&*pollfds_.begin(), pollfds_.size(), timeoutMs);
+  int savedErrno = errno;
   Timestamp now(Timestamp::now());
   if (numEvents > 0)
   {
@@ -43,7 +44,11 @@ Timestamp PollPoller::poll(int timeoutMs, ChannelList* activeChannels)
   }
   else
   {
-    LOG_SYSERR << "PollPoller::poll()";
+    if (savedErrno != EINTR)
+    {
+      errno = savedErrno;
+      LOG_SYSERR << "PollPoller::poll()";
+    }
   }
   return now;
 }

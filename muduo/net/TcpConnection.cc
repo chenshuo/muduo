@@ -138,7 +138,7 @@ void TcpConnection::sendInLoop(const void* data, size_t len)
   loop_->assertInLoopThread();
   ssize_t nwrote = 0;
   size_t remaining = len;
-  bool error = false;
+  bool faultError = false;
   if (state_ == kDisconnected)
   {
     LOG_WARN << "disconnected, give up writing";
@@ -162,18 +162,17 @@ void TcpConnection::sendInLoop(const void* data, size_t len)
       if (errno != EWOULDBLOCK)
       {
         LOG_SYSERR << "TcpConnection::sendInLoop";
-        if (errno == EPIPE) // FIXME: any others?
+        if (errno == EPIPE || errno == ECONNRESET) // FIXME: any others?
         {
-          error = true;
+          faultError = true;
         }
       }
     }
   }
 
   assert(remaining <= len);
-  if (!error && remaining > 0)
+  if (!faultError && remaining > 0)
   {
-    LOG_TRACE << "I am going to write more data";
     size_t oldLen = outputBuffer_.readableBytes();
     if (oldLen + remaining >= highWaterMark_
         && oldLen < highWaterMark_
@@ -282,10 +281,6 @@ void TcpConnection::handleWrite()
         {
           shutdownInLoop();
         }
-      }
-      else
-      {
-        LOG_TRACE << "I am going to write more data";
       }
     }
     else
