@@ -63,18 +63,26 @@ void TcpServer::setThreadNum(int numThreads)
 
 void TcpServer::start()
 {
-  if (!started_)
-  {
-    started_ = true;
-    threadPool_->start(threadInitCallback_);
+  bool doStart = false;
+  {  
+    MutexLockGuard lock(mutex_);
+    if (!started_)
+    {
+      started_ = true;
+      doStart = true;
+    }
   }
 
-  if (!acceptor_->listenning())
-  {
-    loop_->runInLoop(
+  if(doStart){
+    threadPool_->start(threadInitCallback_);
+    if (!acceptor_->listenning())
+    {
+      loop_->runInLoop(
         boost::bind(&Acceptor::listen, get_pointer(acceptor_)));
+    }
   }
 }
+
 
 void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
 {

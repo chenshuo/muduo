@@ -110,6 +110,7 @@ class TcpServer : boost::noncopyable
   // always in loop thread
   int nextConnId_;
   ConnectionMap connections_;
+  MutexLock mutex_;             // protect started_.
 };
 
 }
