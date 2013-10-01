@@ -11,6 +11,7 @@
 #ifndef MUDUO_NET_TCPSERVER_H
 #define MUDUO_NET_TCPSERVER_H
 
+#include <muduo/base/Atomic.h>
 #include <muduo/base/Types.h>
 #include <muduo/net/TcpConnection.h>
 
@@ -106,7 +107,7 @@ class TcpServer : boost::noncopyable
   MessageCallback messageCallback_;
   WriteCompleteCallback writeCompleteCallback_;
   ThreadInitCallback threadInitCallback_;
-  bool started_;
+  AtomicInt32 started_;
   // always in loop thread
   int nextConnId_;
   ConnectionMap connections_;
