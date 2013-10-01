@@ -66,14 +66,11 @@ void TcpServer::start()
   {
     threadPool_->start(threadInitCallback_);
 
-    if (!acceptor_->listenning())
-    {
-      loop_->runInLoop(
-          boost::bind(&Acceptor::listen, get_pointer(acceptor_)));
-    }
+    assert(!acceptor_->listenning());
+    loop_->runInLoop(
+        boost::bind(&Acceptor::listen, get_pointer(acceptor_)));
   }
 }
-
 
 void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
 {
