@@ -32,7 +32,6 @@ TcpServer::TcpServer(EventLoop* loop,
     threadPool_(new EventLoopThreadPool(loop)),
     connectionCallback_(defaultConnectionCallback),
     messageCallback_(defaultMessageCallback),
-    started_(false),
     nextConnId_(1)
 {
   acceptor_->setNewConnectionCallback(
@@ -63,14 +62,11 @@ void TcpServer::setThreadNum(int numThreads)
 
 void TcpServer::start()
 {
-  if (!started_)
+  if (started_.getAndSet(1) == 0)
   {
-    started_ = true;
     threadPool_->start(threadInitCallback_);
-  }
 
-  if (!acceptor_->listenning())
-  {
+    assert(!acceptor_->listenning());
     loop_->runInLoop(
         boost::bind(&Acceptor::listen, get_pointer(acceptor_)));
   }
