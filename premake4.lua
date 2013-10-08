@@ -36,7 +36,7 @@ solution "muduo"
     includedirs(includedir)
 
     defines '_FILE_OFFSET_BITS=64'
-    flags {"ExtraWarnings", "FatalWarnings"}
+    flags {"ExtraWarnings", "FatalWarnings", "Symbols"}
     buildoptions { '-g', 
                    '-march=native', 
                    '-rdynamic',
