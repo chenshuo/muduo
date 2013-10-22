@@ -1,3 +1,7 @@
+2013-10-21   Shuo Chen  <chenshuo@chenshuo.com>
+  * Minor fixes.
+  * Version 0.9.6
+
 2013-08-31   Shuo Chen  <chenshuo@chenshuo.com>
   * Add C++11 rvalue overloads for boost::function parameters
   * Add PerformanceInspector, support remote profiling with gperftools
