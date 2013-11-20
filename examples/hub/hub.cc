@@ -97,11 +97,11 @@ class PubSubServer : boost::noncopyable
     {
       const ConnectionSubscription& connSub
         = boost::any_cast<const ConnectionSubscription&>(conn->getContext());
+      // subtle: doUnsubscribe will erase *it, so increase before calling.
       for (ConnectionSubscription::const_iterator it = connSub.begin();
-           it != connSub.end();
-           ++it)
+           it != connSub.end();)
       {
-        doUnsubscribe(conn, *it);
+        doUnsubscribe(conn, *it++);
       }
     }
   }
@@ -165,10 +165,11 @@ class PubSubServer : boost::noncopyable
                      const string& topic)
   {
     LOG_INFO << conn->name() << " unsubscribes " << topic;
+    getTopic(topic).remove(conn);
+    // topic could be the one to be destroyed, so don't use it after erasing.
     ConnectionSubscription* connSub
       = boost::any_cast<ConnectionSubscription>(conn->getMutableContext());
     connSub->erase(topic);
-    getTopic(topic).remove(conn);
   }
 
   void doPublish(const string& source,
