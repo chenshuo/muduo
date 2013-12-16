@@ -69,23 +69,9 @@ TcpConnection::~TcpConnection()
             << " fd=" << channel_->fd();
 }
 
-void TcpConnection::send(const void* data, size_t len)
+void TcpConnection::send(const void* data, int len)
 {
-  if (state_ == kConnected)
-  {
-    if (loop_->isInLoopThread())
-    {
-      sendInLoop(data, len);
-    }
-    else
-    {
-      string message(static_cast<const char*>(data), len);
-      loop_->runInLoop(
-          boost::bind(&TcpConnection::sendInLoop,
-                      this,     // FIXME
-                      message));
-    }
-  }
+  send(StringPiece(static_cast<const char*>(data), len));
 }
 
 void TcpConnection::send(const StringPiece& message)

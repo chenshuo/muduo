@@ -58,7 +58,7 @@ class TcpConnection : boost::noncopyable,
   bool connected() const { return state_ == kConnected; }
 
   // void send(string&& message); // C++11
-  void send(const void* message, size_t len);
+  void send(const void* message, int len);
   void send(const StringPiece& message);
   // void send(Buffer&& message); // C++11
   void send(Buffer* message);  // this one will swap data

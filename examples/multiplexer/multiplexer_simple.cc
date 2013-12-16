@@ -199,7 +199,7 @@ class MultiplexServer : boost::noncopyable
   {
     while (buf->readableBytes() > kHeaderLen)
     {
-      size_t len = static_cast<uint8_t>(*buf->peek());
+      int len = static_cast<uint8_t>(*buf->peek());
       if (buf->readableBytes() < len + kHeaderLen)
       {
         break;
