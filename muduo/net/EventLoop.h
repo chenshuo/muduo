@@ -58,7 +58,7 @@ class EventLoop : boost::noncopyable
   void quit();
 
   ///
-  /// Time when poll returns, usually means data arrivial.
+  /// Time when poll returns, usually means data arrival.
   ///
   Timestamp pollReturnTime() const { return pollReturnTime_; }
 
