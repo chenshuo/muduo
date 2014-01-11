@@ -1,3 +1,9 @@
+2014-01-11   Shuo Chen  <chenshuo@chenshuo.com>
+  * Add TcpConnection::forceClose().
+  * Add fastcgi nginx.conf example
+  * Fix iterator invalidation in hub.cc.
+  * Version 0.9.7
+
 2013-10-21   Shuo Chen  <chenshuo@chenshuo.com>
   * Minor fixes.
   * Version 0.9.6
