@@ -117,7 +117,7 @@ void EchoServer::onTimer()
       double age = timeDifference(now, n->lastReceiveTime);
       if (age > idleSeconds_)
       {
-        conn->shutdown();
+        conn->forceClose();
       }
       else if (age < 0)
       {
