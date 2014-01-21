@@ -117,7 +117,8 @@ void EchoServer::onTimer()
       double age = timeDifference(now, n->lastReceiveTime);
       if (age > idleSeconds_)
       {
-        conn->forceClose();
+        conn->shutdown();
+        conn->forceCloseWithDelay(3.0);  // > round trip of the whole Internet.
       }
       else if (age < 0)
       {
