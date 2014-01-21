@@ -37,6 +37,7 @@ void EchoServer::onConnection(const TcpConnectionPtr& conn)
     if (numConnected_ > kMaxConnections_)
     {
       conn->shutdown();
+      conn->forceCloseWithDelay(3.0);  // > round trip of the whole Internet.
     }
   }
   else

@@ -19,6 +19,55 @@
 #include <errno.h>
 #include <stdio.h>
 
+namespace muduo
+{
+// FIXME: move to base/
+//
+
+template<typename CLASS>
+class WeakCallback
+{
+ public:
+
+  WeakCallback(const boost::weak_ptr<CLASS>& object,
+               const boost::function<void (CLASS*)>& function)
+    : object_(object), function_(function)
+  {
+  }
+
+  // Default dtor, copy ctor and assignment are okay
+
+  void operator()() const
+  {
+    boost::shared_ptr<CLASS> ptr(object_.lock());
+    if (ptr)
+    {
+      function_(ptr.get());
+    }
+  }
+
+ private:
+
+  boost::weak_ptr<CLASS> object_;
+  boost::function<void (CLASS*)> function_;
+};
+
+template<typename CLASS>
+WeakCallback<CLASS> makeWeakCallback(const boost::shared_ptr<CLASS>& object,
+                                     void (CLASS::*function)())
+{
+  return WeakCallback<CLASS>(object, function);
+}
+
+template<typename CLASS>
+WeakCallback<CLASS> makeWeakCallback(const boost::shared_ptr<CLASS>& object,
+                                     void (CLASS::*function)() const)
+{
+  return WeakCallback<CLASS>(object, function);
+}
+
+}
+
 using namespace muduo;
 using namespace muduo::net;
 
@@ -195,13 +244,49 @@ void TcpConnection::shutdownInLoop()
   }
 }
 
+// void TcpConnection::shutdownAndForceCloseAfter(double seconds)
+// {
+//   // FIXME: use compare and swap
+//   if (state_ == kConnected)
+//   {
+//     setState(kDisconnecting);
+//     loop_->runInLoop(boost::bind(&TcpConnection::shutdownAndForceCloseInLoop, this, seconds));
+//   }
+// }
+
+// void TcpConnection::shutdownAndForceCloseInLoop(double seconds)
+// {
+//   loop_->assertInLoopThread();
+//   if (!channel_->isWriting())
+//   {
+//     // we are not writing
+//     socket_->shutdownWrite();
+//   }
+//   loop_->runAfter(
+//       seconds,
+//       makeWeakCallback(shared_from_this(),
+//                        &TcpConnection::forceCloseInLoop));
+// }
+
 void TcpConnection::forceClose()
 {
   // FIXME: use compare and swap
-  if (state_ == kConnected)
+  if (state_ == kConnected || state_ == kDisconnecting)
   {
     setState(kDisconnecting);
     loop_->queueInLoop(boost::bind(&TcpConnection::forceCloseInLoop, shared_from_this()));
+  }
+}
+
+void TcpConnection::forceCloseWithDelay(double seconds)
+{
+  if (state_ == kConnected || state_ == kDisconnecting)
+  {
+    setState(kDisconnecting);
+    loop_->runAfter(
+        seconds,
+        makeWeakCallback(shared_from_this(),
+                         &TcpConnection::forceCloseInLoop));
   }
 }
 
