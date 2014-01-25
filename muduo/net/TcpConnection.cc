@@ -44,6 +44,10 @@ class WeakCallback
     {
       function_(ptr.get());
     }
+    else
+    {
+      LOG_TRACE << "expired";
+    }
   }
 
  private:
@@ -286,7 +290,7 @@ void TcpConnection::forceCloseWithDelay(double seconds)
     loop_->runAfter(
         seconds,
         makeWeakCallback(shared_from_this(),
-                         &TcpConnection::forceCloseInLoop));
+                         &TcpConnection::forceClose));  // not forceCloseInLoop to avoid race condition
   }
 }
 
