@@ -121,7 +121,7 @@ void EchoServer::onTimer()
         {
           conn->shutdown();
           LOG_INFO << "shutting down " << conn->name();
-          conn->forceCloseWithDelay(3.0);  // > round trip of the whole Internet.
+          conn->forceCloseWithDelay(3.5);  // > round trip of the whole Internet.
         }
       }
       else if (age < 0)
