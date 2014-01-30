@@ -127,8 +127,8 @@ Logger::Impl::Impl(LogLevel level, int savedErrno, const SourceFile& file, int l
 void Logger::Impl::formatTime()
 {
   int64_t microSecondsSinceEpoch = time_.microSecondsSinceEpoch();
-  time_t seconds = static_cast<time_t>(microSecondsSinceEpoch / 1000000);
-  int microseconds = static_cast<int>(microSecondsSinceEpoch % 1000000);
+  time_t seconds = static_cast<time_t>(microSecondsSinceEpoch / Timestamp::kMicroSecondsPerSecond);
+  int microseconds = static_cast<int>(microSecondsSinceEpoch % Timestamp::kMicroSecondsPerSecond);
   if (seconds != t_lastSecond)
   {
     t_lastSecond = seconds;
