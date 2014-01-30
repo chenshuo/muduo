@@ -1,0 +1,5 @@
+This is an proof of concept implementation of Google Protobuf RPC using muduo.
+The object lifetime management is for from ideal and doesn't follow the usual
+muduo approach.
+
+Please consider using http://github.com/chenshuo/muduo-protorpc instead.
