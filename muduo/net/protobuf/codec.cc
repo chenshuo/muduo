@@ -6,15 +6,14 @@
 
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
-#include <muduo/net/protorpc/RpcCodec.h>
+#include <muduo/net/protobuf/codec.h>
 
 #include <muduo/base/Logging.h>
 #include <muduo/net/Endian.h>
 #include <muduo/net/TcpConnection.h>
-
-#include <muduo/net/protorpc/rpc.pb.h>
 #include <muduo/net/protorpc/google-inl.h>
 
+#include <google/protobuf/message.h>
 #include <zlib.h>
 
 using namespace muduo;
@@ -30,8 +29,8 @@ namespace
   int dummy = ProtobufVersionCheck();
 }
 
-void RpcCodec::send(const TcpConnectionPtr& conn,
-                    const RpcMessage& message)
+void ProtobufCodec::send(const TcpConnectionPtr& conn,
+                         const ::google::protobuf::Message& message)
 {
   // FIXME: serialize to TcpConnection::outputBuffer()
   muduo::net::Buffer buf;
@@ -39,17 +38,18 @@ void RpcCodec::send(const TcpConnectionPtr& conn,
   conn->send(&buf);
 }
 
-void RpcCodec::fillEmptyBuffer(muduo::net::Buffer* buf, const RpcMessage& message)
+void ProtobufCodec::fillEmptyBuffer(muduo::net::Buffer* buf,
+                                    const google::protobuf::Message& message)
 {
   assert(buf->readableBytes() == 0);
   // FIXME: can we move serialization & checksum to other thread?
-  buf->append("RPC0", 4);
+  buf->append(tag_);
 
   // code copied from MessageLite::SerializeToArray() and MessageLite::SerializePartialToArray().
   GOOGLE_DCHECK(message.IsInitialized()) << InitializationErrorMessage("serialize", message);
 
   int byte_size = message.ByteSize();
-  buf->ensureWritableBytes(byte_size + kHeaderLen);
+  buf->ensureWritableBytes(byte_size + kChecksumLen);
 
   uint8_t* start = reinterpret_cast<uint8_t*>(buf->beginWrite());
   uint8_t* end = message.SerializeWithCachedSizesToArray(start);
@@ -64,16 +64,16 @@ void RpcCodec::fillEmptyBuffer(muduo::net::Buffer* buf, const RpcMessage& messag
         reinterpret_cast<const Bytef*>(buf->peek()),
         static_cast<int>(buf->readableBytes())));
   buf->appendInt32(checkSum);
-  assert(buf->readableBytes() == implicit_cast<size_t>(kHeaderLen + byte_size + kHeaderLen));
+  assert(buf->readableBytes() == tag_.size() + byte_size + kChecksumLen);
   int32_t len = sockets::hostToNetwork32(static_cast<int32_t>(buf->readableBytes()));
   buf->prepend(&len, sizeof len);
 }
 
-void RpcCodec::onMessage(const TcpConnectionPtr& conn,
-                         Buffer* buf,
-                         Timestamp receiveTime)
+void ProtobufCodec::onMessage(const TcpConnectionPtr& conn,
+                              Buffer* buf,
+                              Timestamp receiveTime)
 {
-  while (buf->readableBytes() >= kMinMessageLen + kHeaderLen)
+  while (buf->readableBytes() >= static_cast<uint32_t>(kMinMessageLen+kHeaderLen))
   {
     const int32_t len = buf->peekInt32();
     if (len > kMaxMessageLen || len < kMinMessageLen)
@@ -81,11 +81,11 @@ void RpcCodec::onMessage(const TcpConnectionPtr& conn,
       errorCallback_(conn, buf, receiveTime, kInvalidLength);
       break;
     }
-    else if (buf->readableBytes() >= implicit_cast<size_t>(len + kHeaderLen))
+    else if (buf->readableBytes() >= implicit_cast<size_t>(len+kChecksumLen))
     {
-      RpcMessage message;
+      MessagePtr message(prototype_->New());
       // FIXME: can we move deserialization & callback to other thread?
-      ErrorCode errorCode = parse(buf->peek()+kHeaderLen, len, &message);
+      ErrorCode errorCode = parse(buf->peek()+kHeaderLen, len, message.get());
       if (errorCode == kNoError)
       {
         // FIXME: try { } catch (...) { }
@@ -116,7 +116,7 @@ namespace
   const string kUnknownErrorStr = "UnknownError";
 }
 
-const string& RpcCodec::errorCodeToString(ErrorCode errorCode)
+const string& ProtobufCodec::errorCodeToString(ErrorCode errorCode)
 {
   switch (errorCode)
   {
@@ -137,10 +137,10 @@ const string& RpcCodec::errorCodeToString(ErrorCode errorCode)
   }
 }
 
-void RpcCodec::defaultErrorCallback(const TcpConnectionPtr& conn,
-                                    Buffer* buf,
-                                    Timestamp,
-                                    ErrorCode errorCode)
+void ProtobufCodec::defaultErrorCallback(const TcpConnectionPtr& conn,
+                                         Buffer* buf,
+                                         Timestamp,
+                                         ErrorCode errorCode)
 {
   LOG_ERROR << "ProtobufCodec::defaultErrorCallback - " << errorCodeToString(errorCode);
   if (conn && conn->connected())
@@ -149,31 +149,31 @@ void RpcCodec::defaultErrorCallback(const TcpConnectionPtr& conn,
   }
 }
 
-int32_t RpcCodec::asInt32(const char* buf)
+int32_t ProtobufCodec::asInt32(const char* buf)
 {
   int32_t be32 = 0;
   ::memcpy(&be32, buf, sizeof(be32));
   return sockets::networkToHost32(be32);
 }
 
-RpcCodec::ErrorCode RpcCodec::parse(const char* buf, int len, RpcMessage* message)
+ProtobufCodec::ErrorCode ProtobufCodec::parse(const char* buf, int len, ::google::protobuf::Message* message)
 {
   ErrorCode error = kNoError;
 
   // check sum
-  int32_t expectedCheckSum = asInt32(buf + len - kHeaderLen);
+  int32_t expectedCheckSum = asInt32(buf + len - kChecksumLen);
   int32_t checkSum = static_cast<int32_t>(
       ::adler32(1,
                 reinterpret_cast<const Bytef*>(buf),
-                static_cast<int>(len - kHeaderLen)));
+                static_cast<int>(len - kChecksumLen)));
 
   if (checkSum == expectedCheckSum)
   {
-    if (memcmp(buf, "RPC0", kHeaderLen) == 0)
+    if (memcmp(buf, tag_.data(), tag_.size()) == 0)
     {
       // parse from buffer
-      const char* data = buf + kHeaderLen;
-      int32_t dataLen = len - 2*kHeaderLen;
+      const char* data = buf + tag_.size();
+      int32_t dataLen = len - kChecksumLen - static_cast<int>(tag_.size());
       if (message->ParseFromArray(data, dataLen))
       {
         error = kNoError;
