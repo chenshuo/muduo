@@ -36,6 +36,8 @@ class RpcMessage;
 // payload   N-byte
 // checksum  4-byte  adler32 of "RPC0"+payload
 //
+
+// TODO: re-implement with ProtobufCodec
 class RpcCodec
 {
  public:
@@ -79,6 +81,7 @@ class RpcCodec
 
   static const string& errorCodeToString(ErrorCode errorCode);
   static ErrorCode parse(const char* buf, int len, RpcMessage* message);
+  static void fillEmptyBuffer(muduo::net::Buffer* buf, const RpcMessage& message);
   static int32_t asInt32(const char* buf);
 
   static void defaultErrorCallback(const TcpConnectionPtr&,
