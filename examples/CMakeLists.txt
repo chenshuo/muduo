@@ -1,3 +1,4 @@
+add_subdirectory(ace/ttcp)
 add_subdirectory(asio/chat)
 add_subdirectory(asio/tutorial)
 add_subdirectory(fastcgi)
@@ -34,8 +35,10 @@ else()
 endif()
 
 if(PROTOBUF_FOUND)
+  add_subdirectory(ace/logging)
   add_subdirectory(protobuf)
 else()
+  add_subdirectory(ace/logging EXCLUDE_FROM_ALL)
   add_subdirectory(protobuf EXCLUDE_FROM_ALL)
 endif()
 

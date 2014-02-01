@@ -1,9 +1,10 @@
-// excerpts from http://code.google.com/p/muduo/
+// Copyright 2010, Shuo Chen.  All rights reserved.
+// http://code.google.com/p/muduo/
 //
 // Use of this source code is governed by a BSD-style license
 // that can be found in the License file.
 //
-// Author: Shuo Chen (giantchen at gmail dot com)
+// Author: Shuo Chen (chenshuo at chenshuo dot com)
 
 #ifndef MUDUO_BASE_WEAKCALLBACK_H
 #define MUDUO_BASE_WEAKCALLBACK_H
