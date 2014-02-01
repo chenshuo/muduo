@@ -1,0 +1,25 @@
+package logging;
+
+message LogRecord {
+  // must present in first message
+  optional string hostname = 1;
+  optional string process_name = 2;
+  optional int32 process_id = 3;
+  optional int64 process_start_time = 4; // microseconds sinch epoch
+
+  // muduo/base/Logging.h
+  // enum LogLevel
+  // {
+  //   TRACE, // 0
+  //   DEBUG, // 1
+  //   INFO,  // 2
+  //   WARN,  // 3
+  //   ERROR, // 4
+  //   FATAL, // 5
+  // };
+  required int32 level = 10;
+  required int32 thread_id = 11;
+  required int64 timestamp = 12; // microseconds sinch epoch
+  required string message = 13;
+  // optional: source file, source line, function name
+}

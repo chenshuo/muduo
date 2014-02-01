@@ -28,6 +28,7 @@ void muduo::net::defaultConnectionCallback(const TcpConnectionPtr& conn)
   LOG_TRACE << conn->localAddress().toIpPort() << " -> "
             << conn->peerAddress().toIpPort() << " is "
             << (conn->connected() ? "UP" : "DOWN");
+  // do not call conn->forceClose(), because some users want to register message callback only.
 }
 
 void muduo::net::defaultMessageCallback(const TcpConnectionPtr&,
