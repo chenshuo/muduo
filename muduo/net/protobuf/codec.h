@@ -17,8 +17,9 @@
 #include <muduo/base/StringPiece.h>
 #include <muduo/base/Timestamp.h>
 
-#include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
+#include <boost/noncopyable.hpp>
+#include <boost/shared_ptr.hpp>
 
 namespace google
 {
@@ -58,7 +59,7 @@ class ProtobufCodecT
 // checksum  4-byte  adler32 of tag+payload
 //
 // This is an internal class, you should use ProtobufCodecT instead.
-class ProtobufCodec
+class ProtobufCodec : boost::noncopyable
 {
  public:
   enum ErrorCode
