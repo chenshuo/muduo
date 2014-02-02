@@ -12,9 +12,11 @@
 #define MUDUO_NET_PROTORPC_RPCCODEC_H
 
 #include <muduo/base/Timestamp.h>
+#include <muduo/net/protobuf/codec.h>
 
-#include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
+#include <boost/noncopyable.hpp>
+#include <boost/shared_ptr.hpp>
 
 namespace muduo
 {
@@ -37,65 +39,35 @@ class RpcMessage;
 // checksum  4-byte  adler32 of "RPC0"+payload
 //
 
-// TODO: re-implement with ProtobufCodec
-class RpcCodec
+// TODO: re-implement with typedef of ProtobufCodecT
+class RpcCodec : boost::noncopyable
 {
  public:
-  enum ErrorCode
-  {
-    kNoError = 0,
-    kInvalidLength,
-    kCheckSumError,
-    kInvalidNameLen,
-    kUnknownMessageType,
-    kParseError,
-  };
-
   typedef boost::function<void (const TcpConnectionPtr&,
                                 const RpcMessage&,
                                 Timestamp)> ProtobufMessageCallback;
 
-  typedef boost::function<void (const TcpConnectionPtr&,
-                                Buffer*,
-                                Timestamp,
-                                ErrorCode)> ErrorCallback;
+  typedef ProtobufCodec::ErrorCallback ErrorCallback;
 
-  explicit RpcCodec(const ProtobufMessageCallback& messageCb)
-    : messageCallback_(messageCb),
-      errorCallback_(defaultErrorCallback)
-  {
-  }
+  explicit RpcCodec(const ProtobufMessageCallback& messageCb,
+                    const ErrorCallback& errorCb = ProtobufCodec::defaultErrorCallback);
 
-  RpcCodec(const ProtobufMessageCallback& messageCb, const ErrorCallback& errorCb)
-    : messageCallback_(messageCb),
-      errorCallback_(errorCb)
-  {
-  }
-
-  static void send(const TcpConnectionPtr& conn,
-                   const RpcMessage& message);
+  void send(const TcpConnectionPtr& conn,
+            const RpcMessage& message);
 
   void onMessage(const TcpConnectionPtr& conn,
                  Buffer* buf,
                  Timestamp receiveTime);
 
-  static const string& errorCodeToString(ErrorCode errorCode);
-  static ErrorCode parse(const char* buf, int len, RpcMessage* message);
-  static void fillEmptyBuffer(muduo::net::Buffer* buf, const RpcMessage& message);
-  static int32_t asInt32(const char* buf);
-
-  static void defaultErrorCallback(const TcpConnectionPtr&,
-                                   Buffer*,
-                                   Timestamp,
-                                   ErrorCode);
+  // internal
+  void onRpcMessage(const TcpConnectionPtr&,
+                    const MessagePtr&,
+                    Timestamp);
+  void fillEmptyBuffer(muduo::net::Buffer* buf, const RpcMessage& message);
 
  private:
   ProtobufMessageCallback messageCallback_;
-  ErrorCallback errorCallback_;
-
-  const static int kHeaderLen = sizeof(int32_t);
-  const static int kMinMessageLen = 2*kHeaderLen; // RPC0 + checkSum
-  const static int kMaxMessageLen = 64*1024*1024; // same as codec_stream.h kDefaultTotalBytesLimit
+  ProtobufCodec codec_;
 };
 
 }

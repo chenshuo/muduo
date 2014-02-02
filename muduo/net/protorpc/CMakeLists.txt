@@ -18,7 +18,7 @@ target_link_libraries(protorpc_wire_test muduo_protorpc_wire muduo_protobuf_code
 
 add_library(muduo_protorpc RpcChannel.cc RpcServer.cc)
 set_target_properties(muduo_protorpc PROPERTIES COMPILE_FLAGS "-Wno-error=shadow")
-target_link_libraries(muduo_protorpc muduo_protorpc_wire muduo_net protobuf z)
+target_link_libraries(muduo_protorpc muduo_protorpc_wire muduo_protobuf_codec muduo_net protobuf z)
 
 install(TARGETS muduo_protorpc_wire muduo_protorpc DESTINATION lib)
 install(TARGETS muduo_protorpc_wire_cpp11 DESTINATION lib)
