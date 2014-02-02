@@ -38,7 +38,9 @@ int main()
 {
   RpcMessage message;
   message.set_type(REQUEST);
-  message.set_id(1);
+  message.set_id(2);
+  char wire[] = "\0\0\0\x13" "RPC0" "\x08\x01\x11\x02\0\0\0\0\0\0\0" "\x0f\xef\x01\x32";
+  string expected(wire, sizeof(wire)-1);
   string s1, s2;
   Buffer buf1, buf2;
   {
@@ -59,6 +61,8 @@ int main()
   g_msgptr.reset();
   }
   assert(s1 == s2);
+  assert(s1 == expected);
+  assert(s2 == expected);
 
   {
   Buffer buf;
