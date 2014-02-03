@@ -15,6 +15,7 @@ set_target_properties(muduo_protorpc_wire_cpp11 PROPERTIES COMPILE_FLAGS "-std=c
 
 add_executable(protorpc_wire_test RpcCodec_test.cc)
 target_link_libraries(protorpc_wire_test muduo_protorpc_wire muduo_protobuf_codec)
+set_target_properties(protorpc_wire_test PROPERTIES COMPILE_FLAGS "-Wno-error=shadow")
 
 add_library(muduo_protorpc RpcChannel.cc RpcServer.cc)
 set_target_properties(muduo_protorpc PROPERTIES COMPILE_FLAGS "-Wno-error=shadow")

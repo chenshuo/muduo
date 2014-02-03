@@ -1,5 +1,6 @@
 #include <muduo/base/LogFile.h>
-#include <muduo/base/Logging.h> // strerror_tl
+
+#include <muduo/base/FileUtil.h>
 #include <muduo/base/ProcessInfo.h>
 
 #include <assert.h>
@@ -7,67 +8,6 @@
 #include <time.h>
 
 using namespace muduo;
-
-// not thread safe
-class LogFile::File : boost::noncopyable
-{
- public:
-  explicit File(const string& filename)
-    : fp_(::fopen(filename.data(), "ae")),
-      writtenBytes_(0)
-  {
-    assert(fp_);
-    ::setbuffer(fp_, buffer_, sizeof buffer_);
-    // posix_fadvise POSIX_FADV_DONTNEED ?
-  }
-
-  ~File()
-  {
-    ::fclose(fp_);
-  }
-
-  void append(const char* logline, const size_t len)
-  {
-    size_t n = write(logline, len);
-    size_t remain = len - n;
-    while (remain > 0)
-    {
-      size_t x = write(logline + n, remain);
-      if (x == 0)
-      {
-        int err = ferror(fp_);
-        if (err)
-        {
-          fprintf(stderr, "LogFile::File::append() failed %s\n", strerror_tl(err));
-        }
-        break;
-      }
-      n += x;
-      remain = len - n; // remain -= x
-    }
-
-    writtenBytes_ += len;
-  }
-
-  void flush()
-  {
-    ::fflush(fp_);
-  }
-
-  size_t writtenBytes() const { return writtenBytes_; }
-
- private:
-
-  size_t write(const char* logline, size_t len)
-  {
-#undef fwrite_unlocked
-    return ::fwrite_unlocked(logline, 1, len, fp_);
-  }
-
-  FILE* fp_;
-  char buffer_[64*1024];
-  size_t writtenBytes_;
-};
 
 LogFile::LogFile(const string& basename,
                  size_t rollSize,
@@ -159,7 +99,7 @@ void LogFile::rollFile()
     lastRoll_ = now;
     lastFlush_ = now;
     startOfPeriod_ = start;
-    file_.reset(new File(filename));
+    file_.reset(new FileUtil::AppendFile(filename));
   }
 }
 
