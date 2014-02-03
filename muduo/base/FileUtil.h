@@ -67,7 +67,7 @@ int readFile(StringPiece filename,
 class AppendFile : boost::noncopyable
 {
  public:
-  explicit AppendFile(const string& filename);
+  explicit AppendFile(StringPiece filename);
 
   ~AppendFile();
 
