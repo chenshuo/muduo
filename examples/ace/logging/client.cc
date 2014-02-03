@@ -10,6 +10,7 @@
 
 #include <boost/bind.hpp>
 
+#include <iostream>
 #include <stdio.h>
 
 using namespace muduo;
