@@ -20,7 +20,7 @@
 
 using namespace muduo;
 
-FileUtil::AppendFile::AppendFile(const string& filename)
+FileUtil::AppendFile::AppendFile(StringPiece filename)
   : fp_(::fopen(filename.data(), "ae")),  // 'e' for O_CLOEXEC
     writtenBytes_(0)
 {

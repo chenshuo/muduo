@@ -110,15 +110,18 @@ string LogFile::getLogFileName(const string& basename, time_t* now)
   filename = basename;
 
   char timebuf[32];
-  char pidbuf[32];
   struct tm tm;
   *now = time(NULL);
   gmtime_r(now, &tm); // FIXME: localtime_r ?
   strftime(timebuf, sizeof timebuf, ".%Y%m%d-%H%M%S.", &tm);
   filename += timebuf;
+
   filename += ProcessInfo::hostname();
+
+  char pidbuf[32];
   snprintf(pidbuf, sizeof pidbuf, ".%d", ProcessInfo::pid());
   filename += pidbuf;
+
   filename += ".log";
 
   return filename;
