@@ -36,8 +36,8 @@ class ChargenClient : boost::noncopyable
   void onConnection(const TcpConnectionPtr& conn)
   {
     LOG_INFO << conn->localAddress().toIpPort() << " -> "
-        << conn->peerAddress().toIpPort() << " is "
-        << (conn->connected() ? "UP" : "DOWN");
+             << conn->peerAddress().toIpPort() << " is "
+             << (conn->connected() ? "UP" : "DOWN");
 
     if (!conn->connected())
       loop_->quit();
@@ -60,8 +60,8 @@ int main(int argc, char* argv[])
     EventLoop loop;
     InetAddress serverAddr(argv[1], 2019);
 
-    ChargenClient timeClient(&loop, serverAddr);
-    timeClient.connect();
+    ChargenClient chargenClient(&loop, serverAddr);
+    chargenClient.connect();
     loop.loop();
   }
   else

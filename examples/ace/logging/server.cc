@@ -32,6 +32,7 @@ class Session : boost::noncopyable
 
  private:
 
+  // FIXME: duplicate code LogFile
   string getFileName(const TcpConnectionPtr& conn)
   {
     string filename;
@@ -45,7 +46,7 @@ class Session : boost::noncopyable
     filename += timebuf;
 
     char buf[32];
-    snprintf(buf, sizeof buf, "%d", count_.incrementAndGet());
+    snprintf(buf, sizeof buf, "%d", globalCount_.incrementAndGet());
     filename += buf;
 
     filename += ".log";
@@ -62,18 +63,20 @@ class Session : boost::noncopyable
     {
       // FIXME ?
     }
+    const char* sep = "==========\n";
     std::string str = logRecord->DebugString();
     file_.append(str.c_str(), str.size());
-    file_.append("\n", 1);
+    file_.append(sep, strlen(sep));
+    LOG_DEBUG << str;
   }
 
   ProtobufCodec codec_;
   FileUtil::AppendFile file_;
-  static AtomicInt32 count_;
+  static AtomicInt32 globalCount_;
 };
 typedef boost::shared_ptr<Session> SessionPtr;
 
-AtomicInt32 Session::count_;
+AtomicInt32 Session::globalCount_;
 
 class LogServer : boost::noncopyable
 {

@@ -7,6 +7,7 @@ message LogRecord {
     required string process_name = 2;
     required int32 process_id = 3;
     required int64 process_start_time = 4; // microseconds sinch epoch
+    required string username = 5;
   }
 
   optional Heartbeat heartbeat = 1;
