@@ -8,17 +8,67 @@
 //
 
 #include <muduo/base/FileUtil.h>
+#include <muduo/base/Logging.h> // strerror_tl
 
 #include <boost/static_assert.hpp>
 
 #include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <stdio.h>
 #include <sys/stat.h>
 
 using namespace muduo;
 
-FileUtil::SmallFile::SmallFile(StringPiece filename)
+FileUtil::AppendFile::AppendFile(const string& filename)
+  : fp_(::fopen(filename.data(), "ae")),  // 'e' for O_CLOEXEC
+    writtenBytes_(0)
+{
+  assert(fp_);
+  ::setbuffer(fp_, buffer_, sizeof buffer_);
+  // posix_fadvise POSIX_FADV_DONTNEED ?
+}
+
+FileUtil::AppendFile::~AppendFile()
+{
+  ::fclose(fp_);
+}
+
+void FileUtil::AppendFile::append(const char* logline, const size_t len)
+{
+  size_t n = write(logline, len);
+  size_t remain = len - n;
+  while (remain > 0)
+  {
+    size_t x = write(logline + n, remain);
+    if (x == 0)
+    {
+      int err = ferror(fp_);
+      if (err)
+      {
+        fprintf(stderr, "AppendFile::append() failed %s\n", strerror_tl(err));
+      }
+      break;
+    }
+    n += x;
+    remain = len - n; // remain -= x
+  }
+
+  writtenBytes_ += len;
+}
+
+void FileUtil::AppendFile::flush()
+{
+  ::fflush(fp_);
+}
+
+size_t FileUtil::AppendFile::write(const char* logline, size_t len)
+{
+  // #undef fwrite_unlocked
+  return ::fwrite_unlocked(logline, 1, len, fp_);
+}
+
+FileUtil::ReadSmallFile::ReadSmallFile(StringPiece filename)
   : fd_(::open(filename.data(), O_RDONLY | O_CLOEXEC)),
     err_(0)
 {
@@ -29,7 +79,7 @@ FileUtil::SmallFile::SmallFile(StringPiece filename)
   }
 }
 
-FileUtil::SmallFile::~SmallFile()
+FileUtil::ReadSmallFile::~ReadSmallFile()
 {
   if (fd_ >= 0)
   {
@@ -39,11 +89,11 @@ FileUtil::SmallFile::~SmallFile()
 
 // return errno
 template<typename String>
-int FileUtil::SmallFile::readToString(int maxSize,
-                                      String* content,
-                                      int64_t* fileSize,
-                                      int64_t* modifyTime,
-                                      int64_t* createTime)
+int FileUtil::ReadSmallFile::readToString(int maxSize,
+                                          String* content,
+                                          int64_t* fileSize,
+                                          int64_t* modifyTime,
+                                          int64_t* createTime)
 {
   BOOST_STATIC_ASSERT(sizeof(off_t) == 8);
   assert(content != NULL);
@@ -102,7 +152,7 @@ int FileUtil::SmallFile::readToString(int maxSize,
   return err;
 }
 
-int FileUtil::SmallFile::readToBuffer(int* size)
+int FileUtil::ReadSmallFile::readToBuffer(int* size)
 {
   int err = err_;
   if (fd_ >= 0)
@@ -129,7 +179,7 @@ template int FileUtil::readFile(StringPiece filename,
                                 string* content,
                                 int64_t*, int64_t*, int64_t*);
 
-template int FileUtil::SmallFile::readToString(
+template int FileUtil::ReadSmallFile::readToString(
     int maxSize,
     string* content,
     int64_t*, int64_t*, int64_t*);
@@ -140,7 +190,7 @@ template int FileUtil::readFile(StringPiece filename,
                                 std::string* content,
                                 int64_t*, int64_t*, int64_t*);
 
-template int FileUtil::SmallFile::readToString(
+template int FileUtil::ReadSmallFile::readToString(
     int maxSize,
     std::string* content,
     int64_t*, int64_t*, int64_t*);

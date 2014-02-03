@@ -10,6 +10,11 @@
 namespace muduo
 {
 
+namespace FileUtil
+{
+class AppendFile;
+}
+
 class LogFile : boost::noncopyable
 {
  public:
@@ -38,8 +43,7 @@ class LogFile : boost::noncopyable
   time_t startOfPeriod_;
   time_t lastRoll_;
   time_t lastFlush_;
-  class File;
-  boost::scoped_ptr<File> file_;
+  boost::scoped_ptr<FileUtil::AppendFile> file_;
 
   const static int kCheckTimeRoll_ = 1024;
   const static int kRollPerSeconds_ = 60*60*24;
