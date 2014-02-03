@@ -12,8 +12,8 @@ target_link_libraries(ace_logging_proto protobuf pthread)
 
 add_executable(ace_logging_client client.cc)
 set_target_properties(ace_logging_client PROPERTIES COMPILE_FLAGS "-Wno-error=shadow")
-target_link_libraries(ace_logging_client protobuf_codec ace_logging_proto)
+target_link_libraries(ace_logging_client muduo_protobuf_codec ace_logging_proto)
 
 add_executable(ace_logging_server server.cc)
 set_target_properties(ace_logging_server PROPERTIES COMPILE_FLAGS "-Wno-error=shadow")
-target_link_libraries(ace_logging_server protobuf_codec ace_logging_proto)
+target_link_libraries(ace_logging_server muduo_protobuf_codec ace_logging_proto)
