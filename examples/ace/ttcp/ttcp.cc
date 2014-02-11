@@ -103,7 +103,11 @@ void onMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp time)
 
 void transmit(const Options& opt)
 {
-  InetAddress addr(resolveOrDie(opt.host.c_str(), opt.port));
+  InetAddress addr(opt.port);
+  if (!InetAddress::resolve(opt.host.c_str(), &addr))
+  {
+    LOG_FATAL << "Unable to resolve " << opt.host;
+  }
   muduo::Timestamp start(muduo::Timestamp::now());
   EventLoop loop;
   g_loop = &loop;
