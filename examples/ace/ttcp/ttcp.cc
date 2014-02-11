@@ -120,7 +120,7 @@ void transmit(const Options& opt)
   loop.loop();
   double elapsed = timeDifference(muduo::Timestamp::now(), start);
   double total_mb = 1.0 * opt.length * opt.number / 1024 / 1024;
-  printf("%.3f MiB\n%.3f MiB/s\n", total_mb, total_mb / elapsed);
+  printf("%.3f MiB transferred\n%.3f MiB/s\n", total_mb, total_mb / elapsed);
 }
 
 /////////////////////////////////////////////////////////////////////
