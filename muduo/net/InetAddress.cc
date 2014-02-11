@@ -8,9 +8,11 @@
 
 #include <muduo/net/InetAddress.h>
 
+#include <muduo/base/Logging.h>
 #include <muduo/net/Endian.h>
 #include <muduo/net/SocketsOps.h>
 
+#include <netdb.h>
 #include <strings.h>  // bzero
 #include <netinet/in.h>
 
@@ -19,6 +21,7 @@
 // INADDR_ANY use (type)value casting.
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 static const in_addr_t kInaddrAny = INADDR_ANY;
+static const in_addr_t kInaddrLoopback = INADDR_LOOPBACK;
 #pragma GCC diagnostic error "-Wold-style-cast"
 
 //     /* Structure describing an Internet socket address.  */
@@ -39,11 +42,12 @@ using namespace muduo::net;
 
 BOOST_STATIC_ASSERT(sizeof(InetAddress) == sizeof(struct sockaddr_in));
 
-InetAddress::InetAddress(uint16_t port)
+InetAddress::InetAddress(uint16_t port, bool lookbackOnly)
 {
   bzero(&addr_, sizeof addr_);
   addr_.sin_family = AF_INET;
-  addr_.sin_addr.s_addr = sockets::hostToNetwork32(kInaddrAny);
+  in_addr_t ip = lookbackOnly ? kInaddrLoopback : kInaddrAny;
+  addr_.sin_addr.s_addr = sockets::hostToNetwork32(ip);
   addr_.sin_port = sockets::hostToNetwork16(port);
 }
 
@@ -67,3 +71,29 @@ string InetAddress::toIp() const
   return buf;
 }
 
+static __thread char t_resolveBuffer[64 * 1024];
+
+bool InetAddress::resolve(const char* hostname, InetAddress* out)
+{
+  assert(out != NULL);
+  struct hostent hent;
+  struct hostent* he = NULL;
+  int herrno = 0;
+  bzero(&hent, sizeof(hent));
+
+  int ret = gethostbyname_r(hostname, &hent, t_resolveBuffer, sizeof t_resolveBuffer, &he, &herrno);
+  if (ret == 0 && he != NULL)
+  {
+    assert(he->h_addrtype == AF_INET && he->h_length == sizeof(uint32_t));
+    out->addr_.sin_addr = *reinterpret_cast<struct in_addr*>(he->h_addr);
+    return true;
+  }
+  else
+  {
+    if (ret)
+    {
+      LOG_SYSERR << "InetAddress::resolve";
+    }
+    return false;
+  }
+}
