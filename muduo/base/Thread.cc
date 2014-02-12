@@ -10,7 +10,6 @@
 
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/is_same.hpp>
-#include <boost/weak_ptr.hpp>
 
 #include <errno.h>
 #include <stdio.h>
@@ -66,11 +65,11 @@ struct ThreadData
   typedef muduo::Thread::ThreadFunc ThreadFunc;
   ThreadFunc func_;
   string name_;
-  boost::weak_ptr<pid_t> wkTid_;
+  std::weak_ptr<pid_t> wkTid_;
 
   ThreadData(const ThreadFunc& func,
              const string& name,
-             const boost::shared_ptr<pid_t>& tid)
+             const std::shared_ptr<pid_t>& tid)
     : func_(func),
       name_(name),
       wkTid_(tid)
@@ -80,7 +79,7 @@ struct ThreadData
   {
     pid_t tid = muduo::CurrentThread::tid();
 
-    boost::shared_ptr<pid_t> ptid = wkTid_.lock();
+    std::shared_ptr<pid_t> ptid = wkTid_.lock();
     if (ptid)
     {
       *ptid = tid;
