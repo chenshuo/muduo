@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <limits>
-#include <boost/type_traits/is_arithmetic.hpp>
+#include <type_traits>
 #include <assert.h>
 #include <string.h>
 #include <stdint.h>
@@ -192,7 +192,7 @@ LogStream& LogStream::operator<<(double v)
 template<typename T>
 Fmt::Fmt(const char* fmt, T val)
 {
-  static_assert(boost::is_arithmetic<T>::value == true, "Must be arithmetic type");
+  static_assert(std::is_arithmetic<T>::value == true, "Must be arithmetic type");
 
   length_ = snprintf(buf_, sizeof buf_, fmt, val);
   assert(static_cast<size_t>(length_) < sizeof buf_);
