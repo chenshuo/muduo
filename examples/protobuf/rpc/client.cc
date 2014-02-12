@@ -7,8 +7,6 @@
 #include <muduo/net/TcpConnection.h>
 #include <muduo/net/protorpc/RpcChannel.h>
 
-#include <boost/bind.hpp>
-
 #include <stdio.h>
 
 using namespace muduo;
@@ -24,9 +22,9 @@ class RpcClient : boost::noncopyable
       stub_(get_pointer(channel_))
   {
     client_.setConnectionCallback(
-        boost::bind(&RpcClient::onConnection, this, _1));
+        std::bind(&RpcClient::onConnection, this, _1));
     client_.setMessageCallback(
-        boost::bind(&RpcChannel::onMessage, get_pointer(channel_), _1, _2, _3));
+        std::bind(&RpcChannel::onMessage, get_pointer(channel_), _1, _2, _3));
     // client_.enableRetry();
   }
 

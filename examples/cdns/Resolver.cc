@@ -4,8 +4,6 @@
 #include <muduo/net/Channel.h>
 #include <muduo/net/EventLoop.h>
 
-#include <boost/bind.hpp>
-
 #include <ares.h>
 #include <netdb.h>
 #include <arpa/inet.h>  // inet_ntop
@@ -89,7 +87,7 @@ bool Resolver::resolve(StringArg hostname, const Callback& cb)
   LOG_DEBUG << "timeout " <<  timeout << " active " << timerActive_;
   if (!timerActive_)
   {
-    loop_->runAfter(timeout, boost::bind(&Resolver::onTimer, this));
+    loop_->runAfter(timeout, std::bind(&Resolver::onTimer, this));
     timerActive_ = true;
   }
   return queryData != NULL;
@@ -116,7 +114,7 @@ void Resolver::onTimer()
   }
   else
   {
-    loop_->runAfter(timeout, boost::bind(&Resolver::onTimer, this));
+    loop_->runAfter(timeout, std::bind(&Resolver::onTimer, this));
   }
 }
 
@@ -156,7 +154,7 @@ void Resolver::onSockCreate(int sockfd, int type)
   loop_->assertInLoopThread();
   assert(channels_.find(sockfd) == channels_.end());
   Channel* channel = new Channel(loop_, sockfd);
-  channel->setReadCallback(boost::bind(&Resolver::onRead, this, sockfd, _1));
+  channel->setReadCallback(std::bind(&Resolver::onRead, this, sockfd, _1));
   channel->enableReading();
   channels_.insert(sockfd, channel);
 }

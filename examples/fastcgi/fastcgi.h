@@ -13,7 +13,7 @@ class FastCgiCodec : boost::noncopyable
 {
  public:
   typedef std::map<string, string> ParamMap;
-  typedef boost::function<void (const muduo::net::TcpConnectionPtr& conn,
+  typedef std::function<void (const muduo::net::TcpConnectionPtr& conn,
                                 ParamMap&,
                                 muduo::net::Buffer*)> Callback;
 

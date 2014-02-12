@@ -3,7 +3,6 @@
 #include <examples/curl/Curl.h>
 #include <muduo/base/Logging.h>
 #include <muduo/net/EventLoop.h>
-#include <boost/bind.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <stdio.h>
 #include <sstream>
@@ -11,7 +10,7 @@
 using namespace muduo;
 using namespace muduo::net;
 
-typedef boost::shared_ptr<FILE> FilePtr;
+typedef std::shared_ptr<FILE> FilePtr;
 
 template<int N>
 bool startWith(const string& str, const char (&prefix)[N])
@@ -25,7 +24,7 @@ class Piece : boost::noncopyable
   Piece(const curl::RequestPtr& req,
         const FilePtr& out,
         const muduo::string& range,
-        const boost::function<void()> done)
+        const std::function<void()> done)
     : req_(req),
       out_(out),
       range_(range),
@@ -34,9 +33,9 @@ class Piece : boost::noncopyable
     LOG_INFO << "range: " << range;
     req->setRange(range);
     req_->setDataCallback(
-        boost::bind(&Piece::onData, this, _1, _2));
+        std::bind(&Piece::onData, this, _1, _2));
     req_->setDoneCallback(
-        boost::bind(&Piece::onDone, this, _1, _2));
+        std::bind(&Piece::onDone, this, _1, _2));
   }
  private:
   void onData(const char* data, int len)
@@ -55,7 +54,7 @@ class Piece : boost::noncopyable
   curl::RequestPtr req_;
   FilePtr out_;
   muduo::string range_;
-  boost::function<void()> doneCb_;
+  std::function<void()> doneCb_;
 };
 
 class Downloader : boost::noncopyable
@@ -73,9 +72,9 @@ class Downloader : boost::noncopyable
       concurrent_(0)
   {
     req_->setHeaderCallback(
-        boost::bind(&Downloader::onHeader, this, _1, _2));
+        std::bind(&Downloader::onHeader, this, _1, _2));
     req_->setDoneCallback(
-        boost::bind(&Downloader::onHeaderDone, this, _1, _2));
+        std::bind(&Downloader::onHeaderDone, this, _1, _2));
     req_->headerOnly();
   }
 
@@ -118,9 +117,9 @@ class Downloader : boost::noncopyable
         req_.reset();
         req2_ = curl_.getUrl(url_);
         req2_->setDataCallback(
-            boost::bind(&Downloader::onData, this, _1, _2));
+            std::bind(&Downloader::onData, this, _1, _2));
         req2_->setDoneCallback(
-            boost::bind(&Downloader::onDownloadDone, this));
+            std::bind(&Downloader::onDownloadDone, this));
         concurrent_ = 1;
       }
       else
@@ -161,7 +160,7 @@ class Downloader : boost::noncopyable
         pieces_.push_back(new Piece(req,
                                     out,
                                     range.str().c_str(), // std::string -> muduo::string
-                                    boost::bind(&Downloader::onDownloadDone, this)));
+                                    std::bind(&Downloader::onDownloadDone, this)));
       }
       else
       {

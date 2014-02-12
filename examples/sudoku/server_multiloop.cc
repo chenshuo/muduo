@@ -7,8 +7,6 @@
 #include <muduo/net/InetAddress.h>
 #include <muduo/net/TcpServer.h>
 
-#include <boost/bind.hpp>
-
 #include <utility>
 
 #include <stdio.h>
@@ -26,9 +24,9 @@ class SudokuServer
       startTime_(Timestamp::now())
   {
     server_.setConnectionCallback(
-        boost::bind(&SudokuServer::onConnection, this, _1));
+        std::bind(&SudokuServer::onConnection, this, _1));
     server_.setMessageCallback(
-        boost::bind(&SudokuServer::onMessage, this, _1, _2, _3));
+        std::bind(&SudokuServer::onMessage, this, _1, _2, _3));
     server_.setThreadNum(numThreads);
   }
 

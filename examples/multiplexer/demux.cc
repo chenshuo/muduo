@@ -4,8 +4,6 @@
 #include <muduo/net/TcpClient.h>
 #include <muduo/net/TcpServer.h>
 
-#include <boost/bind.hpp>
-
 #include <queue>
 #include <utility>
 
@@ -15,7 +13,7 @@
 using namespace muduo;
 using namespace muduo::net;
 
-typedef boost::shared_ptr<TcpClient> TcpClientPtr;
+typedef std::shared_ptr<TcpClient> TcpClientPtr;
 
 // const int kMaxConns = 1;
 const size_t kMaxPacketLen = 255;
@@ -42,9 +40,9 @@ class DemuxServer : boost::noncopyable
       socksAddr_(socksAddr)
   {
     server_.setConnectionCallback(
-        boost::bind(&DemuxServer::onServerConnection, this, _1));
+        std::bind(&DemuxServer::onServerConnection, this, _1));
     server_.setMessageCallback(
-        boost::bind(&DemuxServer::onServerMessage, this, _1, _2, _3));
+        std::bind(&DemuxServer::onServerMessage, this, _1, _2, _3));
   }
 
   void start()
@@ -132,9 +130,9 @@ class DemuxServer : boost::noncopyable
       entry.connId = connId;
       entry.client.reset(new TcpClient(loop_, socksAddr_, connName));
       entry.client->setConnectionCallback(
-          boost::bind(&DemuxServer::onSocksConnection, this, connId, _1));
+          std::bind(&DemuxServer::onSocksConnection, this, connId, _1));
       entry.client->setMessageCallback(
-          boost::bind(&DemuxServer::onSocksMessage, this, connId, _1, _2, _3));
+          std::bind(&DemuxServer::onSocksMessage, this, connId, _1, _2, _3));
       // FIXME: setWriteCompleteCallback
       socksConns_[connId] = entry;
       entry.client->connect();

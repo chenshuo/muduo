@@ -9,7 +9,6 @@
 #include <muduo/net/protorpc/RpcCodec.h>
 #include <muduo/net/protorpc/rpc.pb.h>
 
-#include <boost/bind.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
 #include <endian.h>
@@ -76,14 +75,14 @@ class BackendSession : boost::noncopyable
   BackendSession(EventLoop* loop, const InetAddress& backendAddr, const string& name)
     : loop_(loop),
       client_(loop, backendAddr, name),
-      codec_(boost::bind(&BackendSession::onRpcMessage, this, _1, _2, _3),
-             boost::bind(&BackendSession::onRawMessage, this, _1, _2, _3)),
+      codec_(std::bind(&BackendSession::onRpcMessage, this, _1, _2, _3),
+             std::bind(&BackendSession::onRawMessage, this, _1, _2, _3)),
       nextId_(0)
   {
     client_.setConnectionCallback(
-        boost::bind(&BackendSession::onConnection, this, _1));
+        std::bind(&BackendSession::onConnection, this, _1));
     client_.setMessageCallback(
-        boost::bind(&RpcCodec::onMessage, &codec_, _1, _2, _3));
+        std::bind(&RpcCodec::onMessage, &codec_, _1, _2, _3));
     client_.enableRetry();
   }
 
@@ -192,7 +191,7 @@ class BackendSession : boost::noncopyable
   struct Request
   {
     uint64_t origId;
-    boost::weak_ptr<TcpConnection> clientConn;
+    std::weak_ptr<TcpConnection> clientConn;
   };
 
   EventLoop* loop_;
@@ -212,16 +211,16 @@ class Balancer : boost::noncopyable
            const std::vector<InetAddress>& backends)
     : loop_(loop),
       server_(loop, listenAddr, name),
-      codec_(boost::bind(&Balancer::onRpcMessage, this, _1, _2, _3),
-             boost::bind(&Balancer::onRawMessage, this, _1, _2, _3)),
+      codec_(std::bind(&Balancer::onRpcMessage, this, _1, _2, _3),
+             std::bind(&Balancer::onRawMessage, this, _1, _2, _3)),
       backends_(backends)
   {
     server_.setThreadInitCallback(
-        boost::bind(&Balancer::initPerThread, this, _1));
+        std::bind(&Balancer::initPerThread, this, _1));
     server_.setConnectionCallback(
-        boost::bind(&Balancer::onConnection, this, _1));
+        std::bind(&Balancer::onConnection, this, _1));
     server_.setMessageCallback(
-        boost::bind(&RpcCodec::onMessage, &codec_, _1, _2, _3));
+        std::bind(&RpcCodec::onMessage, &codec_, _1, _2, _3));
   }
 
   ~Balancer()

@@ -5,8 +5,6 @@
 #include <muduo/net/protorpc/RpcServer.h>
 #include <examples/cdns/Resolver.h>
 
-#include <boost/bind.hpp>
-
 using namespace muduo;
 using namespace muduo::net;
 
@@ -29,7 +27,7 @@ class ResolverServiceImpl : public ResolverService
     LOG_INFO << "ResolverServiceImpl::Resolve " << request->address();
 
     bool succeed = resolver_.resolve(request->address(),
-                                     boost::bind(&ResolverServiceImpl::doneCallback,
+                                     std::bind(&ResolverServiceImpl::doneCallback,
                                                  this,
                                                  request->address(),
                                                  _1,

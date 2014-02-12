@@ -5,9 +5,6 @@
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/TcpServer.h>
 
-#include <boost/bind.hpp>
-#include <boost/shared_ptr.hpp>
-
 #include <set>
 #include <stdio.h>
 
@@ -20,13 +17,13 @@ class ChatServer : boost::noncopyable
   ChatServer(EventLoop* loop,
              const InetAddress& listenAddr)
   : server_(loop, listenAddr, "ChatServer"),
-    codec_(boost::bind(&ChatServer::onStringMessage, this, _1, _2, _3)),
+    codec_(std::bind(&ChatServer::onStringMessage, this, _1, _2, _3)),
     connections_(new ConnectionList)
   {
     server_.setConnectionCallback(
-        boost::bind(&ChatServer::onConnection, this, _1));
+        std::bind(&ChatServer::onConnection, this, _1));
     server_.setMessageCallback(
-        boost::bind(&LengthHeaderCodec::onMessage, &codec_, _1, _2, _3));
+        std::bind(&LengthHeaderCodec::onMessage, &codec_, _1, _2, _3));
   }
 
   void setThreadNum(int numThreads)
@@ -64,7 +61,7 @@ class ChatServer : boost::noncopyable
   }
 
   typedef std::set<TcpConnectionPtr> ConnectionList;
-  typedef boost::shared_ptr<ConnectionList> ConnectionListPtr;
+  typedef std::shared_ptr<ConnectionList> ConnectionListPtr;
 
   void onStringMessage(const TcpConnectionPtr&,
                        const string& message,

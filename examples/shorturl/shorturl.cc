@@ -6,7 +6,6 @@
 #include <muduo/base/Logging.h>
 
 #include <map>
-#include <boost/bind.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
 #include <sys/socket.h>  // SO_REUSEPORT
@@ -113,7 +112,7 @@ int main(int argc, char* argv[])
                                      TcpServer::kReusePort));
     servers.back().setHttpCallback(onRequest);
     servers.back().getLoop()->runInLoop(
-        boost::bind(&HttpServer::start, &servers.back()));
+        std::bind(&HttpServer::start, &servers.back()));
   }
   loop.loop();
 #else

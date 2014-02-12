@@ -5,8 +5,7 @@
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/TcpServer.h>
 
-#include <boost/bind.hpp>
-
+using namespace muduo;
 using namespace muduo::net;
 
 const string kPath = "/sudoku/";
@@ -45,11 +44,11 @@ void onConnection(const TcpConnectionPtr& conn)
 {
   if (conn->connected())
   {
-    typedef boost::shared_ptr<FastCgiCodec> CodecPtr;
+    typedef std::shared_ptr<FastCgiCodec> CodecPtr;
     CodecPtr codec(new FastCgiCodec(onRequest));
     conn->setContext(codec);
     conn->setMessageCallback(
-        boost::bind(&FastCgiCodec::onMessage, codec, _1, _2, _3));
+        std::bind(&FastCgiCodec::onMessage, codec, _1, _2, _3));
     conn->setTcpNoDelay(true);
   }
 }

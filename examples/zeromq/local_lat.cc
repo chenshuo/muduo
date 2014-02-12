@@ -3,8 +3,12 @@
 #include <muduo/net/TcpServer.h>
 #include <examples/asio/chat/codec.h>
 
-#include <boost/bind.hpp>
 #include <stdio.h>
+
+using std::placeholders::_1;
+using std::placeholders::_2;
+using std::placeholders::_3;
+using muduo::get_pointer;
 
 bool g_tcpNoDelay = false;
 
@@ -37,11 +41,11 @@ int main(int argc, char* argv[])
     muduo::net::EventLoop loop;
     muduo::net::InetAddress listenAddr(port);
     muduo::net::TcpServer server(&loop, listenAddr, "PingPong");
-    LengthHeaderCodec codec(boost::bind(onStringMessage, &codec, _1, _2, _3));
+    LengthHeaderCodec codec(std::bind(onStringMessage, &codec, _1, _2, _3));
 
     server.setConnectionCallback(onConnection);
     server.setMessageCallback(
-        boost::bind(&LengthHeaderCodec::onMessage, &codec, _1, _2, _3));
+        std::bind(&LengthHeaderCodec::onMessage, &codec, _1, _2, _3));
 
     if (threadCount > 1)
     {

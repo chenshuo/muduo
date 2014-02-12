@@ -7,7 +7,6 @@
 #include <muduo/net/EventLoopThreadPool.h>
 #include <muduo/net/TcpClient.h>
 
-#include <boost/bind.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
@@ -22,7 +21,7 @@ AtomicInt32 g_messagesReceived;
 Timestamp g_startTime;
 std::vector<Timestamp> g_receiveTime;
 EventLoop* g_loop;
-boost::function<void()> g_statistic;
+std::function<void()> g_statistic;
 
 class ChatClient : boost::noncopyable
 {
@@ -30,12 +29,12 @@ class ChatClient : boost::noncopyable
   ChatClient(EventLoop* loop, const InetAddress& serverAddr)
     : loop_(loop),
       client_(loop, serverAddr, "LoadTestClient"),
-      codec_(boost::bind(&ChatClient::onStringMessage, this, _1, _2, _3))
+      codec_(std::bind(&ChatClient::onStringMessage, this, _1, _2, _3))
   {
     client_.setConnectionCallback(
-        boost::bind(&ChatClient::onConnection, this, _1));
+        std::bind(&ChatClient::onConnection, this, _1));
     client_.setMessageCallback(
-        boost::bind(&LengthHeaderCodec::onMessage, &codec_, _1, _2, _3));
+        std::bind(&LengthHeaderCodec::onMessage, &codec_, _1, _2, _3));
     //client_.enableRetry();
   }
 
@@ -64,7 +63,7 @@ class ChatClient : boost::noncopyable
       if (g_aliveConnections.incrementAndGet() == g_connections)
       {
         LOG_INFO << "all connected";
-        loop_->runAfter(10.0, boost::bind(&ChatClient::send, this));
+        loop_->runAfter(10.0, std::bind(&ChatClient::send, this));
       }
     }
     else
@@ -150,7 +149,7 @@ int main(int argc, char* argv[])
 
     g_receiveTime.reserve(g_connections);
     boost::ptr_vector<ChatClient> clients(g_connections);
-    g_statistic = boost::bind(statistic, boost::ref(clients));
+    g_statistic = std::bind(statistic, std::ref(clients));
 
     for (int i = 0; i < g_connections; ++i)
     {

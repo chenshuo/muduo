@@ -8,7 +8,6 @@
 #include <muduo/net/http/HttpServer.h>
 
 #include <boost/algorithm/string/replace.hpp>
-#include <boost/bind.hpp>
 #include <boost/circular_buffer.hpp>
 #include <boost/type_traits/is_pod.hpp>
 
@@ -99,13 +98,13 @@ class Procmon : boost::noncopyable
       ram_chart_(640, 100, 7200, 30)
   {
     bzero(&lastStatData_, sizeof lastStatData_);
-    server_.setHttpCallback(boost::bind(&Procmon::onRequest, this, _1, _2));
+    server_.setHttpCallback(std::bind(&Procmon::onRequest, this, _1, _2));
   }
 
   void start()
   {
     tick();
-    server_.getLoop()->runEvery(kPeriod_, boost::bind(&Procmon::tick, this));
+    server_.getLoop()->runEvery(kPeriod_, std::bind(&Procmon::tick, this));
     server_.start();
   }
 

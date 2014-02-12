@@ -5,8 +5,6 @@
 #include <muduo/net/TcpClient.h>
 #include <muduo/net/TcpServer.h>
 
-#include <boost/bind.hpp>
-
 #include <stdio.h>
 
 using namespace muduo;
@@ -113,9 +111,9 @@ void transmit(const Options& opt)
   g_loop = &loop;
   TcpClient client(&loop, addr, "TtcpClient");
   client.setConnectionCallback(
-      boost::bind(&trans::onConnection, opt, _1));
+      std::bind(&trans::onConnection, opt, _1));
   client.setMessageCallback(
-      boost::bind(&trans::onMessage, _1, _2, _3));
+      std::bind(&trans::onMessage, _1, _2, _3));
   client.connect();
   loop.loop();
   double elapsed = timeDifference(muduo::Timestamp::now(), start);
@@ -208,9 +206,9 @@ void receive(const Options& opt)
   InetAddress listenAddr(opt.port);
   TcpServer server(&loop, listenAddr, "TtcpReceive");
   server.setConnectionCallback(
-       boost::bind(&receiving::onConnection, _1));
+      std::bind(&receiving::onConnection, _1));
   server.setMessageCallback(
-      boost::bind(&receiving::onMessage, _1, _2, _3));
+      std::bind(&receiving::onMessage, _1, _2, _3));
   server.start();
   loop.loop();
 }

@@ -5,12 +5,11 @@
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/TcpClient.h>
 
-#include <boost/bind.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
-#include <boost/unordered_map.hpp>
 
 #include <fstream>
 #include <numeric>
+#include <unordered_map>
 
 #include "percentile.h"
 
@@ -20,7 +19,7 @@ using namespace muduo;
 using namespace muduo::net;
 
 typedef std::vector<string> Input;
-typedef boost::shared_ptr<const Input> InputPtr;
+typedef std::shared_ptr<const Input> InputPtr;
 
 class SudokuClient : boost::noncopyable
 {
@@ -39,9 +38,9 @@ class SudokuClient : boost::noncopyable
       count_(0)
   {
     client_.setConnectionCallback(
-        boost::bind(&SudokuClient::onConnection, this, _1));
+        std::bind(&SudokuClient::onConnection, this, _1));
     client_.setMessageCallback(
-        boost::bind(&SudokuClient::onMessage, this, _1, _2, _3));
+        std::bind(&SudokuClient::onMessage, this, _1, _2, _3));
   }
 
   void connect()
@@ -137,7 +136,7 @@ class SudokuClient : boost::noncopyable
       if (dash != string::npos && dash < colon)
       {
         int id = atoi(response.c_str()+dash+1);
-        boost::unordered_map<int, Timestamp>::iterator sendTime = sendTime_.find(id);
+        std::unordered_map<int, Timestamp>::iterator sendTime = sendTime_.find(id);
         if (sendTime != sendTime_.end())
         {
           int64_t latency_us = recvTime.microSecondsSinceEpoch() - sendTime->second.microSecondsSinceEpoch();
@@ -161,7 +160,7 @@ class SudokuClient : boost::noncopyable
   TcpConnectionPtr conn_;
   const InputPtr input_;
   int count_;
-  boost::unordered_map<int, Timestamp> sendTime_;
+  std::unordered_map<int, Timestamp> sendTime_;
   std::vector<int> latencies_;
 };
 
@@ -187,7 +186,7 @@ void report(boost::ptr_vector<SudokuClient>* clients)
 
 InputPtr readInput(std::istream& in)
 {
-  boost::shared_ptr<Input> input(new Input);
+  std::shared_ptr<Input> input(new Input);
   std::string line;
   while (getline(in, line))
   {
@@ -215,7 +214,7 @@ void runClient(const InputPtr& input,
     clients.back().connect();
   }
 
-  loop.runEvery(1.0, boost::bind(report, &clients));
+  loop.runEvery(1.0, std::bind(report, &clients));
   loop.loop();
 }
 

@@ -4,8 +4,6 @@
 #include <muduo/net/InetAddress.h>
 #include <muduo/net/TcpClient.h>
 
-#include <boost/bind.hpp>
-
 #include <utility>
 
 #include <stdio.h>
@@ -22,9 +20,9 @@ class TimeClient : boost::noncopyable
       client_(loop, serverAddr, "TimeClient")
   {
     client_.setConnectionCallback(
-        boost::bind(&TimeClient::onConnection, this, _1));
+        std::bind(&TimeClient::onConnection, this, _1));
     client_.setMessageCallback(
-        boost::bind(&TimeClient::onMessage, this, _1, _2, _3));
+        std::bind(&TimeClient::onMessage, this, _1, _2, _3));
     // client_.enableRetry();
   }
 

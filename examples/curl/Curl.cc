@@ -2,7 +2,6 @@
 #include <muduo/base/Logging.h>
 #include <muduo/net/Channel.h>
 #include <muduo/net/EventLoop.h>
-#include <boost/bind.hpp>
 
 #include <curl/curl.h>
 #include <assert.h>
@@ -11,7 +10,7 @@ using namespace curl;
 using namespace muduo;
 using namespace muduo::net;
 
-static void dummy(const boost::shared_ptr<Channel>&)
+static void dummy(const std::shared_ptr<Channel>&)
 {
 }
 
@@ -89,7 +88,7 @@ void Request::removeChannel()
 {
   channel_->disableAll();
   channel_->remove();
-  owner_->getLoop()->queueInLoop(boost::bind(dummy, channel_));
+  owner_->getLoop()->queueInLoop(std::bind(dummy, channel_));
   channel_.reset();
 }
 
@@ -163,8 +162,8 @@ int Curl::socketCallback(CURL* c, int fd, int what, void* userp, void* socketp)
     if (!ch)
     {
       ch = req->setChannel(fd);
-      ch->setReadCallback(boost::bind(&Curl::onRead, curl, fd));
-      ch->setWriteCallback(boost::bind(&Curl::onWrite, curl, fd));
+      ch->setReadCallback(std::bind(&Curl::onRead, curl, fd));
+      ch->setWriteCallback(std::bind(&Curl::onWrite, curl, fd));
       ch->enableReading();
       curl_multi_assign(curl->curlm_, fd, ch);
       LOG_TRACE << "new channel for fd=" << fd;
@@ -187,7 +186,7 @@ int Curl::timerCallback(CURLM* curlm, long ms, void* userp)
 {
   Curl* curl = static_cast<Curl*>(userp);
   LOG_DEBUG << curl << " " << ms << " ms";
-  curl->loop_->runAfter(static_cast<int>(ms)/1000.0, boost::bind(&Curl::onTimer, curl));
+  curl->loop_->runAfter(static_cast<int>(ms)/1000.0, std::bind(&Curl::onTimer, curl));
   return 0;
 }
 

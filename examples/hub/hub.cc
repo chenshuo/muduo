@@ -4,8 +4,6 @@
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/TcpServer.h>
 
-#include <boost/bind.hpp>
-
 #include <map>
 #include <set>
 #include <stdio.h>
@@ -75,10 +73,10 @@ class PubSubServer : boost::noncopyable
       server_(loop, listenAddr, "PubSubServer")
   {
     server_.setConnectionCallback(
-        boost::bind(&PubSubServer::onConnection, this, _1));
+        std::bind(&PubSubServer::onConnection, this, _1));
     server_.setMessageCallback(
-        boost::bind(&PubSubServer::onMessage, this, _1, _2, _3));
-    loop_->runEvery(1.0, boost::bind(&PubSubServer::timePublish, this));
+        std::bind(&PubSubServer::onMessage, this, _1, _2, _3));
+    loop_->runEvery(1.0, std::bind(&PubSubServer::timePublish, this));
   }
 
   void start()
