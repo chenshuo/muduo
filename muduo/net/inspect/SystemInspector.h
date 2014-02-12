@@ -18,7 +18,7 @@ namespace muduo
 namespace net
 {
 
-class SystemInspector : boost::noncopyable
+class SystemInspector : noncopyable
 {
  public:
   void registerCommands(Inspector* ins);

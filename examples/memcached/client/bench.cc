@@ -14,7 +14,7 @@ namespace po = boost::program_options;
 using namespace muduo;
 using namespace muduo::net;
 
-class Client : boost::noncopyable
+class Client : noncopyable
 {
  public:
   enum Operation

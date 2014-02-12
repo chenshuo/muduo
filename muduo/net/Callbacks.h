@@ -24,6 +24,19 @@ using std::placeholders::_2;
 using std::placeholders::_3;
 
 // should really belong to base/Types.h, but <memory> is not included there.
+
+template<typename T>
+inline T* get_pointer(const std::shared_ptr<T>& ptr)
+{
+  return ptr.get();
+}
+
+template<typename T>
+inline T* get_pointer(const std::unique_ptr<T>& ptr)
+{
+  return ptr.get();
+}
+
 // Adapted from google-protobuf stubs/common.h
 // see License in muduo/base/Types.h
 template<typename To, typename From>
@@ -37,12 +50,6 @@ inline ::std::shared_ptr<To> down_pointer_cast(const ::std::shared_ptr<From>& f)
   assert(f == NULL || dynamic_cast<To*>(get_pointer(f)) != NULL);
 #endif
   return ::std::static_pointer_cast<To>(f);
-}
-
-template<typename T>
-T* get_pointer(const std::shared_ptr<T>& ptr)
-{
-  return ptr.get();
 }
 
 namespace net

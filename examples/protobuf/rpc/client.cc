@@ -12,7 +12,7 @@
 using namespace muduo;
 using namespace muduo::net;
 
-class RpcClient : boost::noncopyable
+class RpcClient : noncopyable
 {
  public:
   RpcClient(EventLoop* loop, const InetAddress& serverAddr)

@@ -21,7 +21,7 @@ using namespace muduo::net;
 typedef std::vector<string> Input;
 typedef std::shared_ptr<const Input> InputPtr;
 
-class SudokuClient : boost::noncopyable
+class SudokuClient : noncopyable
 {
  public:
   SudokuClient(EventLoop* loop,

@@ -11,7 +11,6 @@
 #include <muduo/net/inspect/Inspector.h>
 
 #include <boost/circular_buffer.hpp>
-#include <boost/noncopyable.hpp>
 
 //#include <stdio.h>
 //#include <unistd.h>
@@ -21,7 +20,7 @@ using namespace muduo::net;
 
 #include "stat.h"
 
-class SudokuServer : boost::noncopyable
+class SudokuServer : noncopyable
 {
  public:
   SudokuServer(EventLoop* loop,

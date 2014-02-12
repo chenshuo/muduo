@@ -18,7 +18,7 @@ using namespace muduo::net;
 
 static const int kRequests = 50000;
 
-class RpcClient : boost::noncopyable
+class RpcClient : noncopyable
 {
  public:
 

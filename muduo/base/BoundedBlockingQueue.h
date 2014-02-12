@@ -10,14 +10,13 @@
 #include <muduo/base/Mutex.h>
 
 #include <boost/circular_buffer.hpp>
-#include <boost/noncopyable.hpp>
 #include <assert.h>
 
 namespace muduo
 {
 
 template<typename T>
-class BoundedBlockingQueue : boost::noncopyable
+class BoundedBlockingQueue : noncopyable
 {
  public:
   explicit BoundedBlockingQueue(int maxSize)

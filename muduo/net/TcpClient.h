@@ -11,8 +11,6 @@
 #ifndef MUDUO_NET_TCPCLIENT_H
 #define MUDUO_NET_TCPCLIENT_H
 
-#include <boost/noncopyable.hpp>
-
 #include <muduo/base/Mutex.h>
 #include <muduo/net/TcpConnection.h>
 
@@ -24,7 +22,7 @@ namespace net
 class Connector;
 typedef std::shared_ptr<Connector> ConnectorPtr;
 
-class TcpClient : boost::noncopyable
+class TcpClient : noncopyable
 {
  public:
   // TcpClient(EventLoop* loop);

@@ -80,7 +80,7 @@ struct StatData
 
 BOOST_STATIC_ASSERT(boost::is_pod<StatData>::value);
 
-class Procmon : boost::noncopyable
+class Procmon : noncopyable
 {
  public:
   Procmon(EventLoop* loop, pid_t pid, uint16_t port, const char* procname)

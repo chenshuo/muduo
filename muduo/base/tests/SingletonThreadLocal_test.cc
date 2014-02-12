@@ -3,11 +3,10 @@
 #include <muduo/base/ThreadLocal.h>
 #include <muduo/base/Thread.h>
 
-#include <boost/noncopyable.hpp>
 #include <stdio.h>
 #include <unistd.h>
 
-class Test : boost::noncopyable
+class Test : muduo::noncopyable
 {
  public:
   Test()

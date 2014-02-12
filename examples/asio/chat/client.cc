@@ -5,15 +5,13 @@
 #include <muduo/net/EventLoopThread.h>
 #include <muduo/net/TcpClient.h>
 
-#include <boost/noncopyable.hpp>
-
 #include <iostream>
 #include <stdio.h>
 
 using namespace muduo;
 using namespace muduo::net;
 
-class ChatClient : boost::noncopyable
+class ChatClient : noncopyable
 {
  public:
   ChatClient(EventLoop* loop, const InetAddress& serverAddr)

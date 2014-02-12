@@ -18,7 +18,7 @@ bool startWith(const string& str, const char (&prefix)[N])
   return str.size() >= N-1 && std::equal(prefix, prefix+N-1, str.begin());
 }
 
-class Piece : boost::noncopyable
+class Piece : noncopyable
 {
  public:
   Piece(const curl::RequestPtr& req,
@@ -57,7 +57,7 @@ class Piece : boost::noncopyable
   std::function<void()> doneCb_;
 };
 
-class Downloader : boost::noncopyable
+class Downloader : noncopyable
 {
  public:
   Downloader(EventLoop* loop, const string& url)

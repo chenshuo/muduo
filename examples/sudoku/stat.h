@@ -1,6 +1,6 @@
 // This is not a standalone header
 
-class SudokuStat : boost::noncopyable
+class SudokuStat : muduo::noncopyable
 {
  public:
   SudokuStat(const ThreadPool& pool)

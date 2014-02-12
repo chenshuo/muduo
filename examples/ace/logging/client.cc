@@ -22,7 +22,7 @@ extern const char logtag[] = "LOG0";
 typedef ProtobufCodecLiteT<LogRecord, logtag> Codec;
 
 // same as asio/char/client.cc
-class LogClient : boost::noncopyable
+class LogClient : noncopyable
 {
  public:
   LogClient(EventLoop* loop, const InetAddress& serverAddr)

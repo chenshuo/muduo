@@ -17,7 +17,7 @@ typedef std::shared_ptr<muduo::Answer> AnswerPtr;
 
 google::protobuf::Message* messageToSend;
 
-class QueryClient : boost::noncopyable
+class QueryClient : noncopyable
 {
  public:
   QueryClient(EventLoop* loop,

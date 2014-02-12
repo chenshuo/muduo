@@ -3,8 +3,7 @@
 
 #include <muduo/base/StringPiece.h>
 
-#include <boost/noncopyable.hpp>
-#include <boost/scoped_ptr.hpp>
+#include <muduo/net/Callbacks.h>
 
 extern "C"
 {
@@ -27,7 +26,7 @@ namespace curl
 class Curl;
 
 class Request : public std::enable_shared_from_this<Request>,
-                boost::noncopyable
+                muduo::noncopyable
 {
  public:
   typedef std::function<void(const char*, int)> DataCallback;
@@ -82,7 +81,7 @@ class Request : public std::enable_shared_from_this<Request>,
   void removeChannel();
   void done(int code);
   CURL* getCurl() { return curl_; }
-  muduo::net::Channel* getChannel() { return get_pointer(channel_); }
+  muduo::net::Channel* getChannel() { return muduo::get_pointer(channel_); }
 
  private:
 
@@ -102,7 +101,7 @@ class Request : public std::enable_shared_from_this<Request>,
 
 typedef std::shared_ptr<Request> RequestPtr;
 
-class Curl : boost::noncopyable
+class Curl : muduo::noncopyable
 {
  public:
 

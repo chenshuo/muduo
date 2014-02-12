@@ -12,14 +12,13 @@
 #define MUDUO_NET_INSPECT_PERFORMANCEINSPECTOR_H
 
 #include <muduo/net/inspect/Inspector.h>
-#include <boost/noncopyable.hpp>
 
 namespace muduo
 {
 namespace net
 {
 
-class PerformanceInspector : boost::noncopyable
+class PerformanceInspector : noncopyable
 {
  public:
   void registerCommands(Inspector* ins);

@@ -5,7 +5,6 @@
 #include <muduo/base/Timestamp.h>
 #include <muduo/net/InetAddress.h>
 
-#include <boost/noncopyable.hpp>
 #include <boost/ptr_container/ptr_map.hpp>
 
 extern "C"
@@ -27,7 +26,7 @@ class EventLoop;
 namespace cdns
 {
 
-class Resolver : boost::noncopyable
+class Resolver : muduo::noncopyable
 {
  public:
   typedef std::function<void(const muduo::net::InetAddress&)> Callback;

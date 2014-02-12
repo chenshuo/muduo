@@ -17,7 +17,7 @@ namespace logging
 extern const char logtag[] = "LOG0";
 typedef ProtobufCodecLiteT<LogRecord, logtag> Codec;
 
-class Session : boost::noncopyable
+class Session : noncopyable
 {
  public:
   explicit Session(const TcpConnectionPtr& conn)
@@ -77,7 +77,7 @@ typedef std::shared_ptr<Session> SessionPtr;
 
 AtomicInt32 Session::globalCount_;
 
-class LogServer : boost::noncopyable
+class LogServer : noncopyable
 {
  public:
   LogServer(EventLoop* loop, const InetAddress& listenAddr, int numThreads)

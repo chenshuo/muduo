@@ -13,7 +13,7 @@
 using namespace muduo;
 using namespace muduo::net;
 
-class EchoClient : boost::noncopyable
+class EchoClient : noncopyable
 {
  public:
   EchoClient(EventLoop* loop, const InetAddress& listenAddr, int size)

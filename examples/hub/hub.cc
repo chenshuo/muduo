@@ -64,7 +64,7 @@ class Topic : public muduo::copyable
   std::set<TcpConnectionPtr> audiences_;
 };
 
-class PubSubServer : boost::noncopyable
+class PubSubServer : noncopyable
 {
  public:
   PubSubServer(muduo::net::EventLoop* loop,

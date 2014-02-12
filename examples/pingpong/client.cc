@@ -18,7 +18,7 @@ using namespace muduo::net;
 
 class Client;
 
-class Session : boost::noncopyable
+class Session : noncopyable
 {
  public:
   Session(EventLoop* loop,
@@ -76,7 +76,7 @@ class Session : boost::noncopyable
   int64_t messagesRead_;
 };
 
-class Client : boost::noncopyable
+class Client : noncopyable
 {
  public:
   Client(EventLoop* loop,

@@ -19,13 +19,7 @@
 #include <muduo/net/Callbacks.h>
 
 #include <memory>
-
-#include <boost/noncopyable.hpp>
-
-#ifndef NDEBUG
-#include <boost/static_assert.hpp>
-#include <boost/type_traits/is_base_of.hpp>
-#endif
+#include <type_traits>
 
 namespace google
 {
@@ -52,7 +46,7 @@ typedef std::shared_ptr<google::protobuf::Message> MessagePtr;
 // checksum  4-byte  adler32 of tag+payload
 //
 // This is an internal class, you should use ProtobufCodecT instead.
-class ProtobufCodecLite : boost::noncopyable
+class ProtobufCodecLite : noncopyable
 {
  public:
   const static int kHeaderLen = sizeof(int32_t);
@@ -137,9 +131,7 @@ class ProtobufCodecLite : boost::noncopyable
 template<typename MSG, const char* TAG, typename CODEC=ProtobufCodecLite>  // TAG must be a variable with external linkage, not a string literal
 class ProtobufCodecLiteT
 {
-#ifndef NDEBUG
-  BOOST_STATIC_ASSERT((boost::is_base_of<ProtobufCodecLite, CODEC>::value));
-#endif
+  static_assert((std::is_base_of<ProtobufCodecLite, CODEC>::value));
  public:
   typedef std::shared_ptr<MSG> ConcreteMessagePtr;
   typedef std::function<void (const TcpConnectionPtr&,

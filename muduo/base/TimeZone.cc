@@ -1,7 +1,6 @@
 #include <muduo/base/TimeZone.h>
 #include <muduo/base/Date.h>
 
-#include <boost/noncopyable.hpp>
 #include <algorithm>
 #include <stdexcept>
 #include <string>
@@ -97,7 +96,7 @@ namespace muduo
 namespace detail
 {
 
-class File : boost::noncopyable
+class File : noncopyable
 {
  public:
   File(const char* file)

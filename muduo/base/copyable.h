@@ -9,6 +9,9 @@ namespace muduo
 /// Any derived class of copyable should be a value type.
 class copyable
 {
+ protected:
+  copyable() = default;
+  ~copyable() = default;
 };
 
 };

@@ -16,8 +16,6 @@
 #include <functional>
 #include <memory>
 
-#include <boost/noncopyable.hpp>
-
 namespace muduo
 {
 namespace net
@@ -31,7 +29,7 @@ class EventLoop;
 /// This class doesn't own the file descriptor.
 /// The file descriptor could be a socket,
 /// an eventfd, a timerfd, or a signalfd
-class Channel : boost::noncopyable
+class Channel : noncopyable
 {
  public:
   typedef std::function<void()> EventCallback;

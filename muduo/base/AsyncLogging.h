@@ -9,13 +9,10 @@
 
 #include <muduo/base/LogStream.h>
 
-#include <boost/noncopyable.hpp>
-#include <boost/scoped_ptr.hpp>
-
 namespace muduo
 {
 
-class AsyncLogging : boost::noncopyable
+class AsyncLogging : noncopyable
 {
  public:
 

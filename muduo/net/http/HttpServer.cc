@@ -48,10 +48,6 @@ HttpServer::HttpServer(EventLoop* loop,
       std::bind(&HttpServer::onMessage, this, _1, _2, _3));
 }
 
-HttpServer::~HttpServer()
-{
-}
-
 void HttpServer::start()
 {
   LOG_WARN << "HttpServer[" << server_.name()

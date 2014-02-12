@@ -35,7 +35,7 @@ InputPtr readInput(std::istream& in)
   return input;
 }
 
-class SudokuClient : boost::noncopyable
+class SudokuClient : noncopyable
 {
  public:
   SudokuClient(EventLoop* loop,
@@ -174,7 +174,7 @@ class SudokuClient : boost::noncopyable
   std::vector<int> latencies_;
 };
 
-class SudokuLoadtest : boost::noncopyable
+class SudokuLoadtest : noncopyable
 {
  public:
   SudokuLoadtest()

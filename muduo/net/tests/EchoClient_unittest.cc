@@ -18,7 +18,7 @@ class EchoClient;
 std::vector<std::unique_ptr<EchoClient>> clients;
 int current = 0;
 
-class EchoClient : boost::noncopyable
+class EchoClient : noncopyable
 {
  public:
   EchoClient(EventLoop* loop, const InetAddress& listenAddr, const string& id)

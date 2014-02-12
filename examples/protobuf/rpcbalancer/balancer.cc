@@ -14,7 +14,7 @@
 using namespace muduo;
 using namespace muduo::net;
 
-class BackendSession : boost::noncopyable
+class BackendSession : noncopyable
 {
  public:
   BackendSession(EventLoop* loop, const InetAddress& backendAddr, const string& name)
@@ -114,7 +114,7 @@ class BackendSession : boost::noncopyable
   std::map<uint64_t, Request> outstandings_;
 };
 
-class Balancer : boost::noncopyable
+class Balancer : noncopyable
 {
  public:
   Balancer(EventLoop* loop,
