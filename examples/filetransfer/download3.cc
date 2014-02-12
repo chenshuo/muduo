@@ -2,8 +2,6 @@
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/TcpServer.h>
 
-#include <boost/shared_ptr.hpp>
-
 #include <stdio.h>
 
 using namespace muduo;
@@ -16,7 +14,7 @@ void onHighWaterMark(const TcpConnectionPtr& conn, size_t len)
 
 const int kBufSize = 64*1024;
 const char* g_file = NULL;
-typedef boost::shared_ptr<FILE> FilePtr;
+typedef std::shared_ptr<FILE> FilePtr;
 
 void onConnection(const TcpConnectionPtr& conn)
 {

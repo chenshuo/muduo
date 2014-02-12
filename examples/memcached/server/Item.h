@@ -5,9 +5,9 @@
 #include <muduo/base/StringPiece.h>
 #include <muduo/base/Types.h>
 
-#include <boost/make_shared.hpp>
+#include <memory>
+
 #include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
 
 using muduo::string;
 using muduo::StringPiece;
@@ -21,8 +21,8 @@ class Buffer;
 }
 
 class Item;
-typedef boost::shared_ptr<Item> ItemPtr;  // TODO: use unique_ptr
-typedef boost::shared_ptr<const Item> ConstItemPtr;  // TODO: use unique_ptr
+typedef std::shared_ptr<Item> ItemPtr;  // TODO: use unique_ptr
+typedef std::shared_ptr<const Item> ConstItemPtr;  // TODO: use unique_ptr
 
 // Item is immutable once added into hash table
 class Item : boost::noncopyable
@@ -45,7 +45,7 @@ class Item : boost::noncopyable
                           int valuelen,
                           uint64_t casArg)
   {
-    return boost::make_shared<Item>(keyArg, flagsArg, exptimeArg, valuelen, casArg);
+    return std::make_shared<Item>(keyArg, flagsArg, exptimeArg, valuelen, casArg);
     //return ItemPtr(new Item(keyArg, flagsArg, exptimeArg, valuelen, casArg));
   }
 

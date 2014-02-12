@@ -6,13 +6,12 @@
 #include <muduo/net/Endian.h>
 #include <muduo/net/TcpConnection.h>
 
-#include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
 
 class LengthHeaderCodec : boost::noncopyable
 {
  public:
-  typedef boost::function<void (const muduo::net::TcpConnectionPtr&,
+  typedef std::function<void (const muduo::net::TcpConnectionPtr&,
                                 const muduo::string& message,
                                 muduo::Timestamp)> StringMessageCallback;
 

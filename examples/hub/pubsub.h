@@ -12,8 +12,8 @@ using muduo::Timestamp;
 class PubSubClient : boost::noncopyable
 {
  public:
-  typedef boost::function<void (PubSubClient*)> ConnectionCallback;
-  typedef boost::function<void (const string& topic,
+  typedef std::function<void (PubSubClient*)> ConnectionCallback;
+  typedef std::function<void (const string& topic,
                                 const string& content,
                                 Timestamp)> SubscribeCallback;
 

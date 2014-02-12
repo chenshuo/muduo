@@ -7,8 +7,6 @@
 #include <muduo/net/TcpClient.h>
 #include <muduo/net/TcpServer.h>
 
-#include <boost/bind.hpp>
-
 #include <queue>
 #include <utility>
 
@@ -40,18 +38,18 @@ class MultiplexServer
       startTime_(Timestamp::now())
   {
     server_.setConnectionCallback(
-        boost::bind(&MultiplexServer::onClientConnection, this, _1));
+        std::bind(&MultiplexServer::onClientConnection, this, _1));
     server_.setMessageCallback(
-        boost::bind(&MultiplexServer::onClientMessage, this, _1, _2, _3));
+        std::bind(&MultiplexServer::onClientMessage, this, _1, _2, _3));
     server_.setThreadNum(numThreads);
 
     backend_.setConnectionCallback(
-        boost::bind(&MultiplexServer::onBackendConnection, this, _1));
+        std::bind(&MultiplexServer::onBackendConnection, this, _1));
     backend_.setMessageCallback(
-        boost::bind(&MultiplexServer::onBackendMessage, this, _1, _2, _3));
+        std::bind(&MultiplexServer::onBackendMessage, this, _1, _2, _3));
     backend_.enableRetry();
 
-    // loop->runEvery(10.0, boost::bind(&MultiplexServer::printStatistics, this));
+    // loop->runEvery(10.0, std::bind(&MultiplexServer::printStatistics, this));
 
   }
 

@@ -19,7 +19,7 @@ void onQuery(const muduo::net::TcpConnectionPtr&,
              muduo::Timestamp)
 {
   cout << "onQuery: " << message->GetTypeName() << endl;
-  boost::shared_ptr<muduo::Query> query = muduo::down_pointer_cast<muduo::Query>(message);
+  std::shared_ptr<muduo::Query> query = muduo::down_pointer_cast<muduo::Query>(message);
   assert(query != NULL);
 }
 
@@ -28,7 +28,7 @@ void onAnswer(const muduo::net::TcpConnectionPtr&,
               muduo::Timestamp)
 {
   cout << "onAnswer: " << message->GetTypeName() << endl;
-  boost::shared_ptr<muduo::Answer> answer = muduo::down_pointer_cast<muduo::Answer>(message);
+  std::shared_ptr<muduo::Answer> answer = muduo::down_pointer_cast<muduo::Answer>(message);
   assert(answer != NULL);
 }
 
@@ -43,9 +43,9 @@ int main()
   muduo::net::TcpConnectionPtr conn;
   muduo::Timestamp t;
 
-  boost::shared_ptr<muduo::Query> query(new muduo::Query);
-  boost::shared_ptr<muduo::Answer> answer(new muduo::Answer);
-  boost::shared_ptr<muduo::Empty> empty(new muduo::Empty);
+  std::shared_ptr<muduo::Query> query(new muduo::Query);
+  std::shared_ptr<muduo::Answer> answer(new muduo::Answer);
+  std::shared_ptr<muduo::Empty> empty(new muduo::Empty);
   dispatcher.onProtobufMessage(conn, query, t);
   dispatcher.onProtobufMessage(conn, answer, t);
   dispatcher.onProtobufMessage(conn, empty, t);

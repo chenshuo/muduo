@@ -7,8 +7,6 @@
 #include <muduo/net/TcpServer.h>
 #include <muduo/net/protobuf/ProtobufCodecLite.h>
 
-#include <boost/bind.hpp>
-
 #include <stdio.h>
 
 using namespace muduo;
@@ -23,11 +21,11 @@ class Session : boost::noncopyable
 {
  public:
   explicit Session(const TcpConnectionPtr& conn)
-    : codec_(boost::bind(&Session::onMessage, this, _1, _2, _3)),
+    : codec_(std::bind(&Session::onMessage, this, _1, _2, _3)),
       file_(getFileName(conn))
   {
     conn->setMessageCallback(
-        boost::bind(&Codec::onMessage, &codec_, _1, _2, _3));
+        std::bind(&Codec::onMessage, &codec_, _1, _2, _3));
   }
 
  private:
@@ -75,7 +73,7 @@ class Session : boost::noncopyable
   FileUtil::AppendFile file_;
   static AtomicInt32 globalCount_;
 };
-typedef boost::shared_ptr<Session> SessionPtr;
+typedef std::shared_ptr<Session> SessionPtr;
 
 AtomicInt32 Session::globalCount_;
 
@@ -87,7 +85,7 @@ class LogServer : boost::noncopyable
       server_(loop_, listenAddr, "AceLoggingServer")
   {
     server_.setConnectionCallback(
-        boost::bind(&LogServer::onConnection, this, _1));
+        std::bind(&LogServer::onConnection, this, _1));
     if (numThreads > 1)
     {
       server_.setThreadNum(numThreads);

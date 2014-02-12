@@ -6,11 +6,7 @@
 #include <muduo/net/Callbacks.h>
 #include <muduo/net/InetAddress.h>
 
-#include <boost/bind.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
-
 #include <hiredis/hiredis.h>
 
 struct redisAsyncContext;
@@ -27,13 +23,13 @@ class EventLoop;
 namespace hiredis
 {
 
-class Hiredis : public boost::enable_shared_from_this<Hiredis>,
+class Hiredis : public std::enable_shared_from_this<Hiredis>,
                 boost::noncopyable
 {
  public:
-  typedef boost::function<void(Hiredis*, int)> ConnectCallback;
-  typedef boost::function<void(Hiredis*, int)> DisconnectCallback;
-  typedef boost::function<void(Hiredis*, redisReply*)> CommandCallback;
+  typedef std::function<void(Hiredis*, int)> ConnectCallback;
+  typedef std::function<void(Hiredis*, int)> DisconnectCallback;
+  typedef std::function<void(Hiredis*, redisReply*)> CommandCallback;
 
   Hiredis(muduo::net::EventLoop* loop, const muduo::net::InetAddress& serverAddr);
   ~Hiredis();
@@ -85,7 +81,7 @@ class Hiredis : public boost::enable_shared_from_this<Hiredis>,
   muduo::net::EventLoop* loop_;
   const muduo::net::InetAddress serverAddr_;
   redisAsyncContext* context_;
-  boost::shared_ptr<muduo::net::Channel> channel_;
+  std::shared_ptr<muduo::net::Channel> channel_;
   ConnectCallback connectCb_;
   DisconnectCallback disconnectCb_;
 };

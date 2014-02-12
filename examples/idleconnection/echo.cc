@@ -3,8 +3,6 @@
 #include <muduo/base/Logging.h>
 #include <muduo/net/EventLoop.h>
 
-#include <boost/bind.hpp>
-
 #include <assert.h>
 #include <stdio.h>
 
@@ -19,10 +17,10 @@ EchoServer::EchoServer(EventLoop* loop,
     connectionBuckets_(idleSeconds)
 {
   server_.setConnectionCallback(
-      boost::bind(&EchoServer::onConnection, this, _1));
+      std::bind(&EchoServer::onConnection, this, _1));
   server_.setMessageCallback(
-      boost::bind(&EchoServer::onMessage, this, _1, _2, _3));
-  loop->runEvery(1.0, boost::bind(&EchoServer::onTimer, this));
+      std::bind(&EchoServer::onMessage, this, _1, _2, _3));
+  loop->runEvery(1.0, std::bind(&EchoServer::onTimer, this));
   connectionBuckets_.resize(idleSeconds);
   dumpConnectionBuckets();
 }

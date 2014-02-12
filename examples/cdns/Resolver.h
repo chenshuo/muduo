@@ -5,7 +5,6 @@
 #include <muduo/base/Timestamp.h>
 #include <muduo/net/InetAddress.h>
 
-#include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/ptr_container/ptr_map.hpp>
 
@@ -31,7 +30,7 @@ namespace cdns
 class Resolver : boost::noncopyable
 {
  public:
-  typedef boost::function<void(const muduo::net::InetAddress&)> Callback;
+  typedef std::function<void(const muduo::net::InetAddress&)> Callback;
   enum Option
   {
     kDNSandHostsFile,

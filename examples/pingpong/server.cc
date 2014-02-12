@@ -6,8 +6,6 @@
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/InetAddress.h>
 
-#include <boost/bind.hpp>
-
 #include <utility>
 
 #include <stdio.h>

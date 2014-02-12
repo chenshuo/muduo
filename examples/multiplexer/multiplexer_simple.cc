@@ -4,8 +4,6 @@
 #include <muduo/net/TcpClient.h>
 #include <muduo/net/TcpServer.h>
 
-#include <boost/bind.hpp>
-
 #include <queue>
 #include <utility>
 
@@ -31,13 +29,13 @@ class MultiplexServer : boost::noncopyable
       backend_(loop, backendAddr, "MultiplexBackend")
   {
     server_.setConnectionCallback(
-        boost::bind(&MultiplexServer::onClientConnection, this, _1));
+        std::bind(&MultiplexServer::onClientConnection, this, _1));
     server_.setMessageCallback(
-        boost::bind(&MultiplexServer::onClientMessage, this, _1, _2, _3));
+        std::bind(&MultiplexServer::onClientMessage, this, _1, _2, _3));
     backend_.setConnectionCallback(
-        boost::bind(&MultiplexServer::onBackendConnection, this, _1));
+        std::bind(&MultiplexServer::onBackendConnection, this, _1));
     backend_.setMessageCallback(
-        boost::bind(&MultiplexServer::onBackendMessage, this, _1, _2, _3));
+        std::bind(&MultiplexServer::onBackendMessage, this, _1, _2, _3));
     backend_.enableRetry();
   }
 

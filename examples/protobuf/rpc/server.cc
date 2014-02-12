@@ -4,8 +4,6 @@
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/protorpc/RpcServer.h>
 
-#include <boost/bind.hpp>
-
 using namespace muduo;
 using namespace muduo::net;
 

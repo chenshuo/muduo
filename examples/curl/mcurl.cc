@@ -1,6 +1,5 @@
 #include <examples/curl/Curl.h>
 #include <muduo/net/EventLoop.h>
-#include <boost/bind.hpp>
 #include <stdio.h>
 
 using namespace muduo::net;
@@ -27,7 +26,7 @@ int main(int argc, char* argv[])
 {
   EventLoop loop;
   g_loop = &loop;
-  loop.runAfter(30.0, boost::bind(&EventLoop::quit, &loop));
+  loop.runAfter(30.0, std::bind(&EventLoop::quit, &loop));
   curl::Curl::initialize(curl::Curl::kCURLssl);
   curl::Curl curl(&loop);
 

@@ -15,16 +15,14 @@
 
 #include <map>
 
-#include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
 
 #ifndef NDEBUG
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/is_base_of.hpp>
 #endif
 
-typedef boost::shared_ptr<google::protobuf::Message> MessagePtr;
+typedef std::shared_ptr<google::protobuf::Message> MessagePtr;
 
 class Callback : boost::noncopyable
 {
@@ -42,8 +40,8 @@ class CallbackT : public Callback
   BOOST_STATIC_ASSERT((boost::is_base_of<google::protobuf::Message, T>::value));
 #endif
  public:
-  typedef boost::function<void (const muduo::net::TcpConnectionPtr&,
-                                const boost::shared_ptr<T>& message,
+  typedef std::function<void (const muduo::net::TcpConnectionPtr&,
+                                const std::shared_ptr<T>& message,
                                 muduo::Timestamp)> ProtobufMessageTCallback;
 
   CallbackT(const ProtobufMessageTCallback& callback)
@@ -55,7 +53,7 @@ class CallbackT : public Callback
                          const MessagePtr& message,
                          muduo::Timestamp receiveTime) const
   {
-    boost::shared_ptr<T> concrete = muduo::down_pointer_cast<T>(message);
+    std::shared_ptr<T> concrete = muduo::down_pointer_cast<T>(message);
     assert(concrete != NULL);
     callback_(conn, concrete, receiveTime);
   }
@@ -67,7 +65,7 @@ class CallbackT : public Callback
 class ProtobufDispatcher
 {
  public:
-  typedef boost::function<void (const muduo::net::TcpConnectionPtr&,
+  typedef std::function<void (const muduo::net::TcpConnectionPtr&,
                                 const MessagePtr& message,
                                 muduo::Timestamp)> ProtobufMessageCallback;
 
@@ -94,12 +92,12 @@ class ProtobufDispatcher
   template<typename T>
   void registerMessageCallback(const typename CallbackT<T>::ProtobufMessageTCallback& callback)
   {
-    boost::shared_ptr<CallbackT<T> > pd(new CallbackT<T>(callback));
+    std::shared_ptr<CallbackT<T> > pd(new CallbackT<T>(callback));
     callbacks_[T::descriptor()] = pd;
   }
 
  private:
-  typedef std::map<const google::protobuf::Descriptor*, boost::shared_ptr<Callback> > CallbackMap;
+  typedef std::map<const google::protobuf::Descriptor*, std::shared_ptr<Callback> > CallbackMap;
 
   CallbackMap callbacks_;
   ProtobufMessageCallback defaultCallback_;

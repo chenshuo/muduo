@@ -4,8 +4,8 @@
 #include <muduo/net/EventLoopThreadPool.h>
 #include <muduo/net/TcpClient.h>
 
-#include <boost/bind.hpp>
 #include <boost/program_options.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
 #include <iostream>
 
 #include <stdio.h>
@@ -45,8 +45,8 @@ class Client : boost::noncopyable
       finished_(finished)
   {
     value_ += "\r\n";
-    client_.setConnectionCallback(boost::bind(&Client::onConnection, this, _1));
-    client_.setMessageCallback(boost::bind(&Client::onMessage, this, _1, _2, _3));
+    client_.setConnectionCallback(std::bind(&Client::onConnection, this, _1));
+    client_.setMessageCallback(std::bind(&Client::onMessage, this, _1, _2, _3));
     client_.connect();
   }
 

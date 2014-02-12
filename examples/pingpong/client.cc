@@ -6,7 +6,6 @@
 #include <muduo/net/EventLoopThreadPool.h>
 #include <muduo/net/InetAddress.h>
 
-#include <boost/bind.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
 #include <utility>
@@ -33,9 +32,9 @@ class Session : boost::noncopyable
       messagesRead_(0)
   {
     client_.setConnectionCallback(
-        boost::bind(&Session::onConnection, this, _1));
+        std::bind(&Session::onConnection, this, _1));
     client_.setMessageCallback(
-        boost::bind(&Session::onMessage, this, _1, _2, _3));
+        std::bind(&Session::onMessage, this, _1, _2, _3));
   }
 
   void start()
@@ -91,7 +90,7 @@ class Client : boost::noncopyable
       sessionCount_(sessionCount),
       timeout_(timeout)
   {
-    loop->runAfter(timeout, boost::bind(&Client::handleTimeout, this));
+    loop->runAfter(timeout, std::bind(&Client::handleTimeout, this));
     if (threadCount > 1)
     {
       threadPool_.setThreadNum(threadCount);
@@ -146,7 +145,7 @@ class Client : boost::noncopyable
                << " average message size";
       LOG_WARN << static_cast<double>(totalBytesRead) / (timeout_ * 1024 * 1024)
                << " MiB/s throughput";
-      conn->getLoop()->queueInLoop(boost::bind(&Client::quit, this));
+      conn->getLoop()->queueInLoop(std::bind(&Client::quit, this));
     }
   }
 
@@ -154,14 +153,16 @@ class Client : boost::noncopyable
 
   void quit()
   {
-    loop_->queueInLoop(boost::bind(&EventLoop::quit, loop_));
+    loop_->queueInLoop(std::bind(&EventLoop::quit, loop_));
   }
 
   void handleTimeout()
   {
     LOG_WARN << "stop";
-    std::for_each(sessions_.begin(), sessions_.end(),
-                  boost::mem_fn(&Session::stop));
+    for (auto& session : sessions_)
+    {
+      session.stop();
+    }
   }
 
   EventLoop* loop_;

@@ -1,6 +1,5 @@
 #include <examples/cdns/Resolver.h>
 #include <muduo/net/EventLoop.h>
-#include <boost/bind.hpp>
 #include <stdio.h>
 
 using namespace muduo;
@@ -25,7 +24,7 @@ void resolveCallback(const string& host, const InetAddress& addr)
 
 void resolve(Resolver* res, const string& host)
 {
-  res->resolve(host, boost::bind(&resolveCallback, host, _1));
+  res->resolve(host, std::bind(&resolveCallback, host, _1));
 }
 
 int main(int argc, char* argv[])

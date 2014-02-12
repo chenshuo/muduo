@@ -5,7 +5,6 @@
 #include <muduo/net/EventLoopThread.h>
 #include <muduo/net/TcpClient.h>
 
-#include <boost/bind.hpp>
 #include <boost/noncopyable.hpp>
 
 #include <iostream>
@@ -19,12 +18,12 @@ class ChatClient : boost::noncopyable
  public:
   ChatClient(EventLoop* loop, const InetAddress& serverAddr)
     : client_(loop, serverAddr, "ChatClient"),
-      codec_(boost::bind(&ChatClient::onStringMessage, this, _1, _2, _3))
+      codec_(std::bind(&ChatClient::onStringMessage, this, _1, _2, _3))
   {
     client_.setConnectionCallback(
-        boost::bind(&ChatClient::onConnection, this, _1));
+        std::bind(&ChatClient::onConnection, this, _1));
     client_.setMessageCallback(
-        boost::bind(&LengthHeaderCodec::onMessage, &codec_, _1, _2, _3));
+        std::bind(&LengthHeaderCodec::onMessage, &codec_, _1, _2, _3));
     client_.enableRetry();
   }
 

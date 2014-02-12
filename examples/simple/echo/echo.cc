@@ -2,7 +2,9 @@
 
 #include <muduo/base/Logging.h>
 
-#include <boost/bind.hpp>
+using std::placeholders::_1;
+using std::placeholders::_2;
+using std::placeholders::_3;
 
 // using namespace muduo;
 // using namespace muduo::net;
@@ -12,9 +14,9 @@ EchoServer::EchoServer(muduo::net::EventLoop* loop,
   : server_(loop, listenAddr, "EchoServer")
 {
   server_.setConnectionCallback(
-      boost::bind(&EchoServer::onConnection, this, _1));
+      std::bind(&EchoServer::onConnection, this, _1));
   server_.setMessageCallback(
-      boost::bind(&EchoServer::onMessage, this, _1, _2, _3));
+      std::bind(&EchoServer::onMessage, this, _1, _2, _3));
 }
 
 void EchoServer::start()

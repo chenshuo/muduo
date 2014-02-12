@@ -5,8 +5,6 @@
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/InetAddress.h>
 
-#include <boost/bind.hpp>
-
 #include <utility>
 
 #include <stdio.h>
@@ -24,9 +22,9 @@ class EchoClient : boost::noncopyable
       message_(size, 'H')
   {
     client_.setConnectionCallback(
-        boost::bind(&EchoClient::onConnection, this, _1));
+        std::bind(&EchoClient::onConnection, this, _1));
     client_.setMessageCallback(
-        boost::bind(&EchoClient::onMessage, this, _1, _2, _3));
+        std::bind(&EchoClient::onMessage, this, _1, _2, _3));
     //client_.enableRetry();
   }
 

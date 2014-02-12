@@ -4,8 +4,7 @@
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/TcpServer.h>
 
-#include <boost/bind.hpp>
-
+using namespace muduo;
 using namespace muduo::net;
 
 void onRequest(const TcpConnectionPtr& conn,
@@ -26,7 +25,7 @@ void onRequest(const TcpConnectionPtr& conn,
   conn->send(&response);
 }
 
-typedef boost::shared_ptr<FastCgiCodec> CodecPtr;
+typedef std::shared_ptr<FastCgiCodec> CodecPtr;
 void onConnection(const TcpConnectionPtr& conn)
 {
   if (conn->connected())
@@ -34,7 +33,7 @@ void onConnection(const TcpConnectionPtr& conn)
     CodecPtr codec(new FastCgiCodec(onRequest));
     conn->setContext(codec);
     conn->setMessageCallback(
-        boost::bind(&FastCgiCodec::onMessage, codec, _1, _2, _3));
+        std::bind(&FastCgiCodec::onMessage, codec, _1, _2, _3));
   }
 }
 

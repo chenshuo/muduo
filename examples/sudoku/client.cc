@@ -4,7 +4,6 @@
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/TcpClient.h>
 
-#include <boost/bind.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
 #include <fstream>
@@ -41,7 +40,7 @@ void runLocal(std::istream& in)
 }
 
 typedef std::vector<string> Input;
-typedef boost::shared_ptr<Input> InputPtr;
+typedef std::shared_ptr<Input> InputPtr;
 
 InputPtr readInput(std::istream& in)
 {
@@ -57,7 +56,7 @@ InputPtr readInput(std::istream& in)
   return input;
 }
 
-typedef boost::function<void(const string&, double)> DoneCallback;
+typedef std::function<void(const string&, double)> DoneCallback;
 
 class SudokuClient : boost::noncopyable
 {
@@ -75,9 +74,9 @@ class SudokuClient : boost::noncopyable
       count_(0)
   {
     client_.setConnectionCallback(
-        boost::bind(&SudokuClient::onConnection, this, _1));
+        std::bind(&SudokuClient::onConnection, this, _1));
     client_.setMessageCallback(
-        boost::bind(&SudokuClient::onMessage, this, _1, _2, _3));
+        std::bind(&SudokuClient::onMessage, this, _1, _2, _3));
   }
 
   void connect()
@@ -167,7 +166,7 @@ void done(const string& name, double elapsed)
   ++g_finished;
   if (g_finished == g_connections)
   {
-    g_loop->runAfter(1.0, boost::bind(&EventLoop::quit, g_loop));
+    g_loop->runAfter(1.0, std::bind(&EventLoop::quit, g_loop));
     double total = timeDifference(Timestamp::now(), g_start);
     LOG_INFO << "total " << total << " seconds, "
              << (total/g_connections) << " seconds per client";
