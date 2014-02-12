@@ -15,9 +15,7 @@
 
 #include <map>
 
-#ifndef NDEBUG
-#include <boost/type_traits/is_base_of.hpp>
-#endif
+#include <type_traits>
 
 typedef std::shared_ptr<google::protobuf::Message> MessagePtr;
 
@@ -33,10 +31,8 @@ class Callback : muduo::noncopyable
 template <typename T>
 class CallbackT : public Callback
 {
-#ifndef NDEBUG
-  static_assert(boost::is_base_of<google::protobuf::Message, T>::value,
+  static_assert(std::is_base_of<google::protobuf::Message, T>::value,
                 "T must be derived from gpb::Message.");
-#endif
  public:
   typedef std::function<void (const muduo::net::TcpConnectionPtr&,
                                 const std::shared_ptr<T>& message,

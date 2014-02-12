@@ -9,9 +9,9 @@
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/circular_buffer.hpp>
-#include <boost/type_traits/is_pod.hpp>
 
 #include <sstream>
+#include <type_traits>
 #include <stdarg.h>
 #include <stdio.h>
 
@@ -78,7 +78,7 @@ struct StatData
   long rsslim;
 };
 
-static_assert(boost::is_pod<StatData>::value, "StatData should be POD.");
+static_assert(std::is_pod<StatData>::value, "StatData should be POD.");
 
 class Procmon : noncopyable
 {
