@@ -22,7 +22,7 @@ namespace net
 {
 
 class Connector;
-typedef boost::shared_ptr<Connector> ConnectorPtr;
+typedef std::shared_ptr<Connector> ConnectorPtr;
 
 class TcpClient : boost::noncopyable
 {

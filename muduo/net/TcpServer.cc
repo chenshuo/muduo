@@ -14,8 +14,6 @@
 #include <muduo/net/EventLoopThreadPool.h>
 #include <muduo/net/SocketsOps.h>
 
-#include <boost/bind.hpp>
-
 #include <stdio.h>  // snprintf
 
 using namespace muduo;
@@ -35,7 +33,7 @@ TcpServer::TcpServer(EventLoop* loop,
     nextConnId_(1)
 {
   acceptor_->setNewConnectionCallback(
-      boost::bind(&TcpServer::newConnection, this, _1, _2));
+      std::bind(&TcpServer::newConnection, this, _1, _2));
 }
 
 TcpServer::~TcpServer()
@@ -49,7 +47,7 @@ TcpServer::~TcpServer()
     TcpConnectionPtr conn = it->second;
     it->second.reset();
     conn->getLoop()->runInLoop(
-      boost::bind(&TcpConnection::connectDestroyed, conn));
+      std::bind(&TcpConnection::connectDestroyed, conn));
     conn.reset();
   }
 }
@@ -68,7 +66,7 @@ void TcpServer::start()
 
     assert(!acceptor_->listenning());
     loop_->runInLoop(
-        boost::bind(&Acceptor::listen, get_pointer(acceptor_)));
+        std::bind(&Acceptor::listen, get_pointer(acceptor_)));
   }
 }
 
@@ -97,14 +95,14 @@ void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
   conn->setMessageCallback(messageCallback_);
   conn->setWriteCompleteCallback(writeCompleteCallback_);
   conn->setCloseCallback(
-      boost::bind(&TcpServer::removeConnection, this, _1)); // FIXME: unsafe
-  ioLoop->runInLoop(boost::bind(&TcpConnection::connectEstablished, conn));
+      std::bind(&TcpServer::removeConnection, this, _1)); // FIXME: unsafe
+  ioLoop->runInLoop(std::bind(&TcpConnection::connectEstablished, conn));
 }
 
 void TcpServer::removeConnection(const TcpConnectionPtr& conn)
 {
   // FIXME: unsafe
-  loop_->runInLoop(boost::bind(&TcpServer::removeConnectionInLoop, this, conn));
+  loop_->runInLoop(std::bind(&TcpServer::removeConnectionInLoop, this, conn));
 }
 
 void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn)
@@ -117,6 +115,6 @@ void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn)
   assert(n == 1);
   EventLoop* ioLoop = conn->getLoop();
   ioLoop->queueInLoop(
-      boost::bind(&TcpConnection::connectDestroyed, conn));
+      std::bind(&TcpConnection::connectDestroyed, conn));
 }
 

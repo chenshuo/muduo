@@ -11,7 +11,7 @@
 #ifndef MUDUO_NET_ACCEPTOR_H
 #define MUDUO_NET_ACCEPTOR_H
 
-#include <boost/function.hpp>
+#include <functional>
 #include <boost/noncopyable.hpp>
 
 #include <muduo/net/Channel.h>
@@ -31,8 +31,7 @@ class InetAddress;
 class Acceptor : boost::noncopyable
 {
  public:
-  typedef boost::function<void (int sockfd,
-                                const InetAddress&)> NewConnectionCallback;
+  typedef std::function<void (int sockfd, const InetAddress&)> NewConnectionCallback;
 
   Acceptor(EventLoop* loop, const InetAddress& listenAddr, bool reuseport);
   ~Acceptor();

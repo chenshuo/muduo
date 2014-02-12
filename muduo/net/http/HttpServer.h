@@ -29,8 +29,8 @@ class HttpResponse;
 class HttpServer : boost::noncopyable
 {
  public:
-  typedef boost::function<void (const HttpRequest&,
-                                HttpResponse*)> HttpCallback;
+  typedef std::function<void (const HttpRequest&,
+                              HttpResponse*)> HttpCallback;
 
   HttpServer(EventLoop* loop,
              const InetAddress& listenAddr,

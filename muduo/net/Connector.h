@@ -13,8 +13,9 @@
 
 #include <muduo/net/InetAddress.h>
 
-#include <boost/enable_shared_from_this.hpp>
-#include <boost/function.hpp>
+#include <functional>
+#include <memory>
+
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
 
@@ -27,10 +28,10 @@ class Channel;
 class EventLoop;
 
 class Connector : boost::noncopyable,
-                  public boost::enable_shared_from_this<Connector>
+                  public std::enable_shared_from_this<Connector>
 {
  public:
-  typedef boost::function<void (int sockfd)> NewConnectionCallback;
+  typedef std::function<void (int sockfd)> NewConnectionCallback;
 
   Connector(EventLoop* loop, const InetAddress& serverAddr);
   ~Connector();

@@ -17,11 +17,11 @@
 #include <muduo/net/Buffer.h>
 #include <muduo/net/InetAddress.h>
 
+#include <memory>
+
 #include <boost/any.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
-#include <boost/shared_ptr.hpp>
 
 // struct tcp_info is in <netinet/tcp.h>
 struct tcp_info;
@@ -40,7 +40,7 @@ class Socket;
 ///
 /// This is an interface class, so don't expose too much details.
 class TcpConnection : boost::noncopyable,
-                      public boost::enable_shared_from_this<TcpConnection>
+                      public std::enable_shared_from_this<TcpConnection>
 {
  public:
   /// Constructs a TcpConnection with a connected sockfd
@@ -145,7 +145,7 @@ class TcpConnection : boost::noncopyable,
   //        bytesReceived_, bytesSent_
 };
 
-typedef boost::shared_ptr<TcpConnection> TcpConnectionPtr;
+typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
 
 }
 }

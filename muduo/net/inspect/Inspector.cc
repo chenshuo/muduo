@@ -21,9 +21,8 @@
 //#include <iostream>
 //#include <iterator>
 //#include <sstream>
-#include <boost/bind.hpp>
-#include <boost/algorithm/string/classification.hpp>
-#include <boost/algorithm/string/split.hpp>
+//#include <boost/algorithm/string/classification.hpp>
+//#include <boost/algorithm/string/split.hpp>
 
 using namespace muduo;
 using namespace muduo::net;
@@ -70,14 +69,14 @@ Inspector::Inspector(EventLoop* loop,
   assert(CurrentThread::isMainThread());
   assert(g_globalInspector == 0);
   g_globalInspector = this;
-  server_.setHttpCallback(boost::bind(&Inspector::onRequest, this, _1, _2));
+  server_.setHttpCallback(std::bind(&Inspector::onRequest, this, _1, _2));
   processInspector_->registerCommands(this);
   systemInspector_->registerCommands(this);
 #ifdef HAVE_TCMALLOC
   performanceInspector_.reset(new PerformanceInspector);
   performanceInspector_->registerCommands(this);
 #endif
-  loop->runAfter(0, boost::bind(&Inspector::start, this)); // little race condition
+  loop->runAfter(0, std::bind(&Inspector::start, this)); // little race condition
 }
 
 Inspector::~Inspector()

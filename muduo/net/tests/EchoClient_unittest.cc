@@ -5,9 +5,6 @@
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/InetAddress.h>
 
-#include <boost/bind.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
-
 #include <utility>
 
 #include <stdio.h>
@@ -18,7 +15,7 @@ using namespace muduo::net;
 
 int numThreads = 0;
 class EchoClient;
-boost::ptr_vector<EchoClient> clients;
+std::vector<std::unique_ptr<EchoClient>> clients;
 int current = 0;
 
 class EchoClient : boost::noncopyable
@@ -29,9 +26,9 @@ class EchoClient : boost::noncopyable
       client_(loop, listenAddr, "EchoClient"+id)
   {
     client_.setConnectionCallback(
-        boost::bind(&EchoClient::onConnection, this, _1));
+        std::bind(&EchoClient::onConnection, this, _1));
     client_.setMessageCallback(
-        boost::bind(&EchoClient::onMessage, this, _1, _2, _3));
+        std::bind(&EchoClient::onMessage, this, _1, _2, _3));
     //client_.enableRetry();
   }
 
@@ -53,7 +50,7 @@ class EchoClient : boost::noncopyable
       ++current;
       if (implicit_cast<size_t>(current) < clients.size())
       {
-        clients[current].connect();
+        clients[current]->connect();
       }
       LOG_INFO << "*** connected " << current;
     }
@@ -102,10 +99,10 @@ int main(int argc, char* argv[])
     {
       char buf[32];
       snprintf(buf, sizeof buf, "%d", i+1);
-      clients.push_back(new EchoClient(&loop, serverAddr, buf));
+      clients.emplace_back(new EchoClient(&loop, serverAddr, buf));
     }
 
-    clients[current].connect();
+    clients[current]->connect();
     loop.loop();
   }
   else

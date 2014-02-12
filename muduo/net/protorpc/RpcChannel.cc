@@ -13,21 +13,18 @@
 
 #include <google/protobuf/descriptor.h>
 
-#include <boost/bind.hpp>
-#include <boost/scoped_ptr.hpp>
-
 using namespace muduo;
 using namespace muduo::net;
 
 RpcChannel::RpcChannel()
-  : codec_(boost::bind(&RpcChannel::onRpcMessage, this, _1, _2, _3)),
+  : codec_(std::bind(&RpcChannel::onRpcMessage, this, _1, _2, _3)),
     services_(NULL)
 {
   LOG_INFO << "RpcChannel::ctor - " << this;
 }
 
 RpcChannel::RpcChannel(const TcpConnectionPtr& conn)
-  : codec_(boost::bind(&RpcChannel::onRpcMessage, this, _1, _2, _3)),
+  : codec_(std::bind(&RpcChannel::onRpcMessage, this, _1, _2, _3)),
     conn_(conn),
     services_(NULL)
 {
@@ -105,7 +102,7 @@ void RpcChannel::onRpcMessage(const TcpConnectionPtr& conn,
 
     if (out.response)
     {
-      boost::scoped_ptr<google::protobuf::Message> d(out.response);
+      std::unique_ptr<google::protobuf::Message> d(out.response);
       if (message.has_response())
       {
         out.response->ParseFromString(message.response());
@@ -132,7 +129,7 @@ void RpcChannel::onRpcMessage(const TcpConnectionPtr& conn,
           = desc->FindMethodByName(message.method());
         if (method)
         {
-          boost::scoped_ptr<google::protobuf::Message> request(service->GetRequestPrototype(method).New());
+          std::unique_ptr<google::protobuf::Message> request(service->GetRequestPrototype(method).New());
           if (request->ParseFromString(message.request()))
           {
             google::protobuf::Message* response = service->GetResponsePrototype(method).New();
@@ -177,7 +174,7 @@ void RpcChannel::onRpcMessage(const TcpConnectionPtr& conn,
 
 void RpcChannel::doneCallback(::google::protobuf::Message* response, int64_t id)
 {
-  boost::scoped_ptr<google::protobuf::Message> d(response);
+  std::unique_ptr<google::protobuf::Message> d(response);
   RpcMessage message;
   message.set_type(RESPONSE);
   message.set_id(id);

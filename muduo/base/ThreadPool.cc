@@ -11,7 +11,6 @@
 #include <stdio.h>
 
 using namespace muduo;
-using namespace std::placeholders;
 
 ThreadPool::ThreadPool(const string& name)
   : mutex_(),
