@@ -36,7 +36,7 @@ class EventLoopThreadPool;
 class TcpServer : boost::noncopyable
 {
  public:
-  typedef boost::function<void(EventLoop*)> ThreadInitCallback;
+  typedef std::function<void(EventLoop*)> ThreadInitCallback;
   enum Option
   {
     kNoReusePort,
@@ -68,7 +68,7 @@ class TcpServer : boost::noncopyable
   void setThreadInitCallback(const ThreadInitCallback& cb)
   { threadInitCallback_ = cb; }
   /// valid after calling start()
-  boost::shared_ptr<EventLoopThreadPool> threadPool()
+  std::shared_ptr<EventLoopThreadPool> threadPool()
   { return threadPool_; }
 
   /// Starts the server if it's not listenning.

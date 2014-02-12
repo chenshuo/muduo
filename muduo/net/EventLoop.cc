@@ -15,7 +15,7 @@
 #include <muduo/net/SocketsOps.h>
 #include <muduo/net/TimerQueue.h>
 
-#include <boost/bind.hpp>
+#include <algorithm>
 
 #include <signal.h>
 #include <sys/eventfd.h>
@@ -84,7 +84,7 @@ EventLoop::EventLoop()
     t_loopInThisThread = this;
   }
   wakeupChannel_->setReadCallback(
-      boost::bind(&EventLoop::handleRead, this));
+      std::bind(&EventLoop::handleRead, this));
   // we are always reading the wakeupfd
   wakeupChannel_->enableReading();
 }

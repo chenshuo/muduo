@@ -17,8 +17,6 @@
 #include <muduo/net/Timer.h>
 #include <muduo/net/TimerId.h>
 
-#include <boost/bind.hpp>
-
 #include <sys/timerfd.h>
 
 namespace muduo
@@ -97,7 +95,7 @@ TimerQueue::TimerQueue(EventLoop* loop)
     callingExpiredTimers_(false)
 {
   timerfdChannel_.setReadCallback(
-      boost::bind(&TimerQueue::handleRead, this));
+      std::bind(&TimerQueue::handleRead, this));
   // we are always reading the timerfd, we disarm it with timerfd_settime.
   timerfdChannel_.enableReading();
 }
@@ -121,7 +119,7 @@ TimerId TimerQueue::addTimer(const TimerCallback& cb,
 {
   Timer* timer = new Timer(cb, when, interval);
   loop_->runInLoop(
-      boost::bind(&TimerQueue::addTimerInLoop, this, timer));
+      std::bind(&TimerQueue::addTimerInLoop, this, timer));
   return TimerId(timer, timer->sequence());
 }
 
@@ -132,7 +130,7 @@ TimerId TimerQueue::addTimer(TimerCallback&& cb,
 {
   Timer* timer = new Timer(std::move(cb), when, interval);
   loop_->runInLoop(
-      boost::bind(&TimerQueue::addTimerInLoop, this, timer));
+      std::bind(&TimerQueue::addTimerInLoop, this, timer));
   return TimerId(timer, timer->sequence());
 }
 #endif
@@ -140,7 +138,7 @@ TimerId TimerQueue::addTimer(TimerCallback&& cb,
 void TimerQueue::cancel(TimerId timerId)
 {
   loop_->runInLoop(
-      boost::bind(&TimerQueue::cancelInLoop, this, timerId));
+      std::bind(&TimerQueue::cancelInLoop, this, timerId));
 }
 
 void TimerQueue::addTimerInLoop(Timer* timer)

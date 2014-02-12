@@ -11,13 +11,10 @@
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/EventLoopThread.h>
 
-#include <boost/bind.hpp>
-
 #include <stdio.h>
 
 using namespace muduo;
 using namespace muduo::net;
-
 
 EventLoopThreadPool::EventLoopThreadPool(EventLoop* baseLoop, const string& nameArg)
   : baseLoop_(baseLoop),
@@ -45,7 +42,7 @@ void EventLoopThreadPool::start(const ThreadInitCallback& cb)
     char buf[name_.size() + 32];
     snprintf(buf, sizeof buf, "%s%d", name_.c_str(), i);
     EventLoopThread* t = new EventLoopThread(cb, buf);
-    threads_.push_back(t);
+    threads_.push_back(std::unique_ptr<EventLoopThread>(t));
     loops_.push_back(t->startLoop());
   }
   if (numThreads_ == 0 && cb)

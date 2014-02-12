@@ -5,8 +5,6 @@
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/InetAddress.h>
 
-#include <boost/bind.hpp>
-
 #include <utility>
 
 #include <stdio.h>
@@ -25,9 +23,9 @@ class EchoServer
       server_(loop, listenAddr, "EchoServer")
   {
     server_.setConnectionCallback(
-        boost::bind(&EchoServer::onConnection, this, _1));
+        std::bind(&EchoServer::onConnection, this, _1));
     server_.setMessageCallback(
-        boost::bind(&EchoServer::onMessage, this, _1, _2, _3));
+        std::bind(&EchoServer::onMessage, this, _1, _2, _3));
     server_.setThreadNum(numThreads);
   }
 

@@ -22,7 +22,7 @@ namespace net
 {
 
 class Connector;
-typedef boost::shared_ptr<Connector> ConnectorPtr;
+typedef std::shared_ptr<Connector> ConnectorPtr;
 
 class TcpClient : boost::noncopyable
 {
@@ -32,7 +32,7 @@ class TcpClient : boost::noncopyable
   TcpClient(EventLoop* loop,
             const InetAddress& serverAddr,
             const string& nameArg);
-  ~TcpClient();  // force out-line dtor, for scoped_ptr members.
+  ~TcpClient();  // force out-line dtor, for std::unique_ptr members.
 
   void connect();
   void disconnect();

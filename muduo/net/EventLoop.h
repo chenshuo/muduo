@@ -11,10 +11,10 @@
 #ifndef MUDUO_NET_EVENTLOOP_H
 #define MUDUO_NET_EVENTLOOP_H
 
+#include <functional>
 #include <vector>
 
 #include <boost/any.hpp>
-#include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
 
@@ -40,7 +40,7 @@ class TimerQueue;
 class EventLoop : boost::noncopyable
 {
  public:
-  typedef boost::function<void()> Functor;
+  typedef std::function<void()> Functor;
 
   EventLoop();
   ~EventLoop();  // force out-line dtor, for scoped_ptr members.

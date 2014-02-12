@@ -2,9 +2,8 @@
 #include <muduo/net/Channel.h>
 #include <muduo/net/EventLoop.h>
 
+#include <functional>
 #include <map>
-
-#include <boost/bind.hpp>
 
 #include <stdio.h>
 #include <unistd.h>
@@ -47,7 +46,7 @@ class PeriodicTimer
       cb_(cb)
   {
     timerfdChannel_.setReadCallback(
-        boost::bind(&PeriodicTimer::handleRead, this));
+        std::bind(&PeriodicTimer::handleRead, this));
     timerfdChannel_.enableReading();
   }
 
@@ -106,8 +105,8 @@ int main(int argc, char* argv[])
   LOG_INFO << "pid = " << getpid() << ", tid = " << CurrentThread::tid()
            << " Try adjusting the wall clock, see what happens.";
   EventLoop loop;
-  PeriodicTimer timer(&loop, 1, boost::bind(print, "PeriodicTimer"));
+  PeriodicTimer timer(&loop, 1, std::bind(print, "PeriodicTimer"));
   timer.start();
-  loop.runEvery(1, boost::bind(print, "EventLoop::runEvery"));
+  loop.runEvery(1, std::bind(print, "EventLoop::runEvery"));
   loop.loop();
 }

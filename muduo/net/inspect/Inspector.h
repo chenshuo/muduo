@@ -16,7 +16,6 @@
 #include <muduo/net/http/HttpServer.h>
 
 #include <map>
-#include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
 
@@ -35,7 +34,7 @@ class Inspector : boost::noncopyable
 {
  public:
   typedef std::vector<string> ArgList;
-  typedef boost::function<string (HttpRequest::Method, const ArgList& args)> Callback;
+  typedef std::function<string (HttpRequest::Method, const ArgList& args)> Callback;
   Inspector(EventLoop* loop,
             const InetAddress& httpAddr,
             const string& name);

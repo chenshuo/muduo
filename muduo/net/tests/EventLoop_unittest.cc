@@ -1,8 +1,6 @@
 #include <muduo/net/EventLoop.h>
 #include <muduo/base/Thread.h>
 
-#include <boost/bind.hpp>
-
 #include <assert.h>
 #include <stdio.h>
 #include <unistd.h>
