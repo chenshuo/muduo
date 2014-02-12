@@ -16,9 +16,6 @@
 #include <functional>
 #include <memory>
 
-#include <boost/noncopyable.hpp>
-#include <boost/scoped_ptr.hpp>
-
 namespace muduo
 {
 namespace net
@@ -27,7 +24,7 @@ namespace net
 class Channel;
 class EventLoop;
 
-class Connector : boost::noncopyable,
+class Connector : noncopyable,
                   public std::enable_shared_from_this<Connector>
 {
  public:
@@ -65,7 +62,7 @@ class Connector : boost::noncopyable,
   InetAddress serverAddr_;
   bool connect_; // atomic
   States state_;  // FIXME: use atomic variable
-  boost::scoped_ptr<Channel> channel_;
+  std::unique_ptr<Channel> channel_;
   NewConnectionCallback newConnectionCallback_;
   int retryDelayMs_;
 };

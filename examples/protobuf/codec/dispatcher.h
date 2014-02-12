@@ -15,8 +15,6 @@
 
 #include <map>
 
-#include <boost/noncopyable.hpp>
-
 #ifndef NDEBUG
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/is_base_of.hpp>
@@ -24,7 +22,7 @@
 
 typedef std::shared_ptr<google::protobuf::Message> MessagePtr;
 
-class Callback : boost::noncopyable
+class Callback : muduo::noncopyable
 {
  public:
   virtual ~Callback() {};

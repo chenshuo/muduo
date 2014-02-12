@@ -1,13 +1,13 @@
 #pragma once
 
 #include <muduo/base/StringPiece.h>
-#include <boost/noncopyable.hpp>
+#include <muduo/base/noncopyable.h>
 #include <zlib.h>
 
 namespace muduo
 {
 
-class GzipFile : boost::noncopyable
+class GzipFile : noncopyable
 {
  public:
   GzipFile(GzipFile&& rhs)

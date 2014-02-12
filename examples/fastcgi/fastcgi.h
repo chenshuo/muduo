@@ -9,7 +9,7 @@ using muduo::string;
 // one FastCgiCodec per TcpConnection
 // both lighttpd and nginx do not implement multiplexing,
 // so there is no concurrent requests of one connection.
-class FastCgiCodec : boost::noncopyable
+class FastCgiCodec : muduo::noncopyable
 {
  public:
   typedef std::map<string, string> ParamMap;

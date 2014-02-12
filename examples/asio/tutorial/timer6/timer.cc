@@ -3,13 +3,12 @@
 #include <muduo/net/EventLoopThread.h>
 
 #include <stdio.h>
-#include <boost/noncopyable.hpp>
 
 //
 // Minimize locking
 //
 
-class Printer : boost::noncopyable
+class Printer : muduo::noncopyable
 {
  public:
   Printer(muduo::net::EventLoop* loop1, muduo::net::EventLoop* loop2)

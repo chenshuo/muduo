@@ -11,7 +11,7 @@
 using namespace muduo;
 using namespace muduo::net;
 
-class ChatServer : boost::noncopyable
+class ChatServer : noncopyable
 {
  public:
   ChatServer(EventLoop* loop,

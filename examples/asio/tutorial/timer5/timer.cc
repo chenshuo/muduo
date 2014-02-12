@@ -3,9 +3,8 @@
 #include <muduo/net/EventLoopThread.h>
 
 #include <iostream>
-#include <boost/noncopyable.hpp>
 
-class Printer : boost::noncopyable
+class Printer : muduo::noncopyable
 {
  public:
   Printer(muduo::net::EventLoop* loop1, muduo::net::EventLoop* loop2)

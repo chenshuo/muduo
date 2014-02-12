@@ -3,7 +3,6 @@
 #include <muduo/net/EventLoopThread.h>
 #include <muduo/net/TcpClient.h>
 
-#include <boost/noncopyable.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/tokenizer.hpp>
 
@@ -22,7 +21,7 @@ using namespace muduo::net;
 size_t g_batchSize = 65536;
 const size_t kMaxHashSize = 10 * 1000 * 1000;
 
-class SendThrottler : boost::noncopyable
+class SendThrottler : muduo::noncopyable
 {
  public:
   SendThrottler(EventLoop* loop, const InetAddress& addr)
@@ -127,7 +126,7 @@ class SendThrottler : boost::noncopyable
   bool congestion_;
 };
 
-class WordCountSender : boost::noncopyable
+class WordCountSender : muduo::noncopyable
 {
  public:
   explicit WordCountSender(const std::string& receivers);

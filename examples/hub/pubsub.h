@@ -6,16 +6,15 @@
 namespace pubsub
 {
 using muduo::string;
-using muduo::Timestamp;
 
 // FIXME: dtor is not thread safe
-class PubSubClient : boost::noncopyable
+class PubSubClient : muduo::noncopyable
 {
  public:
   typedef std::function<void (PubSubClient*)> ConnectionCallback;
   typedef std::function<void (const string& topic,
-                                const string& content,
-                                Timestamp)> SubscribeCallback;
+                              const string& content,
+                              muduo::Timestamp)> SubscribeCallback;
 
   PubSubClient(muduo::net::EventLoop* loop,
                const muduo::net::InetAddress& hubAddr,

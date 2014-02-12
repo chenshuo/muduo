@@ -12,7 +12,6 @@
 #define MUDUO_NET_ACCEPTOR_H
 
 #include <functional>
-#include <boost/noncopyable.hpp>
 
 #include <muduo/net/Channel.h>
 #include <muduo/net/Socket.h>
@@ -28,7 +27,7 @@ class InetAddress;
 ///
 /// Acceptor of incoming TCP connections.
 ///
-class Acceptor : boost::noncopyable
+class Acceptor : noncopyable
 {
  public:
   typedef std::function<void (int sockfd, const InetAddress&)> NewConnectionCallback;

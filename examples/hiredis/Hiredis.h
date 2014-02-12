@@ -6,7 +6,6 @@
 #include <muduo/net/Callbacks.h>
 #include <muduo/net/InetAddress.h>
 
-#include <boost/noncopyable.hpp>
 #include <hiredis/hiredis.h>
 
 struct redisAsyncContext;
@@ -24,7 +23,7 @@ namespace hiredis
 {
 
 class Hiredis : public std::enable_shared_from_this<Hiredis>,
-                boost::noncopyable
+                muduo::noncopyable
 {
  public:
   typedef std::function<void(Hiredis*, int)> ConnectCallback;

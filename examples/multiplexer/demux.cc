@@ -31,7 +31,7 @@ struct Entry
   Buffer pending;
 };
 
-class DemuxServer : boost::noncopyable
+class DemuxServer : noncopyable
 {
  public:
   DemuxServer(EventLoop* loop, const InetAddress& listenAddr, const InetAddress& socksAddr)

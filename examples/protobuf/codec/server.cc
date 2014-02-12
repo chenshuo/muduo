@@ -15,7 +15,7 @@ using namespace muduo::net;
 typedef std::shared_ptr<muduo::Query> QueryPtr;
 typedef std::shared_ptr<muduo::Answer> AnswerPtr;
 
-class QueryServer : boost::noncopyable
+class QueryServer : noncopyable
 {
  public:
   QueryServer(EventLoop* loop,

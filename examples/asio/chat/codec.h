@@ -6,9 +6,7 @@
 #include <muduo/net/Endian.h>
 #include <muduo/net/TcpConnection.h>
 
-#include <boost/noncopyable.hpp>
-
-class LengthHeaderCodec : boost::noncopyable
+class LengthHeaderCodec : muduo::noncopyable
 {
  public:
   typedef std::function<void (const muduo::net::TcpConnectionPtr&,

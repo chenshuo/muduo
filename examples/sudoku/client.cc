@@ -58,7 +58,7 @@ InputPtr readInput(std::istream& in)
 
 typedef std::function<void(const string&, double)> DoneCallback;
 
-class SudokuClient : boost::noncopyable
+class SudokuClient : noncopyable
 {
  public:
   SudokuClient(EventLoop* loop,

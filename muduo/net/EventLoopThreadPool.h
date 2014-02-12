@@ -11,11 +11,11 @@
 #ifndef MUDUO_NET_EVENTLOOPTHREADPOOL_H
 #define MUDUO_NET_EVENTLOOPTHREADPOOL_H
 
+#include <muduo/base/noncopyable.h>
+
 #include <functional>
 #include <memory>
 #include <vector>
-
-#include <boost/noncopyable.hpp>
 
 namespace muduo
 {
@@ -26,7 +26,7 @@ namespace net
 class EventLoop;
 class EventLoopThread;
 
-class EventLoopThreadPool : boost::noncopyable
+class EventLoopThreadPool : noncopyable
 {
  public:
   typedef std::function<void(EventLoop*)> ThreadInitCallback;

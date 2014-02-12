@@ -7,15 +7,14 @@
 
 #include <muduo/net/TcpConnection.h>
 
-#include <boost/noncopyable.hpp>
 #include <boost/tokenizer.hpp>
 
 using muduo::string;
 
 class MemcacheServer;
 
-class Session : boost::noncopyable,
-                public std::enable_shared_from_this<Session>
+class Session : public std::enable_shared_from_this<Session>,
+                muduo::noncopyable
 {
  public:
   Session(MemcacheServer* owner, const muduo::net::TcpConnectionPtr& conn)

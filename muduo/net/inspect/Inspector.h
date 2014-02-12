@@ -16,8 +16,6 @@
 #include <muduo/net/http/HttpServer.h>
 
 #include <map>
-#include <boost/noncopyable.hpp>
-#include <boost/scoped_ptr.hpp>
 
 namespace muduo
 {
@@ -29,8 +27,8 @@ class PerformanceInspector;
 class SystemInspector;
 
 // An internal inspector of the running process, usually a singleton.
-// Better to run in a separated thread, as some method may block for seconds
-class Inspector : boost::noncopyable
+// Better to run in a seperated thread, as some method may block for seconds
+class Inspector : noncopyable
 {
  public:
   typedef std::vector<string> ArgList;
@@ -55,9 +53,9 @@ class Inspector : boost::noncopyable
   void onRequest(const HttpRequest& req, HttpResponse* resp);
 
   HttpServer server_;
-  boost::scoped_ptr<ProcessInspector> processInspector_;
-  boost::scoped_ptr<PerformanceInspector> performanceInspector_;
-  boost::scoped_ptr<SystemInspector> systemInspector_;
+  std::unique_ptr<ProcessInspector> processInspector_;
+  std::unique_ptr<PerformanceInspector> performanceInspector_;
+  std::unique_ptr<SystemInspector> systemInspector_;
   MutexLock mutex_;
   std::map<string, CommandList> modules_;
   std::map<string, HelpList> helps_;

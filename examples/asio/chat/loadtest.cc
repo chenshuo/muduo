@@ -7,7 +7,6 @@
 #include <muduo/net/EventLoopThreadPool.h>
 #include <muduo/net/TcpClient.h>
 
-#include <boost/noncopyable.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
 #include <stdio.h>
@@ -23,7 +22,7 @@ std::vector<Timestamp> g_receiveTime;
 EventLoop* g_loop;
 std::function<void()> g_statistic;
 
-class ChatClient : boost::noncopyable
+class ChatClient : noncopyable
 {
  public:
   ChatClient(EventLoop* loop, const InetAddress& serverAddr)

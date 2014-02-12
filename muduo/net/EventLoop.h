@@ -14,8 +14,6 @@
 #include <vector>
 
 #include <functional>
-#include <boost/noncopyable.hpp>
-#include <boost/scoped_ptr.hpp>
 
 #include <muduo/base/Mutex.h>
 #include <muduo/base/CurrentThread.h>
@@ -36,13 +34,13 @@ class TimerQueue;
 /// Reactor, at most one per thread.
 ///
 /// This is an interface class, so don't expose too much details.
-class EventLoop : boost::noncopyable
+class EventLoop : noncopyable
 {
  public:
   typedef std::function<void()> Functor;
 
   EventLoop();
-  ~EventLoop();  // force out-line dtor, for scoped_ptr members.
+  ~EventLoop();  // force out-line dtor, for std::unique_ptr members.
 
   ///
   /// Loops forever.
@@ -144,12 +142,12 @@ class EventLoop : boost::noncopyable
   int64_t iteration_;
   const pid_t threadId_;
   Timestamp pollReturnTime_;
-  boost::scoped_ptr<Poller> poller_;
-  boost::scoped_ptr<TimerQueue> timerQueue_;
+  std::unique_ptr<Poller> poller_;
+  std::unique_ptr<TimerQueue> timerQueue_;
   int wakeupFd_;
   // unlike in TimerQueue, which is an internal class,
   // we don't expose Channel to client.
-  boost::scoped_ptr<Channel> wakeupChannel_;
+  std::unique_ptr<Channel> wakeupChannel_;
   ChannelList activeChannels_;
   Channel* currentActiveChannel_;
   MutexLock mutex_;

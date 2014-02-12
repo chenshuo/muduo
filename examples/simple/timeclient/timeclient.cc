@@ -12,7 +12,7 @@
 using namespace muduo;
 using namespace muduo::net;
 
-class TimeClient : boost::noncopyable
+class TimeClient : noncopyable
 {
  public:
   TimeClient(EventLoop* loop, const InetAddress& serverAddr)

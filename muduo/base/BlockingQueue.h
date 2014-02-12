@@ -9,7 +9,6 @@
 #include <muduo/base/Condition.h>
 #include <muduo/base/Mutex.h>
 
-#include <boost/noncopyable.hpp>
 #include <deque>
 #include <assert.h>
 
@@ -17,7 +16,7 @@ namespace muduo
 {
 
 template<typename T>
-class BlockingQueue : boost::noncopyable
+class BlockingQueue : noncopyable
 {
  public:
   BlockingQueue()

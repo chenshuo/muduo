@@ -13,7 +13,7 @@
 using namespace muduo;
 using namespace muduo::net;
 
-class DiscardClient : boost::noncopyable
+class DiscardClient : noncopyable
 {
  public:
   DiscardClient(EventLoop* loop, const InetAddress& listenAddr, int size)

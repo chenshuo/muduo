@@ -13,7 +13,7 @@
 using namespace muduo;
 using namespace muduo::net;
 
-class UptimeClient : boost::noncopyable
+class UptimeClient : noncopyable
 {
  public:
   UptimeClient(EventLoop* loop, const InetAddress& listenAddr)

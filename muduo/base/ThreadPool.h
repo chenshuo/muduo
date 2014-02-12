@@ -11,15 +11,13 @@
 #include <muduo/base/Thread.h>
 #include <muduo/base/Types.h>
 
-#include <boost/noncopyable.hpp>
-
 #include <deque>
 #include <vector>
 
 namespace muduo
 {
 
-class ThreadPool : boost::noncopyable
+class ThreadPool : noncopyable
 {
  public:
   typedef std::function<void ()> Task;

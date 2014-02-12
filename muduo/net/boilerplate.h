@@ -12,14 +12,14 @@
 #ifndef MUDUO_NET_BOILERPLATE_H
 #define MUDUO_NET_BOILERPLATE_H
 
-#include <boost/noncopyable.hpp>
+#include <muduo/base/noncopyable.h>
 
 namespace muduo
 {
 namespace net
 {
 
-class BoilerPlate : boost::noncopyable
+class BoilerPlate : noncopyable
 {
  public:
 

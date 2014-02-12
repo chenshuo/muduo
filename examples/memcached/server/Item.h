@@ -7,8 +7,6 @@
 
 #include <memory>
 
-#include <boost/noncopyable.hpp>
-
 using muduo::string;
 using muduo::StringPiece;
 
@@ -25,7 +23,7 @@ typedef std::shared_ptr<Item> ItemPtr;  // TODO: use unique_ptr
 typedef std::shared_ptr<const Item> ConstItemPtr;  // TODO: use unique_ptr
 
 // Item is immutable once added into hash table
-class Item : boost::noncopyable
+class Item : muduo::noncopyable
 {
  public:
   enum UpdatePolicy

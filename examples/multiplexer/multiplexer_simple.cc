@@ -21,7 +21,7 @@ const uint16_t kClientPort = 3333;
 const char* backendIp = "127.0.0.1";
 const uint16_t kBackendPort = 9999;
 
-class MultiplexServer : boost::noncopyable
+class MultiplexServer : noncopyable
 {
  public:
   MultiplexServer(EventLoop* loop, const InetAddress& listenAddr, const InetAddress& backendAddr)

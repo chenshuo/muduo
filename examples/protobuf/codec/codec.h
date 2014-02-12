@@ -12,8 +12,6 @@
 #include <muduo/net/Buffer.h>
 #include <muduo/net/TcpConnection.h>
 
-#include <boost/noncopyable.hpp>
-
 #include <google/protobuf/message.h>
 
 // struct ProtobufTransportFormat __attribute__ ((__packed__))
@@ -30,7 +28,7 @@ typedef std::shared_ptr<google::protobuf::Message> MessagePtr;
 //
 // FIXME: merge with RpcCodec
 //
-class ProtobufCodec : boost::noncopyable
+class ProtobufCodec : muduo::noncopyable
 {
  public:
 

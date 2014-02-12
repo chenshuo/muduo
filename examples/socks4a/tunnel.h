@@ -8,7 +8,7 @@
 #include <muduo/net/TcpServer.h>
 
 class Tunnel : public std::enable_shared_from_this<Tunnel>,
-               boost::noncopyable
+               muduo::noncopyable
 {
  public:
   Tunnel(muduo::net::EventLoop* loop,

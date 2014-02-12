@@ -6,7 +6,8 @@
 #ifndef MUDUO_BASE_THREADLOCALSINGLETON_H
 #define MUDUO_BASE_THREADLOCALSINGLETON_H
 
-#include <boost/noncopyable.hpp>
+#include <muduo/base/noncopyable.h>
+
 #include <assert.h>
 #include <pthread.h>
 
@@ -14,7 +15,7 @@ namespace muduo
 {
 
 template<typename T>
-class ThreadLocalSingleton : boost::noncopyable
+class ThreadLocalSingleton : noncopyable
 {
  public:
 

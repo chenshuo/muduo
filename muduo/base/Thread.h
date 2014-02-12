@@ -11,13 +11,12 @@
 
 #include <functional>
 #include <memory>
-#include <boost/noncopyable.hpp>
 #include <pthread.h>
 
 namespace muduo
 {
 
-class Thread : boost::noncopyable
+class Thread : noncopyable
 {
  public:
   typedef std::function<void ()> ThreadFunc;

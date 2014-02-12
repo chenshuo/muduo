@@ -12,9 +12,8 @@
 #include <unordered_set>
 
 #include <boost/array.hpp>
-#include <boost/noncopyable.hpp>
 
-class MemcacheServer : boost::noncopyable
+class MemcacheServer : muduo::noncopyable
 {
  public:
   struct Options
@@ -83,7 +82,7 @@ class MemcacheServer : boost::noncopyable
   // NOT guarded by mutex_, but here because server_ has to destructs before
   // sessions_
   muduo::net::TcpServer server_;
-  boost::scoped_ptr<Stats> stats_;
+  std::unique_ptr<Stats> stats_;
 };
 
 #endif  // MUDUO_EXAMPLES_MEMCACHED_SERVER_MEMCACHESERVER_H

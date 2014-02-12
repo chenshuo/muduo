@@ -11,7 +11,7 @@
 using namespace muduo;
 using namespace muduo::net;
 
-class ChargenClient : boost::noncopyable
+class ChargenClient : noncopyable
 {
  public:
   ChargenClient(EventLoop* loop, const InetAddress& listenAddr)
