@@ -16,7 +16,6 @@
 #include <map>
 
 #ifndef NDEBUG
-#include <boost/static_assert.hpp>
 #include <boost/type_traits/is_base_of.hpp>
 #endif
 
@@ -35,7 +34,8 @@ template <typename T>
 class CallbackT : public Callback
 {
 #ifndef NDEBUG
-  BOOST_STATIC_ASSERT((boost::is_base_of<google::protobuf::Message, T>::value));
+  static_assert(boost::is_base_of<google::protobuf::Message, T>::value,
+                "T must be derived from gpb::Message.");
 #endif
  public:
   typedef std::function<void (const muduo::net::TcpConnectionPtr&,

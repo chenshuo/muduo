@@ -8,7 +8,6 @@
 #include <muduo/base/Exception.h>
 #include <muduo/base/Logging.h>
 
-#include <boost/static_assert.hpp>
 #include <boost/type_traits/is_same.hpp>
 
 #include <errno.h>
@@ -28,7 +27,7 @@ namespace CurrentThread
   __thread int t_tidStringLength = 6;
   __thread const char* t_threadName = "unknown";
   const bool sameType = boost::is_same<int, pid_t>::value;
-  BOOST_STATIC_ASSERT(sameType);
+  static_assert(sameType, "pid_t should be int");
 }
 
 namespace detail

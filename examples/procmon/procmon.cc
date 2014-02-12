@@ -78,7 +78,7 @@ struct StatData
   long rsslim;
 };
 
-BOOST_STATIC_ASSERT(boost::is_pod<StatData>::value);
+static_assert(boost::is_pod<StatData>::value, "StatData should be POD.");
 
 class Procmon : noncopyable
 {
