@@ -11,11 +11,10 @@
 #include <muduo/base/Thread.h>
 #include <muduo/base/Types.h>
 
-#include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
 
 #include <deque>
+#include <vector>
 
 namespace muduo
 {
@@ -23,7 +22,7 @@ namespace muduo
 class ThreadPool : boost::noncopyable
 {
  public:
-  typedef boost::function<void ()> Task;
+  typedef std::function<void ()> Task;
 
   explicit ThreadPool(const string& name = string("ThreadPool"));
   ~ThreadPool();
@@ -52,7 +51,7 @@ class ThreadPool : boost::noncopyable
   Condition notFull_;
   string name_;
   Task threadInitCallback_;
-  boost::ptr_vector<muduo::Thread> threads_;
+  std::vector<std::unique_ptr<muduo::Thread>> threads_;
   std::deque<Task> queue_;
   size_t maxQueueSize_;
   bool running_;

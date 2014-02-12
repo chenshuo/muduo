@@ -20,7 +20,7 @@ namespace detail
 template<typename T>
 struct has_no_destroy
 {
-  template <typename C> static char test(typeof(&C::no_destroy)); // or decltype in C++11
+  template <typename C> static char test(decltype(&C::no_destroy));
   template <typename C> static int32_t test(...);
   const static bool value = sizeof(test<T>(0)) == 1;
 };

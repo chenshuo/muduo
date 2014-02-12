@@ -2,10 +2,10 @@
 #include <muduo/base/CountDownLatch.h>
 #include <muduo/base/Thread.h>
 
-#include <boost/bind.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
 #include <string>
 #include <stdio.h>
+
+using std::placeholders::_1;
 
 class Test
 {
@@ -19,10 +19,13 @@ class Test
     {
       char name[32];
       snprintf(name, sizeof name, "work thread %d", i);
-      threads_.push_back(new muduo::Thread(
-            boost::bind(&Test::threadFunc, this), muduo::string(name)));
+      threads_.emplace_back(new muduo::Thread(
+            std::bind(&Test::threadFunc, this), muduo::string(name)));
     }
-    for_each(threads_.begin(), threads_.end(), boost::bind(&muduo::Thread::start, _1));
+    for (auto& thr : threads_)
+    {
+      thr->start();
+    }
   }
 
   void run(int times)
@@ -46,7 +49,10 @@ class Test
       queue_.put("stop");
     }
 
-    for_each(threads_.begin(), threads_.end(), boost::bind(&muduo::Thread::join, _1));
+    for (auto& thr : threads_)
+    {
+      thr->join();
+    }
   }
 
  private:
@@ -73,7 +79,7 @@ class Test
 
   muduo::BoundedBlockingQueue<std::string> queue_;
   muduo::CountDownLatch latch_;
-  boost::ptr_vector<muduo::Thread> threads_;
+  std::vector<std::unique_ptr<muduo::Thread>> threads_;
 };
 
 int main()
