@@ -131,7 +131,7 @@ class ProtobufCodecLite : noncopyable
 template<typename MSG, const char* TAG, typename CODEC=ProtobufCodecLite>  // TAG must be a variable with external linkage, not a string literal
 class ProtobufCodecLiteT
 {
-  static_assert((std::is_base_of<ProtobufCodecLite, CODEC>::value));
+  static_assert(std::is_base_of<ProtobufCodecLite, CODEC>::value, "CODEC should be derived from ProtobufCodecLite");
  public:
   typedef std::shared_ptr<MSG> ConcreteMessagePtr;
   typedef std::function<void (const TcpConnectionPtr&,
