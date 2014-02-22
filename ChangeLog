@@ -1,3 +1,12 @@
+2014-02-22   Shuo Chen  <chenshuo@chenshuo.com>
+  * Add base/WeakCallback.h
+  * Add TcpConnection::forceCloseWithDelay().
+  * Add InetAddress::resolve for sync DNS resolving.
+  * Add simple Protobuf codec for single message type.
+  * Add ACE ttcp and logging examples.
+  * Fix race conditoin in RpcChannel::CallMethod().
+  * Version 0.9.8
+
 2014-01-11   Shuo Chen  <chenshuo@chenshuo.com>
   * Add TcpConnection::forceClose().
   * Add fastcgi nginx.conf example
