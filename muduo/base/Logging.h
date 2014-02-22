@@ -97,6 +97,22 @@ inline Logger::LogLevel Logger::logLevel()
   return g_logLevel;
 }
 
+//
+// CAUTION: do not write:
+//
+// if (good)
+//   LOG_INFO << "Good news";
+// else
+//   LOG_WARN << "Bad news";
+//
+// this expends to
+//
+// if (good)
+//   if (logging_INFO)
+//     logInfoStream << "Good news";
+//   else
+//     logWarnStream << "Bad news";
+//
 #define LOG_TRACE if (muduo::Logger::logLevel() <= muduo::Logger::TRACE) \
   muduo::Logger(__FILE__, __LINE__, muduo::Logger::TRACE, __func__).stream()
 #define LOG_DEBUG if (muduo::Logger::logLevel() <= muduo::Logger::DEBUG) \
