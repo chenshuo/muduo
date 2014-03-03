@@ -51,10 +51,16 @@ InetAddress::InetAddress(uint16_t port, bool lookbackOnly)
   addr_.sin_port = sockets::hostToNetwork16(port);
 }
 
-InetAddress::InetAddress(const StringPiece& ip, uint16_t port)
+InetAddress::InetAddress(const char* ip, uint16_t port)
 {
   bzero(&addr_, sizeof addr_);
-  sockets::fromIpPort(ip.data(), port, &addr_);
+  sockets::fromIpPort(ip, port, &addr_);
+}
+
+InetAddress::InetAddress(const string& ip, uint16_t port)
+{
+  bzero(&addr_, sizeof addr_);
+  sockets::fromIpPort(ip.c_str(), port, &addr_);
 }
 
 string InetAddress::toIpPort() const

@@ -15,11 +15,11 @@ static void dummy(const boost::shared_ptr<Channel>&)
 {
 }
 
-Request::Request(Curl* owner, StringPiece url)
+Request::Request(Curl* owner, const char* url)
   : owner_(owner),
     curl_(CHECK_NOTNULL(curl_easy_init()))
 {
-  setopt(CURLOPT_URL, url.data());
+  setopt(CURLOPT_URL, url);
   setopt(CURLOPT_WRITEFUNCTION, &Request::writeData);
   setopt(CURLOPT_WRITEDATA, this);
   setopt(CURLOPT_HEADERFUNCTION, &Request::headerData);
@@ -51,9 +51,9 @@ void Request::headerOnly()
   setopt(CURLOPT_NOBODY, 1);
 }
 
-void Request::setRange(muduo::StringPiece range)
+void Request::setRange(const string& range)
 {
-  setopt(CURLOPT_RANGE, range.data());
+  setopt(CURLOPT_RANGE, range.c_str());
 }
 
 const char* Request::getEffectiveUrl()
@@ -208,9 +208,9 @@ Curl::~Curl()
   curl_multi_cleanup(curlm_);
 }
 
-RequestPtr Curl::getUrl(muduo::StringPiece url)
+RequestPtr Curl::getUrl(const muduo::string& url)
 {
-  RequestPtr req(new Request(this, url));
+  RequestPtr req(new Request(this, url.c_str()));
   return req;
 }
 

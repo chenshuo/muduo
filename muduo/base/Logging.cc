@@ -1,7 +1,6 @@
 #include <muduo/base/Logging.h>
 
 #include <muduo/base/CurrentThread.h>
-#include <muduo/base/StringPiece.h>
 #include <muduo/base/Timestamp.h>
 
 #include <errno.h>

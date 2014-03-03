@@ -24,7 +24,7 @@ class Piece : boost::noncopyable
  public:
   Piece(const curl::RequestPtr& req,
         const FilePtr& out,
-        const std::string& range,
+        const muduo::string& range,
         const boost::function<void()> done)
     : req_(req),
       out_(out),
@@ -54,7 +54,7 @@ class Piece : boost::noncopyable
 
   curl::RequestPtr req_;
   FilePtr out_;
-  std::string range_;
+  muduo::string range_;
   boost::function<void()> doneCb_;
 };
 
@@ -160,7 +160,7 @@ class Downloader : boost::noncopyable
         }
         pieces_.push_back(new Piece(req,
                                     out,
-                                    range.str(),
+                                    range.str().c_str(), // std::string -> muduo::string
                                     boost::bind(&Downloader::onDownloadDone, this)));
       }
       else
