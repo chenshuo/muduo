@@ -12,7 +12,7 @@
 #define MUDUO_NET_INETADDRESS_H
 
 #include <muduo/base/copyable.h>
-#include <muduo/base/StringPiece.h>
+#include <muduo/base/Types.h>
 
 #include <netinet/in.h>
 
@@ -34,7 +34,8 @@ class InetAddress : public muduo::copyable
 
   /// Constructs an endpoint with given ip and port.
   /// @c ip should be "1.2.3.4"
-  InetAddress(const StringPiece& ip, uint16_t port);
+  InetAddress(const char* ip, uint16_t port);
+  InetAddress(const string& ip, uint16_t port);
 
   /// Constructs an endpoint with given struct @c sockaddr_in
   /// Mostly used when accepting new connections
