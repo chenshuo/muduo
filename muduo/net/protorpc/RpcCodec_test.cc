@@ -51,7 +51,7 @@ int main()
   }
 
   {
-  ProtobufCodec codec(&RpcMessage::default_instance(), "RPC0", messageCallback);
+  ProtobufCodecLite codec(&RpcMessage::default_instance(), "RPC0", messageCallback);
   codec.fillEmptyBuffer(&buf2, message);
   print(buf2);
   s2 = buf2.toStringPiece().as_string();
@@ -66,7 +66,7 @@ int main()
 
   {
   Buffer buf;
-  ProtobufCodec codec(&RpcMessage::default_instance(), "XYZ", messageCallback);
+  ProtobufCodecLite codec(&RpcMessage::default_instance(), "XYZ", messageCallback);
   codec.fillEmptyBuffer(&buf, message);
   print(buf);
   s2 = buf.toStringPiece().as_string();

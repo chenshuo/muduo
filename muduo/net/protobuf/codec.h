@@ -39,6 +39,7 @@ class TcpConnection;
 typedef boost::shared_ptr<TcpConnection> TcpConnectionPtr;
 typedef boost::shared_ptr<google::protobuf::Message> MessagePtr;
 
+// FIXME: finish this
 template<typename MSG>
 class ProtobufCodecT
 {
@@ -59,7 +60,7 @@ class ProtobufCodecT
 // checksum  4-byte  adler32 of tag+payload
 //
 // This is an internal class, you should use ProtobufCodecT instead.
-class ProtobufCodec : boost::noncopyable
+class ProtobufCodecLite : boost::noncopyable
 {
  public:
   enum ErrorCode
@@ -81,7 +82,7 @@ class ProtobufCodec : boost::noncopyable
                                 Timestamp,
                                 ErrorCode)> ErrorCallback;
 
-  ProtobufCodec(const ::google::protobuf::Message* prototype,
+  ProtobufCodecLite(const ::google::protobuf::Message* prototype,
                 StringPiece tag,
                 const ProtobufMessageCallback& messageCb,
                 const ErrorCallback& errorCb = defaultErrorCallback)
