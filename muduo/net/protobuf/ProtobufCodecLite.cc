@@ -6,7 +6,7 @@
 
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
-#include <muduo/net/protobuf/codec.h>
+#include <muduo/net/protobuf/ProtobufCodecLite.h>
 
 #include <muduo/base/Logging.h>
 #include <muduo/net/Endian.h>

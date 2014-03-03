@@ -12,7 +12,7 @@
 #define MUDUO_NET_PROTORPC_RPCCODEC_H
 
 #include <muduo/base/Timestamp.h>
-#include <muduo/net/protobuf/codec.h>
+#include <muduo/net/protobuf/ProtobufCodecLite.h>
 
 #include <boost/function.hpp>
 #include <boost/noncopyable.hpp>

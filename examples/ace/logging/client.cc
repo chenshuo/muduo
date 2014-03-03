@@ -6,7 +6,7 @@
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/EventLoopThread.h>
 #include <muduo/net/TcpClient.h>
-#include <muduo/net/protobuf/codec.h>
+#include <muduo/net/protobuf/ProtobufCodecLite.h>
 
 #include <boost/bind.hpp>
 

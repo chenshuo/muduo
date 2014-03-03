@@ -20,9 +20,9 @@ enum ParseResult
 };
 
 ParseResult parseMessage(muduo::net::Buffer* buf,
-                                  string* cmd,
-                                  string* topic,
-                                  string* content);
+                         string* cmd,
+                         string* topic,
+                         string* content);
 }
 
 #endif  // MUDUO_EXAMPLES_HUB_CODEC_H
