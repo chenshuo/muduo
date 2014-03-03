@@ -47,10 +47,10 @@ class RpcCodec : boost::noncopyable
                                 const RpcMessage&,
                                 Timestamp)> ProtobufMessageCallback;
 
-  typedef ProtobufCodec::ErrorCallback ErrorCallback;
+  typedef ProtobufCodecLite::ErrorCallback ErrorCallback;
 
   explicit RpcCodec(const ProtobufMessageCallback& messageCb,
-                    const ErrorCallback& errorCb = ProtobufCodec::defaultErrorCallback);
+                    const ErrorCallback& errorCb = ProtobufCodecLite::defaultErrorCallback);
 
   void send(const TcpConnectionPtr& conn,
             const RpcMessage& message);
@@ -67,7 +67,7 @@ class RpcCodec : boost::noncopyable
 
  private:
   ProtobufMessageCallback messageCallback_;
-  ProtobufCodec codec_;
+  ProtobufCodecLite codec_;
 };
 
 }

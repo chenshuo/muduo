@@ -29,8 +29,8 @@ namespace
   int dummy = ProtobufVersionCheck();
 }
 
-void ProtobufCodec::send(const TcpConnectionPtr& conn,
-                         const ::google::protobuf::Message& message)
+void ProtobufCodecLite::send(const TcpConnectionPtr& conn,
+                             const ::google::protobuf::Message& message)
 {
   // FIXME: serialize to TcpConnection::outputBuffer()
   muduo::net::Buffer buf;
@@ -38,8 +38,8 @@ void ProtobufCodec::send(const TcpConnectionPtr& conn,
   conn->send(&buf);
 }
 
-void ProtobufCodec::fillEmptyBuffer(muduo::net::Buffer* buf,
-                                    const google::protobuf::Message& message)
+void ProtobufCodecLite::fillEmptyBuffer(muduo::net::Buffer* buf,
+                                        const google::protobuf::Message& message)
 {
   assert(buf->readableBytes() == 0);
   // FIXME: can we move serialization & checksum to other thread?
@@ -69,9 +69,9 @@ void ProtobufCodec::fillEmptyBuffer(muduo::net::Buffer* buf,
   buf->prepend(&len, sizeof len);
 }
 
-void ProtobufCodec::onMessage(const TcpConnectionPtr& conn,
-                              Buffer* buf,
-                              Timestamp receiveTime)
+void ProtobufCodecLite::onMessage(const TcpConnectionPtr& conn,
+                                  Buffer* buf,
+                                  Timestamp receiveTime)
 {
   while (buf->readableBytes() >= static_cast<uint32_t>(kMinMessageLen+kHeaderLen))
   {
@@ -116,7 +116,7 @@ namespace
   const string kUnknownErrorStr = "UnknownError";
 }
 
-const string& ProtobufCodec::errorCodeToString(ErrorCode errorCode)
+const string& ProtobufCodecLite::errorCodeToString(ErrorCode errorCode)
 {
   switch (errorCode)
   {
@@ -137,26 +137,28 @@ const string& ProtobufCodec::errorCodeToString(ErrorCode errorCode)
   }
 }
 
-void ProtobufCodec::defaultErrorCallback(const TcpConnectionPtr& conn,
-                                         Buffer* buf,
-                                         Timestamp,
-                                         ErrorCode errorCode)
+void ProtobufCodecLite::defaultErrorCallback(const TcpConnectionPtr& conn,
+                                             Buffer* buf,
+                                             Timestamp,
+                                             ErrorCode errorCode)
 {
-  LOG_ERROR << "ProtobufCodec::defaultErrorCallback - " << errorCodeToString(errorCode);
+  LOG_ERROR << "ProtobufCodecLite::defaultErrorCallback - " << errorCodeToString(errorCode);
   if (conn && conn->connected())
   {
     conn->shutdown();
   }
 }
 
-int32_t ProtobufCodec::asInt32(const char* buf)
+int32_t ProtobufCodecLite::asInt32(const char* buf)
 {
   int32_t be32 = 0;
   ::memcpy(&be32, buf, sizeof(be32));
   return sockets::networkToHost32(be32);
 }
 
-ProtobufCodec::ErrorCode ProtobufCodec::parse(const char* buf, int len, ::google::protobuf::Message* message)
+ProtobufCodecLite::ErrorCode ProtobufCodecLite::parse(const char* buf,
+                                                      int len,
+                                                      ::google::protobuf::Message* message)
 {
   ErrorCode error = kNoError;
 

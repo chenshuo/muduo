@@ -34,7 +34,7 @@ class LogClient : boost::noncopyable
     client_.setConnectionCallback(
         boost::bind(&LogClient::onConnection, this, _1));
     client_.setMessageCallback(
-        boost::bind(&ProtobufCodec::onMessage, &codec_, _1, _2, _3));
+        boost::bind(&ProtobufCodecLite::onMessage, &codec_, _1, _2, _3));
     client_.enableRetry();
   }
 
@@ -109,7 +109,7 @@ class LogClient : boost::noncopyable
   }
 
   TcpClient client_;
-  ProtobufCodec codec_;
+  ProtobufCodecLite codec_;
   LogRecord logRecord_;
   MutexLock mutex_;
   TcpConnectionPtr connection_;

@@ -27,7 +27,7 @@ class Session : boost::noncopyable
       file_(getFileName(conn))
   {
     conn->setMessageCallback(
-        boost::bind(&ProtobufCodec::onMessage, &codec_, _1, _2, _3));
+        boost::bind(&ProtobufCodecLite::onMessage, &codec_, _1, _2, _3));
   }
 
  private:
@@ -70,7 +70,7 @@ class Session : boost::noncopyable
     LOG_DEBUG << str;
   }
 
-  ProtobufCodec codec_;
+  ProtobufCodecLite codec_;
   FileUtil::AppendFile file_;
   static AtomicInt32 globalCount_;
 };
