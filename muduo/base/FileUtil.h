@@ -11,7 +11,7 @@
 #ifndef MUDUO_BASE_FILEUTIL_H
 #define MUDUO_BASE_FILEUTIL_H
 
-#include <muduo/base/Types.h>
+#include <muduo/base/StringPiece.h>
 #include <boost/noncopyable.hpp>
 
 namespace muduo
@@ -24,7 +24,7 @@ namespace FileUtil
 class ReadSmallFile : boost::noncopyable
 {
  public:
-  ReadSmallFile(const char* filename);
+  ReadSmallFile(StringArg filename);
   ~ReadSmallFile();
 
   // return errno
@@ -51,7 +51,7 @@ class ReadSmallFile : boost::noncopyable
 
 // read the file content, returns errno if error happens.
 template<typename String>
-int readFile(const char* filename,
+int readFile(StringArg filename,
              int maxSize,
              String* content,
              int64_t* fileSize = NULL,
@@ -66,11 +66,7 @@ int readFile(const char* filename,
 class AppendFile : boost::noncopyable
 {
  public:
-  explicit AppendFile(const char* filename);
-  explicit AppendFile(const string& filename);
-  // forward ctor in C++11
-  // explicit AppendFile(const string& filename)
-  //   : AppendFile(filename.c_str())
+  explicit AppendFile(StringArg filename);
 
   ~AppendFile();
 

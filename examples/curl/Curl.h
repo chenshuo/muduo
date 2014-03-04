@@ -1,7 +1,7 @@
 #ifndef MUDUO_EXAMPLES_CURL_CURL_H
 #define MUDUO_EXAMPLES_CURL_CURL_H
 
-#include <muduo/base/Types.h>
+#include <muduo/base/StringPiece.h>
 
 #include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
@@ -50,7 +50,7 @@ class Request : public boost::enable_shared_from_this<Request>,
 
   // void allowRedirect(int redirects);
   void headerOnly();
-  void setRange(const muduo::string& range);
+  void setRange(const muduo::StringArg range);
 
   template<typename OPT>
   int setopt(OPT opt, long p)
@@ -118,7 +118,7 @@ class Curl : boost::noncopyable
   explicit Curl(muduo::net::EventLoop* loop);
   ~Curl();
 
-  RequestPtr getUrl(const muduo::string& url);
+  RequestPtr getUrl(muduo::StringArg url);
 
   static void initialize(Option opt = kCURLnossl);
 

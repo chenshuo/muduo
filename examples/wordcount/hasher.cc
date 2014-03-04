@@ -173,7 +173,7 @@ WordCountSender::WordCountSender(const std::string& receivers)
     if (colon != std::string::npos)
     {
       uint16_t port = static_cast<uint16_t>(atoi(&ipport[colon+1]));
-      InetAddress addr(ipport.substr(0, colon).c_str(), port);
+      InetAddress addr(ipport.substr(0, colon), port);
       buckets_.push_back(new SendThrottler(loop_, addr));
     }
     else

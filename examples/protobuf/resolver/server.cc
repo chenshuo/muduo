@@ -28,7 +28,7 @@ class ResolverServiceImpl : public ResolverService
   {
     LOG_INFO << "ResolverServiceImpl::Resolve " << request->address();
 
-    bool succeed = resolver_.resolve(request->address().c_str(),
+    bool succeed = resolver_.resolve(request->address(),
                                      boost::bind(&ResolverServiceImpl::doneCallback,
                                                  this,
                                                  request->address(),

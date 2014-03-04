@@ -20,16 +20,7 @@
 
 using namespace muduo;
 
-FileUtil::AppendFile::AppendFile(const char* filename)
-  : fp_(::fopen(filename, "ae")),  // 'e' for O_CLOEXEC
-    writtenBytes_(0)
-{
-  assert(fp_);
-  ::setbuffer(fp_, buffer_, sizeof buffer_);
-  // posix_fadvise POSIX_FADV_DONTNEED ?
-}
-
-FileUtil::AppendFile::AppendFile(const string& filename)
+FileUtil::AppendFile::AppendFile(StringArg filename)
   : fp_(::fopen(filename.c_str(), "ae")),  // 'e' for O_CLOEXEC
     writtenBytes_(0)
 {
@@ -77,8 +68,8 @@ size_t FileUtil::AppendFile::write(const char* logline, size_t len)
   return ::fwrite_unlocked(logline, 1, len, fp_);
 }
 
-FileUtil::ReadSmallFile::ReadSmallFile(const char* filename)
-  : fd_(::open(filename, O_RDONLY | O_CLOEXEC)),
+FileUtil::ReadSmallFile::ReadSmallFile(StringArg filename)
+  : fd_(::open(filename.c_str(), O_RDONLY | O_CLOEXEC)),
     err_(0)
 {
   buf_[0] = '\0';
@@ -183,7 +174,7 @@ int FileUtil::ReadSmallFile::readToBuffer(int* size)
   return err;
 }
 
-template int FileUtil::readFile(const char* filename,
+template int FileUtil::readFile(StringArg filename,
                                 int maxSize,
                                 string* content,
                                 int64_t*, int64_t*, int64_t*);
@@ -194,7 +185,7 @@ template int FileUtil::ReadSmallFile::readToString(
     int64_t*, int64_t*, int64_t*);
 
 #ifndef MUDUO_STD_STRING
-template int FileUtil::readFile(const char* filename,
+template int FileUtil::readFile(StringArg filename,
                                 int maxSize,
                                 std::string* content,
                                 int64_t*, int64_t*, int64_t*);
