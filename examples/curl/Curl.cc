@@ -51,7 +51,7 @@ void Request::headerOnly()
   setopt(CURLOPT_NOBODY, 1);
 }
 
-void Request::setRange(const string& range)
+void Request::setRange(const StringArg range)
 {
   setopt(CURLOPT_RANGE, range.c_str());
 }
@@ -208,7 +208,7 @@ Curl::~Curl()
   curl_multi_cleanup(curlm_);
 }
 
-RequestPtr Curl::getUrl(const muduo::string& url)
+RequestPtr Curl::getUrl(StringArg url)
 {
   RequestPtr req(new Request(this, url.c_str()));
   return req;

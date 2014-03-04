@@ -104,7 +104,7 @@ void onMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp time)
 void transmit(const Options& opt)
 {
   InetAddress addr(opt.port);
-  if (!InetAddress::resolve(opt.host.c_str(), &addr))
+  if (!InetAddress::resolve(opt.host, &addr))
   {
     LOG_FATAL << "Unable to resolve " << opt.host;
   }

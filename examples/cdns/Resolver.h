@@ -1,6 +1,7 @@
 #ifndef MUDUO_EXAMPLES_CDNS_RESOLVER_H
 #define MUDUO_EXAMPLES_CDNS_RESOLVER_H
 
+#include <muduo/base/StringPiece.h>
 #include <muduo/base/Timestamp.h>
 #include <muduo/net/InetAddress.h>
 
@@ -40,12 +41,7 @@ class Resolver : boost::noncopyable
   explicit Resolver(muduo::net::EventLoop* loop, Option opt = kDNSandHostsFile);
   ~Resolver();
 
-  bool resolve(const char* hostname, const Callback& cb);
-
-  bool resolve(const muduo::string& hostname, const Callback& cb)
-  {
-    return resolve(hostname.c_str(), cb);
-  }
+  bool resolve(muduo::StringArg hostname, const Callback& cb);
 
  private:
 
