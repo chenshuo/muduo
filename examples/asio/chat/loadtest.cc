@@ -117,7 +117,7 @@ void statistic(const boost::ptr_vector<ChatClient>& clients)
   }
 
   std::sort(seconds.begin(), seconds.end());
-  for (size_t i = 0; i < clients.size(); i += clients.size()/20)
+  for (size_t i = 0; i < clients.size(); i += std::max(static_cast<size_t>(1), clients.size()/20))
   {
     printf("%6zd%% %.6f\n", i*100/clients.size(), seconds[i]);
   }

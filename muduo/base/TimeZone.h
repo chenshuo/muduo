@@ -18,6 +18,8 @@ class TimeZone : public muduo::copyable
 {
  public:
   explicit TimeZone(const char* zonefile);
+  TimeZone(int eastOfUtc, const char* tzname);  // a fixed timezone
+  TimeZone() {}  // an invalid timezone
 
   // default copy ctor/assignment/dtor are Okay.
 
