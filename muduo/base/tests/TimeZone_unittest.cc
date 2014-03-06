@@ -249,11 +249,28 @@ void testUtc()
   }
 }
 
+void testFixedTimezone()
+{
+  TimeZone tz(8*3600, "CST");
+  TestCase cases[] =
+  {
+
+    { "2014-04-03 00:00:00", "2014-04-03 08:00:00+0800(CST)", false},
+
+  };
+
+  for (size_t i = 0; i < sizeof cases / sizeof cases[0]; ++i)
+  {
+    test(tz, cases[i]);
+  }
+}
+
 int main()
 {
   testNewYork();
   testLondon();
   testSydney();
   testHongKong();
+  testFixedTimezone();
   testUtc();
 }

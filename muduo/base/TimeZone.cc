@@ -262,6 +262,13 @@ TimeZone::TimeZone(const char* zonefile)
   }
 }
 
+TimeZone::TimeZone(int eastOfUtc, const char* name)
+  : data_(new TimeZone::Data)
+{
+  data_->localtimes.push_back(detail::Localtime(eastOfUtc, false, 0));
+  data_->abbreviation = name;
+}
+
 struct tm TimeZone::toLocalTime(time_t seconds) const
 {
   struct tm localTime;
