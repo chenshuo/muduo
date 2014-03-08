@@ -74,6 +74,11 @@ class ProtobufCodecLite : boost::noncopyable
   };
 
   typedef boost::function<void (const TcpConnectionPtr&,
+                                const char*,
+                                size_t,
+                                Timestamp)> RawMessageCallback;
+
+  typedef boost::function<void (const TcpConnectionPtr&,
                                 const MessagePtr&,
                                 Timestamp)> ProtobufMessageCallback;
 
@@ -85,10 +90,12 @@ class ProtobufCodecLite : boost::noncopyable
   ProtobufCodecLite(const ::google::protobuf::Message* prototype,
                 StringPiece tag,
                 const ProtobufMessageCallback& messageCb,
+                const RawMessageCallback& rawCb = RawMessageCallback(),
                 const ErrorCallback& errorCb = defaultErrorCallback)
     : prototype_(prototype),
       tag_(tag.as_string()),
       messageCallback_(messageCb),
+      rawCb_(rawCb),
       errorCallback_(errorCb),
       kMinMessageLen(tag.size() + kChecksumLen)
   {
@@ -117,6 +124,7 @@ class ProtobufCodecLite : boost::noncopyable
   const ::google::protobuf::Message* prototype_;
   const string tag_;
   ProtobufMessageCallback messageCallback_;
+  RawMessageCallback rawCb_;
   ErrorCallback errorCallback_;
   const int kMinMessageLen;
 

@@ -11,7 +11,6 @@
 #ifndef MUDUO_NET_TCPCONNECTION_H
 #define MUDUO_NET_TCPCONNECTION_H
 
-#include <muduo/base/Mutex.h>
 #include <muduo/base/StringPiece.h>
 #include <muduo/base/Types.h>
 #include <muduo/net/Callbacks.h>
@@ -53,8 +52,8 @@ class TcpConnection : boost::noncopyable,
 
   EventLoop* getLoop() const { return loop_; }
   const string& name() const { return name_; }
-  const InetAddress& localAddress() { return localAddr_; }
-  const InetAddress& peerAddress() { return peerAddr_; }
+  const InetAddress& localAddress() const { return localAddr_; }
+  const InetAddress& peerAddress() const { return peerAddr_; }
   bool connected() const { return state_ == kConnected; }
 
   // void send(string&& message); // C++11
@@ -120,13 +119,13 @@ class TcpConnection : boost::noncopyable,
   void setState(StateE s) { state_ = s; }
 
   EventLoop* loop_;
-  string name_;
+  const string name_;
   StateE state_;  // FIXME: use atomic variable
   // we don't expose those classes to client.
   boost::scoped_ptr<Socket> socket_;
   boost::scoped_ptr<Channel> channel_;
-  InetAddress localAddr_;
-  InetAddress peerAddr_;
+  const InetAddress localAddr_;
+  const InetAddress peerAddr_;
   ConnectionCallback connectionCallback_;
   MessageCallback messageCallback_;
   WriteCompleteCallback writeCompleteCallback_;
