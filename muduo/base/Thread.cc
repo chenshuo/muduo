@@ -170,7 +170,7 @@ Thread::Thread(ThreadFunc&& func, const string& n)
     joined_(false),
     pthreadId_(0),
     tid_(new pid_t(0)),
-    func_(func),
+    func_(std::move(func)),
     name_(n)
 {
   numCreated_.increment();
