@@ -51,13 +51,13 @@ class Channel : boost::noncopyable
   { errorCallback_ = cb; }
 #ifdef __GXX_EXPERIMENTAL_CXX0X__
   void setReadCallback(ReadEventCallback&& cb)
-  { readCallback_ = cb; }
+  { readCallback_ = std::move(cb); }
   void setWriteCallback(EventCallback&& cb)
-  { writeCallback_ = cb; }
+  { writeCallback_ = std::move(cb); }
   void setCloseCallback(EventCallback&& cb)
-  { closeCallback_ = cb; }
+  { closeCallback_ = std::move(cb); }
   void setErrorCallback(EventCallback&& cb)
-  { errorCallback_ = cb; }
+  { errorCallback_ = std::move(cb); }
 #endif
 
   /// Tie this channel to the owner object managed by shared_ptr,
