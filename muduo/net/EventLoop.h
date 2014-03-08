@@ -18,7 +18,7 @@
 #include <boost/scoped_ptr.hpp>
 
 #include <muduo/base/Mutex.h>
-#include <muduo/base/Thread.h>
+#include <muduo/base/CurrentThread.h>
 #include <muduo/base/Timestamp.h>
 #include <muduo/net/Callbacks.h>
 #include <muduo/net/TimerId.h>

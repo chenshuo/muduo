@@ -11,9 +11,6 @@
 #ifndef MUDUO_NET_EVENTLOOPTHREADPOOL_H
 #define MUDUO_NET_EVENTLOOPTHREADPOOL_H
 
-#include <muduo/base/Condition.h>
-#include <muduo/base/Mutex.h>
-
 #include <vector>
 #include <boost/function.hpp>
 #include <boost/noncopyable.hpp>

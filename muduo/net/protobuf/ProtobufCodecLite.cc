@@ -89,6 +89,10 @@ void ProtobufCodecLite::onMessage(const TcpConnectionPtr& conn,
       if (errorCode == kNoError)
       {
         // FIXME: try { } catch (...) { }
+        if (rawCb_)
+        {
+          rawCb_(conn, buf->peek()+kHeaderLen, len, receiveTime);
+        }
         messageCallback_(conn, message, receiveTime);
         buf->retrieve(kHeaderLen+len);
       }

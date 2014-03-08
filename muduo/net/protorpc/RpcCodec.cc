@@ -36,6 +36,7 @@ RpcCodec::RpcCodec(const ProtobufMessageCallback& messageCb,
       codec_(&RpcMessage::default_instance(),
              "RPC0",
              boost::bind(&RpcCodec::onRpcMessage, this, _1, _2, _3),
+             ProtobufCodecLite::RawMessageCallback(),
              errorCb)
 {
 }
