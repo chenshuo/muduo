@@ -20,7 +20,8 @@ class Tunnel : public boost::enable_shared_from_this<Tunnel>,
     : client_(loop, serverAddr, serverConn->name()),
       serverConn_(serverConn)
   {
-    LOG_INFO << "Tunnel";
+    LOG_INFO << "Tunnel " << serverConn->peerAddress().toIpPort()
+             << " <-> " << serverAddr.toIpPort();
   }
 
   ~Tunnel()
