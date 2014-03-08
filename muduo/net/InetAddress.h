@@ -30,7 +30,7 @@ class InetAddress : public muduo::copyable
  public:
   /// Constructs an endpoint with given port number.
   /// Mostly used in TcpServer listening.
-  explicit InetAddress(uint16_t port, bool loopbackOnly = false);
+  explicit InetAddress(uint16_t port = 0, bool loopbackOnly = false);
 
   /// Constructs an endpoint with given ip and port.
   /// @c ip should be "1.2.3.4"
@@ -44,8 +44,6 @@ class InetAddress : public muduo::copyable
 
   string toIp() const;
   string toIpPort() const;
-  string toHostPort() const __attribute__ ((deprecated))
-  { return toIpPort(); }
 
   // default copy/assignment are Okay
 

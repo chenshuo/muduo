@@ -65,7 +65,7 @@ void onServerMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp)
             string hostname = where+1;
             where = endOfHostName;
             LOG_INFO << "Socks4a host name " << hostname;
-            InetAddress tmp(0);
+            InetAddress tmp;
             if (InetAddress::resolve(hostname, &tmp))
             {
               addr.sin_addr.s_addr = tmp.ipNetEndian();
