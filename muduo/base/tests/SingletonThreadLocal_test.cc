@@ -6,6 +6,7 @@
 #include <boost/bind.hpp>
 #include <boost/noncopyable.hpp>
 #include <stdio.h>
+#include <unistd.h>
 
 class Test : boost::noncopyable
 {

@@ -88,10 +88,10 @@ class ProtobufCodecLite : boost::noncopyable
                                 ErrorCode)> ErrorCallback;
 
   ProtobufCodecLite(const ::google::protobuf::Message* prototype,
-                StringPiece tag,
-                const ProtobufMessageCallback& messageCb,
-                const RawMessageCallback& rawCb = RawMessageCallback(),
-                const ErrorCallback& errorCb = defaultErrorCallback)
+                    StringPiece tag,
+                    const ProtobufMessageCallback& messageCb,
+                    const RawMessageCallback& rawCb = RawMessageCallback(),
+                    const ErrorCallback& errorCb = defaultErrorCallback)
     : prototype_(prototype),
       tag_(tag.as_string()),
       messageCallback_(messageCb),

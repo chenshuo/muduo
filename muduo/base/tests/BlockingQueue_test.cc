@@ -6,6 +6,7 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <string>
 #include <stdio.h>
+#include <unistd.h>
 
 class Test
 {
