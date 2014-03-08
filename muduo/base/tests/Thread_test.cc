@@ -4,6 +4,7 @@
 #include <string>
 #include <boost/bind.hpp>
 #include <stdio.h>
+#include <unistd.h>
 
 void mysleep(int seconds)
 {
