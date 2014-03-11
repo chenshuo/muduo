@@ -81,18 +81,19 @@ void ProtobufCodecLite::onMessage(const TcpConnectionPtr& conn,
       errorCallback_(conn, buf, receiveTime, kInvalidLength);
       break;
     }
-    else if (buf->readableBytes() >= implicit_cast<size_t>(len+kChecksumLen))
+    else if (buf->readableBytes() >= implicit_cast<size_t>(len+kHeaderLen))
     {
+      if (rawCb_ && !rawCb_(conn, buf->peek()+kHeaderLen, len, receiveTime))
+      {
+        buf->retrieve(kHeaderLen+len);
+        continue;
+      }
       MessagePtr message(prototype_->New());
       // FIXME: can we move deserialization & callback to other thread?
       ErrorCode errorCode = parse(buf->peek()+kHeaderLen, len, message.get());
       if (errorCode == kNoError)
       {
         // FIXME: try { } catch (...) { }
-        if (rawCb_)
-        {
-          rawCb_(conn, buf->peek()+kHeaderLen, len, receiveTime);
-        }
         messageCallback_(conn, message, receiveTime);
         buf->retrieve(kHeaderLen+len);
       }
@@ -160,20 +161,24 @@ int32_t ProtobufCodecLite::asInt32(const char* buf)
   return sockets::networkToHost32(be32);
 }
 
-ProtobufCodecLite::ErrorCode ProtobufCodecLite::parse(const char* buf,
-                                                      int len,
-                                                      ::google::protobuf::Message* message)
+bool ProtobufCodecLite::validateChecksum(const char* buf, int len)
 {
-  ErrorCode error = kNoError;
-
   // check sum
   int32_t expectedCheckSum = asInt32(buf + len - kChecksumLen);
   int32_t checkSum = static_cast<int32_t>(
       ::adler32(1,
                 reinterpret_cast<const Bytef*>(buf),
                 static_cast<int>(len - kChecksumLen)));
+  return checkSum == expectedCheckSum;
+}
 
-  if (checkSum == expectedCheckSum)
+ProtobufCodecLite::ErrorCode ProtobufCodecLite::parse(const char* buf,
+                                                      int len,
+                                                      ::google::protobuf::Message* message)
+{
+  ErrorCode error = kNoError;
+
+  if (validateChecksum(buf, len))
   {
     if (memcmp(buf, tag_.data(), tag_.size()) == 0)
     {

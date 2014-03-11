@@ -66,9 +66,10 @@ class ProtobufCodecLite : boost::noncopyable
     kParseError,
   };
 
-  typedef boost::function<void (const TcpConnectionPtr&,
+  // return false to stop parsing protobuf message
+  typedef boost::function<bool (const TcpConnectionPtr&,
                                 const char*,
-                                size_t,
+                                int,
                                 Timestamp)> RawMessageCallback;
 
   typedef boost::function<void (const TcpConnectionPtr&,
@@ -81,18 +82,20 @@ class ProtobufCodecLite : boost::noncopyable
                                 ErrorCode)> ErrorCallback;
 
   ProtobufCodecLite(const ::google::protobuf::Message* prototype,
-                    StringPiece tag,
+                    StringPiece tagArg,
                     const ProtobufMessageCallback& messageCb,
                     const RawMessageCallback& rawCb = RawMessageCallback(),
                     const ErrorCallback& errorCb = defaultErrorCallback)
     : prototype_(prototype),
-      tag_(tag.as_string()),
+      tag_(tagArg.as_string()),
       messageCallback_(messageCb),
       rawCb_(rawCb),
       errorCallback_(errorCb),
-      kMinMessageLen(tag.size() + kChecksumLen)
+      kMinMessageLen(tagArg.size() + kChecksumLen)
   {
   }
+
+  const string& tag() const { return tag_; }
 
   void send(const TcpConnectionPtr& conn,
             const ::google::protobuf::Message& message);
@@ -107,6 +110,7 @@ class ProtobufCodecLite : boost::noncopyable
   ErrorCode parse(const char* buf, int len, ::google::protobuf::Message* message);
   void fillEmptyBuffer(muduo::net::Buffer* buf, const google::protobuf::Message& message);
 
+  static bool validateChecksum(const char* buf, int len);
   static int32_t asInt32(const char* buf);
   static void defaultErrorCallback(const TcpConnectionPtr&,
                                    Buffer*,
@@ -134,18 +138,22 @@ class ProtobufCodecLiteT
   typedef boost::function<void (const TcpConnectionPtr&,
                                 const ConcreteMessagePtr&,
                                 Timestamp)> ProtobufMessageCallback;
+  typedef ProtobufCodecLite::RawMessageCallback RawMessageCallback;
   typedef ProtobufCodecLite::ErrorCallback ErrorCallback;
 
   explicit ProtobufCodecLiteT(const ProtobufMessageCallback& messageCb,
+                              const RawMessageCallback& rawCb = RawMessageCallback(),
                               const ErrorCallback& errorCb = ProtobufCodecLite::defaultErrorCallback)
     : messageCallback_(messageCb),
       codec_(&MSG::default_instance(),
              TAG,
              boost::bind(&ProtobufCodecLiteT::onRpcMessage, this, _1, _2, _3),
-             ProtobufCodecLite::RawMessageCallback(),
+             rawCb,
              errorCb)
   {
   }
+
+  const string& tag() const { return codec_.tag(); }
 
   void send(const TcpConnectionPtr& conn,
             const MSG& message)
