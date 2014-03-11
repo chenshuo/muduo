@@ -42,7 +42,7 @@ class BackendSession : boost::noncopyable
     loop_->assertInLoopThread();
     if (conn_)
     {
-      int64_t id = ++nextId_;
+      uint64_t id = ++nextId_;
       Request r = { msg.id(), clientConn };
       assert(outstandings_.find(id) == outstandings_.end());
       outstandings_[id] = r;
@@ -80,10 +80,10 @@ class BackendSession : boost::noncopyable
                     Timestamp)
   {
     loop_->assertInLoopThread();
-    std::map<int64_t, Request>::iterator it = outstandings_.find(msg->id());
+    std::map<uint64_t, Request>::iterator it = outstandings_.find(msg->id());
     if (it != outstandings_.end())
     {
-      int64_t origId = it->second.origId;
+      uint64_t origId = it->second.origId;
       TcpConnectionPtr clientConn = it->second.clientConn.lock();
       outstandings_.erase(it);
 
@@ -103,7 +103,7 @@ class BackendSession : boost::noncopyable
 
   struct Request
   {
-    int64_t origId;
+    uint64_t origId;
     boost::weak_ptr<TcpConnection> clientConn;
   };
 
@@ -111,8 +111,8 @@ class BackendSession : boost::noncopyable
   TcpClient client_;
   RpcCodec codec_;
   TcpConnectionPtr conn_;
-  int64_t nextId_;
-  std::map<int64_t, Request> outstandings_;
+  uint64_t nextId_;
+  std::map<uint64_t, Request> outstandings_;
 };
 
 class Balancer : boost::noncopyable
