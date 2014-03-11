@@ -34,7 +34,10 @@ class EventLoopThreadPool : boost::noncopyable
   ~EventLoopThreadPool();
   void setThreadNum(int numThreads) { numThreads_ = numThreads; }
   void start(const ThreadInitCallback& cb = ThreadInitCallback());
+  // valid after calling start()
   EventLoop* getNextLoop();
+  // valid after calling start()
+  std::vector<EventLoop*> getAllLoops();
 
  private:
 

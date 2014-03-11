@@ -1,37 +1,42 @@
 #include "tunnel.h"
 
+#include <muduo/base/ThreadLocal.h>
 #include <stdio.h>
 
 using namespace muduo;
 using namespace muduo::net;
 
+std::vector<InetAddress> g_backends;
+ThreadLocal<std::map<string, TunnelPtr> > t_tunnels;
 MutexLock g_mutex;
 size_t g_current = 0;
-std::vector<InetAddress> g_backends;
-std::map<string, TunnelPtr> g_tunnels;
 
 void onServerConnection(const TcpConnectionPtr& conn)
 {
   LOG_DEBUG << (conn->connected() ? "UP" : "DOWN");
+  std::map<string, TunnelPtr>& tunnels = t_tunnels.value();
   if (conn->connected())
   {
     conn->setTcpNoDelay(true);
+    size_t current = 0;
+    {
     MutexLockGuard guard(g_mutex);
-    InetAddress backend = g_backends[g_current];
+    current = g_current;
     g_current = (g_current+1) % g_backends.size();
+    }
 
+    InetAddress backend = g_backends[current];
     TunnelPtr tunnel(new Tunnel(conn->getLoop(), backend, conn));
     tunnel->setup();
     tunnel->connect();
 
-    g_tunnels[conn->name()] = tunnel;
+    tunnels[conn->name()] = tunnel;
   }
   else
   {
-    MutexLockGuard guard(g_mutex);
-    assert(g_tunnels.find(conn->name()) != g_tunnels.end());
-    g_tunnels[conn->name()]->disconnect();
-    g_tunnels.erase(conn->name());
+    assert(tunnels.find(conn->name()) != tunnels.end());
+    tunnels[conn->name()]->disconnect();
+    tunnels.erase(conn->name());
   }
 }
 

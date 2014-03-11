@@ -66,6 +66,8 @@ class TcpServer : boost::noncopyable
   void setThreadNum(int numThreads);
   void setThreadInitCallback(const ThreadInitCallback& cb)
   { threadInitCallback_ = cb; }
+  /// valid after calling start()
+  EventLoopThreadPool* threadPool() { return get_pointer(threadPool_); }
 
   /// Starts the server if it's not listenning.
   ///

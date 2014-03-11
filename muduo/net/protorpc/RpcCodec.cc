@@ -30,38 +30,10 @@ namespace
   int dummy = ProtobufVersionCheck();
 }
 
-RpcCodec::RpcCodec(const ProtobufMessageCallback& messageCb,
-                   const ErrorCallback& errorCb)
-    : messageCallback_(messageCb),
-      codec_(&RpcMessage::default_instance(),
-             "RPC0",
-             boost::bind(&RpcCodec::onRpcMessage, this, _1, _2, _3),
-             ProtobufCodecLite::RawMessageCallback(),
-             errorCb)
+namespace muduo
 {
+namespace net
+{
+const char rpctag [] = "RPC0";
 }
-
-void RpcCodec::send(const TcpConnectionPtr& conn,
-                    const RpcMessage& message)
-{
-  codec_.send(conn, message);
-}
-
-void RpcCodec::onMessage(const TcpConnectionPtr& conn,
-                         Buffer* buf,
-                         Timestamp receiveTime)
-{
-  codec_.onMessage(conn, buf, receiveTime);
-}
-
-void RpcCodec::onRpcMessage(const TcpConnectionPtr& conn,
-                            const MessagePtr& message,
-                            Timestamp receiveTime)
-{
-  messageCallback_(conn, *::muduo::down_cast<RpcMessage*>(message.get()), receiveTime);
-}
-
-void RpcCodec::fillEmptyBuffer(muduo::net::Buffer* buf, const RpcMessage& message)
-{
-  codec_.fillEmptyBuffer(buf, message);
 }

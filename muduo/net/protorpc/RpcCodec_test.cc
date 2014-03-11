@@ -10,8 +10,8 @@ using namespace muduo;
 using namespace muduo::net;
 
 void rpcMessageCallback(const TcpConnectionPtr&,
-                     const RpcMessage&,
-                     Timestamp)
+                        const RpcMessagePtr&,
+                        Timestamp)
 {
 }
 
@@ -33,6 +33,8 @@ void print(const Buffer& buf)
     printf("%2zd:  0x%02x  %c\n", i, ch, isgraph(ch) ? ch : ' ');
   }
 }
+
+char rpctag[] = "RPC0";
 
 int main()
 {
