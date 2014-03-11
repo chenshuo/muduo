@@ -16,18 +16,18 @@ using namespace muduo::net;
 
 namespace logging
 {
+extern const char logtag[] = "LOG0";
+typedef ProtobufCodecLiteT<LogRecord, logtag> Codec;
 
 class Session : boost::noncopyable
 {
  public:
   explicit Session(const TcpConnectionPtr& conn)
-    : codec_(&LogRecord::default_instance(),
-             "LOG0",
-             boost::bind(&Session::onMessage, this, _1, _2, _3)),
+    : codec_(boost::bind(&Session::onMessage, this, _1, _2, _3)),
       file_(getFileName(conn))
   {
     conn->setMessageCallback(
-        boost::bind(&ProtobufCodecLite::onMessage, &codec_, _1, _2, _3));
+        boost::bind(&Codec::onMessage, &codec_, _1, _2, _3));
   }
 
  private:
@@ -70,7 +70,7 @@ class Session : boost::noncopyable
     LOG_DEBUG << str;
   }
 
-  ProtobufCodecLite codec_;
+  Codec codec_;
   FileUtil::AppendFile file_;
   static AtomicInt32 globalCount_;
 };

@@ -126,7 +126,7 @@ class RpcChannel : public ::google::protobuf::RpcChannel
 
  private:
   void onRpcMessage(const TcpConnectionPtr& conn,
-                    const RpcMessage& message,
+                    const RpcMessagePtr& messagePtr,
                     Timestamp receiveTime);
 
   void doneCallback(::google::protobuf::Message* response, int64_t id);

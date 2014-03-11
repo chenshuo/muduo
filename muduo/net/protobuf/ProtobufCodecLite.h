@@ -17,9 +17,13 @@
 #include <muduo/base/StringPiece.h>
 #include <muduo/base/Timestamp.h>
 
+#include <muduo/net/Callbacks.h>
+
 #include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
+
+#include <boost/bind.hpp>
 
 namespace google
 {
@@ -38,17 +42,6 @@ class Buffer;
 class TcpConnection;
 typedef boost::shared_ptr<TcpConnection> TcpConnectionPtr;
 typedef boost::shared_ptr<google::protobuf::Message> MessagePtr;
-
-// FIXME: finish this
-template<typename MSG>
-class ProtobufCodecT
-{
- public:
-  typedef boost::shared_ptr<MSG> MessagePtr;
-  typedef boost::function<void (const TcpConnectionPtr&,
-                                const MessagePtr&,
-                                Timestamp)> ProtobufMessageCallback;
-};
 
 // wire format
 //
@@ -131,6 +124,58 @@ class ProtobufCodecLite : boost::noncopyable
   const static int kHeaderLen = sizeof(int32_t);
   const static int kChecksumLen = sizeof(int32_t);
   const static int kMaxMessageLen = 64*1024*1024; // same as codec_stream.h kDefaultTotalBytesLimit
+};
+
+template<typename MSG, const char* TAG>  // TAG must be a variable with external linkage, not a string literal
+class ProtobufCodecLiteT
+{
+ public:
+  typedef boost::shared_ptr<MSG> ConcreteMessagePtr;
+  typedef boost::function<void (const TcpConnectionPtr&,
+                                const ConcreteMessagePtr&,
+                                Timestamp)> ProtobufMessageCallback;
+  typedef ProtobufCodecLite::ErrorCallback ErrorCallback;
+
+  explicit ProtobufCodecLiteT(const ProtobufMessageCallback& messageCb,
+                              const ErrorCallback& errorCb = ProtobufCodecLite::defaultErrorCallback)
+    : messageCallback_(messageCb),
+      codec_(&MSG::default_instance(),
+             TAG,
+             boost::bind(&ProtobufCodecLiteT::onRpcMessage, this, _1, _2, _3),
+             ProtobufCodecLite::RawMessageCallback(),
+             errorCb)
+  {
+  }
+
+  void send(const TcpConnectionPtr& conn,
+            const MSG& message)
+  {
+    codec_.send(conn, message);
+  }
+
+  void onMessage(const TcpConnectionPtr& conn,
+                 Buffer* buf,
+                 Timestamp receiveTime)
+  {
+    codec_.onMessage(conn, buf, receiveTime);
+  }
+
+  // internal
+  void onRpcMessage(const TcpConnectionPtr& conn,
+                    const MessagePtr& message,
+                    Timestamp receiveTime)
+  {
+    messageCallback_(conn, ::muduo::down_pointer_cast<MSG>(message), receiveTime);
+  }
+
+  void fillEmptyBuffer(muduo::net::Buffer* buf, const MSG& message)
+  {
+    codec_.fillEmptyBuffer(buf, message);
+  }
+
+ private:
+  ProtobufMessageCallback messageCallback_;
+  ProtobufCodecLite codec_;
 };
 
 }

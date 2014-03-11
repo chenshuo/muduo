@@ -42,10 +42,10 @@ RpcChannel::~RpcChannel()
   // need not be of any specific class as long as their descriptors are
   // method->input_type() and method->output_type().
 void RpcChannel::CallMethod(const ::google::protobuf::MethodDescriptor* method,
-                  google::protobuf::RpcController* controller,
-                  const ::google::protobuf::Message* request,
-                  ::google::protobuf::Message* response,
-                  ::google::protobuf::Closure* done)
+                            google::protobuf::RpcController* controller,
+                            const ::google::protobuf::Message* request,
+                            ::google::protobuf::Message* response,
+                            ::google::protobuf::Closure* done)
 {
   RpcMessage message;
   message.set_type(REQUEST);
@@ -71,11 +71,12 @@ void RpcChannel::onMessage(const TcpConnectionPtr& conn,
 }
 
 void RpcChannel::onRpcMessage(const TcpConnectionPtr& conn,
-                              const RpcMessage& message,
+                              const RpcMessagePtr& messagePtr,
                               Timestamp receiveTime)
 {
   assert(conn == conn_);
   //printf("%s\n", message.DebugString().c_str());
+  RpcMessage& message = *messagePtr;
   if (message.type() == RESPONSE)
   {
     int64_t id = message.id();

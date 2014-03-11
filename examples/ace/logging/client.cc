@@ -20,6 +20,8 @@ using namespace muduo::net;
 
 namespace logging
 {
+extern const char logtag[] = "LOG0";
+typedef ProtobufCodecLiteT<LogRecord, logtag> Codec;
 
 // same as asio/char/client.cc
 class LogClient : boost::noncopyable
@@ -27,14 +29,12 @@ class LogClient : boost::noncopyable
  public:
   LogClient(EventLoop* loop, const InetAddress& serverAddr)
     : client_(loop, serverAddr, "LogClient"),
-      codec_(&LogRecord::default_instance(),
-             "LOG0",
-             boost::bind(&LogClient::onMessage, this, _1, _2, _3))
+      codec_(boost::bind(&LogClient::onMessage, this, _1, _2, _3))
   {
     client_.setConnectionCallback(
         boost::bind(&LogClient::onConnection, this, _1));
     client_.setMessageCallback(
-        boost::bind(&ProtobufCodecLite::onMessage, &codec_, _1, _2, _3));
+        boost::bind(&Codec::onMessage, &codec_, _1, _2, _3));
     client_.enableRetry();
   }
 
@@ -109,7 +109,7 @@ class LogClient : boost::noncopyable
   }
 
   TcpClient client_;
-  ProtobufCodecLite codec_;
+  Codec codec_;
   LogRecord logRecord_;
   MutexLock mutex_;
   TcpConnectionPtr connection_;
