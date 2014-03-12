@@ -4,8 +4,6 @@
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/protorpc/RpcServer.h>
 
-#include <boost/bind.hpp>
-
 using namespace muduo;
 using namespace muduo::net;
 
@@ -30,13 +28,14 @@ class EchoServiceImpl : public EchoService
 
 int main(int argc, char* argv[])
 {
-  LOG_INFO << "pid = " << getpid();
+  int nThreads =  argc > 1 ? atoi(argv[1]) : 1;
+  LOG_INFO << "pid = " << getpid() << " threads = " << nThreads;
   EventLoop loop;
-  int port = argc > 1 ? atoi(argv[1]) : 8888;
+  int port = argc > 2 ? atoi(argv[2]) : 8888;
   InetAddress listenAddr(static_cast<uint16_t>(port));
   echo::EchoServiceImpl impl;
   RpcServer server(&loop, listenAddr);
-  server.setThreadNum(2);
+  server.setThreadNum(nThreads);
   server.registerService(&impl);
   server.start();
   loop.loop();
