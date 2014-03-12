@@ -1,3 +1,12 @@
+2014-03-12   Shuo Chen  <chenshuo@chenshuo.com>
+  * Add TCP and RPC balancer examples
+  * Version 1.0.0
+
+2014-03-05   Shuo Chen  <chenshuo@chenshuo.com>
+  * Introduce class StringArg for passing C-style string arguments.
+  * Support localtime in logging.
+  * Version 1.0.0-rc2
+
 2014-02-22   Shuo Chen  <chenshuo@chenshuo.com>
   * Default to release build.
   * Version 1.0.0-rc1
