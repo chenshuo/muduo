@@ -1,19 +1,74 @@
 #include <muduo/base/Logging.h>
 #include <muduo/base/ThreadLocal.h>
 #include <muduo/net/EventLoop.h>
+//#include <muduo/net/EventLoopThread.h>
 #include <muduo/net/EventLoopThreadPool.h>
 #include <muduo/net/TcpClient.h>
 #include <muduo/net/TcpServer.h>
+//#include <muduo/net/inspect/Inspector.h>
 #include <muduo/net/protorpc/RpcCodec.h>
 #include <muduo/net/protorpc/rpc.pb.h>
 
 #include <boost/bind.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
+#include <endian.h>
 #include <stdio.h>
 
 using namespace muduo;
 using namespace muduo::net;
+
+struct RawMessage
+{
+  RawMessage(StringPiece m)
+    : message_(m), id_(0), loc_(NULL)
+  { }
+
+  uint64_t id() const { return id_; }
+  void set_id(uint64_t x) { id_ = x; }
+
+  bool parse(const string& tag)
+  {
+    const char* const body = message_.data() + ProtobufCodecLite::kHeaderLen;
+    const int bodylen = message_.size() - ProtobufCodecLite::kHeaderLen;
+    const int taglen = static_cast<int>(tag.size());
+    if (ProtobufCodecLite::validateChecksum(body, bodylen)
+        && (memcmp(body, tag.data(), tag.size()) == 0)
+        && (bodylen >= taglen + 3 + 8))
+    {
+      const char* const p = body + taglen;
+      uint8_t type = *(p+1);
+
+      if (*p == 0x08 && (type == 0x01 || type == 0x02) && *(p+2) == 0x11)
+      {
+        uint64_t x = 0;
+        memcpy(&x, p+3, sizeof(x));
+        set_id(le64toh(x));
+        loc_ = p+3;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  void updateId()
+  {
+    uint64_t le64 = htole64(id_);
+    memcpy(const_cast<void*>(loc_), &le64, sizeof(le64));
+
+    const char* body = message_.data() + ProtobufCodecLite::kHeaderLen;
+    int bodylen = message_.size() - ProtobufCodecLite::kHeaderLen;
+    int32_t checkSum = ProtobufCodecLite::checksum(body, bodylen - ProtobufCodecLite::kChecksumLen);
+    int32_t be32 = sockets::hostToNetwork32(checkSum);
+    memcpy(const_cast<char*>(body + bodylen - ProtobufCodecLite::kChecksumLen), &be32, sizeof(be32));
+  }
+
+  StringPiece message_;
+
+ private:
+  uint64_t id_;
+  const void* loc_;
+};
 
 class BackendSession : boost::noncopyable
 {
@@ -21,7 +76,8 @@ class BackendSession : boost::noncopyable
   BackendSession(EventLoop* loop, const InetAddress& backendAddr, const string& name)
     : loop_(loop),
       client_(loop, backendAddr, name),
-      codec_(boost::bind(&BackendSession::onRpcMessage, this, _1, _2, _3)),
+      codec_(boost::bind(&BackendSession::onRpcMessage, this, _1, _2, _3),
+             boost::bind(&BackendSession::onRawMessage, this, _1, _2, _3)),
       nextId_(0)
   {
     client_.setConnectionCallback(
@@ -37,7 +93,8 @@ class BackendSession : boost::noncopyable
   }
 
   // FIXME: add health check
-  bool send(RpcMessage& msg, const TcpConnectionPtr& clientConn)
+  template<typename MSG>
+  bool send(MSG& msg, const TcpConnectionPtr& clientConn)
   {
     loop_->assertInLoopThread();
     if (conn_)
@@ -47,7 +104,7 @@ class BackendSession : boost::noncopyable
       assert(outstandings_.find(id) == outstandings_.end());
       outstandings_[id] = r;
       msg.set_id(id);
-      codec_.send(conn_, msg);
+      sendTo(conn_, msg);
       // LOG_DEBUG << "forward " << r.origId << " from " << clientConn->name()
       //           << " as " << id << " to " << conn_->name();
       return true;
@@ -57,6 +114,17 @@ class BackendSession : boost::noncopyable
   }
 
  private:
+  void sendTo(const TcpConnectionPtr& conn, const RpcMessage& msg)
+  {
+    codec_.send(conn, msg);
+  }
+
+  void sendTo(const TcpConnectionPtr& conn, RawMessage& msg)
+  {
+    msg.updateId();
+    conn->send(msg.message_);
+  }
+
   void onConnection(const TcpConnectionPtr& conn)
   {
     loop_->assertInLoopThread();
@@ -79,8 +147,28 @@ class BackendSession : boost::noncopyable
                     const RpcMessagePtr& msg,
                     Timestamp)
   {
+    onMessageT(*msg);
+  }
+
+  bool onRawMessage(const TcpConnectionPtr&,
+                    StringPiece message,
+                    Timestamp)
+  {
+    RawMessage raw(message);
+    if (raw.parse(codec_.tag()))
+    {
+      onMessageT(raw);
+      return false;
+    }
+    else
+      return true; // try normal rpc message callback
+  }
+
+  template<typename MSG>
+  void onMessageT(MSG& msg)
+  {
     loop_->assertInLoopThread();
-    std::map<uint64_t, Request>::iterator it = outstandings_.find(msg->id());
+    std::map<uint64_t, Request>::iterator it = outstandings_.find(msg.id());
     if (it != outstandings_.end())
     {
       uint64_t origId = it->second.origId;
@@ -91,8 +179,8 @@ class BackendSession : boost::noncopyable
       {
         // LOG_DEBUG << "send back " << origId << " of " << clientConn->name()
         //           << " using " << msg.id() << " from " << conn_->name();
-        msg->set_id(origId);
-        codec_.send(clientConn, *msg);
+        msg.set_id(origId);
+        sendTo(clientConn, msg);
       }
     }
     else
@@ -124,8 +212,8 @@ class Balancer : boost::noncopyable
            const std::vector<InetAddress>& backends)
     : loop_(loop),
       server_(loop, listenAddr, name),
-      codec_(RpcCodec::ProtobufMessageCallback(),
-             boost::bind(&Balancer::onRawMessage, this, _1, _2, _3, _4)),
+      codec_(boost::bind(&Balancer::onRpcMessage, this, _1, _2, _3),
+             boost::bind(&Balancer::onRawMessage, this, _1, _2, _3)),
       backends_(backends)
   {
     server_.setThreadInitCallback(
@@ -187,43 +275,41 @@ class Balancer : boost::noncopyable
   }
 
   bool onRawMessage(const TcpConnectionPtr& conn,
-                    const char* buf,
-                    int len,
+                    StringPiece message,
                     Timestamp)
   {
-    if (ProtobufCodecLite::validateChecksum(buf, len)
-        && (memcmp(buf, codec_.tag().data(), codec_.tag().size()) == 0))
+    RawMessage raw(message);
+    if (raw.parse(codec_.tag()))
     {
-      LOG_INFO << "Got raw message";
-      // FIXME:
+      onMessageT(conn, raw);
+      return false;
     }
     else
-    {
-      // FIXME:
-    }
-    return false;
+      return true; // try normal rpc message callback
   }
 
   void onRpcMessage(const TcpConnectionPtr& conn,
                     const RpcMessagePtr& msg,
                     Timestamp)
   {
+    onMessageT(conn, *msg);
+  }
+
+  template<typename MSG>
+  bool onMessageT(const TcpConnectionPtr& conn, MSG& msg)
+  {
     PerThread& t = t_backends_.value();
     bool succeed = false;
-    for (size_t i = 0; i < t.backends.size(); ++i)
+    for (size_t i = 0; i < t.backends.size() && !succeed; ++i)
     {
-      succeed = t.backends[t.current++].send(*msg, conn);
-      if (succeed)
-      {
-        break;
-      }
-      t.current = t.current % t.backends.size();
+      succeed = t.backends[t.current].send(msg, conn);
+      t.current = (t.current+1) % t.backends.size();
     }
-    t.current = t.current % t.backends.size();
     if (!succeed)
     {
       // FIXME: no backend available
     }
+    return succeed;
   }
 
   EventLoop* loop_;
@@ -263,6 +349,8 @@ int main(int argc, char* argv[])
     uint16_t port = static_cast<uint16_t>(atoi(argv[1]));
     InetAddress listenAddr(port);
 
+    // EventLoopThread inspectThread;
+    // new Inspector(inspectThread.startLoop(), InetAddress(8080), "rpcbalancer");
     EventLoop loop;
     Balancer balancer(&loop, listenAddr, "RpcBalancer", backends);
     balancer.setThreadNum(4);

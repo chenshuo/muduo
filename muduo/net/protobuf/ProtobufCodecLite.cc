@@ -59,10 +59,7 @@ void ProtobufCodecLite::fillEmptyBuffer(muduo::net::Buffer* buf,
   }
   buf->hasWritten(byte_size);
 
-  int32_t checkSum = static_cast<int32_t>(
-      ::adler32(1,
-        reinterpret_cast<const Bytef*>(buf->peek()),
-        static_cast<int>(buf->readableBytes())));
+  int32_t checkSum = checksum(buf->peek(), static_cast<int>(buf->readableBytes()));
   buf->appendInt32(checkSum);
   assert(buf->readableBytes() == tag_.size() + byte_size + kChecksumLen);
   int32_t len = sockets::hostToNetwork32(static_cast<int32_t>(buf->readableBytes()));
@@ -81,9 +78,9 @@ void ProtobufCodecLite::onMessage(const TcpConnectionPtr& conn,
       errorCallback_(conn, buf, receiveTime, kInvalidLength);
       break;
     }
-    else if (buf->readableBytes() >= implicit_cast<size_t>(len+kHeaderLen))
+    else if (buf->readableBytes() >= implicit_cast<size_t>(kHeaderLen+len))
     {
-      if (rawCb_ && !rawCb_(conn, buf->peek()+kHeaderLen, len, receiveTime))
+      if (rawCb_ && !rawCb_(conn, StringPiece(buf->peek(), kHeaderLen+len), receiveTime))
       {
         buf->retrieve(kHeaderLen+len);
         continue;
@@ -161,14 +158,17 @@ int32_t ProtobufCodecLite::asInt32(const char* buf)
   return sockets::networkToHost32(be32);
 }
 
+int32_t ProtobufCodecLite::checksum(const void* buf, int len)
+{
+  return static_cast<int32_t>(
+      ::adler32(1, static_cast<const Bytef*>(buf), len));
+}
+
 bool ProtobufCodecLite::validateChecksum(const char* buf, int len)
 {
   // check sum
   int32_t expectedCheckSum = asInt32(buf + len - kChecksumLen);
-  int32_t checkSum = static_cast<int32_t>(
-      ::adler32(1,
-                reinterpret_cast<const Bytef*>(buf),
-                static_cast<int>(len - kChecksumLen)));
+  int32_t checkSum = checksum(buf, len - kChecksumLen);
   return checkSum == expectedCheckSum;
 }
 

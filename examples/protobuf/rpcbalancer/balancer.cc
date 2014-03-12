@@ -191,16 +191,11 @@ class Balancer : boost::noncopyable
   {
     PerThread& t = t_backends_.value();
     bool succeed = false;
-    for (size_t i = 0; i < t.backends.size(); ++i)
+    for (size_t i = 0; i < t.backends.size() && !succeed; ++i)
     {
-      succeed = t.backends[t.current++].send(*msg, conn);
-      if (succeed)
-      {
-        break;
-      }
-      t.current = t.current % t.backends.size();
+      succeed = t.backends[t.current].send(*msg, conn);
+      t.current = (t.current+1) % t.backends.size();
     }
-    t.current = t.current % t.backends.size();
     if (!succeed)
     {
       // FIXME: no backend available
