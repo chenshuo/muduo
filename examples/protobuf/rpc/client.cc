@@ -73,11 +73,11 @@ int main(int argc, char* argv[])
     RpcClient rpcClient(&loop, serverAddr);
     rpcClient.connect();
     loop.loop();
-    google::protobuf::ShutdownProtobufLibrary();
   }
   else
   {
     printf("Usage: %s host_ip\n", argv[0]);
   }
+  google::protobuf::ShutdownProtobufLibrary();
 }
 
