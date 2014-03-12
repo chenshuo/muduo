@@ -28,11 +28,12 @@ class EchoServiceImpl : public EchoService
 
 }
 
-int main()
+int main(int argc, char* argv[])
 {
   LOG_INFO << "pid = " << getpid();
   EventLoop loop;
-  InetAddress listenAddr(8888);
+  int port = argc > 1 ? atoi(argv[1]) : 8888;
+  InetAddress listenAddr(static_cast<uint16_t>(port));
   echo::EchoServiceImpl impl;
   RpcServer server(&loop, listenAddr);
   server.setThreadNum(2);

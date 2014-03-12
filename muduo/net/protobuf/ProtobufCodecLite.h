@@ -56,6 +56,10 @@ typedef boost::shared_ptr<google::protobuf::Message> MessagePtr;
 class ProtobufCodecLite : boost::noncopyable
 {
  public:
+  const static int kHeaderLen = sizeof(int32_t);
+  const static int kChecksumLen = sizeof(int32_t);
+  const static int kMaxMessageLen = 64*1024*1024; // same as codec_stream.h kDefaultTotalBytesLimit
+
   enum ErrorCode
   {
     kNoError = 0,
@@ -68,8 +72,7 @@ class ProtobufCodecLite : boost::noncopyable
 
   // return false to stop parsing protobuf message
   typedef boost::function<bool (const TcpConnectionPtr&,
-                                const char*,
-                                int,
+                                StringPiece,
                                 Timestamp)> RawMessageCallback;
 
   typedef boost::function<void (const TcpConnectionPtr&,
@@ -110,6 +113,7 @@ class ProtobufCodecLite : boost::noncopyable
   ErrorCode parse(const char* buf, int len, ::google::protobuf::Message* message);
   void fillEmptyBuffer(muduo::net::Buffer* buf, const google::protobuf::Message& message);
 
+  static int32_t checksum(const void* buf, int len);
   static bool validateChecksum(const char* buf, int len);
   static int32_t asInt32(const char* buf);
   static void defaultErrorCallback(const TcpConnectionPtr&,
@@ -124,10 +128,6 @@ class ProtobufCodecLite : boost::noncopyable
   RawMessageCallback rawCb_;
   ErrorCallback errorCallback_;
   const int kMinMessageLen;
-
-  const static int kHeaderLen = sizeof(int32_t);
-  const static int kChecksumLen = sizeof(int32_t);
-  const static int kMaxMessageLen = 64*1024*1024; // same as codec_stream.h kDefaultTotalBytesLimit
 };
 
 template<typename MSG, const char* TAG>  // TAG must be a variable with external linkage, not a string literal
