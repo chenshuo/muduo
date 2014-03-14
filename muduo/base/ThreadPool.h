@@ -25,7 +25,7 @@ class ThreadPool : boost::noncopyable
  public:
   typedef boost::function<void ()> Task;
 
-  explicit ThreadPool(const string& name = string());
+  explicit ThreadPool(const string& name = string("ThreadPool"));
   ~ThreadPool();
 
   // Must be called before start().

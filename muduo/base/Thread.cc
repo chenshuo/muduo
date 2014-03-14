@@ -15,6 +15,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <sys/prctl.h>
 #include <sys/syscall.h>
 #include <sys/types.h>
 #include <linux/unistd.h>
@@ -85,7 +86,8 @@ struct ThreadData
       ptid.reset();
     }
 
-    muduo::CurrentThread::t_threadName = name_.c_str();
+    muduo::CurrentThread::t_threadName = name_.empty() ? "muduoThread" : name_.c_str();
+    ::prctl(PR_SET_NAME, muduo::CurrentThread::t_threadName);
     try
     {
       func_();
@@ -161,7 +163,7 @@ Thread::Thread(const ThreadFunc& func, const string& n)
     func_(func),
     name_(n)
 {
-  numCreated_.increment();
+  setDefaultName();
 }
 
 #ifdef __GXX_EXPERIMENTAL_CXX0X__
@@ -173,7 +175,7 @@ Thread::Thread(ThreadFunc&& func, const string& n)
     func_(std::move(func)),
     name_(n)
 {
-  numCreated_.increment();
+  setDefaultName();
 }
 
 #endif
@@ -183,6 +185,17 @@ Thread::~Thread()
   if (started_ && !joined_)
   {
     pthread_detach(pthreadId_);
+  }
+}
+
+void Thread::setDefaultName()
+{
+  int num = numCreated_.incrementAndGet();
+  if (name_.empty())
+  {
+    char buf[32];
+    snprintf(buf, sizeof buf, "Thread%d", num);
+    name_ = buf;
   }
 }
 

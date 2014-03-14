@@ -39,6 +39,8 @@ class Thread : boost::noncopyable
   static int numCreated() { return numCreated_.get(); }
 
  private:
+  void setDefaultName();
+
   bool       started_;
   bool       joined_;
   pthread_t  pthreadId_;

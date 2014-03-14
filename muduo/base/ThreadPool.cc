@@ -39,7 +39,7 @@ void ThreadPool::start(int numThreads)
   for (int i = 0; i < numThreads; ++i)
   {
     char id[32];
-    snprintf(id, sizeof id, "%d", i);
+    snprintf(id, sizeof id, "%d", i+1);
     threads_.push_back(new muduo::Thread(
           boost::bind(&ThreadPool::runInThread, this), name_+id));
     threads_[i].start();
