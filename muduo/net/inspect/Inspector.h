@@ -44,6 +44,7 @@ class Inspector : boost::noncopyable
            const string& command,
            const Callback& cb,
            const string& help);
+  void remove(const string& module, const string& command);
 
  private:
   typedef std::map<string, Callback> CommandList;

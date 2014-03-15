@@ -26,6 +26,7 @@ namespace ProcessInfo
   string username();
   uid_t euid();
   Timestamp startTime();
+  long clockTicksPerSecond();
 
   string hostname();
   string procname();

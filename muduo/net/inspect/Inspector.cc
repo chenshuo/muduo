@@ -93,6 +93,17 @@ void Inspector::add(const string& module,
   helps_[module][command] = help;
 }
 
+void Inspector::remove(const string& module, const string& command)
+{
+  MutexLockGuard lock(mutex_);
+  std::map<string, CommandList>::iterator it = modules_.find(module);
+  if (it != modules_.end())
+  {
+    it->second.erase(command);
+    helps_[module].erase(command);
+  }
+}
+
 void Inspector::start()
 {
   server_.start();

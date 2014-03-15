@@ -11,6 +11,7 @@
 #include <muduo/base/ProcessInfo.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <sys/times.h>
 #include <unistd.h>
 
 using namespace muduo;
@@ -55,6 +56,7 @@ string getProcessName(const string& procStatus)
   return result;
 }
 
+/*
 long getStatField(const string& procStat, int field)
 {
   // 969 (inspector_test) S
@@ -86,6 +88,7 @@ long getStatField(const string& procStat, int field)
   }
   return result;
 }
+*/
 
 int stringPrintf(string* out, const char* fmt, ...) __attribute__ ((format (printf, 2, 3)));
 
@@ -104,7 +107,7 @@ string ProcessInspector::username_ = ProcessInfo::username();
 
 void ProcessInspector::registerCommands(Inspector* ins)
 {
-  ins->add("proc", "basic", ProcessInspector::overview, "print basic overview");
+  ins->add("proc", "overview", ProcessInspector::overview, "print basic overview");
   ins->add("proc", "pid", ProcessInspector::pid, "print pid");
   ins->add("proc", "status", ProcessInspector::procStatus, "print /proc/self/status");
   ins->add("proc", "opened_files", ProcessInspector::openedFiles, "count /proc/self/fd");
@@ -147,17 +150,22 @@ string ProcessInspector::overview(HttpRequest::Method, const Inspector::ArgList&
   stringPrintf(&result, "Opened files: %d, limit: %d\n",
                ProcessInfo::openedFiles(), ProcessInfo::maxOpenFiles());
 
-  string procStat = ProcessInfo::procStat();
+  // string procStat = ProcessInfo::procStat();
 
   /*
   stringPrintf(&result, "ppid %ld\n", getStatField(procStat, 0));
   stringPrintf(&result, "pgid %ld\n", getStatField(procStat, 1));
   */
 
-  double clk = static_cast<double>(sysconf(_SC_CLK_TCK));
-  stringPrintf(&result, "User time: %.3fs, Sys time: %.3fs\n",
-               static_cast<double>(getStatField(procStat, 10)) / clk,
-               static_cast<double>(getStatField(procStat, 11)) / clk);
+  struct tms tms;
+  clock_t clk = ::times(&tms);
+  double hz = static_cast<double>(ProcessInfo::clockTicksPerSecond());
+  if (clk >= 0)
+  {
+    stringPrintf(&result, "User time: %.3fs, Sys time: %.3fs\n",
+                 static_cast<double>(tms.tms_utime) / hz,
+                 static_cast<double>(tms.tms_stime) / hz);
+  }
 
   // FIXME: add context switches
 

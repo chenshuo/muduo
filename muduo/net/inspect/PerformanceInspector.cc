@@ -23,7 +23,8 @@ void PerformanceInspector::registerCommands(Inspector* ins)
 {
   ins->add("pprof", "heap", PerformanceInspector::heap, "get heap information");
   ins->add("pprof", "growth", PerformanceInspector::growth, "get heap growth information");
-  ins->add("pprof", "profile", PerformanceInspector::profile, "get cpu profiling information");
+  ins->add("pprof", "profile", PerformanceInspector::profile,
+           "get cpu profiling information. CAUTION: blocking thread for 30 seconds!");
   ins->add("pprof", "cmdline", PerformanceInspector::cmdline, "get command line");
   ins->add("pprof", "memstats", PerformanceInspector::memstats, "get memory stats");
   ins->add("pprof", "memhistogram", PerformanceInspector::memhistogram, "get memory histogram");
