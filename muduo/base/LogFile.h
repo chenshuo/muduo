@@ -21,7 +21,8 @@ class LogFile : boost::noncopyable
   LogFile(const string& basename,
           size_t rollSize,
           bool threadSafe = true,
-          int flushInterval = 3);
+          int flushInterval = 3,
+          int checkEveryN = 1024);
   ~LogFile();
 
   void append(const char* logline, int len);
@@ -36,6 +37,7 @@ class LogFile : boost::noncopyable
   const string basename_;
   const size_t rollSize_;
   const int flushInterval_;
+  const int checkEveryN_;
 
   int count_;
 
@@ -45,7 +47,6 @@ class LogFile : boost::noncopyable
   time_t lastFlush_;
   boost::scoped_ptr<FileUtil::AppendFile> file_;
 
-  const static int kCheckTimeRoll_ = 1024;
   const static int kRollPerSeconds_ = 60*60*24;
 };
 
