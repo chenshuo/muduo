@@ -43,6 +43,13 @@ namespace ProcessInfo
   int openedFiles();
   int maxOpenFiles();
 
+  struct CpuTime
+  {
+    double userSeconds;
+    double systemSeconds;
+  };
+  CpuTime cpuTime();
+
   int numThreads();
   std::vector<pid_t> threads();
 }

@@ -33,6 +33,7 @@ class Session : boost::noncopyable
  private:
 
   // FIXME: duplicate code LogFile
+  // or use LogFile instead
   string getFileName(const TcpConnectionPtr& conn)
   {
     string filename;

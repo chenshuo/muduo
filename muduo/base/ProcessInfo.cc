@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/resource.h>
+#include <sys/times.h>
 
 namespace muduo
 {
@@ -172,6 +173,20 @@ int ProcessInfo::maxOpenFiles()
   {
     return static_cast<int>(rl.rlim_cur);
   }
+}
+
+ProcessInfo::CpuTime ProcessInfo::cpuTime()
+{
+  ProcessInfo::CpuTime t;
+  bzero(&t, sizeof t);
+  struct tms tms;
+  if (::times(&tms) >= 0)
+  {
+    const double hz = static_cast<double>(clockTicksPerSecond());
+    t.userSeconds = static_cast<double>(tms.tms_utime) / hz;
+    t.systemSeconds = static_cast<double>(tms.tms_stime) / hz;
+  }
+  return t;
 }
 
 int ProcessInfo::numThreads()
