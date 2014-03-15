@@ -53,6 +53,7 @@ int scanDir(const char *dirpath, int (*filter)(const struct dirent *))
 }
 
 Timestamp g_startTime = Timestamp::now();
+long g_clockTicks = ::sysconf(_SC_CLK_TCK);
 }
 }
 
@@ -99,6 +100,11 @@ uid_t ProcessInfo::euid()
 Timestamp ProcessInfo::startTime()
 {
   return g_startTime;
+}
+
+long ProcessInfo::clockTicksPerSecond()
+{
+  return g_clockTicks;
 }
 
 string ProcessInfo::hostname()
