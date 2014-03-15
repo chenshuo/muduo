@@ -11,7 +11,6 @@
 #include <muduo/base/ProcessInfo.h>
 #include <stdio.h>
 #include <stdarg.h>
-#include <sys/times.h>
 #include <unistd.h>
 
 using namespace muduo;
@@ -20,11 +19,14 @@ using namespace muduo::net;
 string uptime()
 {
   char buf[256];
-  int seconds = static_cast<int>(timeDifference(Timestamp::now(), ProcessInfo::startTime()));
+  int64_t age = Timestamp::now().microSecondsSinceEpoch() - ProcessInfo::startTime().microSecondsSinceEpoch();
+  int microseconds = static_cast<int>(age % Timestamp::kMicroSecondsPerSecond);
+  int seconds = static_cast<int>(age / Timestamp::kMicroSecondsPerSecond);
   int days = seconds/86400;
   int hours = (seconds % 86400) / 3600;
   int minutes = (seconds % 3600) / 60;
-  snprintf(buf, sizeof buf, "%d days %02d:%02d:%02d", days, hours, minutes, seconds % 60);
+  snprintf(buf, sizeof buf, "%d days %02d:%02d:%02d.%06d",
+           days, hours, minutes, seconds % 60, microseconds);
   return buf;
 }
 
@@ -157,15 +159,9 @@ string ProcessInspector::overview(HttpRequest::Method, const Inspector::ArgList&
   stringPrintf(&result, "pgid %ld\n", getStatField(procStat, 1));
   */
 
-  struct tms tms;
-  clock_t clk = ::times(&tms);
-  double hz = static_cast<double>(ProcessInfo::clockTicksPerSecond());
-  if (clk >= 0)
-  {
-    stringPrintf(&result, "User time: %.3fs, Sys time: %.3fs\n",
-                 static_cast<double>(tms.tms_utime) / hz,
-                 static_cast<double>(tms.tms_stime) / hz);
-  }
+  ProcessInfo::CpuTime t = ProcessInfo::cpuTime();
+  stringPrintf(&result, "User time: %12.3fs\nSys time:  %12.3fs\n",
+               t.userSeconds, t.systemSeconds);
 
   // FIXME: add context switches
 
