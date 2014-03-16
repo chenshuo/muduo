@@ -10,8 +10,8 @@ include_directories(${PROJECT_BINARY_DIR})
 add_library(muduo_protorpc_wire rpc.pb.cc RpcCodec.cc)
 set_target_properties(muduo_protorpc_wire PROPERTIES COMPILE_FLAGS "-Wno-error=shadow")
 
-add_library(muduo_protorpc_wire_cpp11 rpc.pb.cc RpcCodec.cc)
-set_target_properties(muduo_protorpc_wire_cpp11 PROPERTIES COMPILE_FLAGS "-std=c++0x -Wno-error=shadow")
+#add_library(muduo_protorpc_wire_cpp11 rpc.pb.cc RpcCodec.cc)
+#set_target_properties(muduo_protorpc_wire_cpp11 PROPERTIES COMPILE_FLAGS "-std=c++0x -Wno-error=shadow")
 
 if(NOT CMAKE_BUILD_NO_EXAMPLES)
 add_executable(protobuf_rpc_wire_test RpcCodec_test.cc)
@@ -28,7 +28,7 @@ if(TCMALLOC_LIBRARY)
 endif()
 
 install(TARGETS muduo_protorpc_wire muduo_protorpc DESTINATION lib)
-install(TARGETS muduo_protorpc_wire_cpp11 DESTINATION lib)
+#install(TARGETS muduo_protorpc_wire_cpp11 DESTINATION lib)
 
 set(HEADERS
   RpcCodec.h
