@@ -112,7 +112,7 @@ void ProcessInspector::registerCommands(Inspector* ins)
   ins->add("proc", "overview", ProcessInspector::overview, "print basic overview");
   ins->add("proc", "pid", ProcessInspector::pid, "print pid");
   ins->add("proc", "status", ProcessInspector::procStatus, "print /proc/self/status");
-  ins->add("proc", "opened_files", ProcessInspector::openedFiles, "count /proc/self/fd");
+  // ins->add("proc", "opened_files", ProcessInspector::openedFiles, "count /proc/self/fd");
   ins->add("proc", "threads", ProcessInspector::threads, "list /proc/self/task");
 }
 

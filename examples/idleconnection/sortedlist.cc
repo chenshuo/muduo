@@ -95,10 +95,8 @@ void EchoServer::onMessage(const TcpConnectionPtr& conn,
   assert(!conn->getContext().empty());
   Node* node = boost::any_cast<Node>(conn->getMutableContext());
   node->lastReceiveTime = time;
-  // move node inside list with list::splice()
-  connectionList_.erase(node->position);
-  connectionList_.push_back(conn);
-  node->position = --connectionList_.end();
+  connectionList_.splice(connectionList_.end(), connectionList_, node->position);
+  assert(node->position == --connectionList_.end());
 
   dumpConnectionList();
 }
