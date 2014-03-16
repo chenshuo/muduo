@@ -54,7 +54,9 @@ int scanDir(const char *dirpath, int (*filter)(const struct dirent *))
 }
 
 Timestamp g_startTime = Timestamp::now();
-long g_clockTicks = ::sysconf(_SC_CLK_TCK);
+// assume those won't change during the life time of a process.
+int g_clockTicks = static_cast<int>(::sysconf(_SC_CLK_TCK));
+int g_pageSize = static_cast<int>(::sysconf(_SC_PAGE_SIZE));
 }
 }
 
@@ -103,9 +105,14 @@ Timestamp ProcessInfo::startTime()
   return g_startTime;
 }
 
-long ProcessInfo::clockTicksPerSecond()
+int ProcessInfo::clockTicksPerSecond()
 {
   return g_clockTicks;
+}
+
+int ProcessInfo::pageSize()
+{
+  return g_pageSize;
 }
 
 string ProcessInfo::hostname()
