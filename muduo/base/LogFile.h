@@ -27,12 +27,12 @@ class LogFile : boost::noncopyable
 
   void append(const char* logline, int len);
   void flush();
+  void rollFile();
 
  private:
   void append_unlocked(const char* logline, int len);
 
   static string getLogFileName(const string& basename, time_t* now);
-  void rollFile();
 
   const string basename_;
   const size_t rollSize_;
