@@ -25,6 +25,12 @@ target_link_libraries(fileutil_test muduo_base)
 add_executable(fork_test Fork_test.cc)
 target_link_libraries(fork_test muduo_base)
 
+if(ZLIB_FOUND)
+  add_executable(gzipfile_test GzipFile_test.cc)
+  target_link_libraries(gzipfile_test z)
+  set_target_properties(gzipfile_test PROPERTIES COMPILE_FLAGS "-std=c++0x")
+endif()
+
 add_executable(logfile_test LogFile_test.cc)
 target_link_libraries(logfile_test muduo_base)
 
