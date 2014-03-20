@@ -22,8 +22,13 @@ int main()
   {
     char buf[256];
     printf("tell %ld\n", reader.tell());
-    printf("read %d\n", reader.read(buf, sizeof buf));
-    printf("data %s", buf);
+    int nr = reader.read(buf, sizeof buf);
+    printf("read %d\n", nr);
+    if (nr >= 0)
+    {
+      buf[nr] = '\0';
+      printf("data %s", buf);
+    }
     printf("tell %ld\n", reader.tell());
     if (strncmp(buf, data, strlen(data)) != 0)
     {
@@ -34,6 +39,14 @@ int main()
     {
       printf("PASSED\n");
     }
+  }
+  }
+
+  {
+  muduo::GzipFile writer = muduo::GzipFile::openForWriteExclusive(filename);
+  if (writer.valid() || errno != EEXIST)
+  {
+    printf("FAILED\n");
   }
   }
 }

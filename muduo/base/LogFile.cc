@@ -87,7 +87,7 @@ void LogFile::append_unlocked(const char* logline, int len)
   }
 }
 
-void LogFile::rollFile()
+bool LogFile::rollFile()
 {
   time_t now = 0;
   string filename = getLogFileName(basename_, &now);
@@ -99,7 +99,9 @@ void LogFile::rollFile()
     lastFlush_ = now;
     startOfPeriod_ = start;
     file_.reset(new FileUtil::AppendFile(filename));
+    return true;
   }
+  return false;
 }
 
 string LogFile::getLogFileName(const string& basename, time_t* now)
