@@ -138,6 +138,11 @@ string ProcessInspector::overview(HttpRequest::Method, const Inspector::ArgList&
   result += ProcessInfo::hostname(); // cache ?
   result += "\n";
 
+  if (ProcessInfo::isDebugBuild())
+  {
+    result += "WARNING: debug build!\n";
+  }
+
   stringPrintf(&result, "pid %d, num of threads %ld\n",
                ProcessInfo::pid(), getLong(procStatus, "Threads:"));
 
