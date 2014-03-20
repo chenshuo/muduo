@@ -16,10 +16,10 @@
 using namespace muduo;
 using namespace muduo::net;
 
-string uptime()
+string uptime(Timestamp now)
 {
   char buf[256];
-  int64_t age = Timestamp::now().microSecondsSinceEpoch() - ProcessInfo::startTime().microSecondsSinceEpoch();
+  int64_t age = now.microSecondsSinceEpoch() - ProcessInfo::startTime().microSecondsSinceEpoch();
   int microseconds = static_cast<int>(age % Timestamp::kMicroSecondsPerSecond);
   int seconds = static_cast<int>(age / Timestamp::kMicroSecondsPerSecond);
   int days = seconds/86400;
@@ -120,12 +120,13 @@ string ProcessInspector::overview(HttpRequest::Method, const Inspector::ArgList&
 {
   string result;
   result.reserve(1024);
+  Timestamp now = Timestamp::now();
   result += "Page generated at ";
-  result += Timestamp::now().toFormattedString();
+  result += now.toFormattedString();
   result += " (UTC)\nStarted at ";
   result += ProcessInfo::startTime().toFormattedString();
   result += " (UTC), up for ";
-  result += uptime();
+  result += uptime(now);
   result += "\n";
 
   string procStatus = ProcessInfo::procStatus();
