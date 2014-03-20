@@ -47,7 +47,7 @@ class IgnoreSigPipe
   IgnoreSigPipe()
   {
     ::signal(SIGPIPE, SIG_IGN);
-    LOG_TRACE << "Ignore SIGPIPE";
+    // LOG_TRACE << "Ignore SIGPIPE";
   }
 };
 #pragma GCC diagnostic error "-Wold-style-cast"

@@ -62,6 +62,16 @@ class GzipFile : boost::noncopyable
     return GzipFile(::gzopen(filename.c_str(), "abe"));
   }
 
+  static GzipFile openForWriteExclusive(StringArg filename)
+  {
+    return GzipFile(::gzopen(filename.c_str(), "wbxe"));
+  }
+
+  static GzipFile openForWriteTruncate(StringArg filename)
+  {
+    return GzipFile(::gzopen(filename.c_str(), "wbe"));
+  }
+
  private:
   explicit GzipFile(gzFile file)
     : file_(file)

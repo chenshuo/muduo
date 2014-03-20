@@ -115,6 +115,15 @@ int ProcessInfo::pageSize()
   return g_pageSize;
 }
 
+bool ProcessInfo::isDebugBuild()
+{
+#ifdef NDEBUG
+  return false;
+#else
+  return true;
+#endif
+}
+
 string ProcessInfo::hostname()
 {
   char buf[64] = "unknownhost";

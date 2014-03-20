@@ -28,6 +28,7 @@ namespace ProcessInfo
   Timestamp startTime();
   int clockTicksPerSecond();
   int pageSize();
+  bool isDebugBuild();  // constexpr
 
   string hostname();
   string procname();

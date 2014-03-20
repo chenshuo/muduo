@@ -27,7 +27,7 @@ class LogFile : boost::noncopyable
 
   void append(const char* logline, int len);
   void flush();
-  void rollFile();
+  bool rollFile();
 
  private:
   void append_unlocked(const char* logline, int len);
