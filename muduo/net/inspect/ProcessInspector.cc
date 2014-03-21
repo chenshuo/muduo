@@ -8,6 +8,7 @@
 //
 
 #include <muduo/net/inspect/ProcessInspector.h>
+#include <muduo/base/FileUtil.h>
 #include <muduo/base/ProcessInfo.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -58,39 +59,33 @@ string getProcessName(const string& procStatus)
   return result;
 }
 
-/*
-long getStatField(const string& procStat, int field)
+StringPiece next(StringPiece data)
 {
-  // 969 (inspector_test) S
-  // 19089 969 19089 34823 969 4202496 609 0 0 0 0 3 0 0
-  // 20 0 2 0 162443763 95813632 463 18446744073709551615 4194304 5159121
-  // 140737297994192 140737297972304 140050830496611 0 0 4096 0
-  // 18446744073709551615 0 0 17 3 0 0 0 0 0
-  //
-  long result = -1;
-  size_t pos = procStat.find(") ");
-  if (pos != string::npos)
+  const char* sp = static_cast<const char*>(::memchr(data.data(), ' ', data.size()));
+  if (sp)
   {
-    const char* start = procStat.c_str() + pos + 4;
-    int f = 0;
-    const char* end = &*procStat.end();
-    // FIXME: Test with last field
-    while (f < field && start < end)
-    {
-      while (start < end && *start != ' ')
-        ++start;
-      ++f;
-      while (start < end && *start == ' ')
-        ++start;
-    }
-    if (f == field)
-    {
-      result = strtol(start, NULL, 10);
-    }
+    data.remove_prefix(static_cast<int>(sp+1-data.begin()));
+    return data;
   }
-  return result;
+  return "";
 }
-*/
+
+ProcessInfo::CpuTime getCpuTime(StringPiece data)
+{
+  ProcessInfo::CpuTime t;
+
+  for (int i = 0; i < 10; ++i)
+  {
+    data = next(data);
+  }
+  long utime = strtol(data.data(), NULL, 10);
+  data = next(data);
+  long stime = strtol(data.data(), NULL, 10);
+  const double hz = static_cast<double>(ProcessInfo::clockTicksPerSecond());
+  t.userSeconds = static_cast<double>(utime) / hz;
+  t.systemSeconds = static_cast<double>(stime) / hz;
+  return t;
+}
 
 int stringPrintf(string* out, const char* fmt, ...) __attribute__ ((format (printf, 2, 3)));
 
@@ -196,12 +191,28 @@ string ProcessInspector::openedFiles(HttpRequest::Method, const Inspector::ArgLi
 string ProcessInspector::threads(HttpRequest::Method, const Inspector::ArgList&)
 {
   std::vector<pid_t> threads = ProcessInfo::threads();
-  string result;
+  string result = "  TID NAME             S    User Time  System Time\n";
+  result.reserve(threads.size() * 64);
+  string stat;
   for (size_t i = 0; i < threads.size(); ++i)
   {
-    char buf[32];
-    snprintf(buf, sizeof buf, "%d\n", threads[i]);
-    result += buf;
+    char buf[256];
+    int tid = threads[i];
+    snprintf(buf, sizeof buf, "/proc/%d/stat", tid);
+    if (FileUtil::readFile(buf, 65536, &stat) == 0)
+    {
+      StringPiece name = ProcessInfo::procname(stat);
+      const char* rp = name.end();
+      assert(*rp == ')');
+      const char* state = rp + 2;
+      *const_cast<char*>(rp) = '\0';  // don't do this at home
+      StringPiece data(stat);
+      data.remove_prefix(static_cast<int>(state - data.data() + 2));
+      ProcessInfo::CpuTime t = getCpuTime(data);
+      snprintf(buf, sizeof buf, "%d %-16s %c %12.3f %12.3f\n",
+               tid, name.data(), *state, t.userSeconds, t.systemSeconds);
+      result += buf;
+    }
   }
   return result;
 }

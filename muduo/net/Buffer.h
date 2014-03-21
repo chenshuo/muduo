@@ -200,7 +200,16 @@ class Buffer : public muduo::copyable
   { return begin() + writerIndex_; }
 
   void hasWritten(size_t len)
-  { writerIndex_ += len; }
+  {
+    assert(len <= writableBytes());
+    writerIndex_ += len;
+  }
+
+  void unwrite(size_t len)
+  {
+    assert(len <= readableBytes());
+    writerIndex_ -= len;
+  }
 
   ///
   /// Append int32_t using network endian

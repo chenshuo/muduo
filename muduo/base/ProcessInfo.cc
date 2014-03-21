@@ -126,21 +126,33 @@ bool ProcessInfo::isDebugBuild()
 
 string ProcessInfo::hostname()
 {
-  char buf[64] = "unknownhost";
-  buf[sizeof(buf)-1] = '\0';
-  ::gethostname(buf, sizeof buf);
-  return buf;
+  // HOST_NAME_MAX 64
+  // _POSIX_HOST_NAME_MAX 255
+  char buf[256];
+  if (::gethostname(buf, sizeof buf) == 0)
+  {
+    buf[sizeof(buf)-1] = '\0';
+    return buf;
+  }
+  else
+  {
+    return "unknownhost";
+  }
 }
 
 string ProcessInfo::procname()
 {
-  string name;
-  string stat = procStat();
+  return procname(procStat()).as_string();
+}
+
+StringPiece ProcessInfo::procname(const string& stat)
+{
+  StringPiece name;
   size_t lp = stat.find('(');
-  size_t rp = stat.find(')');
-  if (lp != string::npos && rp != string::npos)
+  size_t rp = stat.rfind(')');
+  if (lp != string::npos && rp != string::npos && lp < rp)
   {
-    name = stat.substr(lp+1, rp-lp-1);
+    name.set(stat.data()+lp+1, static_cast<int>(rp-lp-1));
   }
   return name;
 }
@@ -194,7 +206,6 @@ int ProcessInfo::maxOpenFiles()
 ProcessInfo::CpuTime ProcessInfo::cpuTime()
 {
   ProcessInfo::CpuTime t;
-  bzero(&t, sizeof t);
   struct tms tms;
   if (::times(&tms) >= 0)
   {

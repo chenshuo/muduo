@@ -11,6 +11,7 @@
 #ifndef MUDUO_BASE_PROCESSINFO_H
 #define MUDUO_BASE_PROCESSINFO_H
 
+#include <muduo/base/StringPiece.h>
 #include <muduo/base/Types.h>
 #include <muduo/base/Timestamp.h>
 #include <vector>
@@ -32,6 +33,7 @@ namespace ProcessInfo
 
   string hostname();
   string procname();
+  StringPiece procname(const string& stat);
 
   /// read /proc/self/status
   string procStatus();
@@ -49,6 +51,8 @@ namespace ProcessInfo
   {
     double userSeconds;
     double systemSeconds;
+
+    CpuTime() : userSeconds(0.0), systemSeconds(0.0) { }
   };
   CpuTime cpuTime();
 
