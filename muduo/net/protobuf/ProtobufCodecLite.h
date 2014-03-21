@@ -25,6 +25,11 @@
 
 #include <boost/bind.hpp>
 
+#ifndef NDEBUG
+#include <boost/static_assert.hpp>
+#include <boost/type_traits/is_base_of.hpp>
+#endif
+
 namespace google
 {
 namespace protobuf
@@ -98,6 +103,8 @@ class ProtobufCodecLite : boost::noncopyable
   {
   }
 
+  virtual ~ProtobufCodecLite() { }
+
   const string& tag() const { return tag_; }
 
   void send(const TcpConnectionPtr& conn,
@@ -106,6 +113,9 @@ class ProtobufCodecLite : boost::noncopyable
   void onMessage(const TcpConnectionPtr& conn,
                  Buffer* buf,
                  Timestamp receiveTime);
+
+  virtual bool parseFromBuffer(StringPiece buf, google::protobuf::Message* message);
+  virtual int serializeToBuffer(const google::protobuf::Message& message, Buffer* buf);
 
   static const string& errorCodeToString(ErrorCode errorCode);
 
@@ -130,9 +140,12 @@ class ProtobufCodecLite : boost::noncopyable
   const int kMinMessageLen;
 };
 
-template<typename MSG, const char* TAG>  // TAG must be a variable with external linkage, not a string literal
+template<typename MSG, const char* TAG, typename CODEC=ProtobufCodecLite>  // TAG must be a variable with external linkage, not a string literal
 class ProtobufCodecLiteT
 {
+#ifndef NDEBUG
+  BOOST_STATIC_ASSERT((boost::is_base_of<ProtobufCodecLite, CODEC>::value));
+#endif
  public:
   typedef boost::shared_ptr<MSG> ConcreteMessagePtr;
   typedef boost::function<void (const TcpConnectionPtr&,
@@ -183,7 +196,7 @@ class ProtobufCodecLiteT
 
  private:
   ProtobufMessageCallback messageCallback_;
-  ProtobufCodecLite codec_;
+  CODEC codec_;
 };
 
 }

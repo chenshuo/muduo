@@ -7,6 +7,7 @@
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
 #include <muduo/net/protobuf/ProtobufCodecLite.h>
+// #include <muduo/net/protobuf/BufferStream.h>
 
 #include <muduo/base/Logging.h>
 #include <muduo/net/Endian.h>
@@ -45,23 +46,11 @@ void ProtobufCodecLite::fillEmptyBuffer(muduo::net::Buffer* buf,
   // FIXME: can we move serialization & checksum to other thread?
   buf->append(tag_);
 
-  // code copied from MessageLite::SerializeToArray() and MessageLite::SerializePartialToArray().
-  GOOGLE_DCHECK(message.IsInitialized()) << InitializationErrorMessage("serialize", message);
-
-  int byte_size = message.ByteSize();
-  buf->ensureWritableBytes(byte_size + kChecksumLen);
-
-  uint8_t* start = reinterpret_cast<uint8_t*>(buf->beginWrite());
-  uint8_t* end = message.SerializeWithCachedSizesToArray(start);
-  if (end - start != byte_size)
-  {
-    ByteSizeConsistencyError(byte_size, message.ByteSize(), static_cast<int>(end - start));
-  }
-  buf->hasWritten(byte_size);
+  int byte_size = serializeToBuffer(message, buf);
 
   int32_t checkSum = checksum(buf->peek(), static_cast<int>(buf->readableBytes()));
   buf->appendInt32(checkSum);
-  assert(buf->readableBytes() == tag_.size() + byte_size + kChecksumLen);
+  assert(buf->readableBytes() == tag_.size() + byte_size + kChecksumLen); (void) byte_size;
   int32_t len = sockets::hostToNetwork32(static_cast<int32_t>(buf->readableBytes()));
   buf->prepend(&len, sizeof len);
 }
@@ -105,6 +94,34 @@ void ProtobufCodecLite::onMessage(const TcpConnectionPtr& conn,
       break;
     }
   }
+}
+
+bool ProtobufCodecLite::parseFromBuffer(StringPiece buf, google::protobuf::Message* message)
+{
+  return message->ParseFromArray(buf.data(), buf.size());
+}
+
+int ProtobufCodecLite::serializeToBuffer(const google::protobuf::Message& message, Buffer* buf)
+{
+  // TODO: use BufferOutputStream
+  // BufferOutputStream os(buf);
+  // message.SerializeToZeroCopyStream(&os);
+  // return static_cast<int>(os.ByteCount());
+
+  // code copied from MessageLite::SerializeToArray() and MessageLite::SerializePartialToArray().
+  GOOGLE_DCHECK(message.IsInitialized()) << InitializationErrorMessage("serialize", message);
+
+  int byte_size = message.ByteSize();
+  buf->ensureWritableBytes(byte_size + kChecksumLen);
+
+  uint8_t* start = reinterpret_cast<uint8_t*>(buf->beginWrite());
+  uint8_t* end = message.SerializeWithCachedSizesToArray(start);
+  if (end - start != byte_size)
+  {
+    ByteSizeConsistencyError(byte_size, message.ByteSize(), static_cast<int>(end - start));
+  }
+  buf->hasWritten(byte_size);
+  return byte_size;
 }
 
 namespace
@@ -185,7 +202,7 @@ ProtobufCodecLite::ErrorCode ProtobufCodecLite::parse(const char* buf,
       // parse from buffer
       const char* data = buf + tag_.size();
       int32_t dataLen = len - kChecksumLen - static_cast<int>(tag_.size());
-      if (message->ParseFromArray(data, dataLen))
+      if (parseFromBuffer(StringPiece(data, dataLen), message))
       {
         error = kNoError;
       }
