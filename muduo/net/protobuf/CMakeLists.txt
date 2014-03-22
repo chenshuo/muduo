@@ -10,8 +10,6 @@ target_link_libraries(muduo_protobuf_codec_cpp11 muduo_net_cpp11 protobuf z)
 install(TARGETS muduo_protobuf_codec DESTINATION lib)
 install(TARGETS muduo_protobuf_codec_cpp11 DESTINATION lib)
 
-set(HEADERS
-  ProtobufCodecLite.h
-  )
+file(GLOB HEADERS "*.h")
 install(FILES ${HEADERS} DESTINATION include/muduo/net/protobuf)
 
