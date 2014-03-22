@@ -18,20 +18,30 @@
 using namespace muduo;
 using namespace muduo::net;
 
-namespace
+namespace muduo
+{
+namespace inspect
 {
 
-string uptime(Timestamp now)
+string uptime(Timestamp now, Timestamp start, bool showMicroseconds)
 {
   char buf[256];
-  int64_t age = now.microSecondsSinceEpoch() - ProcessInfo::startTime().microSecondsSinceEpoch();
-  int microseconds = static_cast<int>(age % Timestamp::kMicroSecondsPerSecond);
+  int64_t age = now.microSecondsSinceEpoch() - start.microSecondsSinceEpoch();
   int seconds = static_cast<int>(age / Timestamp::kMicroSecondsPerSecond);
   int days = seconds/86400;
   int hours = (seconds % 86400) / 3600;
   int minutes = (seconds % 3600) / 60;
-  snprintf(buf, sizeof buf, "%d days %02d:%02d:%02d.%06d",
-           days, hours, minutes, seconds % 60, microseconds);
+  if (showMicroseconds)
+  {
+    int microseconds = static_cast<int>(age % Timestamp::kMicroSecondsPerSecond);
+    snprintf(buf, sizeof buf, "%d days %02d:%02d:%02d.%06d",
+             days, hours, minutes, seconds % 60, microseconds);
+  }
+  else
+  {
+    snprintf(buf, sizeof buf, "%d days %02d:%02d:%02d",
+             days, hours, minutes, seconds % 60);
+  }
   return buf;
 }
 
@@ -105,6 +115,9 @@ int stringPrintf(string* out, const char* fmt, ...)
 }
 
 }
+}
+
+using namespace muduo::inspect;
 
 string ProcessInspector::username_ = ProcessInfo::username();
 
@@ -127,7 +140,7 @@ string ProcessInspector::overview(HttpRequest::Method, const Inspector::ArgList&
   result += " (UTC)\nStarted at ";
   result += ProcessInfo::startTime().toFormattedString();
   result += " (UTC), up for ";
-  result += uptime(now);
+  result += uptime(now, ProcessInfo::startTime(), true/* show microseconds */);
   result += "\n";
 
   string procStatus = ProcessInfo::procStatus();
