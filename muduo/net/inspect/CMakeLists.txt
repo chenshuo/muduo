@@ -2,6 +2,7 @@ set(inspect_SRCS
   Inspector.cc
   PerformanceInspector.cc
   ProcessInspector.cc
+  SystemInspector.cc
   )
 
 add_library(muduo_inspect ${inspect_SRCS})
@@ -13,7 +14,9 @@ if(TCMALLOC_INCLUDE_DIR AND TCMALLOC_LIBRARY)
 endif()
 
 install(TARGETS muduo_inspect DESTINATION lib)
-file(GLOB HEADERS "*.h")
+set(HEADERS
+  Inspector.h
+  )
 install(FILES ${HEADERS} DESTINATION include/muduo/net/inspect)
 
 if(NOT CMAKE_BUILD_NO_EXAMPLES)

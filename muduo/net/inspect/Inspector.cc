@@ -16,6 +16,7 @@
 #include <muduo/net/http/HttpResponse.h>
 #include <muduo/net/inspect/ProcessInspector.h>
 #include <muduo/net/inspect/PerformanceInspector.h>
+#include <muduo/net/inspect/SystemInspector.h>
 
 //#include <iostream>
 //#include <iterator>
@@ -63,13 +64,15 @@ Inspector::Inspector(EventLoop* loop,
                      const InetAddress& httpAddr,
                      const string& name)
     : server_(loop, httpAddr, "Inspector:"+name),
-      processInspector_(new ProcessInspector)
+      processInspector_(new ProcessInspector),
+      systemInspector_(new SystemInspector)
 {
   assert(CurrentThread::isMainThread());
   assert(g_globalInspector == 0);
   g_globalInspector = this;
   server_.setHttpCallback(boost::bind(&Inspector::onRequest, this, _1, _2));
   processInspector_->registerCommands(this);
+  systemInspector_->registerCommands(this);
 #ifdef HAVE_TCMALLOC
   performanceInspector_.reset(new PerformanceInspector);
   performanceInspector_->registerCommands(this);

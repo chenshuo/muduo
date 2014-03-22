@@ -17,6 +17,9 @@
 using namespace muduo;
 using namespace muduo::net;
 
+namespace
+{
+
 string uptime(Timestamp now)
 {
   char buf[256];
@@ -100,6 +103,8 @@ int stringPrintf(string* out, const char* fmt, ...)
   return ret;
 }
 
+}
+
 string ProcessInspector::username_ = ProcessInfo::username();
 
 void ProcessInspector::registerCommands(Inspector* ins)
@@ -139,8 +144,8 @@ string ProcessInspector::overview(HttpRequest::Method, const Inspector::ArgList&
     result += "WARNING: debug build!\n";
   }
 
-  stringPrintf(&result, "pid %d, num of threads %ld\n",
-               ProcessInfo::pid(), getLong(procStatus, "Threads:"));
+  stringPrintf(&result, "pid %d, num of threads %ld, bits %zd\n",
+               ProcessInfo::pid(), getLong(procStatus, "Threads:"), CHAR_BIT * sizeof(void*));
 
   result += "Virtual memory: ";
   stringPrintf(&result, "%.3f MiB, ",
@@ -149,6 +154,8 @@ string ProcessInspector::overview(HttpRequest::Method, const Inspector::ArgList&
   result += "RSS memory: ";
   stringPrintf(&result, "%.3f MiB\n",
                static_cast<double>(getLong(procStatus, "VmRSS:")) / 1024.0);
+
+  // FIXME: VmData:
 
   stringPrintf(&result, "Opened files: %d, limit: %d\n",
                ProcessInfo::openedFiles(), ProcessInfo::maxOpenFiles());
@@ -209,7 +216,7 @@ string ProcessInspector::threads(HttpRequest::Method, const Inspector::ArgList&)
       StringPiece data(stat);
       data.remove_prefix(static_cast<int>(state - data.data() + 2));
       ProcessInfo::CpuTime t = getCpuTime(data);
-      snprintf(buf, sizeof buf, "%d %-16s %c %12.3f %12.3f\n",
+      snprintf(buf, sizeof buf, "%5d %-16s %c %12.3f %12.3f\n",
                tid, name.data(), *state, t.userSeconds, t.systemSeconds);
       result += buf;
     }
