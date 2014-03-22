@@ -23,6 +23,13 @@ set_target_properties(buffer_cpp11_unittest PROPERTIES COMPILE_FLAGS "-std=c++0x
 
 add_executable(inetaddress_unittest InetAddress_unittest.cc)
 target_link_libraries(inetaddress_unittest muduo_net boost_unit_test_framework)
+
+if(ZLIB_FOUND)
+  add_executable(gzipstream_unittest GzipStream_unittest.cc)
+  target_link_libraries(gzipstream_unittest muduo_net boost_unit_test_framework z)
+  # set_target_properties(gzipstream_unittest PROPERTIES COMPILE_FLAGS "-std=c++0x")
+endif()
+
 endif()
 
 add_executable(tcpclient_reg1 TcpClient_reg1.cc)
