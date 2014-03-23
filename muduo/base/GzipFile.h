@@ -13,7 +13,7 @@ class GzipFile : boost::noncopyable
   GzipFile(GzipFile&& rhs)
     : file_(rhs.file_)
   {
-    rhs.file_ = nullptr;
+    rhs.file_ = NULL;
   }
 
   ~GzipFile()
@@ -30,7 +30,7 @@ class GzipFile : boost::noncopyable
     return *this;
   }
 
-  bool valid() const { return file_ != nullptr; }
+  bool valid() const { return file_ != NULL; }
   void swap(GzipFile& rhs) { std::swap(file_, rhs.file_); }
 #if ZLIB_VERNUM >= 0x1240
   bool setBuffer(int size) { return ::gzbuffer(file_, size) == 0; }
