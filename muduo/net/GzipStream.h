@@ -9,9 +9,37 @@ namespace muduo
 namespace net
 {
 
-// FIXME
-// class GzipInputStream : boost::noncopyable
+// input is gzip data, output uncompressed data
+class GzipInputStream : boost::noncopyable
+{
+ public:
+  explicit GzipInputStream(Buffer* output)
+    : output_(output),
+      zerror_(Z_OK)
+  {
+    bzero(&zstream_, sizeof zstream_);
+    zerror_ = inflateInit(&zstream_);
+  }
 
+  ~GzipInputStream()
+  {
+    finish();
+  }
+
+  bool write(StringPiece buf);
+  bool write(Buffer* input);
+  bool finish();
+    // inflateEnd(&zstream_);
+
+ private:
+  int decompress(int flush);
+
+  Buffer* output_;
+  z_stream zstream_;
+  int zerror_;
+};
+
+// input is uncompressed data, output gzip data
 class GzipOutputStream : boost::noncopyable
 {
  public:
@@ -30,20 +58,12 @@ class GzipOutputStream : boost::noncopyable
   }
 
   // Return last error message or NULL if no error.
-  const char* zlibErrorMessage() const
-  {
-    return zstream_.msg;
-  }
+  const char* zlibErrorMessage() const { return zstream_.msg; }
 
-  int zlibErrorCode() const
-  {
-    return zerror_;
-  }
-
-  int internalOutputBufferSize() const
-  {
-    return bufferSize_;
-  }
+  int zlibErrorCode() const { return zerror_; }
+  int64_t inputBytes() const { return zstream_.total_in; }
+  int64_t outputBytes() const { return zstream_.total_out; }
+  int internalOutputBufferSize() const { return bufferSize_; }
 
   bool write(StringPiece buf)
   {
@@ -66,12 +86,27 @@ class GzipOutputStream : boost::noncopyable
     return zerror_ == Z_OK;
   }
 
+  bool write(Buffer* input)
+  {
+    if (zerror_ != Z_OK)
+      return false;
+
+    void* in = const_cast<char*>(input->peek());
+    zstream_.next_in = static_cast<Bytef*>(in);
+    zstream_.avail_in = static_cast<int>(input->readableBytes());
+    if (zstream_.avail_in > 0 && zerror_ == Z_OK)
+    {
+      zerror_ = compress(Z_NO_FLUSH);
+    }
+    input->retrieve(input->readableBytes() - zstream_.avail_in);
+    return zerror_ == Z_OK;
+  }
+
   bool finish()
   {
     if (zerror_ != Z_OK)
       return false;
 
-    // do we need this step?
     while (zerror_ == Z_OK)
     {
       zerror_ = compress(Z_FINISH);
@@ -90,7 +125,7 @@ class GzipOutputStream : boost::noncopyable
     zstream_.avail_out = static_cast<int>(output_->writableBytes());
     int error = ::deflate(&zstream_, flush);
     output_->hasWritten(output_->writableBytes() - zstream_.avail_out);
-    if (output_->writableBytes() == 0)
+    if (output_->writableBytes() == 0 && bufferSize_ < 65536)
     {
       bufferSize_ *= 2;
     }
