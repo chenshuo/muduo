@@ -9,6 +9,9 @@ namespace muduo
 namespace net
 {
 
+// FIXME
+// class GzipInputStream : boost::noncopyable
+
 class GzipOutputStream : boost::noncopyable
 {
  public:
@@ -25,7 +28,6 @@ class GzipOutputStream : boost::noncopyable
   {
     finish();
   }
-
 
   // Return last error message or NULL if no error.
   const char* zlibErrorMessage() const
@@ -52,10 +54,10 @@ class GzipOutputStream : boost::noncopyable
     void* in = const_cast<char*>(buf.data());
     zstream_.next_in = static_cast<Bytef*>(in);
     zstream_.avail_in = buf.size();
-    do
+    while (zstream_.avail_in > 0 && zerror_ == Z_OK)
     {
       zerror_ = compress(Z_NO_FLUSH);
-    } while (zstream_.avail_in > 0 && zerror_ == Z_OK);
+    }
     if (zstream_.avail_in == 0)
     {
       assert(static_cast<const void*>(zstream_.next_in) == buf.end());
@@ -69,10 +71,11 @@ class GzipOutputStream : boost::noncopyable
     if (zerror_ != Z_OK)
       return false;
 
-    do
+    // do we need this step?
+    while (zerror_ == Z_OK)
     {
       zerror_ = compress(Z_FINISH);
-    } while (zerror_ == Z_OK);
+    }
     zerror_ = deflateEnd(&zstream_);
     bool ok = zerror_ == Z_OK;
     zerror_ = Z_STREAM_END;
