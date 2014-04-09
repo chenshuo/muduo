@@ -1,3 +1,10 @@
+2014-04-10   Shuo Chen  <chenshuo@chenshuo.com>
+  * More ProcessInfo functions.
+  * Add GzipFile (in C++11 only) and GzipOutputStream.
+  * Add SystemInspector.
+  * muduo::Threads now sets thread name with prctl().
+  * Version 1.0.1
+
 2014-03-12   Shuo Chen  <chenshuo@chenshuo.com>
   * Add TCP and RPC balancer examples
   * Version 1.0.0
