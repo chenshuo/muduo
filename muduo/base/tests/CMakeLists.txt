@@ -7,6 +7,10 @@ add_executable(atomic_unittest Atomic_unittest.cc)
 add_executable(blockingqueue_test BlockingQueue_test.cc)
 target_link_libraries(blockingqueue_test muduo_base)
 
+add_executable(blockingqueue_cpp11_test BlockingQueue_test.cc)
+target_link_libraries(blockingqueue_cpp11_test muduo_base_cpp11)
+set_target_properties(blockingqueue_cpp11_test PROPERTIES COMPILE_FLAGS "-std=c++0x")
+
 add_executable(blockingqueue_bench BlockingQueue_bench.cc)
 target_link_libraries(blockingqueue_bench muduo_base)
 

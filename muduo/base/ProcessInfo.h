@@ -41,6 +41,9 @@ namespace ProcessInfo
   /// read /proc/self/stat
   string procStat();
 
+  /// read /proc/self/task/tid/stat
+  string threadStat();
+
   /// readlink /proc/self/exe
   string exePath();
 
