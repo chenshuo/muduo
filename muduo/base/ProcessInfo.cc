@@ -8,6 +8,7 @@
 //
 
 #include <muduo/base/ProcessInfo.h>
+#include <muduo/base/CurrentThread.h>
 #include <muduo/base/FileUtil.h>
 
 #include <algorithm>
@@ -168,6 +169,15 @@ string ProcessInfo::procStat()
 {
   string result;
   FileUtil::readFile("/proc/self/stat", 65536, &result);
+  return result;
+}
+
+string ProcessInfo::threadStat()
+{
+  char buf[64];
+  snprintf(buf, sizeof buf, "/proc/self/task/%d/stat", CurrentThread::tid());
+  string result;
+  FileUtil::readFile(buf, 65536, &result);
   return result;
 }
 
