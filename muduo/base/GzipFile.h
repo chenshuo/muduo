@@ -47,7 +47,7 @@ class GzipFile : boost::noncopyable
 
 #if ZLIB_VERNUM >= 0x1240
   // number of compressed bytes
-  long offset() const { return ::gzoffset(file_); }
+  off_t offset() const { return ::gzoffset(file_); }
 #endif
 
   // int flush(int f) { return ::gzflush(file_, f); }
