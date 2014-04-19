@@ -43,11 +43,11 @@ class GzipFile : boost::noncopyable
   int write(StringPiece buf) { return ::gzwrite(file_, buf.data(), buf.size()); }
 
   // number of uncompressed bytes
-  long tell() const { return ::gztell(file_); }
+  off_t tell() const { return ::gztell(file_); }
 
 #if ZLIB_VERNUM >= 0x1240
   // number of compressed bytes
-  long offset() const { return ::gzoffset(file_); }
+  off_t offset() const { return ::gzoffset(file_); }
 #endif
 
   // int flush(int f) { return ::gzflush(file_, f); }

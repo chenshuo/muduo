@@ -1,5 +1,7 @@
 #include <muduo/base/GzipFile.h>
 
+#include <muduo/base/Logging.h>
+
 int main()
 {
   const char* filename = "/tmp/gzipfile_test.gz";
@@ -9,9 +11,9 @@ int main()
   muduo::GzipFile writer = muduo::GzipFile::openForAppend(filename);
   if (writer.valid())
   {
-    printf("tell %ld\n", writer.tell());
-    printf("wrote %d\n", writer.write(data));
-    printf("tell %ld\n", writer.tell());
+    LOG_INFO << "tell " << writer.tell();
+    LOG_INFO << "wrote " << writer.write(data);
+    LOG_INFO << "tell " << writer.tell();
   }
   }
 
@@ -21,7 +23,7 @@ int main()
   if (reader.valid())
   {
     char buf[256];
-    printf("tell %ld\n", reader.tell());
+    LOG_INFO << "tell " << reader.tell();
     int nr = reader.read(buf, sizeof buf);
     printf("read %d\n", nr);
     if (nr >= 0)
@@ -29,7 +31,7 @@ int main()
       buf[nr] = '\0';
       printf("data %s", buf);
     }
-    printf("tell %ld\n", reader.tell());
+    LOG_INFO << "tell " << reader.tell();
     if (strncmp(buf, data, strlen(data)) != 0)
     {
       printf("failed!!!\n");
