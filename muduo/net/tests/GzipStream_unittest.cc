@@ -1,5 +1,7 @@
 #include <muduo/net/GzipStream.h>
 
+#include <muduo/base/Logging.h>
+
 #define BOOST_TEST_MAIN
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
@@ -81,8 +83,8 @@ BOOST_AUTO_TEST_CASE(testGzipOutputStream5)
     BOOST_CHECK(stream.write(input));
   }
   printf("bufsiz %d\n", stream.internalOutputBufferSize());
-  printf("total_in %zd\n", stream.inputBytes());
-  printf("total_out %zd\n", stream.outputBytes());
+  LOG_INFO << "total_in " << stream.inputBytes();
+  LOG_INFO << "total_out " << stream.outputBytes();
   stream.finish();
   printf("total %zd\n", output.readableBytes());
   BOOST_CHECK_EQUAL(stream.zlibErrorCode(), Z_STREAM_END);
