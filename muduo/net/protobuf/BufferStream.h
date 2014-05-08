@@ -7,7 +7,6 @@
 //
 // This is a public header file, it must only include public header files.
 #pragma once
-#include <muduo/base/Logging.h>
 #include <muduo/net/Buffer.h>
 #include <google/protobuf/io/zero_copy_stream.h>
 namespace muduo

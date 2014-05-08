@@ -10,11 +10,12 @@ namespace muduo
 namespace net
 {
 
-// input is gzip data, output uncompressed data
-class GzipInputStream : boost::noncopyable
+// input is zlib compressed data, output uncompressed data
+// FIXME: finish this
+class ZlibInputStream : boost::noncopyable
 {
  public:
-  explicit GzipInputStream(Buffer* output)
+  explicit ZlibInputStream(Buffer* output)
     : output_(output),
       zerror_(Z_OK)
   {
@@ -22,7 +23,7 @@ class GzipInputStream : boost::noncopyable
     zerror_ = inflateInit(&zstream_);
   }
 
-  ~GzipInputStream()
+  ~ZlibInputStream()
   {
     finish();
   }
@@ -40,11 +41,11 @@ class GzipInputStream : boost::noncopyable
   int zerror_;
 };
 
-// input is uncompressed data, output gzip data
-class GzipOutputStream : boost::noncopyable
+// input is uncompressed data, output zlib compressed data
+class ZlibOutputStream : boost::noncopyable
 {
  public:
-  explicit GzipOutputStream(Buffer* output)
+  explicit ZlibOutputStream(Buffer* output)
     : output_(output),
       zerror_(Z_OK),
       bufferSize_(1024)
@@ -53,7 +54,7 @@ class GzipOutputStream : boost::noncopyable
     zerror_ = deflateInit(&zstream_, Z_DEFAULT_COMPRESSION);
   }
 
-  ~GzipOutputStream()
+  ~ZlibOutputStream()
   {
     finish();
   }
@@ -87,6 +88,7 @@ class GzipOutputStream : boost::noncopyable
     return zerror_ == Z_OK;
   }
 
+  // compress input as much as possible, not guarantee consuming all data.
   bool write(Buffer* input)
   {
     if (zerror_ != Z_OK)
