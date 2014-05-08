@@ -25,9 +25,9 @@ add_executable(inetaddress_unittest InetAddress_unittest.cc)
 target_link_libraries(inetaddress_unittest muduo_net boost_unit_test_framework)
 
 if(ZLIB_FOUND)
-  add_executable(gzipstream_unittest GzipStream_unittest.cc)
-  target_link_libraries(gzipstream_unittest muduo_net boost_unit_test_framework z)
-  # set_target_properties(gzipstream_unittest PROPERTIES COMPILE_FLAGS "-std=c++0x")
+  add_executable(zlibstream_unittest ZlibStream_unittest.cc)
+  target_link_libraries(zlibstream_unittest muduo_net boost_unit_test_framework z)
+  # set_target_properties(zlibstream_unittest PROPERTIES COMPILE_FLAGS "-std=c++0x")
 endif()
 
 endif()
