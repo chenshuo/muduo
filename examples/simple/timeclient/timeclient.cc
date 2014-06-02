@@ -58,7 +58,7 @@ class TimeClient : boost::noncopyable
       int32_t be32 = *static_cast<const int32_t*>(data);
       buf->retrieve(sizeof(int32_t));
       time_t time = sockets::networkToHost32(be32);
-      Timestamp ts(time * Timestamp::kMicroSecondsPerSecond);
+      Timestamp ts(implicit_cast<uint64_t>(time) * Timestamp::kMicroSecondsPerSecond);
       LOG_INFO << "Server time = " << time << ", " << ts.toFormattedString();
     }
     else
