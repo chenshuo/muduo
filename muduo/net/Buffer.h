@@ -101,7 +101,7 @@ class Buffer : public muduo::copyable
   {
     assert(peek() <= start);
     assert(start <= beginWrite());
-    const void* eol = memchr(start, '\n', readableBytes());
+    const void* eol = memchr(start, '\n', beginWrite() - start);
     return static_cast<const char*>(eol);
   }
 
