@@ -18,7 +18,6 @@
 #include <boost/bind.hpp>
 
 #include <errno.h>
-#include <stdio.h>
 
 using namespace muduo;
 using namespace muduo::net;
@@ -69,6 +68,19 @@ TcpConnection::~TcpConnection()
 {
   LOG_DEBUG << "TcpConnection::dtor[" <<  name_ << "] at " << this
             << " fd=" << channel_->fd();
+}
+
+bool TcpConnection::getTcpInfo(struct tcp_info* tcpi) const
+{
+  return socket_->getTcpInfo(tcpi);
+}
+
+string TcpConnection::getTcpInfoString() const
+{
+  char buf[1024];
+  buf[0] = '\0';
+  socket_->getTcpInfoString(buf, sizeof buf);
+  return buf;
 }
 
 void TcpConnection::send(const void* data, int len)
