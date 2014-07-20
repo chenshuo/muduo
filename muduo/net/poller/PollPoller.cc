@@ -140,11 +140,3 @@ void PollPoller::removeChannel(Channel* channel)
   }
 }
 
-// FIXME: pull up to base class
-bool PollPoller::hasChannel(Channel* channel) const
-{
-  Poller::assertInLoopThread();
-  ChannelMap::const_iterator it = channels_.find(channel->fd());
-  return it != channels_.end() && it->second == channel;
-}
-
