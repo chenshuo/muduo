@@ -107,6 +107,7 @@ class Channel : boost::noncopyable
   boost::weak_ptr<void> tie_;
   bool tied_;
   bool eventHandling_;
+  bool addedToLoop_;
   ReadEventCallback readCallback_;
   EventCallback writeCallback_;
   EventCallback closeCallback_;

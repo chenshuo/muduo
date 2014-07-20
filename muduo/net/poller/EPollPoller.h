@@ -35,6 +35,7 @@ class EPollPoller : public Poller
   virtual Timestamp poll(int timeoutMs, ChannelList* activeChannels);
   virtual void updateChannel(Channel* channel);
   virtual void removeChannel(Channel* channel);
+  virtual bool hasChannel(Channel* channel) const;
 
  private:
   static const int kInitEventListSize = 16;
@@ -48,7 +49,7 @@ class EPollPoller : public Poller
 
   int epollfd_;
   EventList events_;
-  ChannelMap channels_;
+  ChannelMap channels_;  // FIXME: pull up to base class
 };
 
 }

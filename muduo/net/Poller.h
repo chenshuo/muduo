@@ -48,9 +48,11 @@ class Poller : boost::noncopyable
   /// Must be called in the loop thread.
   virtual void removeChannel(Channel* channel) = 0;
 
+  virtual bool hasChannel(Channel* channel) const = 0;
+
   static Poller* newDefaultPoller(EventLoop* loop);
 
-  void assertInLoopThread()
+  void assertInLoopThread() const
   {
     ownerLoop_->assertInLoopThread();
   }
