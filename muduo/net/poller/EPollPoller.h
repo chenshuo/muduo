@@ -13,7 +13,6 @@
 
 #include <muduo/net/Poller.h>
 
-#include <map>
 #include <vector>
 
 struct epoll_event;
@@ -35,7 +34,6 @@ class EPollPoller : public Poller
   virtual Timestamp poll(int timeoutMs, ChannelList* activeChannels);
   virtual void updateChannel(Channel* channel);
   virtual void removeChannel(Channel* channel);
-  virtual bool hasChannel(Channel* channel) const;
 
  private:
   static const int kInitEventListSize = 16;
@@ -45,11 +43,9 @@ class EPollPoller : public Poller
   void update(int operation, Channel* channel);
 
   typedef std::vector<struct epoll_event> EventList;
-  typedef std::map<int, Channel*> ChannelMap;
 
   int epollfd_;
   EventList events_;
-  ChannelMap channels_;  // FIXME: pull up to base class
 };
 
 }
