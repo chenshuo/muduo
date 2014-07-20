@@ -36,6 +36,7 @@ class PollPoller : public Poller
   virtual Timestamp poll(int timeoutMs, ChannelList* activeChannels);
   virtual void updateChannel(Channel* channel);
   virtual void removeChannel(Channel* channel);
+  virtual bool hasChannel(Channel* channel) const;
 
  private:
   void fillActiveChannels(int numEvents,
@@ -44,7 +45,7 @@ class PollPoller : public Poller
   typedef std::vector<struct pollfd> PollFdList;
   typedef std::map<int, Channel*> ChannelMap;
   PollFdList pollfds_;
-  ChannelMap channels_;
+  ChannelMap channels_;  // FIXME: pull up to base class
 };
 
 }

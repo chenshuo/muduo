@@ -112,6 +112,7 @@ class EventLoop : boost::noncopyable
   void wakeup();
   void updateChannel(Channel* channel);
   void removeChannel(Channel* channel);
+  bool hasChannel(Channel* channel);
 
   // pid_t threadId() const { return threadId_; }
   void assertInLoopThread()

@@ -93,6 +93,8 @@ EventLoop::~EventLoop()
 {
   LOG_DEBUG << "EventLoop " << this << " of thread " << threadId_
             << " destructs in thread " << CurrentThread::tid();
+  wakeupChannel_->disableAll();
+  wakeupChannel_->remove();
   ::close(wakeupFd_);
   t_loopInThisThread = NULL;
 }
@@ -252,6 +254,13 @@ void EventLoop::removeChannel(Channel* channel)
         std::find(activeChannels_.begin(), activeChannels_.end(), channel) == activeChannels_.end());
   }
   poller_->removeChannel(channel);
+}
+
+bool EventLoop::hasChannel(Channel* channel)
+{
+  assert(channel->ownerLoop() == this);
+  assertInLoopThread();
+  return poller_->hasChannel(channel);
 }
 
 void EventLoop::abortNotInLoopThread()

@@ -101,6 +101,8 @@ TimerQueue::TimerQueue(EventLoop* loop)
 
 TimerQueue::~TimerQueue()
 {
+  timerfdChannel_.disableAll();
+  timerfdChannel_.remove();
   ::close(timerfd_);
   // do not remove channel, since we're in EventLoop::dtor();
   for (TimerList::iterator it = timers_.begin();
