@@ -203,7 +203,7 @@ int main(int argc, char* argv[])
 {
   EventLoop loop;
   curl::Curl::initialize(curl::Curl::kCURLssl);
-  string url = argc > 1 ? argv[1] : "http://chenshuo.com/pdf/MuduoManual.pdf";
+  string url = argc > 1 ? argv[1] : "https://chenshuo-public.s3.amazonaws.com/pdf/allinone.pdf";
   Downloader d(&loop, url);
   loop.loop();
 }
