@@ -167,7 +167,7 @@ void done(const string& name, double elapsed)
   ++g_finished;
   if (g_finished == g_connections)
   {
-    g_loop->quit();
+    g_loop->runAfter(1.0, boost::bind(&EventLoop::quit, g_loop));
     double total = timeDifference(Timestamp::now(), g_start);
     LOG_INFO << "total " << total << " seconds, "
              << (total/g_connections) << " seconds per client";

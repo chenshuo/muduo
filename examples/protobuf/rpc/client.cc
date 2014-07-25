@@ -48,12 +48,16 @@ class RpcClient : boost::noncopyable
 
       stub_.Solve(NULL, &request, response, NewCallback(this, &RpcClient::solved, response));
     }
+    else
+    {
+      loop_->quit();
+    }
   }
 
   void solved(sudoku::SudokuResponse* resp)
   {
     LOG_INFO << "solved:\n" << resp->DebugString().c_str();
-    loop_->quit();
+    client_.disconnect();
   }
 
   EventLoop* loop_;
