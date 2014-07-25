@@ -35,7 +35,7 @@ class ChatClient : boost::noncopyable
 
   void disconnect()
   {
-    // client_.disconnect();
+    client_.disconnect();
   }
 
   void write(const StringPiece& message)
@@ -95,6 +95,7 @@ int main(int argc, char* argv[])
       client.write(line);
     }
     client.disconnect();
+    CurrentThread::sleepUsec(1000*1000);  // wait for disconnect, see ace/logging/client.cc
   }
   else
   {
