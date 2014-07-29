@@ -26,6 +26,7 @@ namespace CurrentThread
 {
   __thread int t_cachedTid = 0;
   __thread char t_tidString[32];
+  __thread int t_tidStringLength = 6;
   __thread const char* t_threadName = "unknown";
   const bool sameType = boost::is_same<int, pid_t>::value;
   BOOST_STATIC_ASSERT(sameType);
@@ -135,8 +136,7 @@ void CurrentThread::cacheTid()
   if (t_cachedTid == 0)
   {
     t_cachedTid = detail::gettid();
-    int n = snprintf(t_tidString, sizeof t_tidString, "%5d ", t_cachedTid);
-    assert(n == 6); (void) n;
+    t_tidStringLength = snprintf(t_tidString, sizeof t_tidString, "%5d ", t_cachedTid);
   }
 }
 
