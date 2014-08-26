@@ -11,7 +11,6 @@
 #ifndef MUDUO_NET_TCPCONNECTION_H
 #define MUDUO_NET_TCPCONNECTION_H
 
-#include <muduo/base/Mutex.h>
 #include <muduo/base/StringPiece.h>
 #include <muduo/base/Types.h>
 #include <muduo/net/Callbacks.h>
@@ -23,6 +22,9 @@
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
+
+// struct tcp_info is in <netinet/tcp.h>
+struct tcp_info;
 
 namespace muduo
 {
@@ -53,16 +55,22 @@ class TcpConnection : boost::noncopyable,
 
   EventLoop* getLoop() const { return loop_; }
   const string& name() const { return name_; }
-  const InetAddress& localAddress() { return localAddr_; }
-  const InetAddress& peerAddress() { return peerAddr_; }
+  const InetAddress& localAddress() const { return localAddr_; }
+  const InetAddress& peerAddress() const { return peerAddr_; }
   bool connected() const { return state_ == kConnected; }
+  // return true if success.
+  bool getTcpInfo(struct tcp_info*) const;
+  string getTcpInfoString() const;
 
   // void send(string&& message); // C++11
-  void send(const void* message, size_t len);
+  void send(const void* message, int len);
   void send(const StringPiece& message);
   // void send(Buffer&& message); // C++11
   void send(Buffer* message);  // this one will swap data
   void shutdown(); // NOT thread safe, no simultaneous calling
+  // void shutdownAndForceCloseAfter(double seconds); // NOT thread safe, no simultaneous calling
+  void forceClose();
+  void forceCloseWithDelay(double seconds);
   void setTcpNoDelay(bool on);
 
   void setContext(const boost::any& context)
@@ -86,8 +94,12 @@ class TcpConnection : boost::noncopyable,
   void setHighWaterMarkCallback(const HighWaterMarkCallback& cb, size_t highWaterMark)
   { highWaterMarkCallback_ = cb; highWaterMark_ = highWaterMark; }
 
+  /// Advanced interface
   Buffer* inputBuffer()
   { return &inputBuffer_; }
+
+  Buffer* outputBuffer()
+  { return &outputBuffer_; }
 
   /// Internal use only.
   void setCloseCallback(const CloseCallback& cb)
@@ -104,20 +116,22 @@ class TcpConnection : boost::noncopyable,
   void handleWrite();
   void handleClose();
   void handleError();
-  //void sendInLoop(string&& message);
+  // void sendInLoop(string&& message);
   void sendInLoop(const StringPiece& message);
   void sendInLoop(const void* message, size_t len);
   void shutdownInLoop();
+  // void shutdownAndForceCloseInLoop(double seconds);
+  void forceCloseInLoop();
   void setState(StateE s) { state_ = s; }
 
   EventLoop* loop_;
-  string name_;
+  const string name_;
   StateE state_;  // FIXME: use atomic variable
   // we don't expose those classes to client.
   boost::scoped_ptr<Socket> socket_;
   boost::scoped_ptr<Channel> channel_;
-  InetAddress localAddr_;
-  InetAddress peerAddr_;
+  const InetAddress localAddr_;
+  const InetAddress peerAddr_;
   ConnectionCallback connectionCallback_;
   MessageCallback messageCallback_;
   WriteCompleteCallback writeCompleteCallback_;

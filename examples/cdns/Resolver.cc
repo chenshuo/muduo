@@ -77,11 +77,11 @@ Resolver::~Resolver()
   ares_destroy(ctx_);
 }
 
-bool Resolver::resolve(const StringPiece& hostname, const Callback& cb)
+bool Resolver::resolve(StringArg hostname, const Callback& cb)
 {
   loop_->assertInLoopThread();
   QueryData* queryData = new QueryData(this, cb);
-  ares_gethostbyname(ctx_, hostname.data(), AF_INET,
+  ares_gethostbyname(ctx_, hostname.c_str(), AF_INET,
       &Resolver::ares_host_callback, queryData);
   struct timeval tv;
   struct timeval* tvp = ares_timeout(ctx_, NULL, &tv);

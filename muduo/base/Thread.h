@@ -23,6 +23,9 @@ class Thread : boost::noncopyable
   typedef boost::function<void ()> ThreadFunc;
 
   explicit Thread(const ThreadFunc&, const string& name = string());
+#ifdef __GXX_EXPERIMENTAL_CXX0X__
+  explicit Thread(ThreadFunc&&, const string& name = string());
+#endif
   ~Thread();
 
   void start();
@@ -36,6 +39,8 @@ class Thread : boost::noncopyable
   static int numCreated() { return numCreated_.get(); }
 
  private:
+  void setDefaultName();
+
   bool       started_;
   bool       joined_;
   pthread_t  pthreadId_;

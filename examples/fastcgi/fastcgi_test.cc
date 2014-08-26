@@ -12,7 +12,7 @@ void onRequest(const TcpConnectionPtr& conn,
                FastCgiCodec::ParamMap& params,
                Buffer* in)
 {
-  LOG_INFO << params["REQUEST_URI"];
+  LOG_INFO << conn->name() << ": " << params["REQUEST_URI"];
 
   for (FastCgiCodec::ParamMap::const_iterator it = params.begin();
       it != params.end(); ++it)

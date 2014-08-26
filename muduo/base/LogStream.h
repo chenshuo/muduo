@@ -114,10 +114,22 @@ class LogStream : boost::noncopyable
   // self& operator<<(signed char);
   // self& operator<<(unsigned char);
 
-  self& operator<<(const char* v)
+  self& operator<<(const char* str)
   {
-    buffer_.append(v, strlen(v));
+    if (str)
+    {
+      buffer_.append(str, strlen(str));
+    }
+    else
+    {
+      buffer_.append("(null)", 6);
+    }
     return *this;
+  }
+
+  self& operator<<(const unsigned char* str)
+  {
+    return operator<<(reinterpret_cast<const char*>(str));
   }
 
   self& operator<<(const string& v)

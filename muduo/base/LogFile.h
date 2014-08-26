@@ -10,27 +10,34 @@
 namespace muduo
 {
 
+namespace FileUtil
+{
+class AppendFile;
+}
+
 class LogFile : boost::noncopyable
 {
  public:
   LogFile(const string& basename,
           size_t rollSize,
           bool threadSafe = true,
-          int flushInterval = 3);
+          int flushInterval = 3,
+          int checkEveryN = 1024);
   ~LogFile();
 
   void append(const char* logline, int len);
   void flush();
+  bool rollFile();
 
  private:
   void append_unlocked(const char* logline, int len);
 
   static string getLogFileName(const string& basename, time_t* now);
-  void rollFile();
 
   const string basename_;
   const size_t rollSize_;
   const int flushInterval_;
+  const int checkEveryN_;
 
   int count_;
 
@@ -38,10 +45,8 @@ class LogFile : boost::noncopyable
   time_t startOfPeriod_;
   time_t lastRoll_;
   time_t lastFlush_;
-  class File;
-  boost::scoped_ptr<File> file_;
+  boost::scoped_ptr<FileUtil::AppendFile> file_;
 
-  const static int kCheckTimeRoll_ = 1024;
   const static int kRollPerSeconds_ = 60*60*24;
 };
 

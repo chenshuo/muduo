@@ -101,6 +101,8 @@ TimerQueue::TimerQueue(EventLoop* loop)
 
 TimerQueue::~TimerQueue()
 {
+  timerfdChannel_.disableAll();
+  timerfdChannel_.remove();
   ::close(timerfd_);
   // do not remove channel, since we're in EventLoop::dtor();
   for (TimerList::iterator it = timers_.begin();
@@ -119,6 +121,18 @@ TimerId TimerQueue::addTimer(const TimerCallback& cb,
       boost::bind(&TimerQueue::addTimerInLoop, this, timer));
   return TimerId(timer, timer->sequence());
 }
+
+#ifdef __GXX_EXPERIMENTAL_CXX0X__
+TimerId TimerQueue::addTimer(TimerCallback&& cb,
+                             Timestamp when,
+                             double interval)
+{
+  Timer* timer = new Timer(std::move(cb), when, interval);
+  loop_->runInLoop(
+      boost::bind(&TimerQueue::addTimerInLoop, this, timer));
+  return TimerId(timer, timer->sequence());
+}
+#endif
 
 void TimerQueue::cancel(TimerId timerId)
 {

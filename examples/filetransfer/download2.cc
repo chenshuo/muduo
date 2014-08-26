@@ -32,7 +32,7 @@ void onConnection(const TcpConnectionPtr& conn)
       conn->setContext(fp);
       char buf[kBufSize];
       size_t nread = ::fread(buf, 1, sizeof buf, fp);
-      conn->send(buf, nread);
+      conn->send(buf, static_cast<int>(nread));
     }
     else
     {
@@ -60,7 +60,7 @@ void onWriteComplete(const TcpConnectionPtr& conn)
   size_t nread = ::fread(buf, 1, sizeof buf, fp);
   if (nread > 0)
   {
-    conn->send(buf, nread);
+    conn->send(buf, static_cast<int>(nread));
   }
   else
   {

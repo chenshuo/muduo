@@ -24,8 +24,31 @@ void threadFunc()
   }
 }
 
+int foo() __attribute__ ((noinline));
+
+int g_count = 0;
+int foo()
+{
+  MutexLockGuard lock(g_mutex);
+  if (!g_mutex.isLockedByThisThread())
+  {
+    printf("FAIL\n");
+    return -1;
+  }
+
+  ++g_count;
+  return 0;
+}
+
 int main()
 {
+  MCHECK(foo());
+  if (g_count != 1)
+  {
+    printf("MCHECK calls twice.\n");
+    abort();
+  }
+
   const int kMaxThreads = 8;
   g_vec.reserve(kMaxThreads * kCount);
 

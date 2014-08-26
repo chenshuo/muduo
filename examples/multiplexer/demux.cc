@@ -17,7 +17,7 @@ using namespace muduo::net;
 
 typedef boost::shared_ptr<TcpClient> TcpClientPtr;
 
-const int kMaxConns = 1;
+// const int kMaxConns = 1;
 const size_t kMaxPacketLen = 255;
 const size_t kHeaderLen = 3;
 
@@ -82,7 +82,7 @@ class DemuxServer : boost::noncopyable
   {
     while (buf->readableBytes() > kHeaderLen)
     {
-      size_t len = static_cast<uint8_t>(*buf->peek());
+      int len = static_cast<uint8_t>(*buf->peek());
       if (buf->readableBytes() < len + kHeaderLen)
       {
         break;

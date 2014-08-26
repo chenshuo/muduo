@@ -5,9 +5,9 @@ using namespace muduo::net;
 using namespace pubsub;
 
 ParseResult pubsub::parseMessage(Buffer* buf,
-                                      string* cmd,
-                                      string* topic,
-                                      string* content)
+                                 string* cmd,
+                                 string* topic,
+                                 string* content)
 {
   ParseResult result = kError;
   const char* crlf = buf->findCRLF();

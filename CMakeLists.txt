@@ -10,6 +10,7 @@ set(CXX_FLAGS
  -g
  # -DVALGRIND
  # -DMUDUO_STD_STRING
+ -DCHECK_PTHREAD_RETURN_VALUE
  -D_FILE_OFFSET_BITS=64
  -Wall
  -Wextra
@@ -32,7 +33,6 @@ endif()
 string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS}")
 
 set(CMAKE_CXX_COMPILER "g++")
-#set(CMAKE_CXX_COMPILER "icpc")
 set(CMAKE_CXX_FLAGS_DEBUG "-O0")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -finline-limit=1000 -DNDEBUG")
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
@@ -41,11 +41,31 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 find_package(Boost REQUIRED)
 find_package(Protobuf)
 find_package(CURL)
+find_package(ZLIB)
 find_path(CARES_INCLUDE_DIR ares.h)
 find_library(CARES_LIBRARY NAMES cares)
 find_path(MHD_INCLUDE_DIR microhttpd.h)
 find_library(MHD_LIBRARY NAMES microhttpd)
 find_library(BOOSTTEST_LIBRARY NAMES boost_unit_test_framework)
+find_library(BOOSTPO_LIBRARY NAMES boost_program_options)
+find_path(TCMALLOC_INCLUDE_DIR google/heap-profiler.h)
+find_library(TCMALLOC_LIBRARY NAMES tcmalloc_and_profiler)
+
+if(CARES_INCLUDE_DIR AND CARES_LIBRARY)
+  message(STATUS "found cares")
+endif()
+if(CURL_FOUND)
+  message(STATUS "found curl")
+endif()
+if(PROTOBUF_FOUND)
+  message(STATUS "found protobuf")
+endif()
+if(TCMALLOC_INCLUDE_DIR AND TCMALLOC_LIBRARY)
+  message(STATUS "found tcmalloc")
+endif()
+if(ZLIB_FOUND)
+  message(STATUS "found zlib")
+endif()
 
 include_directories(${Boost_INCLUDE_DIRS})
 

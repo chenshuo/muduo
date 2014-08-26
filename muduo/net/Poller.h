@@ -11,6 +11,7 @@
 #ifndef MUDUO_NET_POLLER_H
 #define MUDUO_NET_POLLER_H
 
+#include <map>
 #include <vector>
 #include <boost/noncopyable.hpp>
 
@@ -48,12 +49,18 @@ class Poller : boost::noncopyable
   /// Must be called in the loop thread.
   virtual void removeChannel(Channel* channel) = 0;
 
+  virtual bool hasChannel(Channel* channel) const;
+
   static Poller* newDefaultPoller(EventLoop* loop);
 
-  void assertInLoopThread()
+  void assertInLoopThread() const
   {
     ownerLoop_->assertInLoopThread();
   }
+
+ protected:
+  typedef std::map<int, Channel*> ChannelMap;
+  ChannelMap channels_;
 
  private:
   EventLoop* ownerLoop_;

@@ -22,6 +22,11 @@ void onConnection(LengthHeaderCodec* codec, const muduo::net::TcpConnectionPtr& 
     conn->setTcpNoDelay(g_tcpNoDelay);
     codec->send(get_pointer(conn), g_message);
   }
+  else
+  {
+    LOG_INFO << "disconnected";
+    muduo::net::EventLoop::getEventLoopOfCurrentThread()->quit();
+  }
 }
 
 void onStringMessage(LengthHeaderCodec* codec,
@@ -53,7 +58,7 @@ void onStringMessage(LengthHeaderCodec* codec,
              << " latency [us]";
     LOG_INFO << muduo::Fmt("%.3f", (g_msgSize * g_msgCount / elapsed / 1024 / 1024))
              << " band width [MiB/s]";
-    muduo::net::EventLoop::getEventLoopOfCurrentThread()->quit();
+    conn->shutdown();
   }
 }
 

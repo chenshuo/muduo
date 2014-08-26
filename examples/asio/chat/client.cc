@@ -18,8 +18,7 @@ class ChatClient : boost::noncopyable
 {
  public:
   ChatClient(EventLoop* loop, const InetAddress& serverAddr)
-    : loop_(loop),
-      client_(loop, serverAddr, "ChatClient"),
+    : client_(loop, serverAddr, "ChatClient"),
       codec_(boost::bind(&ChatClient::onStringMessage, this, _1, _2, _3))
   {
     client_.setConnectionCallback(
@@ -36,7 +35,7 @@ class ChatClient : boost::noncopyable
 
   void disconnect()
   {
-    // client_.disconnect();
+    client_.disconnect();
   }
 
   void write(const StringPiece& message)
@@ -73,7 +72,6 @@ class ChatClient : boost::noncopyable
     printf("<<< %s\n", message.c_str());
   }
 
-  EventLoop* loop_;
   TcpClient client_;
   LengthHeaderCodec codec_;
   MutexLock mutex_;
@@ -97,6 +95,7 @@ int main(int argc, char* argv[])
       client.write(line);
     }
     client.disconnect();
+    CurrentThread::sleepUsec(1000*1000);  // wait for disconnect, see ace/logging/client.cc
   }
   else
   {

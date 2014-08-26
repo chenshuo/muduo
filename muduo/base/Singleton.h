@@ -13,6 +13,19 @@
 namespace muduo
 {
 
+namespace detail
+{
+// This doesn't detect inherited member functions!
+// http://stackoverflow.com/questions/1966362/sfinae-to-check-for-inherited-member-functions
+template<typename T>
+struct has_no_destroy
+{
+  template <typename C> static char test(typeof(&C::no_destroy)); // or decltype in C++11
+  template <typename C> static int32_t test(...);
+  const static bool value = sizeof(test<T>(0)) == 1;
+};
+}
+
 template<typename T>
 class Singleton : boost::noncopyable
 {
@@ -30,7 +43,10 @@ class Singleton : boost::noncopyable
   static void init()
   {
     value_ = new T();
-    ::atexit(destroy);
+    if (!detail::has_no_destroy<T>::value)
+    {
+      ::atexit(destroy);
+    }
   }
 
   static void destroy()

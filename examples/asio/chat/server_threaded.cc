@@ -18,8 +18,7 @@ class ChatServer : boost::noncopyable
  public:
   ChatServer(EventLoop* loop,
              const InetAddress& listenAddr)
-  : loop_(loop),
-    server_(loop, listenAddr, "ChatServer"),
+  : server_(loop, listenAddr, "ChatServer"),
     codec_(boost::bind(&ChatServer::onStringMessage, this, _1, _2, _3))
   {
     server_.setConnectionCallback(
@@ -70,7 +69,6 @@ class ChatServer : boost::noncopyable
   }
 
   typedef std::set<TcpConnectionPtr> ConnectionList;
-  EventLoop* loop_;
   TcpServer server_;
   LengthHeaderCodec codec_;
   MutexLock mutex_;

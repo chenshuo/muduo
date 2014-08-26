@@ -1,9 +1,7 @@
-// excerpts from http://code.google.com/p/muduo/
-//
 // Use of this source code is governed by a BSD-style license
 // that can be found in the License file.
 //
-// Author: Shuo Chen (giantchen at gmail dot com)
+// Author: Shuo Chen (chenshuo at chenshuo dot com)
 
 #ifndef MUDUO_BASE_TIMEZONE_H
 #define MUDUO_BASE_TIMEZONE_H
@@ -20,10 +18,17 @@ class TimeZone : public muduo::copyable
 {
  public:
   explicit TimeZone(const char* zonefile);
+  TimeZone(int eastOfUtc, const char* tzname);  // a fixed timezone
+  TimeZone() {}  // an invalid timezone
 
   // default copy ctor/assignment/dtor are Okay.
 
-  bool valid() const { return data_; }
+  bool valid() const
+  {
+    // 'explicit operator bool() const' in C++11
+    return static_cast<bool>(data_);
+  }
+
   struct tm toLocalTime(time_t secondsSinceEpoch) const;
   time_t fromLocalTime(const struct tm&) const;
 

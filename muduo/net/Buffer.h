@@ -55,7 +55,8 @@ class Buffer : public muduo::copyable
     assert(prependableBytes() == kCheapPrepend);
   }
 
-  // default copy-ctor, dtor and assignment are fine
+  // implicit copy-ctor, move-ctor, dtor and assignment are fine
+  // NOTE: implicit move-ctor is added in g++ 4.6
 
   void swap(Buffer& rhs)
   {
@@ -78,6 +79,7 @@ class Buffer : public muduo::copyable
 
   const char* findCRLF() const
   {
+    // FIXME: replace with memmem()?
     const char* crlf = std::search(peek(), beginWrite(), kCRLF, kCRLF+2);
     return crlf == beginWrite() ? NULL : crlf;
   }
@@ -86,6 +88,7 @@ class Buffer : public muduo::copyable
   {
     assert(peek() <= start);
     assert(start <= beginWrite());
+    // FIXME: replace with memmem()?
     const char* crlf = std::search(start, beginWrite(), kCRLF, kCRLF+2);
     return crlf == beginWrite() ? NULL : crlf;
   }
@@ -100,7 +103,7 @@ class Buffer : public muduo::copyable
   {
     assert(peek() <= start);
     assert(start <= beginWrite());
-    const void* eol = memchr(start, '\n', readableBytes());
+    const void* eol = memchr(start, '\n', beginWrite() - start);
     return static_cast<const char*>(eol);
   }
 
@@ -199,7 +202,16 @@ class Buffer : public muduo::copyable
   { return begin() + writerIndex_; }
 
   void hasWritten(size_t len)
-  { writerIndex_ += len; }
+  {
+    assert(len <= writableBytes());
+    writerIndex_ += len;
+  }
+
+  void unwrite(size_t len)
+  {
+    assert(len <= readableBytes());
+    writerIndex_ -= len;
+  }
 
   ///
   /// Append int32_t using network endian
@@ -308,6 +320,11 @@ class Buffer : public muduo::copyable
     other.ensureWritableBytes(readableBytes()+reserve);
     other.append(toStringPiece());
     swap(other);
+  }
+
+  size_t internalCapacity() const
+  {
+    return buffer_.capacity();
   }
 
   /// Read data directly into buffer.

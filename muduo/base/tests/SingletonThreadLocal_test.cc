@@ -6,6 +6,7 @@
 #include <boost/bind.hpp>
 #include <boost/noncopyable.hpp>
 #include <stdio.h>
+#include <unistd.h>
 
 class Test : boost::noncopyable
 {
@@ -20,11 +21,11 @@ class Test : boost::noncopyable
     printf("tid=%d, destructing %p %s\n", muduo::CurrentThread::tid(), this, name_.c_str());
   }
 
-  const std::string& name() const { return name_; }
-  void setName(const std::string& n) { name_ = n; }
+  const muduo::string& name() const { return name_; }
+  void setName(const muduo::string& n) { name_ = n; }
 
  private:
-  std::string name_;
+  muduo::string name_;
 };
 
 #define STL muduo::Singleton<muduo::ThreadLocal<Test> >::instance().value()

@@ -63,6 +63,15 @@ class TcpClient : boost::noncopyable
   void setWriteCompleteCallback(const WriteCompleteCallback& cb)
   { writeCompleteCallback_ = cb; }
 
+#ifdef __GXX_EXPERIMENTAL_CXX0X__
+  void setConnectionCallback(ConnectionCallback&& cb)
+  { connectionCallback_ = std::move(cb); }
+  void setMessageCallback(MessageCallback&& cb)
+  { messageCallback_ = std::move(cb); }
+  void setWriteCompleteCallback(WriteCompleteCallback&& cb)
+  { writeCompleteCallback_ = std::move(cb); }
+#endif
+
  private:
   /// Not thread safe, but in loop
   void newConnection(int sockfd);
@@ -80,7 +89,7 @@ class TcpClient : boost::noncopyable
   // always in loop thread
   int nextConnId_;
   mutable MutexLock mutex_;
-  TcpConnectionPtr connection_; // @BuardedBy mutex_
+  TcpConnectionPtr connection_; // @GuardedBy mutex_
 };
 
 }

@@ -18,7 +18,7 @@
 #include <boost/scoped_ptr.hpp>
 
 #include <muduo/base/Mutex.h>
-#include <muduo/base/Thread.h>
+#include <muduo/base/CurrentThread.h>
 #include <muduo/base/Timestamp.h>
 #include <muduo/net/Callbacks.h>
 #include <muduo/net/TimerId.h>
@@ -51,10 +51,14 @@ class EventLoop : boost::noncopyable
   ///
   void loop();
 
+  /// Quits loop.
+  ///
+  /// This is not 100% thread safe, if you call through a raw pointer,
+  /// better to call through shared_ptr<EventLoop> for 100% safety.
   void quit();
 
   ///
-  /// Time when poll returns, usually means data arrivial.
+  /// Time when poll returns, usually means data arrival.
   ///
   Timestamp pollReturnTime() const { return pollReturnTime_; }
 
@@ -69,6 +73,11 @@ class EventLoop : boost::noncopyable
   /// Runs after finish pooling.
   /// Safe to call from other threads.
   void queueInLoop(const Functor& cb);
+
+#ifdef __GXX_EXPERIMENTAL_CXX0X__
+  void runInLoop(Functor&& cb);
+  void queueInLoop(Functor&& cb);
+#endif
 
   // timers
 
@@ -93,10 +102,17 @@ class EventLoop : boost::noncopyable
   ///
   void cancel(TimerId timerId);
 
+#ifdef __GXX_EXPERIMENTAL_CXX0X__
+  TimerId runAt(const Timestamp& time, TimerCallback&& cb);
+  TimerId runAfter(double delay, TimerCallback&& cb);
+  TimerId runEvery(double interval, TimerCallback&& cb);
+#endif
+
   // internal usage
   void wakeup();
   void updateChannel(Channel* channel);
   void removeChannel(Channel* channel);
+  bool hasChannel(Channel* channel);
 
   // pid_t threadId() const { return threadId_; }
   void assertInLoopThread()
@@ -122,7 +138,7 @@ class EventLoop : boost::noncopyable
   typedef std::vector<Channel*> ChannelList;
 
   bool looping_; /* atomic */
-  bool quit_; /* atomic */
+  bool quit_; /* atomic and shared between threads, okay on x86, I guess. */
   bool eventHandling_; /* atomic */
   bool callingPendingFunctors_; /* atomic */
   int64_t iteration_;
@@ -137,7 +153,7 @@ class EventLoop : boost::noncopyable
   ChannelList activeChannels_;
   Channel* currentActiveChannel_;
   MutexLock mutex_;
-  std::vector<Functor> pendingFunctors_; // @BuardedBy mutex_
+  std::vector<Functor> pendingFunctors_; // @GuardedBy mutex_
 };
 
 }

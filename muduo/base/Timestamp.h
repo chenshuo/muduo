@@ -41,7 +41,7 @@ class Timestamp : public muduo::copyable,
   // default copy/assignment/dtor are Okay
 
   string toString() const;
-  string toFormattedString() const;
+  string toFormattedString(bool showMicroseconds = true) const;
 
   bool valid() const { return microSecondsSinceEpoch_ > 0; }
 
@@ -77,7 +77,7 @@ inline bool operator==(Timestamp lhs, Timestamp rhs)
 ///
 /// @param high, low
 /// @return (high-low) in seconds
-/// @c double has 52-bit precision, enough for one-microseciond
+/// @c double has 52-bit precision, enough for one-microsecond
 /// resolution for next 100 years.
 inline double timeDifference(Timestamp high, Timestamp low)
 {

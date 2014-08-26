@@ -9,8 +9,7 @@ using namespace muduo::net;
 
 DiscardServer::DiscardServer(EventLoop* loop,
                              const InetAddress& listenAddr)
-  : loop_(loop),
-    server_(loop, listenAddr, "DiscardServer")
+  : server_(loop, listenAddr, "DiscardServer")
 {
   server_.setConnectionCallback(
       boost::bind(&DiscardServer::onConnection, this, _1));

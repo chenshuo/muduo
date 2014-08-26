@@ -4,8 +4,10 @@
 
 #include <boost/bind.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
+#include <memory>
 #include <string>
 #include <stdio.h>
+#include <unistd.h>
 
 class Test
 {
@@ -75,12 +77,28 @@ class Test
   boost::ptr_vector<muduo::Thread> threads_;
 };
 
+void testMove()
+{
+#ifdef __GXX_EXPERIMENTAL_CXX0X__
+  muduo::BlockingQueue<std::unique_ptr<int>> queue;
+  queue.put(std::unique_ptr<int>(new int(42)));
+  std::unique_ptr<int> x = queue.take();
+  printf("took %d\n", *x);
+  *x = 123;
+  queue.put(std::move(x));
+  std::unique_ptr<int> y = queue.take();
+  printf("took %d\n", *y);
+#endif
+}
+
 int main()
 {
   printf("pid=%d, tid=%d\n", ::getpid(), muduo::CurrentThread::tid());
   Test t(5);
   t.run(100);
   t.joinAll();
+
+  testMove();
 
   printf("number of created threads %d\n", muduo::Thread::numCreated());
 }

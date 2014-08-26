@@ -10,8 +10,7 @@ using namespace muduo::net;
 EchoServer::EchoServer(EventLoop* loop,
                        const InetAddress& listenAddr,
                        int maxConnections)
-  : loop_(loop),
-    server_(loop, listenAddr, "EchoServer"),
+  : server_(loop, listenAddr, "EchoServer"),
     numConnected_(0),
     kMaxConnections_(maxConnections)
 {
@@ -38,6 +37,7 @@ void EchoServer::onConnection(const TcpConnectionPtr& conn)
     if (numConnected_ > kMaxConnections_)
     {
       conn->shutdown();
+      conn->forceCloseWithDelay(3.0);  // > round trip of the whole Internet.
     }
   }
   else

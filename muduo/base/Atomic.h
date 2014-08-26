@@ -37,11 +37,13 @@ class AtomicIntegerT : boost::noncopyable
 
   T get()
   {
+    // in gcc >= 4.7: __atomic_load_n(&value_, __ATOMIC_SEQ_CST)
     return __sync_val_compare_and_swap(&value_, 0, 0);
   }
 
   T getAndAdd(T x)
   {
+    // in gcc >= 4.7: __atomic_fetch_add(&value_, x, __ATOMIC_SEQ_CST)
     return __sync_fetch_and_add(&value_, x);
   }
 
@@ -77,6 +79,7 @@ class AtomicIntegerT : boost::noncopyable
 
   T getAndSet(T newValue)
   {
+    // in gcc >= 4.7: __atomic_store_n(&value, newValue, __ATOMIC_SEQ_CST)
     return __sync_lock_test_and_set(&value_, newValue);
   }
 

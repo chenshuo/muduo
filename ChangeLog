@@ -1,3 +1,73 @@
+2014-08-02   Shuo Chen  <chenshuo@chenshuo.com>
+  * Singleton supports 'no_destroy'.
+  * Get tcp_info in TcpConnection.
+  * Add CurrentThread::tidStringLength().
+  * Fix bug about TcpClient life time. More checks.
+  * Version 1.0.3
+
+2014-06-30   Shuo Chen  <chenshuo@chenshuo.com>
+  * Fix boundary check in Buffer::findEOL() by <renxingsong>.
+  * Fix typos in InetAddress.cc by <huangml.zh>.
+  * Fix 32-bit integer overflow bug in time_client by <guochy2012>.
+  * Update comments in Buffer::readFd() by <huahang>.
+  * Add ThreadPool::setThreadInitCallback().
+  * Rename GzipStream to ZlibStream.
+  * Version 1.0.2
+
+2014-04-10   Shuo Chen  <chenshuo@chenshuo.com>
+  * More ProcessInfo functions.
+  * Add GzipFile (in C++11 only) and GzipOutputStream.
+  * Add SystemInspector.
+  * muduo::Threads now sets thread name with prctl().
+  * Version 1.0.1
+
+2014-03-12   Shuo Chen  <chenshuo@chenshuo.com>
+  * Add TCP and RPC balancer examples
+  * Version 1.0.0
+
+2014-03-05   Shuo Chen  <chenshuo@chenshuo.com>
+  * Introduce class StringArg for passing C-style string arguments.
+  * Support localtime in logging.
+  * Version 1.0.0-rc2
+
+2014-02-22   Shuo Chen  <chenshuo@chenshuo.com>
+  * Default to release build.
+  * Version 1.0.0-rc1
+
+2014-02-22   Shuo Chen  <chenshuo@chenshuo.com>
+  * Add base/WeakCallback.h
+  * Add TcpConnection::forceCloseWithDelay().
+  * Add InetAddress::resolve for sync DNS resolving.
+  * Add simple Protobuf codec for single message type.
+  * Add ACE ttcp and logging examples.
+  * Fix race conditoin in RpcChannel::CallMethod().
+  * Version 0.9.8
+
+2014-01-11   Shuo Chen  <chenshuo@chenshuo.com>
+  * Add TcpConnection::forceClose().
+  * Add fastcgi nginx.conf example
+  * Fix iterator invalidation in hub.cc.
+  * Version 0.9.7
+
+2013-10-21   Shuo Chen  <chenshuo@chenshuo.com>
+  * Minor fixes.
+  * Version 0.9.6
+
+2013-08-31   Shuo Chen  <chenshuo@chenshuo.com>
+  * Add C++11 rvalue overloads for boost::function parameters
+  * Add PerformanceInspector, support remote profiling with gperftools
+  * Add examples of memcached server and client
+  * Version 0.9.5
+
+2013-07-28   Shuo Chen  <chenshuo@chenshuo.com>
+  * Protobuf RPC wire protocol changed,
+    package name removed in 'service' field.
+  * Add roundtrip_udp as a UDP example
+  * More inspect
+  * Fix Connector::stop()
+  * Fix for protobuf 2.5.0
+  * Version 0.9.4
+
 2013-05-11   Shuo Chen  <chenshuo@chenshuo.com>
   * ThreadPool can be blocking
   * Support SO_REUSEPORT, added in kernel 3.9.0

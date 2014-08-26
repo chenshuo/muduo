@@ -10,8 +10,7 @@ using namespace muduo::net;
 
 DaytimeServer::DaytimeServer(EventLoop* loop,
                              const InetAddress& listenAddr)
-  : loop_(loop),
-    server_(loop, listenAddr, "DaytimeServer")
+  : server_(loop, listenAddr, "DaytimeServer")
 {
   server_.setConnectionCallback(
       boost::bind(&DaytimeServer::onConnection, this, _1));

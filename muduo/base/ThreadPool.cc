@@ -39,10 +39,14 @@ void ThreadPool::start(int numThreads)
   for (int i = 0; i < numThreads; ++i)
   {
     char id[32];
-    snprintf(id, sizeof id, "%d", i);
+    snprintf(id, sizeof id, "%d", i+1);
     threads_.push_back(new muduo::Thread(
           boost::bind(&ThreadPool::runInThread, this), name_+id));
     threads_[i].start();
+  }
+  if (numThreads == 0 && threadInitCallback_)
+  {
+    threadInitCallback_();
   }
 }
 
@@ -78,6 +82,28 @@ void ThreadPool::run(const Task& task)
   }
 }
 
+#ifdef __GXX_EXPERIMENTAL_CXX0X__
+void ThreadPool::run(Task&& task)
+{
+  if (threads_.empty())
+  {
+    task();
+  }
+  else
+  {
+    MutexLockGuard lock(mutex_);
+    while (isFull())
+    {
+      notFull_.wait();
+    }
+    assert(!isFull());
+
+    queue_.push_back(std::move(task));
+    notEmpty_.notify();
+  }
+}
+#endif
+
 ThreadPool::Task ThreadPool::take()
 {
   MutexLockGuard lock(mutex_);
@@ -109,6 +135,10 @@ void ThreadPool::runInThread()
 {
   try
   {
+    if (threadInitCallback_)
+    {
+      threadInitCallback_();
+    }
     while (running_)
     {
       Task task(take());

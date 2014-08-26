@@ -19,7 +19,7 @@ using namespace muduo::net;
 EventLoopThread::EventLoopThread(const ThreadInitCallback& cb)
   : loop_(NULL),
     exiting_(false),
-    thread_(boost::bind(&EventLoopThread::threadFunc, this)),
+    thread_(boost::bind(&EventLoopThread::threadFunc, this), "EventLoopThread"), // FIXME: number it
     mutex_(),
     cond_(mutex_),
     callback_(cb)
@@ -29,8 +29,13 @@ EventLoopThread::EventLoopThread(const ThreadInitCallback& cb)
 EventLoopThread::~EventLoopThread()
 {
   exiting_ = true;
-  loop_->quit();
-  thread_.join();
+  if (loop_ != NULL) // not 100% race-free, eg. threadFunc could be running callback_.
+  {
+    // still a tiny chance to call destructed object, if threadFunc exits just now.
+    // but when EventLoopThread destructs, usually programming is exiting anyway.
+    loop_->quit();
+    thread_.join();
+  }
 }
 
 EventLoop* EventLoopThread::startLoop()
@@ -66,5 +71,6 @@ void EventLoopThread::threadFunc()
 
   loop.loop();
   //assert(exiting_);
+  loop_ = NULL;
 }
 

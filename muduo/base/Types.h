@@ -9,6 +9,10 @@
 #include <ext/vstring_fwd.h>
 #endif
 
+#ifndef NDEBUG
+#include <assert.h>
+#endif
+
 ///
 /// The most common stuffs.
 ///

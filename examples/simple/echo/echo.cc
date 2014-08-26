@@ -9,8 +9,7 @@
 
 EchoServer::EchoServer(muduo::net::EventLoop* loop,
                        const muduo::net::InetAddress& listenAddr)
-  : loop_(loop),
-    server_(loop, listenAddr, "EchoServer")
+  : server_(loop, listenAddr, "EchoServer")
 {
   server_.setConnectionCallback(
       boost::bind(&EchoServer::onConnection, this, _1));

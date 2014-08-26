@@ -19,8 +19,7 @@ class UptimeClient : boost::noncopyable
 {
  public:
   UptimeClient(EventLoop* loop, const InetAddress& listenAddr)
-    : loop_(loop),
-      client_(loop, listenAddr, "UptimeClient")
+    : client_(loop, listenAddr, "UptimeClient")
   {
     client_.setConnectionCallback(
         boost::bind(&UptimeClient::onConnection, this, _1));
@@ -46,7 +45,6 @@ class UptimeClient : boost::noncopyable
   {
   }
 
-  EventLoop* loop_;
   TcpClient client_;
 };
 

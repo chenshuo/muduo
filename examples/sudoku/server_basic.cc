@@ -21,8 +21,7 @@ class SudokuServer
 {
  public:
   SudokuServer(EventLoop* loop, const InetAddress& listenAddr)
-    : loop_(loop),
-      server_(loop, listenAddr, "SudokuServer"),
+    : server_(loop, listenAddr, "SudokuServer"),
       startTime_(Timestamp::now())
   {
     server_.setConnectionCallback(
@@ -113,7 +112,6 @@ class SudokuServer
     return goodRequest;
   }
 
-  EventLoop* loop_;
   TcpServer server_;
   Timestamp startTime_;
 };

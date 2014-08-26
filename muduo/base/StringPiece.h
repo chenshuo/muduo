@@ -50,6 +50,30 @@
 
 namespace muduo {
 
+// For passing C-style string argument to a function.
+class StringArg // copyable
+{
+ public:
+  StringArg(const char* str)
+    : str_(str)
+  { }
+
+  StringArg(const string& str)
+    : str_(str.c_str())
+  { }
+
+#ifndef MUDUO_STD_STRING
+  StringArg(const std::string& str)
+    : str_(str.c_str())
+  { }
+#endif
+
+  const char* c_str() const { return str_; }
+
+ private:
+  const char* str_;
+};
+
 class StringPiece {
  private:
   const char*   ptr_;
@@ -84,6 +108,8 @@ class StringPiece {
   const char* data() const { return ptr_; }
   int size() const { return length_; }
   bool empty() const { return length_ == 0; }
+  const char* begin() const { return ptr_; }
+  const char* end() const { return ptr_ + length_; }
 
   void clear() { ptr_ = NULL; length_ = 0; }
   void set(const char* buffer, int len) { ptr_ = buffer; length_ = len; }

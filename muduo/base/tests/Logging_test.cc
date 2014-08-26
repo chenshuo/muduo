@@ -1,6 +1,7 @@
 #include <muduo/base/Logging.h>
 #include <muduo/base/LogFile.h>
 #include <muduo/base/ThreadPool.h>
+#include <muduo/base/TimeZone.h>
 
 #include <stdio.h>
 
@@ -94,4 +95,27 @@ int main()
   g_logFile.reset(new muduo::LogFile("test_log_mt", 500*1000*1000, true));
   bench("test_log_mt");
   g_logFile.reset();
+
+  {
+  g_file = stdout;
+  sleep(1);
+  muduo::TimeZone beijing(8*3600, "CST");
+  muduo::Logger::setTimeZone(beijing);
+  LOG_TRACE << "trace CST";
+  LOG_DEBUG << "debug CST";
+  LOG_INFO << "Hello CST";
+  LOG_WARN << "World CST";
+  LOG_ERROR << "Error CST";
+
+  sleep(1);
+  muduo::TimeZone newyork("/usr/share/zoneinfo/America/New_York");
+  muduo::Logger::setTimeZone(newyork);
+  LOG_TRACE << "trace NYT";
+  LOG_DEBUG << "debug NYT";
+  LOG_INFO << "Hello NYT";
+  LOG_WARN << "World NYT";
+  LOG_ERROR << "Error NYT";
+  g_file = NULL;
+  }
+  bench("timezone nop");
 }

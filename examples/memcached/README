@@ -1,0 +1,19 @@
+Simple implementation of memcached protocol for both server and client side.
+Not meant to replace memcached, but just sample code of network programming with muduo.
+
+Server limits:
+ - The memory management is not customized, just uses (tc)malloc.
+ - It doesn't control the memory footprint
+ - Unix domain socket is not supported
+ - Only listen on one TCP port
+
+Server goals:
+ - Pass as many feature tests as possible
+ - Prefer simplicity over performence
+
+TODO:
+ - incr/decr
+ - UDP
+ - Binary protocol
+ - expiration
+ - LRU

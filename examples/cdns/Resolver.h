@@ -41,7 +41,7 @@ class Resolver : boost::noncopyable
   explicit Resolver(muduo::net::EventLoop* loop, Option opt = kDNSandHostsFile);
   ~Resolver();
 
-  bool resolve(const muduo::StringPiece& hostname, const Callback& cb);
+  bool resolve(muduo::StringArg hostname, const Callback& cb);
 
  private:
 

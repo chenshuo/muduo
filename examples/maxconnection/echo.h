@@ -20,7 +20,6 @@ class EchoServer
                  muduo::net::Buffer* buf,
                  muduo::Timestamp time);
 
-  muduo::net::EventLoop* loop_;
   muduo::net::TcpServer server_;
   int numConnected_; // should be atomic_int
   const int kMaxConnections_;

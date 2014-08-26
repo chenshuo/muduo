@@ -21,8 +21,7 @@ using namespace muduo::net;
 
 RpcServer::RpcServer(EventLoop* loop,
                        const InetAddress& listenAddr)
-  : loop_(loop),
-    server_(loop, listenAddr, "RpcServer")
+  : server_(loop, listenAddr, "RpcServer")
 {
   server_.setConnectionCallback(
       boost::bind(&RpcServer::onConnection, this, _1));
@@ -33,7 +32,7 @@ RpcServer::RpcServer(EventLoop* loop,
 void RpcServer::registerService(google::protobuf::Service* service)
 {
   const google::protobuf::ServiceDescriptor* desc = service->GetDescriptor();
-  services_[desc->full_name()] = service;
+  services_[desc->name()] = service;
 }
 
 void RpcServer::start()

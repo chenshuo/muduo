@@ -23,7 +23,6 @@ class ChargenServer
   void onWriteComplete(const muduo::net::TcpConnectionPtr& conn);
   void printThroughput();
 
-  muduo::net::EventLoop* loop_;
   muduo::net::TcpServer server_;
 
   muduo::string message_;

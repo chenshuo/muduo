@@ -8,6 +8,7 @@
 
 #include <muduo/net/Acceptor.h>
 
+#include <muduo/base/Logging.h>
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/InetAddress.h>
 #include <muduo/net/SocketsOps.h>
@@ -55,7 +56,7 @@ void Acceptor::listen()
 void Acceptor::handleRead()
 {
   loop_->assertInLoopThread();
-  InetAddress peerAddr(0);
+  InetAddress peerAddr;
   //FIXME loop until no more
   int connfd = acceptSocket_.accept(&peerAddr);
   if (connfd >= 0)
@@ -73,6 +74,7 @@ void Acceptor::handleRead()
   }
   else
   {
+    LOG_SYSERR << "in Acceptor::handleRead";
     // Read the section named "The special problem of
     // accept()ing when you can't" in libev's doc.
     // By Marc Lehmann, author of livev.

@@ -15,8 +15,7 @@ using namespace muduo::net;
 EchoServer::EchoServer(EventLoop* loop,
                        const InetAddress& listenAddr,
                        int idleSeconds)
-  : loop_(loop),
-    server_(loop, listenAddr, "EchoServer"),
+  : server_(loop, listenAddr, "EchoServer"),
     connectionBuckets_(idleSeconds)
 {
   server_.setConnectionCallback(

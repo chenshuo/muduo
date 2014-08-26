@@ -13,7 +13,6 @@
 
 #include <muduo/net/Poller.h>
 
-#include <map>
 #include <vector>
 
 struct epoll_event;
@@ -44,11 +43,9 @@ class EPollPoller : public Poller
   void update(int operation, Channel* channel);
 
   typedef std::vector<struct epoll_event> EventList;
-  typedef std::map<int, Channel*> ChannelMap;
 
   int epollfd_;
   EventList events_;
-  ChannelMap channels_;
 };
 
 }

@@ -15,6 +15,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <sys/prctl.h>
 #include <sys/syscall.h>
 #include <sys/types.h>
 #include <linux/unistd.h>
@@ -25,6 +26,7 @@ namespace CurrentThread
 {
   __thread int t_cachedTid = 0;
   __thread char t_tidString[32];
+  __thread int t_tidStringLength = 6;
   __thread const char* t_threadName = "unknown";
   const bool sameType = boost::is_same<int, pid_t>::value;
   BOOST_STATIC_ASSERT(sameType);
@@ -85,7 +87,8 @@ struct ThreadData
       ptid.reset();
     }
 
-    muduo::CurrentThread::t_threadName = name_.c_str();
+    muduo::CurrentThread::t_threadName = name_.empty() ? "muduoThread" : name_.c_str();
+    ::prctl(PR_SET_NAME, muduo::CurrentThread::t_threadName);
     try
     {
       func_();
@@ -133,14 +136,21 @@ void CurrentThread::cacheTid()
   if (t_cachedTid == 0)
   {
     t_cachedTid = detail::gettid();
-    int n = snprintf(t_tidString, sizeof t_tidString, "%5d ", t_cachedTid);
-    assert(n == 6); (void) n;
+    t_tidStringLength = snprintf(t_tidString, sizeof t_tidString, "%5d ", t_cachedTid);
   }
 }
 
 bool CurrentThread::isMainThread()
 {
   return tid() == ::getpid();
+}
+
+void CurrentThread::sleepUsec(int64_t usec)
+{
+  struct timespec ts = { 0, 0 };
+  ts.tv_sec = static_cast<time_t>(usec / Timestamp::kMicroSecondsPerSecond);
+  ts.tv_nsec = static_cast<long>(usec % Timestamp::kMicroSecondsPerSecond * 1000);
+  ::nanosleep(&ts, NULL);
 }
 
 AtomicInt32 Thread::numCreated_;
@@ -153,8 +163,22 @@ Thread::Thread(const ThreadFunc& func, const string& n)
     func_(func),
     name_(n)
 {
-  numCreated_.increment();
+  setDefaultName();
 }
+
+#ifdef __GXX_EXPERIMENTAL_CXX0X__
+Thread::Thread(ThreadFunc&& func, const string& n)
+  : started_(false),
+    joined_(false),
+    pthreadId_(0),
+    tid_(new pid_t(0)),
+    func_(std::move(func)),
+    name_(n)
+{
+  setDefaultName();
+}
+
+#endif
 
 Thread::~Thread()
 {
@@ -164,10 +188,22 @@ Thread::~Thread()
   }
 }
 
+void Thread::setDefaultName()
+{
+  int num = numCreated_.incrementAndGet();
+  if (name_.empty())
+  {
+    char buf[32];
+    snprintf(buf, sizeof buf, "Thread%d", num);
+    name_ = buf;
+  }
+}
+
 void Thread::start()
 {
   assert(!started_);
   started_ = true;
+  // FIXME: move(func_)
   detail::ThreadData* data = new detail::ThreadData(func_, name_, tid_);
   if (pthread_create(&pthreadId_, NULL, &detail::startThread, data))
   {
