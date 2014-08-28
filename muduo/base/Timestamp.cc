@@ -2,9 +2,12 @@
 
 #include <sys/time.h>
 #include <stdio.h>
+
+#ifndef __STDC_FORMAT_MACROS
 #define __STDC_FORMAT_MACROS
+#endif
+
 #include <inttypes.h>
-#undef __STDC_FORMAT_MACROS
 
 #include <boost/static_assert.hpp>
 
