@@ -100,7 +100,7 @@ class Channel : boost::noncopyable
   EventLoop* loop_;
   const int  fd_;
   int        events_;
-  int        revents_;
+  int        revents_;//the event type of epoll or poll
   int        index_; // used by Poller.
   bool       logHup_;
 
