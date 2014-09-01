@@ -8,6 +8,7 @@
 
 #include <muduo/net/EventLoopThreadPool.h>
 
+#include <muduo/base/Logging.h>
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/EventLoopThread.h>
 
@@ -68,6 +69,18 @@ EventLoop* EventLoopThreadPool::getNextLoop()
   return loop;
 }
 
+EventLoop* EventLoopThreadPool::getNextLoop(uint64_t hashCode)
+{
+  baseLoop_->assertInLoopThread();
+  EventLoop* loop = baseLoop_;
+
+  if (!loops_.empty())
+  {
+    loop = loops_[hashCode % threads_.size()];
+  }
+  return loop;
+}
+
 std::vector<EventLoop*> EventLoopThreadPool::getAllLoops()
 {
   baseLoop_->assertInLoopThread();
@@ -81,3 +94,5 @@ std::vector<EventLoop*> EventLoopThreadPool::getAllLoops()
     return loops_;
   }
 }
+
+
