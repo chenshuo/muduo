@@ -68,7 +68,8 @@ class TcpServer : boost::noncopyable
   void setThreadInitCallback(const ThreadInitCallback& cb)
   { threadInitCallback_ = cb; }
   /// valid after calling start()
-  EventLoopThreadPool* threadPool() { return get_pointer(threadPool_); }
+  boost::shared_ptr<EventLoopThreadPool> threadPool() const
+  { return threadPool_; }
 
   /// Starts the server if it's not listenning.
   ///
@@ -90,9 +91,6 @@ class TcpServer : boost::noncopyable
   /// Not thread safe.
   void setWriteCompleteCallback(const WriteCompleteCallback& cb)
   { writeCompleteCallback_ = cb; }
-
-  boost::shared_ptr<EventLoopThreadPool> threadPool() const 
-  { return threadPool_; }
 
  private:
   /// Not thread safe, but in loop
