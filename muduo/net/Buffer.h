@@ -140,6 +140,11 @@ class Buffer : public muduo::copyable
     retrieve(end - peek());
   }
 
+  void retrieveInt64()
+  {
+    retrieve(sizeof(int64_t));    
+  }
+
   void retrieveInt32()
   {
     retrieve(sizeof(int32_t));
@@ -224,8 +229,14 @@ class Buffer : public muduo::copyable
   }
 
   ///
-  /// Append int32_t using network endian
+  /// Append int64_t using network endian
   ///
+  void appendInt64(int64_t x)
+  {
+    int64_t be64 = sockets::hostToNetwork64(x);
+    append(&be64, sizeof be64);
+  }
+
   void appendInt32(int32_t x)
   {
     int32_t be32 = sockets::hostToNetwork32(x);
@@ -244,9 +255,16 @@ class Buffer : public muduo::copyable
   }
 
   ///
-  /// Read int32_t from network endian
+  /// Read int64_t from network endian
   ///
   /// Require: buf->readableBytes() >= sizeof(int32_t)
+  int64_t readInt64()
+  {
+    int64_t result = peekInt64();
+    retrieveInt64();
+    return result;
+  }
+
   int32_t readInt32()
   {
     int32_t result = peekInt32();
@@ -269,9 +287,17 @@ class Buffer : public muduo::copyable
   }
 
   ///
-  /// Peek int32_t from network endian
+  /// Peek int64_t from network endian
   ///
-  /// Require: buf->readableBytes() >= sizeof(int32_t)
+  /// Require: buf->readableBytes() >= sizeof(int64_t)
+  int64_t peekInt64() const
+  {
+    assert(readableBytes() >= sizeof(int64_t));
+    int64_t be64 = 0;
+    ::memcpy(&be64, peek(), sizeof be64);
+    return sockets::networkToHost64(be64);
+  }
+
   int32_t peekInt32() const
   {
     assert(readableBytes() >= sizeof(int32_t));
@@ -296,8 +322,14 @@ class Buffer : public muduo::copyable
   }
 
   ///
-  /// Prepend int32_t using network endian
+  /// Prepend int64_t using network endian
   ///
+  void prependInt64(int64_t x)
+  {
+    int64_t be64 = sockets::hostToNetwork64(x);
+    prepend(&be64, sizeof be64);
+  }
+
   void prependInt32(int32_t x)
   {
     int32_t be32 = sockets::hostToNetwork32(x);
