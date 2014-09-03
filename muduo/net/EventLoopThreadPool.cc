@@ -69,7 +69,7 @@ EventLoop* EventLoopThreadPool::getNextLoop()
   return loop;
 }
 
-EventLoop* EventLoopThreadPool::getNextLoop(uint64_t hashCode)
+EventLoop* EventLoopThreadPool::getLoopForHash(uint64_t hashCode)
 {
   baseLoop_->assertInLoopThread();
   EventLoop* loop = baseLoop_;
