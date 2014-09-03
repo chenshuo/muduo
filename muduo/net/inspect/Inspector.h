@@ -41,11 +41,7 @@ class Inspector : boost::noncopyable
             const string& name);
   ~Inspector();
 
-  /// Add a Callback for handling the special uri <code>/mudule/command</code>
-  /// @param module
-  /// @param command
-  /// @param cb
-  /// @param help
+  /// Add a Callback for handling the special uri : /mudule/command
   void add(const string& module,
            const string& command,
            const Callback& cb,
