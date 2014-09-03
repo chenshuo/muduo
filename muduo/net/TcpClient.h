@@ -84,7 +84,7 @@ class TcpClient : boost::noncopyable
   ConnectionCallback connectionCallback_;
   MessageCallback messageCallback_;
   WriteCompleteCallback writeCompleteCallback_;
-  bool retry_;   // atmoic
+  bool retry_;   // atomic
   bool connect_; // atomic
   // always in loop thread
   int nextConnId_;
