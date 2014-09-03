@@ -8,6 +8,7 @@
 
 #include <muduo/net/EventLoopThreadPool.h>
 
+#include <muduo/base/Logging.h>
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/EventLoopThread.h>
 
@@ -64,6 +65,18 @@ EventLoop* EventLoopThreadPool::getNextLoop()
     {
       next_ = 0;
     }
+  }
+  return loop;
+}
+
+EventLoop* EventLoopThreadPool::getLoopForHash(uint64_t hashCode)
+{
+  baseLoop_->assertInLoopThread();
+  EventLoop* loop = baseLoop_;
+
+  if (!loops_.empty())
+  {
+    loop = loops_[hashCode % threads_.size()];
   }
   return loop;
 }
