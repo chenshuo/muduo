@@ -6,7 +6,10 @@
 
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
+#ifndef __STDC_LIMIT_MACROS
 #define __STDC_LIMIT_MACROS
+#endif
+
 #include <muduo/net/TimerQueue.h>
 
 #include <muduo/base/Logging.h>
