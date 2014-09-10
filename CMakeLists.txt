@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-project(muduo CXX)
+project(muduo C CXX)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Debug")
