@@ -27,15 +27,6 @@ namespace
 
 typedef struct sockaddr SA;
 
-const SA* sockaddr_cast(const struct sockaddr_in* addr)
-{
-  return static_cast<const SA*>(implicit_cast<const void*>(addr));
-}
-
-SA* sockaddr_cast(struct sockaddr_in* addr)
-{
-  return static_cast<SA*>(implicit_cast<void*>(addr));
-}
 
 #if VALGRIND
 void setNonBlockAndCloseOnExec(int sockfd)
@@ -56,6 +47,26 @@ void setNonBlockAndCloseOnExec(int sockfd)
 }
 #endif
 
+}
+
+const struct sockaddr* sockets::sockaddr_cast(const struct sockaddr_in* addr)
+{
+  return static_cast<const struct sockaddr*>(implicit_cast<const void*>(addr));
+}
+
+struct sockaddr* sockets::sockaddr_cast(struct sockaddr_in* addr)
+{
+  return static_cast<struct sockaddr*>(implicit_cast<void*>(addr));
+}
+
+const struct sockaddr_in* sockets::sockaddr_in_cast(const struct sockaddr* addr)
+{
+  return static_cast<const struct sockaddr_in*>(implicit_cast<const void*>(addr));
+}
+
+struct sockaddr_in* sockets::sockaddr_in_cast(struct sockaddr* addr)
+{
+  return static_cast<struct sockaddr_in*>(implicit_cast<void*>(addr));
 }
 
 int sockets::createNonblockingOrDie()
