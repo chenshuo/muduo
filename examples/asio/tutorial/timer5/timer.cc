@@ -70,5 +70,6 @@ int main()
   muduo::net::EventLoop* loopInAnotherThread = loopThread.startLoop();
   Printer printer(&loop, loopInAnotherThread);
   loop.loop();
+  sleep(2); //quit safely
 }
 
