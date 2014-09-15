@@ -57,6 +57,8 @@ class EventLoop : boost::noncopyable
   /// better to call through shared_ptr<EventLoop> for 100% safety.
   void quit();
 
+  bool looping() const { return looping_; }
+
   ///
   /// Time when poll returns, usually means data arrival.
   ///

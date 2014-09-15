@@ -105,8 +105,12 @@ int main()
 {
   muduo::net::EventLoop loop;
   muduo::net::EventLoopThread loopThread;
-  muduo::net::EventLoop* loopInAnotherThread = loopThread.startLoop();
+  muduo::net::EventLoop*& loopInAnotherThread = loopThread.startLoop();
   Printer printer(&loop, loopInAnotherThread);
   loop.loop();
+  while (loopInAnotherThread && loopInAnotherThread->looping()) {
+    loopInAnotherThread->quit();
+    sleep(1);
+  }
 }
 
