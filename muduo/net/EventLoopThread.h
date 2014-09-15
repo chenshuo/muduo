@@ -31,7 +31,7 @@ class EventLoopThread : boost::noncopyable
 
   EventLoopThread(const ThreadInitCallback& cb = ThreadInitCallback());
   ~EventLoopThread();
-  EventLoop* startLoop();
+  EventLoop*& startLoop();
 
  private:
   void threadFunc();
