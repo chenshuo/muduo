@@ -43,6 +43,7 @@ class EchoServer
     LOG_TRACE << conn->peerAddress().toIpPort() << " -> "
         << conn->localAddress().toIpPort() << " is "
         << (conn->connected() ? "UP" : "DOWN");
+    LOG_INFO << conn->getTcpInfoString();
 
     conn->send("hello\n");
   }

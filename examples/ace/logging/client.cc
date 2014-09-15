@@ -45,7 +45,7 @@ class LogClient : boost::noncopyable
 
   void disconnect()
   {
-    // client_.disconnect();
+    client_.disconnect();
   }
 
   void write(const StringPiece& message)
@@ -110,8 +110,8 @@ class LogClient : boost::noncopyable
 
   TcpClient client_;
   Codec codec_;
-  LogRecord logRecord_;
   MutexLock mutex_;
+  LogRecord logRecord_;
   TcpConnectionPtr connection_;
 };
 
@@ -137,5 +137,7 @@ int main(int argc, char* argv[])
       client.write(line);
     }
     client.disconnect();
+    CurrentThread::sleepUsec(1000*1000);  // wait for disconnect, then safe to destruct LogClient (esp. TcpClient). Otherwise mutex_ is used after dtor.
   }
+  google::protobuf::ShutdownProtobufLibrary();
 }

@@ -45,13 +45,13 @@ class Buffer : public muduo::copyable
   static const size_t kCheapPrepend = 8;
   static const size_t kInitialSize = 1024;
 
-  Buffer()
-    : buffer_(kCheapPrepend + kInitialSize),
+  explicit Buffer(size_t initialSize = kInitialSize)
+    : buffer_(kCheapPrepend + initialSize),
       readerIndex_(kCheapPrepend),
       writerIndex_(kCheapPrepend)
   {
     assert(readableBytes() == 0);
-    assert(writableBytes() == kInitialSize);
+    assert(writableBytes() == initialSize);
     assert(prependableBytes() == kCheapPrepend);
   }
 
@@ -79,6 +79,7 @@ class Buffer : public muduo::copyable
 
   const char* findCRLF() const
   {
+    // FIXME: replace with memmem()?
     const char* crlf = std::search(peek(), beginWrite(), kCRLF, kCRLF+2);
     return crlf == beginWrite() ? NULL : crlf;
   }
@@ -87,6 +88,7 @@ class Buffer : public muduo::copyable
   {
     assert(peek() <= start);
     assert(start <= beginWrite());
+    // FIXME: replace with memmem()?
     const char* crlf = std::search(start, beginWrite(), kCRLF, kCRLF+2);
     return crlf == beginWrite() ? NULL : crlf;
   }
@@ -101,7 +103,7 @@ class Buffer : public muduo::copyable
   {
     assert(peek() <= start);
     assert(start <= beginWrite());
-    const void* eol = memchr(start, '\n', readableBytes());
+    const void* eol = memchr(start, '\n', beginWrite() - start);
     return static_cast<const char*>(eol);
   }
 
@@ -126,6 +128,11 @@ class Buffer : public muduo::copyable
     assert(peek() <= end);
     assert(end <= beginWrite());
     retrieve(end - peek());
+  }
+
+  void retrieveInt64()
+  {
+    retrieve(sizeof(int64_t));    
   }
 
   void retrieveInt32()
@@ -212,6 +219,15 @@ class Buffer : public muduo::copyable
   }
 
   ///
+  /// Append int64_t using network endian
+  ///
+  void appendInt64(int64_t x)
+  {
+    int64_t be64 = sockets::hostToNetwork64(x);
+    append(&be64, sizeof be64);
+  }
+
+  ///
   /// Append int32_t using network endian
   ///
   void appendInt32(int32_t x)
@@ -229,6 +245,17 @@ class Buffer : public muduo::copyable
   void appendInt8(int8_t x)
   {
     append(&x, sizeof x);
+  }
+
+  ///
+  /// Read int64_t from network endian
+  ///
+  /// Require: buf->readableBytes() >= sizeof(int32_t)
+  int64_t readInt64()
+  {
+    int64_t result = peekInt64();
+    retrieveInt64();
+    return result;
   }
 
   ///
@@ -257,6 +284,18 @@ class Buffer : public muduo::copyable
   }
 
   ///
+  /// Peek int64_t from network endian
+  ///
+  /// Require: buf->readableBytes() >= sizeof(int64_t)
+  int64_t peekInt64() const
+  {
+    assert(readableBytes() >= sizeof(int64_t));
+    int64_t be64 = 0;
+    ::memcpy(&be64, peek(), sizeof be64);
+    return sockets::networkToHost64(be64);
+  }
+
+  ///
   /// Peek int32_t from network endian
   ///
   /// Require: buf->readableBytes() >= sizeof(int32_t)
@@ -281,6 +320,15 @@ class Buffer : public muduo::copyable
     assert(readableBytes() >= sizeof(int8_t));
     int8_t x = *peek();
     return x;
+  }
+
+  ///
+  /// Prepend int64_t using network endian
+  ///
+  void prependInt64(int64_t x)
+  {
+    int64_t be64 = sockets::hostToNetwork64(x);
+    prepend(&be64, sizeof be64);
   }
 
   ///

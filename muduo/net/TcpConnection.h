@@ -23,6 +23,9 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 
+// struct tcp_info is in <netinet/tcp.h>
+struct tcp_info;
+
 namespace muduo
 {
 namespace net
@@ -55,6 +58,9 @@ class TcpConnection : boost::noncopyable,
   const InetAddress& localAddress() const { return localAddr_; }
   const InetAddress& peerAddress() const { return peerAddr_; }
   bool connected() const { return state_ == kConnected; }
+  // return true if success.
+  bool getTcpInfo(struct tcp_info*) const;
+  string getTcpInfoString() const;
 
   // void send(string&& message); // C++11
   void send(const void* message, int len);

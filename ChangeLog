@@ -1,3 +1,19 @@
+2014-08-02   Shuo Chen  <chenshuo@chenshuo.com>
+  * Singleton supports 'no_destroy'.
+  * Get tcp_info in TcpConnection.
+  * Add CurrentThread::tidStringLength().
+  * Fix bug about TcpClient life time. More checks.
+  * Version 1.0.3
+
+2014-06-30   Shuo Chen  <chenshuo@chenshuo.com>
+  * Fix boundary check in Buffer::findEOL() by <renxingsong>.
+  * Fix typos in InetAddress.cc by <huangml.zh>.
+  * Fix 32-bit integer overflow bug in time_client by <guochy2012>.
+  * Update comments in Buffer::readFd() by <huahang>.
+  * Add ThreadPool::setThreadInitCallback().
+  * Rename GzipStream to ZlibStream.
+  * Version 1.0.2
+
 2014-04-10   Shuo Chen  <chenshuo@chenshuo.com>
   * More ProcessInfo functions.
   * Add GzipFile (in C++11 only) and GzipOutputStream.

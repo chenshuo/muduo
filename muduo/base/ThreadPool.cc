@@ -44,6 +44,10 @@ void ThreadPool::start(int numThreads)
           boost::bind(&ThreadPool::runInThread, this), name_+id));
     threads_[i].start();
   }
+  if (numThreads == 0 && threadInitCallback_)
+  {
+    threadInitCallback_();
+  }
 }
 
 void ThreadPool::stop()
@@ -131,6 +135,10 @@ void ThreadPool::runInThread()
 {
   try
   {
+    if (threadInitCallback_)
+    {
+      threadInitCallback_();
+    }
     while (running_)
     {
       Task task(take());

@@ -29,13 +29,19 @@ Channel::Channel(EventLoop* loop, int fd__)
     index_(-1),
     logHup_(true),
     tied_(false),
-    eventHandling_(false)
+    eventHandling_(false),
+    addedToLoop_(false)
 {
 }
 
 Channel::~Channel()
 {
   assert(!eventHandling_);
+  assert(!addedToLoop_);
+  if (loop_->isInLoopThread())
+  {
+    assert(!loop_->hasChannel(this));
+  }
 }
 
 void Channel::tie(const boost::shared_ptr<void>& obj)
@@ -46,12 +52,14 @@ void Channel::tie(const boost::shared_ptr<void>& obj)
 
 void Channel::update()
 {
+  addedToLoop_ = true;
   loop_->updateChannel(this);
 }
 
 void Channel::remove()
 {
   assert(isNoneEvent());
+  addedToLoop_ = false;
   loop_->removeChannel(this);
 }
 

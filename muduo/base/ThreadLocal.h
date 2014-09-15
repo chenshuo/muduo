@@ -6,6 +6,8 @@
 #ifndef MUDUO_BASE_THREADLOCAL_H
 #define MUDUO_BASE_THREADLOCAL_H
 
+#include <muduo/base/Mutex.h>  // MCHECK
+
 #include <boost/noncopyable.hpp>
 #include <pthread.h>
 
@@ -18,20 +20,21 @@ class ThreadLocal : boost::noncopyable
  public:
   ThreadLocal()
   {
-    pthread_key_create(&pkey_, &ThreadLocal::destructor);
+    MCHECK(pthread_key_create(&pkey_, &ThreadLocal::destructor));
   }
 
   ~ThreadLocal()
   {
-    pthread_key_delete(pkey_);
+    MCHECK(pthread_key_delete(pkey_));
   }
 
   T& value()
   {
     T* perThreadValue = static_cast<T*>(pthread_getspecific(pkey_));
-    if (!perThreadValue) {
+    if (!perThreadValue)
+    {
       T* newObj = new T();
-      pthread_setspecific(pkey_, newObj);
+      MCHECK(pthread_setspecific(pkey_, newObj));
       perThreadValue = newObj;
     }
     return *perThreadValue;

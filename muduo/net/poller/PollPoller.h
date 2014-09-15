@@ -13,7 +13,6 @@
 
 #include <muduo/net/Poller.h>
 
-#include <map>
 #include <vector>
 
 struct pollfd;
@@ -42,9 +41,7 @@ class PollPoller : public Poller
                           ChannelList* activeChannels) const;
 
   typedef std::vector<struct pollfd> PollFdList;
-  typedef std::map<int, Channel*> ChannelMap;
   PollFdList pollfds_;
-  ChannelMap channels_;
 };
 
 }

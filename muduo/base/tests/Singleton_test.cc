@@ -25,6 +25,23 @@ class Test : boost::noncopyable
   muduo::string name_;
 };
 
+class TestNoDestroy : boost::noncopyable
+{
+ public:
+  // Tag member for Singleton<T>
+  void no_destroy();
+
+  TestNoDestroy()
+  {
+    printf("tid=%d, constructing TestNoDestroy %p\n", muduo::CurrentThread::tid(), this);
+  }
+
+  ~TestNoDestroy()
+  {
+    printf("tid=%d, destructing TestNoDestroy %p\n", muduo::CurrentThread::tid(), this);
+  }
+};
+
 void threadFunc()
 {
   printf("tid=%d, %p name=%s\n",
@@ -44,4 +61,6 @@ int main()
          muduo::CurrentThread::tid(),
          &muduo::Singleton<Test>::instance(),
          muduo::Singleton<Test>::instance().name().c_str());
+  muduo::Singleton<TestNoDestroy>::instance();
+  printf("with valgrind, you should see %zd-byte memory leak.\n", sizeof(TestNoDestroy));
 }

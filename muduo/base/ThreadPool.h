@@ -30,6 +30,8 @@ class ThreadPool : boost::noncopyable
 
   // Must be called before start().
   void setMaxQueueSize(int maxSize) { maxQueueSize_ = maxSize; }
+  void setThreadInitCallback(const Task& cb)
+  { threadInitCallback_ = cb; }
 
   void start(int numThreads);
   void stop();
@@ -49,6 +51,7 @@ class ThreadPool : boost::noncopyable
   Condition notEmpty_;
   Condition notFull_;
   string name_;
+  Task threadInitCallback_;
   boost::ptr_vector<muduo::Thread> threads_;
   std::deque<Task> queue_;
   size_t maxQueueSize_;

@@ -6,7 +6,10 @@
 
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
+#ifndef __STDC_LIMIT_MACROS
 #define __STDC_LIMIT_MACROS
+#endif
+
 #include <muduo/net/TimerQueue.h>
 
 #include <muduo/base/Logging.h>
@@ -101,6 +104,8 @@ TimerQueue::TimerQueue(EventLoop* loop)
 
 TimerQueue::~TimerQueue()
 {
+  timerfdChannel_.disableAll();
+  timerfdChannel_.remove();
   ::close(timerfd_);
   // do not remove channel, since we're in EventLoop::dtor();
   for (TimerList::iterator it = timers_.begin();

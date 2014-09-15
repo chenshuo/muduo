@@ -20,7 +20,7 @@ using namespace muduo;
 using namespace muduo::net;
 
 RpcServer::RpcServer(EventLoop* loop,
-                       const InetAddress& listenAddr)
+                     const InetAddress& listenAddr)
   : server_(loop, listenAddr, "RpcServer")
 {
   server_.setConnectionCallback(
