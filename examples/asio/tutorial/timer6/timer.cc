@@ -50,6 +50,7 @@ class Printer : boost::noncopyable
     // out of lock
     if (shouldQuit)
     {
+      // printf("loop1_->quit()\n");
       loop1_->quit();
     }
     else
@@ -82,6 +83,7 @@ class Printer : boost::noncopyable
     // out of lock
     if (shouldQuit)
     {
+      // printf("loop2_->quit()\n");
       loop2_->quit();
     }
     else
@@ -103,10 +105,12 @@ private:
 
 int main()
 {
+  boost::scoped_ptr<Printer> printer;  // make sure printer lives longer than loops, to avoid
+                                       // race condition of calling print2() on destructed object.
   muduo::net::EventLoop loop;
   muduo::net::EventLoopThread loopThread;
   muduo::net::EventLoop* loopInAnotherThread = loopThread.startLoop();
-  Printer printer(&loop, loopInAnotherThread);
+  printer.reset(new Printer(&loop, loopInAnotherThread));
   loop.loop();
 }
 

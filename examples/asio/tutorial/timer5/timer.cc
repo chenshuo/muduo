@@ -65,10 +65,12 @@ private:
 
 int main()
 {
+  boost::scoped_ptr<Printer> printer;  // make sure printer lives longer than loops, to avoid
+                                       // race condition of calling print2() on destructed object.
   muduo::net::EventLoop loop;
   muduo::net::EventLoopThread loopThread;
   muduo::net::EventLoop* loopInAnotherThread = loopThread.startLoop();
-  Printer printer(&loop, loopInAnotherThread);
+  printer.reset(new Printer(&loop, loopInAnotherThread));
   loop.loop();
 }
 

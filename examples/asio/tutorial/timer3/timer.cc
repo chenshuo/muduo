@@ -22,6 +22,7 @@ int main()
 {
   muduo::net::EventLoop loop;
   int count = 0;
+  // Note: loop.runEvery() is better for this use case.
   loop.runAfter(1, boost::bind(print, &loop, &count));
   loop.loop();
   std::cout << "Final count is " << count << "\n";

@@ -11,6 +11,7 @@ class Printer : boost::noncopyable
     : loop_(loop),
       count_(0)
   {
+    // Note: loop.runEvery() is better for this use case.
     loop_->runAfter(1, boost::bind(&Printer::print, this));
   }
 
