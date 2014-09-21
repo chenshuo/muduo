@@ -44,6 +44,7 @@ class InetAddress : public muduo::copyable
 
   string toIp() const;
   string toIpPort() const;
+  uint16_t toPort() const;
 
   // default copy/assignment are Okay
 

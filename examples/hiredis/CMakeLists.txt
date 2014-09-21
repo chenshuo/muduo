@@ -1,2 +1,2 @@
-add_executable(hiredis_muduo_example example_muduo.cc)
-target_link_libraries(hiredis_muduo_example muduo_net hiredis)
+add_executable(mrediscli Hiredis.cc mrediscli.cc)
+target_link_libraries(mrediscli muduo_net hiredis)
