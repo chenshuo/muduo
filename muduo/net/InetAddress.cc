@@ -71,6 +71,11 @@ string InetAddress::toIp() const
   return buf;
 }
 
+uint16_t InetAddress::toPort() const
+{
+  return sockets::networkToHost16(addr_.sin_port);
+}
+
 static __thread char t_resolveBuffer[64 * 1024];
 
 bool InetAddress::resolve(StringArg hostname, InetAddress* out)
