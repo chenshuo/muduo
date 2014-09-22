@@ -7,7 +7,7 @@ using namespace hiredis;
 using namespace muduo;
 using namespace muduo::net;
 
-void connectCallback(const redisAsyncContext *c, int status)
+void connectCallback(const redisAsyncContext* c, int status)
 {
   if (status != REDIS_OK) {
     LOG_ERROR << "Error:" << c->errstr;
@@ -16,7 +16,7 @@ void connectCallback(const redisAsyncContext *c, int status)
   LOG_DEBUG << "Connected...";
 }
 
-void disconnectCallback(const redisAsyncContext *c, int status)
+void disconnectCallback(const redisAsyncContext* c, int status)
 {
   if (status != REDIS_OK) {
     LOG_ERROR << "Error:" << c->errstr;
@@ -25,7 +25,7 @@ void disconnectCallback(const redisAsyncContext *c, int status)
   LOG_DEBUG << "Disconnected...";
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
   //Logger::setLogLevel(Logger::DEBUG);
   Logger::setLogLevel(Logger::TRACE);

@@ -63,7 +63,7 @@ class Hiredis : boost::noncopyable,
   static void commandCallback(redisAsyncContext* ac, void*, void*);
 
   int ping();
-  void pingCallback(redisAsyncContext*ac, redisReply* reply, void* privdata);
+  void pingCallback(redisAsyncContext* ac, redisReply* reply, void* privdata);
 
  private:
   void handleRead(muduo::Timestamp receiveTime);
@@ -72,16 +72,16 @@ class Hiredis : boost::noncopyable,
   static void connectCallback(const redisAsyncContext* ac, int status);
   static void disconnectCallback(const redisAsyncContext* ac, int status);
 
-  static void addRead(void *privdata);
-  static void delRead(void *privdata);
-  static void addWrite(void *privdata);
-  static void delWrite(void *privdata);
-  static void cleanup(void *privdata);
+  static void addRead(void* privdata);
+  static void delRead(void* privdata);
+  static void addWrite(void* privdata);
+  static void delWrite(void* privdata);
+  static void cleanup(void* privdata);
 
  private:
   muduo::net::EventLoop* loop_;
   const muduo::net::InetAddress serverAddr_;
-  redisAsyncContext *context_;
+  redisAsyncContext* context_;
   boost::shared_ptr<muduo::net::Channel> channel_;
   ConnectCallback connectCb_;
   DisconnectCallback disconnectCb_;

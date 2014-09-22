@@ -78,9 +78,9 @@ void Hiredis::handleWrite()
 }
 
 
-void Hiredis::connectCallback(const redisAsyncContext *ac, int status)
+void Hiredis::connectCallback(const redisAsyncContext* ac, int status)
 {
-  Hiredis *hiredis = static_cast<Hiredis*>(ac->ev.data);
+  Hiredis* hiredis = static_cast<Hiredis*>(ac->ev.data);
 
   if (status != REDIS_OK)
   {
@@ -102,9 +102,9 @@ void Hiredis::connectCallback(const redisAsyncContext *ac, int status)
   }
 }
 
-void Hiredis::disconnectCallback(const redisAsyncContext *ac, int status)
+void Hiredis::disconnectCallback(const redisAsyncContext* ac, int status)
 {
-  Hiredis *hiredis = static_cast<Hiredis*>(ac->ev.data);
+  Hiredis* hiredis = static_cast<Hiredis*>(ac->ev.data);
 
   InetAddress localAddr = sockets::getLocalAddr(ac->c.fd);
   InetAddress peerAddr = sockets::getPeerAddr(ac->c.fd);
@@ -119,33 +119,33 @@ void Hiredis::disconnectCallback(const redisAsyncContext *ac, int status)
   }
 }
 
-void Hiredis::addRead(void *privdata)
+void Hiredis::addRead(void* privdata)
 {
-  Hiredis *hiredis = static_cast<Hiredis*>(privdata);
+  Hiredis* hiredis = static_cast<Hiredis*>(privdata);
   hiredis->getChannel()->enableReading();
 }
 
-void Hiredis::delRead(void *privdata)
+void Hiredis::delRead(void* privdata)
 {
-  Hiredis *hiredis = static_cast<Hiredis*>(privdata);
+  Hiredis* hiredis = static_cast<Hiredis*>(privdata);
   hiredis->getChannel()->disableReading();
 }
 
-void Hiredis::addWrite(void *privdata)
+void Hiredis::addWrite(void* privdata)
 {
-  Hiredis *hiredis = static_cast<Hiredis*>(privdata);
+  Hiredis* hiredis = static_cast<Hiredis*>(privdata);
   hiredis->getChannel()->enableWriting();
 }
 
-void Hiredis::delWrite(void *privdata)
+void Hiredis::delWrite(void* privdata)
 {
-  Hiredis *hiredis = static_cast<Hiredis*>(privdata);
+  Hiredis* hiredis = static_cast<Hiredis*>(privdata);
   hiredis->getChannel()->disableWriting();
 }
 
-void Hiredis::cleanup(void *privdata)
+void Hiredis::cleanup(void* privdata)
 {
-  //Hiredis *hiredis = static_cast<Hiredis*>(privdata);
+  //Hiredis* hiredis = static_cast<Hiredis*>(privdata);
   //hiredis->removeChannel();
 }
 
