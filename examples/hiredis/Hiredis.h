@@ -39,6 +39,7 @@ class Hiredis : boost::noncopyable,
 
   const muduo::net::InetAddress& serverAddress() const { return serverAddr_; }
   muduo::net::Channel* getChannel() const { return get_pointer(channel_); }
+  redisAsyncContext* context() { return context_; }
 
   ConnectCallback connectCallback() const { return connectCb_; }
   DisconnectCallback disconnectCallback() const { return disconnectCb_; }
@@ -59,8 +60,9 @@ class Hiredis : boost::noncopyable,
   void removeChannel();
 
   // command
+
+  // regular command
   int command(CommandCallback cb, const muduo::StringPiece& cmd);
-  static void commandCallback(redisAsyncContext* ac, void*, void*);
 
   int ping();
   void pingCallback(redisAsyncContext* ac, redisReply* reply, void* privdata);
@@ -71,6 +73,8 @@ class Hiredis : boost::noncopyable,
 
   static void connectCallback(const redisAsyncContext* ac, int status);
   static void disconnectCallback(const redisAsyncContext* ac, int status);
+  // regular command callback
+  static void commandCallback(redisAsyncContext* ac, void*, void*);
 
   static void addRead(void* privdata);
   static void delRead(void* privdata);
