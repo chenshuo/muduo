@@ -1,3 +1,7 @@
+include(CheckFunctionExists)
+
+check_function_exists(accept4 HAVE_ACCEPT4)
+
 set(net_SRCS
   Acceptor.cc
   Buffer.cc
