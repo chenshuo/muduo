@@ -1,4 +1,5 @@
 #include "Hiredis.h"
+
 #include <muduo/base/Logging.h>
 #include <muduo/net/Channel.h>
 #include <muduo/net/EventLoop.h>
@@ -12,16 +13,16 @@ static void dummy(const boost::shared_ptr<Channel>&)
 {
 }
 
-Hiredis::Hiredis(EventLoop* loop, const string& ip, uint16_t port)
+Hiredis::Hiredis(EventLoop* loop, const InetAddress& serverAddr)
   : loop_(loop),
-    serverAddr_(ip, port),
+    serverAddr_(serverAddr),
     context_(NULL)
 {
-  connect();
 }
 
 Hiredis::~Hiredis()
 {
+  LOG_DEBUG << this;
   assert(!channel_ || channel_->isNoneEvent());
 }
 
@@ -29,7 +30,7 @@ void Hiredis::connect()
 {
   assert(!context_);
 
-  context_ = redisAsyncConnect(serverAddr_.toIp().c_str(), serverAddr_.toPort());
+  context_ = ::redisAsyncConnect(serverAddr_.toIp().c_str(), serverAddr_.toPort());
 
   context_->ev.addRead = addRead;
   context_->ev.delRead = delRead;
@@ -46,16 +47,24 @@ void Hiredis::connect()
   ::redisAsyncSetDisconnectCallback(context_, disconnectCallback);
 }
 
+int Hiredis::fd() const
+{
+  assert(context_);
+  return context_->c.fd;
+}
+
 void Hiredis::setChannel()
 {
+  LOG_DEBUG << this;
   assert(!channel_);
-  channel_.reset(new Channel(loop_, context_->c.fd));
+  channel_.reset(new Channel(loop_, fd()));
   channel_->setReadCallback(boost::bind(&Hiredis::handleRead, this, _1));
   channel_->setWriteCallback(boost::bind(&Hiredis::handleWrite, this));
 }
 
 void Hiredis::removeChannel()
 {
+  LOG_DEBUG << this;
   channel_->disableAll();
   channel_->remove();
   loop_->queueInLoop(boost::bind(dummy, channel_));
@@ -77,90 +86,109 @@ void Hiredis::handleWrite()
   ::redisAsyncHandleWrite(context_);
 }
 
-
-void Hiredis::connectCallback(const redisAsyncContext* ac, int status)
+/* static */ Hiredis* Hiredis::getHiredis(const redisAsyncContext* ac)
 {
   Hiredis* hiredis = static_cast<Hiredis*>(ac->ev.data);
+  assert(hiredis->context_ == ac);
+  return hiredis;
+}
 
+void Hiredis::logConnection(bool up) const
+{
+  InetAddress localAddr = sockets::getLocalAddr(fd());
+  InetAddress peerAddr = sockets::getPeerAddr(fd());
+
+  LOG_INFO << localAddr.toIpPort() << " -> "
+           << peerAddr.toIpPort() << " is "
+           << (up ? "UP" : "DOWN");
+}
+
+/* static */ void Hiredis::connectCallback(const redisAsyncContext* ac, int status)
+{
+  LOG_TRACE;
+  getHiredis(ac)->connectCallback(status);
+}
+
+void Hiredis::connectCallback(int status)
+{
   if (status != REDIS_OK)
   {
-    LOG_ERROR << ac->errstr << " failed to connect to " << hiredis->serverAddress().toIpPort();
+    LOG_ERROR << context_->errstr << " failed to connect to " << serverAddr_.toIpPort();
   }
   else
   {
-    InetAddress localAddr = sockets::getLocalAddr(ac->c.fd);
-    InetAddress peerAddr = sockets::getPeerAddr(ac->c.fd);
-
-    LOG_TRACE << localAddr.toIpPort() << " -> "
-              << peerAddr.toIpPort() << " is UP";
-    hiredis->setChannel();
+    logConnection(true);
+    setChannel();
   }
 
-  if (hiredis->connectCallback())
+  if (connectCb_)
   {
-    hiredis->connectCallback()(ac, status);
+    connectCb_(context_, status);
   }
 }
 
-void Hiredis::disconnectCallback(const redisAsyncContext* ac, int status)
+/* static */ void Hiredis::disconnectCallback(const redisAsyncContext* ac, int status)
 {
-  Hiredis* hiredis = static_cast<Hiredis*>(ac->ev.data);
+  LOG_TRACE;
+  getHiredis(ac)->disconnectCallback(status);
+}
 
-  InetAddress localAddr = sockets::getLocalAddr(ac->c.fd);
-  InetAddress peerAddr = sockets::getPeerAddr(ac->c.fd);
+void Hiredis::disconnectCallback(int status)
+{
+  logConnection(false);
+  removeChannel();
 
-  LOG_TRACE << localAddr.toIpPort() << " -> "
-            << peerAddr.toIpPort() << " is DOWN";
-  hiredis->removeChannel();
-
-  if (hiredis->disconnectCallback())
+  if (disconnectCb_)
   {
-    hiredis->disconnectCallback()(ac, status);
+    disconnectCb_(context_, status);
   }
 }
 
 void Hiredis::addRead(void* privdata)
 {
+  LOG_TRACE;
   Hiredis* hiredis = static_cast<Hiredis*>(privdata);
-  hiredis->getChannel()->enableReading();
+  hiredis->channel_->enableReading();
 }
 
 void Hiredis::delRead(void* privdata)
 {
+  LOG_TRACE;
   Hiredis* hiredis = static_cast<Hiredis*>(privdata);
-  hiredis->getChannel()->disableReading();
+  hiredis->channel_->disableReading();
 }
 
 void Hiredis::addWrite(void* privdata)
 {
+  LOG_TRACE;
   Hiredis* hiredis = static_cast<Hiredis*>(privdata);
-  hiredis->getChannel()->enableWriting();
+  hiredis->channel_->enableWriting();
 }
 
 void Hiredis::delWrite(void* privdata)
 {
+  LOG_TRACE;
   Hiredis* hiredis = static_cast<Hiredis*>(privdata);
-  hiredis->getChannel()->disableWriting();
+  hiredis->channel_->disableWriting();
 }
 
 void Hiredis::cleanup(void* privdata)
 {
-  //Hiredis* hiredis = static_cast<Hiredis*>(privdata);
+  Hiredis* hiredis = static_cast<Hiredis*>(privdata);
+  LOG_DEBUG << hiredis;
   //hiredis->removeChannel();
 }
 
-// command
-int Hiredis::command(CommandCallback cb, const muduo::StringPiece& cmd)
+int Hiredis::command(const CommandCallback& cb, muduo::StringArg cmd)
 {
   commandCb_ = cb;
-  return redisAsyncCommand(context_, commandCallback, NULL, cmd.data());
+  return ::redisAsyncCommand(context_, commandCallback, NULL, cmd.c_str());
 }
 
-void Hiredis::commandCallback(redisAsyncContext* ac, void* r, void* privdata)
+/* static */ void Hiredis::commandCallback(redisAsyncContext* ac, void* r, void* privdata)
 {
-  Hiredis* hiredis = static_cast<Hiredis*>(ac->ev.data);
   redisReply* reply = static_cast<redisReply*>(r);
-  hiredis->commandCallback()(ac, reply, privdata);
+  getHiredis(ac)->commandCb_(ac, reply, privdata);
 }
 
 int Hiredis::ping()
@@ -170,5 +198,5 @@ int Hiredis::ping()
 
 void Hiredis::pingCallback(redisAsyncContext* ac, redisReply* reply, void* privdata)
 {
-  LOG_TRACE << reply->str;
+  LOG_DEBUG << reply->str;
 }

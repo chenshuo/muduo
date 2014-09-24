@@ -14,6 +14,9 @@
 #include <hiredis/async.h>
 #include <hiredis/hiredis.h>
 
+//struct redisAsyncContext;
+//struct redisReply;
+
 namespace muduo
 {
 namespace net
@@ -26,50 +29,46 @@ class EventLoop;
 namespace hiredis
 {
 
-class Hiredis : boost::noncopyable,
-                public::boost::enable_shared_from_this<Hiredis>
+// FIXME: Free context_ with ::redisAsyncFree
+class Hiredis : public boost::enable_shared_from_this<Hiredis>,
+                boost::noncopyable
 {
  public:
   typedef boost::function<void(const redisAsyncContext*, int)> ConnectCallback;
   typedef boost::function<void(const redisAsyncContext*, int)> DisconnectCallback;
   typedef boost::function<void(redisAsyncContext*, redisReply*, void*)> CommandCallback;
 
-  Hiredis(muduo::net::EventLoop* loop, const muduo::string& ip, uint16_t port);
+  Hiredis(muduo::net::EventLoop* loop, const muduo::net::InetAddress& serverAddr);
   ~Hiredis();
 
   const muduo::net::InetAddress& serverAddress() const { return serverAddr_; }
-  muduo::net::Channel* getChannel() const { return get_pointer(channel_); }
   redisAsyncContext* context() { return context_; }
 
-  ConnectCallback connectCallback() const { return connectCb_; }
-  DisconnectCallback disconnectCallback() const { return disconnectCb_; }
-  CommandCallback commandCallback() const { return commandCb_; }
-
-  void setConnectCallback(ConnectCallback cb)
-  {
-    connectCb_ = cb;
-  }
-
-  void setDisconnectCallback(DisconnectCallback cb)
-  {
-    disconnectCb_ = cb;
-  }
+  void setConnectCallback(const ConnectCallback& cb) { connectCb_ = cb; }
+  void setDisconnectCallback(const DisconnectCallback& cb) { disconnectCb_ = cb; }
 
   void connect();
-  void setChannel();
-  void removeChannel();
+  void disconnect();  // FIXME: implement this with redisAsyncDisconnect
 
-  // command
-
-  // regular command
-  int command(CommandCallback cb, const muduo::StringPiece& cmd);
+  // regular command, WARNING: only allow one command at any time, do not use!!!
+  int command(const CommandCallback& cb, muduo::StringArg cmd);
+  // FIXME: make it usable for varargs.
 
   int ping();
-  void pingCallback(redisAsyncContext* ac, redisReply* reply, void* privdata);
 
  private:
   void handleRead(muduo::Timestamp receiveTime);
   void handleWrite();
+
+  int fd() const;
+  void logConnection(bool up) const;
+  void setChannel();
+  void removeChannel();
+
+  void connectCallback(int status);
+  void disconnectCallback(int status);
+
+  static Hiredis* getHiredis(const redisAsyncContext* ac);
 
   static void connectCallback(const redisAsyncContext* ac, int status);
   static void disconnectCallback(const redisAsyncContext* ac, int status);
@@ -81,6 +80,8 @@ class Hiredis : boost::noncopyable,
   static void addWrite(void* privdata);
   static void delWrite(void* privdata);
   static void cleanup(void* privdata);
+
+  void pingCallback(redisAsyncContext* ac, redisReply* reply, void* privdata);
 
  private:
   muduo::net::EventLoop* loop_;

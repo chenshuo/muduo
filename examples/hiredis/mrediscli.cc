@@ -5,52 +5,23 @@
 
 #include <string>
 
-using namespace hiredis;
 using namespace muduo;
 using namespace muduo::net;
 
-// muduo/base/LogStream.cc
-// Efficient Integer to String Conversions, by Matthew Wilson.
-template<typename T>
-size_t convert(char buf[], T value)
-{
-  const char digits[] = "9876543210123456789";
-  const char* zero = digits + 9;
-  T i = value;
-  char* p = buf;
-
-  do
-  {
-    int lsd = static_cast<int>(i % 10);
-    i /= 10;
-    *p++ = zero[lsd];
-  } while (i != 0);
-
-  if (value < 0)
-  {
-    *p++ = '-';
-  }
-  *p = '\0';
-  std::reverse(buf, p);
-
-  return p - buf;
-}
-
-template<typename T>
-string toString(T value)
+string toString(long long value)
 {
   char buf[32];
-  convert(buf, value);
+  snprintf(buf, sizeof buf, "%lld", value);
   return buf;
 }
 
 string redisReplyToString(const redisReply* reply)
 {
-  const char* types[] = {"", "REDIS_REPLY_STRING", "REDIS_REPLY_ARRAY",
-                         "REDIS_REPLY_INTEGER", "REDIS_REPLY_NIL",
-                         "REDIS_REPLY_STATUS", "REDIS_REPLY_ERROR"
-                        };
-  string str = "";
+  static const char* const types[] = { "",
+      "REDIS_REPLY_STRING", "REDIS_REPLY_ARRAY",
+      "REDIS_REPLY_INTEGER", "REDIS_REPLY_NIL",
+      "REDIS_REPLY_STATUS", "REDIS_REPLY_ERROR" };
+  string str;
   if (!reply) return str;
 
   str += types[reply->type] + string("(") + toString(reply->type) + ") ";
@@ -60,11 +31,11 @@ string redisReplyToString(const redisReply* reply)
       reply->type == REDIS_REPLY_STATUS ||
       reply->type == REDIS_REPLY_ERROR)
   {
-    str += string(reply->str, reply->len);
+    str += '"' + string(reply->str, reply->len) + '"';
   }
   else if (reply->type == REDIS_REPLY_INTEGER)
   {
-    str += toString(reply->type);
+    str += toString(reply->integer);
   }
   else if (reply->type == REDIS_REPLY_ARRAY)
   {
@@ -81,20 +52,26 @@ string redisReplyToString(const redisReply* reply)
 
 void connectCallback(const redisAsyncContext* c, int status)
 {
-  if (status != REDIS_OK) {
-    LOG_ERROR << "Error:" << c->errstr;
+  if (status != REDIS_OK)
+  {
+    LOG_ERROR << "connectCallback Error:" << c->errstr;
   }
-
-  LOG_DEBUG << "Connected...";
+  else
+  {
+    LOG_INFO << "Connected...";
+  }
 }
 
 void disconnectCallback(const redisAsyncContext* c, int status)
 {
-  if (status != REDIS_OK) {
-    LOG_ERROR << "Error:" << c->errstr;
+  if (status != REDIS_OK)
+  {
+    LOG_ERROR << "disconnectCallback Error:" << c->errstr;
   }
-
-  LOG_DEBUG << "Disconnected...";
+  else
+  {
+    LOG_INFO << "Disconnected...";
+  }
 }
 
 void timeCallback(redisAsyncContext* c, void* r, void* privdata)
@@ -138,18 +115,20 @@ int main(int argc, char** argv)
 
   EventLoop loop;
 
-  hiredis::Hiredis hiredis(&loop, "127.0.0.1", 6379);
-  //hiredis::Hiredis hiredis(&loop, "127.0.0.1", 6378);
+  InetAddress serverAddr("127.0.0.1", 6379);
+  hiredis::Hiredis hiredis(&loop, serverAddr);
 
   hiredis.setConnectCallback(connectCallback);
   hiredis.setDisconnectCallback(disconnectCallback);
+  hiredis.connect();
+
   //hiredis.ping();
-  loop.runEvery(1.0, boost::bind(&Hiredis::ping, &hiredis));
+  loop.runEvery(1.0, boost::bind(&hiredis::Hiredis::ping, &hiredis));
 
   redisAsyncCommand(hiredis.context(), timeCallback, NULL, "time");
 
   string hi = "hi";
-  redisAsyncCommand(hiredis.context(), echoCallback, &hi, "echo %s", hi.data());
+  redisAsyncCommand(hiredis.context(), echoCallback, &hi, "echo %s", hi.c_str());
 
   redisAsyncCommand(hiredis.context(), dbsizeCallback, NULL, "dbsize");
 
@@ -157,7 +136,7 @@ int main(int argc, char** argv)
   redisAsyncCommand(hiredis.context(), selectCallback, &index, "select %d", index);
 
   string password = "password";
-  redisAsyncCommand(hiredis.context(), authCallback, &password, "auth %s", password.data());
+  redisAsyncCommand(hiredis.context(), authCallback, &password, "auth %s", password.c_str());
 
   loop.loop();
 
