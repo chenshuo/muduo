@@ -132,7 +132,7 @@ class Buffer : public muduo::copyable
 
   void retrieveInt64()
   {
-    retrieve(sizeof(int64_t));    
+    retrieve(sizeof(int64_t));
   }
 
   void retrieveInt32()

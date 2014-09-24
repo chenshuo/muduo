@@ -34,9 +34,12 @@ void forkBench()
   for (int i = 0; i < kProcesses; ++i)
   {
     pid_t child = fork();
-    if (child == 0) {
+    if (child == 0)
+    {
       exit(0);
-    } else {
+    }
+    else
+    {
       waitpid(child, NULL, 0);
     }
   }

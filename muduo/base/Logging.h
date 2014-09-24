@@ -140,8 +140,10 @@ const char* strerror_tl(int savedErrno);
 
 // A small helper for CHECK_NOTNULL().
 template <typename T>
-T* CheckNotNull(Logger::SourceFile file, int line, const char *names, T* ptr) {
-  if (ptr == NULL) {
+T* CheckNotNull(Logger::SourceFile file, int line, const char *names, T* ptr)
+{
+  if (ptr == NULL)
+  {
    Logger(file, line, Logger::FATAL).stream() << names;
   }
   return ptr;

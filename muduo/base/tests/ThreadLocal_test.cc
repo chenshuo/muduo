@@ -32,11 +32,11 @@ void print()
 {
   printf("tid=%d, obj1 %p name=%s\n",
          muduo::CurrentThread::tid(),
-	 &testObj1.value(),
+         &testObj1.value(),
          testObj1.value().name().c_str());
   printf("tid=%d, obj2 %p name=%s\n",
          muduo::CurrentThread::tid(),
-	 &testObj2.value(),
+         &testObj2.value(),
          testObj2.value().name().c_str());
 }
 

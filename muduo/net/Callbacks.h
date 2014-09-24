@@ -22,8 +22,10 @@ namespace muduo
 // Adapted from google-protobuf stubs/common.h
 // see License in muduo/base/Types.h
 template<typename To, typename From>
-inline ::boost::shared_ptr<To> down_pointer_cast(const ::boost::shared_ptr<From>& f) {
-  if (false) {
+inline ::boost::shared_ptr<To> down_pointer_cast(const ::boost::shared_ptr<From>& f)
+{
+  if (false)
+  {
     implicit_cast<From*, To*>(0);
   }
 
