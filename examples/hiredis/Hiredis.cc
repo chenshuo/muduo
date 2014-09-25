@@ -185,7 +185,6 @@ void Hiredis::cleanup(void* privdata)
 {
   Hiredis* hiredis = static_cast<Hiredis*>(privdata);
   LOG_DEBUG << hiredis;
-  //FIXME: hiredis->removeChannel(); ??
 }
 
 int Hiredis::command(const CommandCallback& cb, muduo::StringArg cmd, ...)

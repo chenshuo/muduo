@@ -69,7 +69,7 @@ class Hiredis : public boost::enable_shared_from_this<Hiredis>,
 
   static void connectCallback(const redisAsyncContext* ac, int status);
   static void disconnectCallback(const redisAsyncContext* ac, int status);
-  // regular command callback
+  // command callback
   static void commandCallback(redisAsyncContext* ac, void*, void*);
 
   static void addRead(void* privdata);
