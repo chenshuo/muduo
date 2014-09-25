@@ -50,11 +50,11 @@ string redisReplyToString(const redisReply* reply)
   return str;
 }
 
-void connectCallback(const redisAsyncContext* c, int status)
+void connectCallback(hiredis::Hiredis* c, int status)
 {
   if (status != REDIS_OK)
   {
-    LOG_ERROR << "connectCallback Error:" << c->errstr;
+    LOG_ERROR << "connectCallback Error:" << c->errstr();
   }
   else
   {
@@ -62,11 +62,11 @@ void connectCallback(const redisAsyncContext* c, int status)
   }
 }
 
-void disconnectCallback(const redisAsyncContext* c, int status)
+void disconnectCallback(hiredis::Hiredis* c, int status)
 {
   if (status != REDIS_OK)
   {
-    LOG_ERROR << "disconnectCallback Error:" << c->errstr;
+    LOG_ERROR << "disconnectCallback Error:" << c->errstr();
   }
   else
   {
@@ -74,44 +74,34 @@ void disconnectCallback(const redisAsyncContext* c, int status)
   }
 }
 
-void timeCallback(redisAsyncContext* c, void* r, void* privdata)
+void timeCallback(hiredis::Hiredis* c, redisReply* reply)
 {
-  redisReply* reply = static_cast<redisReply*>(r);
-  //LOG_TRACE << "time " << reply->element[0]->str << "." << reply->element[1]->str;
-  LOG_TRACE << "time " << redisReplyToString(reply);
+  LOG_INFO << "time " << redisReplyToString(reply);
 }
 
-void echoCallback(redisAsyncContext* c, void* r, void* privdata)
+void echoCallback(hiredis::Hiredis* c, redisReply* reply, string* echo)
 {
-  redisReply* reply = static_cast<redisReply*>(r);
-  string* echo = static_cast<string*>(privdata);
-  LOG_TRACE << *echo << " " << redisReplyToString(reply);
+  LOG_INFO << *echo << " " << redisReplyToString(reply);
 }
 
-void dbsizeCallback(redisAsyncContext* c, void* r, void* privdata)
+void dbsizeCallback(hiredis::Hiredis* c, redisReply* reply)
 {
-  redisReply* reply = static_cast<redisReply*>(r);
-  LOG_TRACE << "dbsize " << redisReplyToString(reply);
+  LOG_INFO << "dbsize " << redisReplyToString(reply);
 }
 
-void selectCallback(redisAsyncContext* c, void* r, void* privdata)
+void selectCallback(hiredis::Hiredis* c, redisReply* reply, uint16_t* index)
 {
-  redisReply* reply = static_cast<redisReply*>(r);
-  uint16_t* index = static_cast<uint16_t*>(privdata);
-  LOG_TRACE << "select " << *index << " " << redisReplyToString(reply);
+  LOG_INFO << "select " << *index << " " << redisReplyToString(reply);
 }
 
-void authCallback(redisAsyncContext* c, void* r, void* privdata)
+void authCallback(hiredis::Hiredis* c, redisReply* reply, string* password)
 {
-  redisReply* reply = static_cast<redisReply*>(r);
-  string* password = static_cast<string*>(privdata);
-  LOG_TRACE << "auth " << *password << " " << redisReplyToString(reply);
+  LOG_INFO << "auth " << *password << " " << redisReplyToString(reply);
 }
 
 int main(int argc, char** argv)
 {
-  //Logger::setLogLevel(Logger::DEBUG);
-  Logger::setLogLevel(Logger::TRACE);
+  Logger::setLogLevel(Logger::DEBUG);
 
   EventLoop loop;
 
@@ -125,18 +115,18 @@ int main(int argc, char** argv)
   //hiredis.ping();
   loop.runEvery(1.0, boost::bind(&hiredis::Hiredis::ping, &hiredis));
 
-  redisAsyncCommand(hiredis.context(), timeCallback, NULL, "time");
+  hiredis.command(timeCallback, "time");
 
   string hi = "hi";
-  redisAsyncCommand(hiredis.context(), echoCallback, &hi, "echo %s", hi.c_str());
+  hiredis.command(boost::bind(echoCallback, _1, _2, &hi), "echo %s", hi.c_str());
 
-  redisAsyncCommand(hiredis.context(), dbsizeCallback, NULL, "dbsize");
+  hiredis.command(dbsizeCallback, "dbsize");
 
   uint16_t index = 8;
-  redisAsyncCommand(hiredis.context(), selectCallback, &index, "select %d", index);
+  hiredis.command(boost::bind(selectCallback, _1, _2, &index), "select %d", index);
 
   string password = "password";
-  redisAsyncCommand(hiredis.context(), authCallback, &password, "auth %s", password.c_str());
+  hiredis.command(boost::bind(authCallback, _1, _2, &password), "auth %s", password.c_str());
 
   loop.loop();
 

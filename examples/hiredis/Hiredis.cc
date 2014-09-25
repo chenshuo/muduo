@@ -5,9 +5,11 @@
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/SocketsOps.h>
 
-using namespace hiredis;
+#include <hiredis/async.h>
+
 using namespace muduo;
 using namespace muduo::net;
+using namespace hiredis;
 
 static void dummy(const boost::shared_ptr<Channel>&)
 {
@@ -24,6 +26,13 @@ Hiredis::~Hiredis()
 {
   LOG_DEBUG << this;
   assert(!channel_ || channel_->isNoneEvent());
+  ::redisAsyncFree(context_);
+}
+
+const char* Hiredis::errstr() const
+{
+  assert(context_ != NULL);
+  return context_->errstr;
 }
 
 void Hiredis::connect()
@@ -123,7 +132,7 @@ void Hiredis::connectCallback(int status)
 
   if (connectCb_)
   {
-    connectCb_(context_, status);
+    connectCb_(this, status);
   }
 }
 
@@ -140,7 +149,7 @@ void Hiredis::disconnectCallback(int status)
 
   if (disconnectCb_)
   {
-    disconnectCb_(context_, status);
+    disconnectCb_(this, status);
   }
 }
 
@@ -176,27 +185,39 @@ void Hiredis::cleanup(void* privdata)
 {
   Hiredis* hiredis = static_cast<Hiredis*>(privdata);
   LOG_DEBUG << hiredis;
-  //hiredis->removeChannel();
+  //FIXME: hiredis->removeChannel(); ??
 }
 
-int Hiredis::command(const CommandCallback& cb, muduo::StringArg cmd)
+int Hiredis::command(const CommandCallback& cb, muduo::StringArg cmd, ...)
 {
-  commandCb_ = cb;
-  return ::redisAsyncCommand(context_, commandCallback, NULL, cmd.c_str());
+  CommandCallback* p = new CommandCallback(cb);
+  va_list args;
+  va_start(args, cmd);
+  int ret = ::redisvAsyncCommand(context_, commandCallback, p, cmd.c_str(), args);
+  va_end(args);
+  return ret;
 }
 
 /* static */ void Hiredis::commandCallback(redisAsyncContext* ac, void* r, void* privdata)
 {
   redisReply* reply = static_cast<redisReply*>(r);
-  getHiredis(ac)->commandCb_(ac, reply, privdata);
+  CommandCallback* cb = static_cast<CommandCallback*>(privdata);
+  getHiredis(ac)->commandCallback(reply, cb);
+}
+
+void Hiredis::commandCallback(redisReply* reply, CommandCallback* cb)
+{
+  (*cb)(this, reply);
+  delete cb;
 }
 
 int Hiredis::ping()
 {
-  return command(boost::bind(&Hiredis::pingCallback, this, _1, _2, _3), "PING");
+  return command(boost::bind(&Hiredis::pingCallback, this, _1, _2), "PING");
 }
 
-void Hiredis::pingCallback(redisAsyncContext* ac, redisReply* reply, void* privdata)
+void Hiredis::pingCallback(Hiredis* me, redisReply* reply)
 {
+  assert(this == me);
   LOG_DEBUG << reply->str;
 }

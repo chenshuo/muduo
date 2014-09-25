@@ -11,11 +11,9 @@
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include <hiredis/async.h>
 #include <hiredis/hiredis.h>
 
-//struct redisAsyncContext;
-//struct redisReply;
+struct redisAsyncContext;
 
 namespace muduo
 {
@@ -29,20 +27,20 @@ class EventLoop;
 namespace hiredis
 {
 
-// FIXME: Free context_ with ::redisAsyncFree
 class Hiredis : public boost::enable_shared_from_this<Hiredis>,
                 boost::noncopyable
 {
  public:
-  typedef boost::function<void(const redisAsyncContext*, int)> ConnectCallback;
-  typedef boost::function<void(const redisAsyncContext*, int)> DisconnectCallback;
-  typedef boost::function<void(redisAsyncContext*, redisReply*, void*)> CommandCallback;
+  typedef boost::function<void(Hiredis*, int)> ConnectCallback;
+  typedef boost::function<void(Hiredis*, int)> DisconnectCallback;
+  typedef boost::function<void(Hiredis*, redisReply*)> CommandCallback;
 
   Hiredis(muduo::net::EventLoop* loop, const muduo::net::InetAddress& serverAddr);
   ~Hiredis();
 
   const muduo::net::InetAddress& serverAddress() const { return serverAddr_; }
-  redisAsyncContext* context() { return context_; }
+  // redisAsyncContext* context() { return context_; }
+  const char* errstr() const;
 
   void setConnectCallback(const ConnectCallback& cb) { connectCb_ = cb; }
   void setDisconnectCallback(const DisconnectCallback& cb) { disconnectCb_ = cb; }
@@ -50,9 +48,7 @@ class Hiredis : public boost::enable_shared_from_this<Hiredis>,
   void connect();
   void disconnect();  // FIXME: implement this with redisAsyncDisconnect
 
-  // regular command, WARNING: only allow one command at any time, do not use!!!
-  int command(const CommandCallback& cb, muduo::StringArg cmd);
-  // FIXME: make it usable for varargs.
+  int command(const CommandCallback& cb, muduo::StringArg cmd, ...);
 
   int ping();
 
@@ -67,6 +63,7 @@ class Hiredis : public boost::enable_shared_from_this<Hiredis>,
 
   void connectCallback(int status);
   void disconnectCallback(int status);
+  void commandCallback(redisReply* reply, CommandCallback* privdata);
 
   static Hiredis* getHiredis(const redisAsyncContext* ac);
 
@@ -81,7 +78,7 @@ class Hiredis : public boost::enable_shared_from_this<Hiredis>,
   static void delWrite(void* privdata);
   static void cleanup(void* privdata);
 
-  void pingCallback(redisAsyncContext* ac, redisReply* reply, void* privdata);
+  void pingCallback(Hiredis* me, redisReply* reply);
 
  private:
   muduo::net::EventLoop* loop_;
@@ -90,7 +87,6 @@ class Hiredis : public boost::enable_shared_from_this<Hiredis>,
   boost::shared_ptr<muduo::net::Channel> channel_;
   ConnectCallback connectCb_;
   DisconnectCallback disconnectCb_;
-  CommandCallback commandCb_;
 };
 
 }
