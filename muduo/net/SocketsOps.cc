@@ -28,7 +28,7 @@ namespace
 typedef struct sockaddr SA;
 
 
-#if VALGRIND || !defined (HAVE_ACCEPT4)
+#if VALGRIND || defined (NO_ACCEPT4)
 void setNonBlockAndCloseOnExec(int sockfd)
 {
   // non-block
@@ -110,7 +110,7 @@ void sockets::listenOrDie(int sockfd)
 int sockets::accept(int sockfd, struct sockaddr_in* addr)
 {
   socklen_t addrlen = static_cast<socklen_t>(sizeof *addr);
-#if VALGRIND || !defined (HAVE_ACCEPT4)
+#if VALGRIND || defined (NO_ACCEPT4)
   int connfd = ::accept(sockfd, sockaddr_cast(addr), &addrlen);
   setNonBlockAndCloseOnExec(connfd);
 #else

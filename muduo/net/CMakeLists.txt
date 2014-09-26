@@ -1,8 +1,8 @@
 include(CheckFunctionExists)
 
 check_function_exists(accept4 HAVE_ACCEPT4)
-if(HAVE_ACCEPT4)
-  set_source_files_properties(SocketsOps.cc PROPERTIES COMPILE_FLAGS "-DHAVE_ACCEPT4")
+if(NOT HAVE_ACCEPT4)
+  set_source_files_properties(SocketsOps.cc PROPERTIES COMPILE_FLAGS "-DNO_ACCEPT4")
 endif()
 
 set(net_SRCS
