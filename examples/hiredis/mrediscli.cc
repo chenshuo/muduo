@@ -82,6 +82,7 @@ void timeCallback(hiredis::Hiredis* c, redisReply* reply)
 void echoCallback(hiredis::Hiredis* c, redisReply* reply, string* echo)
 {
   LOG_INFO << *echo << " " << redisReplyToString(reply);
+  c->disconnect();
 }
 
 void dbsizeCallback(hiredis::Hiredis* c, redisReply* reply)
@@ -97,6 +98,11 @@ void selectCallback(hiredis::Hiredis* c, redisReply* reply, uint16_t* index)
 void authCallback(hiredis::Hiredis* c, redisReply* reply, string* password)
 {
   LOG_INFO << "auth " << *password << " " << redisReplyToString(reply);
+}
+
+void echo(hiredis::Hiredis* c, string* s)
+{
+  c->command(boost::bind(echoCallback, _1, _2, s), "echo %s", s->c_str());
 }
 
 int main(int argc, char** argv)
@@ -119,6 +125,7 @@ int main(int argc, char** argv)
 
   string hi = "hi";
   hiredis.command(boost::bind(echoCallback, _1, _2, &hi), "echo %s", hi.c_str());
+  loop.runEvery(2.0, boost::bind(echo, &hiredis, &hi));
 
   hiredis.command(dbsizeCallback, "dbsize");
 
