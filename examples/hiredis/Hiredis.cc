@@ -31,7 +31,7 @@ Hiredis::~Hiredis()
 
 bool Hiredis::connected() const
 {
-  return channel_ && context_ && context_->c.flags & REDIS_CONNECTED;
+  return channel_ && context_ && (context_->c.flags & REDIS_CONNECTED);
 }
 
 const char* Hiredis::errstr() const
