@@ -2,11 +2,14 @@ language: cpp
 compiler:
   - gcc
   - clang
-before_install: sudo apt-get update
+before_install:
+  - sudo apt-get update
+  - wget -O /tmp/hiredis-0.11.0.tar.gz https://github.com/redis/hiredis/archive/v0.11.0.tar.gz
+  - (cd /tmp; tar xzvf hiredis-0.11.0.tar.gz && cd hiredis-0.11.0 && make && sudo make install)
 install: >
   sudo apt-get install libboost-dev libboost-test-dev libboost-program-options-dev
   libprotobuf-dev protobuf-compiler libcurl4-openssl-dev zlib1g-dev libc-ares-dev
-  libgoogle-perftools-dev libhiredis-dev
+  libgoogle-perftools-dev
 script: ./build.sh
 env:
   - BUILD_TYPE=debug
