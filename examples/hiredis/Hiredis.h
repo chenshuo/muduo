@@ -40,6 +40,7 @@ class Hiredis : public boost::enable_shared_from_this<Hiredis>,
 
   const muduo::net::InetAddress& serverAddress() const { return serverAddr_; }
   // redisAsyncContext* context() { return context_; }
+  bool connected() const;
   const char* errstr() const;
 
   void setConnectCallback(const ConnectCallback& cb) { connectCb_ = cb; }
