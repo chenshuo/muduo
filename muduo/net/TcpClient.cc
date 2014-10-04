@@ -92,7 +92,7 @@ TcpClient::~TcpClient()
         boost::bind(&TcpConnection::setCloseCallback, conn, cb));
     if (unique)
     {
-      detail::removeConnection(loop_, conn);
+      conn->forceClose();
     }
   }
   else
