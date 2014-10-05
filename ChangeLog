@@ -1,3 +1,11 @@
+2014-10-05   Shuo Chen  <chenshuo@chenshuo.com>
+  * Enrich interfaces of EventLoopThreadPool by <zieckey>
+  * Buffer supports reading int64_t by <alisper>
+  * Add hiredis example by <decimalbell>
+  * Fix bug about TcpClient life time again.
+  * Other minor fixes, including some from <huahang>
+  * Version 1.0.4
+
 2014-08-02   Shuo Chen  <chenshuo@chenshuo.com>
   * Singleton supports 'no_destroy'.
   * Get tcp_info in TcpConnection.
