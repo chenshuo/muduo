@@ -102,7 +102,7 @@ void authCallback(hiredis::Hiredis* c, redisReply* reply, string* password)
 
 void echo(hiredis::Hiredis* c, string* s)
 {
-  c->command(boost::bind(echoCallback, _1, _2, s), "echo %s", s->c_str());
+  c->command(std::bind(echoCallback, _1, _2, s), "echo %s", s->c_str());
 }
 
 int main(int argc, char** argv)
@@ -119,21 +119,21 @@ int main(int argc, char** argv)
   hiredis.connect();
 
   //hiredis.ping();
-  loop.runEvery(1.0, boost::bind(&hiredis::Hiredis::ping, &hiredis));
+  loop.runEvery(1.0, std::bind(&hiredis::Hiredis::ping, &hiredis));
 
   hiredis.command(timeCallback, "time");
 
   string hi = "hi";
-  hiredis.command(boost::bind(echoCallback, _1, _2, &hi), "echo %s", hi.c_str());
-  loop.runEvery(2.0, boost::bind(echo, &hiredis, &hi));
+  hiredis.command(std::bind(echoCallback, _1, _2, &hi), "echo %s", hi.c_str());
+  loop.runEvery(2.0, std::bind(echo, &hiredis, &hi));
 
   hiredis.command(dbsizeCallback, "dbsize");
 
   uint16_t index = 8;
-  hiredis.command(boost::bind(selectCallback, _1, _2, &index), "select %d", index);
+  hiredis.command(std::bind(selectCallback, _1, _2, &index), "select %d", index);
 
   string password = "password";
-  hiredis.command(boost::bind(authCallback, _1, _2, &password), "auth %s", password.c_str());
+  hiredis.command(std::bind(authCallback, _1, _2, &password), "auth %s", password.c_str());
 
   loop.loop();
 

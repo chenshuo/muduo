@@ -3,8 +3,6 @@
 #include <muduo/base/Thread.h>
 #include <muduo/base/CountDownLatch.h>
 
-#include <boost/bind.hpp>
-
 #include <stdio.h>
 
 using namespace muduo;
@@ -34,7 +32,7 @@ int main()
   // dtor calls quit()
   EventLoopThread thr2;
   EventLoop* loop = thr2.startLoop();
-  loop->runInLoop(boost::bind(print, loop));
+  loop->runInLoop(std::bind(print, loop));
   CurrentThread::sleepUsec(500 * 1000);
   }
 
@@ -42,7 +40,7 @@ int main()
   // quit() before dtor
   EventLoopThread thr3;
   EventLoop* loop = thr3.startLoop();
-  loop->runInLoop(boost::bind(quit, loop));
+  loop->runInLoop(std::bind(quit, loop));
   CurrentThread::sleepUsec(500 * 1000);
   }
 }

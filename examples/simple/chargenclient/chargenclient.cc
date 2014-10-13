@@ -3,8 +3,6 @@
 #include <muduo/net/InetAddress.h>
 #include <muduo/net/TcpClient.h>
 
-#include <boost/bind.hpp>
-
 #include <utility>
 
 #include <stdio.h>
@@ -13,7 +11,7 @@
 using namespace muduo;
 using namespace muduo::net;
 
-class ChargenClient : boost::noncopyable
+class ChargenClient : noncopyable
 {
  public:
   ChargenClient(EventLoop* loop, const InetAddress& listenAddr)
@@ -21,9 +19,9 @@ class ChargenClient : boost::noncopyable
       client_(loop, listenAddr, "ChargenClient")
   {
     client_.setConnectionCallback(
-        boost::bind(&ChargenClient::onConnection, this, _1));
+        std::bind(&ChargenClient::onConnection, this, _1));
     client_.setMessageCallback(
-        boost::bind(&ChargenClient::onMessage, this, _1, _2, _3));
+        std::bind(&ChargenClient::onMessage, this, _1, _2, _3));
     // client_.enableRetry();
   }
 

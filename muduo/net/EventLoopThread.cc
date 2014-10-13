@@ -10,16 +10,13 @@
 
 #include <muduo/net/EventLoop.h>
 
-#include <boost/bind.hpp>
-
 using namespace muduo;
 using namespace muduo::net;
-
 
 EventLoopThread::EventLoopThread(const ThreadInitCallback& cb)
   : loop_(NULL),
     exiting_(false),
-    thread_(boost::bind(&EventLoopThread::threadFunc, this), "EventLoopThread"), // FIXME: number it
+    thread_(std::bind(&EventLoopThread::threadFunc, this), "EventLoopThread"), // FIXME: number it
     mutex_(),
     cond_(mutex_),
     callback_(cb)

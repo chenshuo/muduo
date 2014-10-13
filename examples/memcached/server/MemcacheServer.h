@@ -8,12 +8,12 @@
 #include <muduo/net/TcpServer.h>
 #include <examples/wordcount/hash.h>
 
-#include <boost/array.hpp>
-#include <boost/noncopyable.hpp>
-#include <boost/unordered_map.hpp>
-#include <boost/unordered_set.hpp>
+#include <unordered_map>
+#include <unordered_set>
 
-class MemcacheServer : boost::noncopyable
+#include <boost/array.hpp>
+
+class MemcacheServer : muduo::noncopyable
 {
  public:
   struct Options
@@ -48,7 +48,7 @@ class MemcacheServer : boost::noncopyable
   const time_t startTime_;
 
   mutable muduo::MutexLock mutex_;
-  boost::unordered_map<string, SessionPtr> sessions_;
+  std::unordered_map<string, SessionPtr> sessions_;
 
   // a complicated solution to save memory
   struct Hash
@@ -67,7 +67,7 @@ class MemcacheServer : boost::noncopyable
     }
   };
 
-  typedef boost::unordered_set<ConstItemPtr, Hash, Equal> ItemMap;
+  typedef std::unordered_set<ConstItemPtr, Hash, Equal> ItemMap;
 
   struct MapWithLock
   {
@@ -82,7 +82,7 @@ class MemcacheServer : boost::noncopyable
   // NOT guarded by mutex_, but here because server_ has to destructs before
   // sessions_
   muduo::net::TcpServer server_;
-  boost::scoped_ptr<Stats> stats_;
+  std::unique_ptr<Stats> stats_;
 };
 
 #endif  // MUDUO_EXAMPLES_MEMCACHED_SERVER_MEMCACHESERVER_H

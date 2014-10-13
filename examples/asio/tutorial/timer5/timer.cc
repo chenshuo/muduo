@@ -3,10 +3,8 @@
 #include <muduo/net/EventLoopThread.h>
 
 #include <iostream>
-#include <boost/bind.hpp>
-#include <boost/noncopyable.hpp>
 
-class Printer : boost::noncopyable
+class Printer : muduo::noncopyable
 {
  public:
   Printer(muduo::net::EventLoop* loop1, muduo::net::EventLoop* loop2)
@@ -14,8 +12,8 @@ class Printer : boost::noncopyable
       loop2_(loop2),
       count_(0)
   {
-    loop1_->runAfter(1, boost::bind(&Printer::print1, this));
-    loop2_->runAfter(1, boost::bind(&Printer::print2, this));
+    loop1_->runAfter(1, std::bind(&Printer::print1, this));
+    loop2_->runAfter(1, std::bind(&Printer::print2, this));
   }
 
   ~Printer()
@@ -31,7 +29,7 @@ class Printer : boost::noncopyable
       std::cout << "Timer 1: " << count_ << "\n";
       ++count_;
 
-      loop1_->runAfter(1, boost::bind(&Printer::print1, this));
+      loop1_->runAfter(1, std::bind(&Printer::print1, this));
     }
     else
     {
@@ -47,7 +45,7 @@ class Printer : boost::noncopyable
       std::cout << "Timer 2: " << count_ << "\n";
       ++count_;
 
-      loop2_->runAfter(1, boost::bind(&Printer::print2, this));
+      loop2_->runAfter(1, std::bind(&Printer::print2, this));
     }
     else
     {
@@ -65,8 +63,8 @@ private:
 
 int main()
 {
-  boost::scoped_ptr<Printer> printer;  // make sure printer lives longer than loops, to avoid
-                                       // race condition of calling print2() on destructed object.
+  std::unique_ptr<Printer> printer;  // make sure printer lives longer than loops, to avoid
+                                     // race condition of calling print2() on destructed object.
   muduo::net::EventLoop loop;
   muduo::net::EventLoopThread loopThread;
   muduo::net::EventLoop* loopInAnotherThread = loopThread.startLoop();

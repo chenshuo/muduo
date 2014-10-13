@@ -15,16 +15,12 @@
 
 #include <map>
 
-#include <boost/function.hpp>
-#include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
+typedef std::shared_ptr<google::protobuf::Message> MessagePtr;
 
-typedef boost::shared_ptr<google::protobuf::Message> MessagePtr;
-
-class ProtobufDispatcherLite : boost::noncopyable
+class ProtobufDispatcherLite : muduo::noncopyable
 {
  public:
-  typedef boost::function<void (const muduo::net::TcpConnectionPtr&,
+  typedef std::function<void (const muduo::net::TcpConnectionPtr&,
                                 const MessagePtr&,
                                 muduo::Timestamp)> ProtobufMessageCallback;
 

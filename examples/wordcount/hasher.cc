@@ -3,8 +3,6 @@
 #include <muduo/net/EventLoopThread.h>
 #include <muduo/net/TcpClient.h>
 
-#include <boost/bind.hpp>
-#include <boost/noncopyable.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/tokenizer.hpp>
 
@@ -23,7 +21,7 @@ using namespace muduo::net;
 size_t g_batchSize = 65536;
 const size_t kMaxHashSize = 10 * 1000 * 1000;
 
-class SendThrottler : boost::noncopyable
+class SendThrottler : muduo::noncopyable
 {
  public:
   SendThrottler(EventLoop* loop, const InetAddress& addr)
@@ -35,7 +33,7 @@ class SendThrottler : boost::noncopyable
   {
     LOG_INFO << "SendThrottler [" << addr.toIpPort() << "]";
     client_.setConnectionCallback(
-        boost::bind(&SendThrottler::onConnection, this, _1));
+        std::bind(&SendThrottler::onConnection, this, _1));
   }
 
   void connect()
@@ -76,9 +74,9 @@ class SendThrottler : boost::noncopyable
     if (conn->connected())
     {
       conn->setHighWaterMarkCallback(
-          boost::bind(&SendThrottler::onHighWaterMark, this), 1024*1024);
+          std::bind(&SendThrottler::onHighWaterMark, this), 1024*1024);
       conn->setWriteCompleteCallback(
-          boost::bind(&SendThrottler::onWriteComplete, this));
+          std::bind(&SendThrottler::onWriteComplete, this));
 
       conn_ = conn;
       connectLatch_.countDown();
@@ -128,7 +126,7 @@ class SendThrottler : boost::noncopyable
   bool congestion_;
 };
 
-class WordCountSender : boost::noncopyable
+class WordCountSender : muduo::noncopyable
 {
  public:
   explicit WordCountSender(const std::string& receivers);
@@ -191,7 +189,7 @@ void WordCountSender::processFile(const char* filename)
   std::ifstream in(filename);
   string word;
   // FIXME: make local hash optional.
-  boost::hash<string> hash;
+  std::hash<string> hash;
   while (in)
   {
     wordcounts.clear();

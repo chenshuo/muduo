@@ -5,26 +5,24 @@
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/TcpServer.h>
 
-#include <boost/bind.hpp>
-
 #include <set>
 #include <stdio.h>
 
 using namespace muduo;
 using namespace muduo::net;
 
-class ChatServer : boost::noncopyable
+class ChatServer : noncopyable
 {
  public:
   ChatServer(EventLoop* loop,
              const InetAddress& listenAddr)
   : server_(loop, listenAddr, "ChatServer"),
-    codec_(boost::bind(&ChatServer::onStringMessage, this, _1, _2, _3))
+    codec_(std::bind(&ChatServer::onStringMessage, this, _1, _2, _3))
   {
     server_.setConnectionCallback(
-        boost::bind(&ChatServer::onConnection, this, _1));
+        std::bind(&ChatServer::onConnection, this, _1));
     server_.setMessageCallback(
-        boost::bind(&LengthHeaderCodec::onMessage, &codec_, _1, _2, _3));
+        std::bind(&LengthHeaderCodec::onMessage, &codec_, _1, _2, _3));
   }
 
   void setThreadNum(int numThreads)

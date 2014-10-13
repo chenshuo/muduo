@@ -4,20 +4,9 @@
 #include <muduo/net/TcpServer.h>
 //#include <muduo/base/Types.h>
 
-#include <boost/circular_buffer.hpp>
-#include <boost/unordered_set.hpp>
-#include <boost/version.hpp>
+#include <unordered_set>
 
-#if BOOST_VERSION < 104700
-namespace boost
-{
-template <typename T>
-inline size_t hash_value(const boost::shared_ptr<T>& x)
-{
-  return boost::hash_value(x.get());
-}
-}
-#endif
+#include <boost/circular_buffer.hpp>
 
 // RFC 862
 class EchoServer
@@ -40,7 +29,7 @@ class EchoServer
 
   void dumpConnectionBuckets() const;
 
-  typedef boost::weak_ptr<muduo::net::TcpConnection> WeakTcpConnectionPtr;
+  typedef std::weak_ptr<muduo::net::TcpConnection> WeakTcpConnectionPtr;
 
   struct Entry : public muduo::copyable
   {
@@ -60,9 +49,9 @@ class EchoServer
 
     WeakTcpConnectionPtr weakConn_;
   };
-  typedef boost::shared_ptr<Entry> EntryPtr;
-  typedef boost::weak_ptr<Entry> WeakEntryPtr;
-  typedef boost::unordered_set<EntryPtr> Bucket;
+  typedef std::shared_ptr<Entry> EntryPtr;
+  typedef std::weak_ptr<Entry> WeakEntryPtr;
+  typedef std::unordered_set<EntryPtr> Bucket;
   typedef boost::circular_buffer<Bucket> WeakConnectionList;
 
   muduo::net::TcpServer server_;

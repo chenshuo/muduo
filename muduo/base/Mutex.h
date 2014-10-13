@@ -7,7 +7,7 @@
 #define MUDUO_BASE_MUTEX_H
 
 #include <muduo/base/CurrentThread.h>
-#include <boost/noncopyable.hpp>
+#include <muduo/base/noncopyable.h>
 #include <assert.h>
 #include <pthread.h>
 
@@ -48,7 +48,7 @@ namespace muduo
 //   mutable MutexLock mutex_;
 //   std::vector<int> data_; // GUARDED BY mutex_
 // };
-class MutexLock : boost::noncopyable
+class MutexLock : noncopyable
 {
  public:
   MutexLock()
@@ -96,7 +96,7 @@ class MutexLock : boost::noncopyable
  private:
   friend class Condition;
 
-  class UnassignGuard : boost::noncopyable
+  class UnassignGuard : noncopyable
   {
    public:
     UnassignGuard(MutexLock& owner)
@@ -134,7 +134,7 @@ class MutexLock : boost::noncopyable
 //   MutexLockGuard lock(mutex_);
 //   return data_.size();
 // }
-class MutexLockGuard : boost::noncopyable
+class MutexLockGuard : noncopyable
 {
  public:
   explicit MutexLockGuard(MutexLock& mutex)

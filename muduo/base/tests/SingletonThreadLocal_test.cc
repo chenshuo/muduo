@@ -3,12 +3,10 @@
 #include <muduo/base/ThreadLocal.h>
 #include <muduo/base/Thread.h>
 
-#include <boost/bind.hpp>
-#include <boost/noncopyable.hpp>
 #include <stdio.h>
 #include <unistd.h>
 
-class Test : boost::noncopyable
+class Test : muduo::noncopyable
 {
  public:
   Test()
@@ -49,8 +47,8 @@ void threadFunc(const char* changeTo)
 int main()
 {
   STL.setName("main one");
-  muduo::Thread t1(boost::bind(threadFunc, "thread1"));
-  muduo::Thread t2(boost::bind(threadFunc, "thread2"));
+  muduo::Thread t1(std::bind(threadFunc, "thread1"));
+  muduo::Thread t2(std::bind(threadFunc, "thread2"));
   t1.start();
   t2.start();
   t1.join();

@@ -13,7 +13,6 @@
 
 #include <map>
 #include <vector>
-#include <boost/noncopyable.hpp>
 
 #include <muduo/base/Timestamp.h>
 #include <muduo/net/EventLoop.h>
@@ -29,7 +28,7 @@ class Channel;
 /// Base class for IO Multiplexing
 ///
 /// This class doesn't own the Channel objects.
-class Poller : boost::noncopyable
+class Poller : noncopyable
 {
  public:
   typedef std::vector<Channel*> ChannelList;

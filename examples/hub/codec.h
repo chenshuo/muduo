@@ -6,8 +6,6 @@
 #include <muduo/base/Types.h>
 #include <muduo/net/Buffer.h>
 
-#include <boost/noncopyable.hpp>
-
 namespace pubsub
 {
 using muduo::string;

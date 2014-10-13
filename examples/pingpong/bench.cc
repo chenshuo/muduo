@@ -6,7 +6,6 @@
 #include <muduo/net/Channel.h>
 #include <muduo/net/EventLoop.h>
 
-#include <boost/bind.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
 #include <stdio.h>
@@ -53,7 +52,7 @@ std::pair<int, int> runOnce()
   for (int i = 0; i < numPipes; ++i)
   {
     Channel& channel = g_channels[i];
-    channel.setReadCallback(boost::bind(readCallback, _1, channel.fd(), i));
+    channel.setReadCallback(std::bind(readCallback, _1, channel.fd(), i));
     channel.enableReading();
   }
 

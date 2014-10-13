@@ -2,7 +2,6 @@
 #include <muduo/base/ProcessInfo.h>
 #include <muduo/net/EventLoop.h>
 
-#include <boost/bind.hpp>
 #include <vector>
 #include <stdio.h>
 

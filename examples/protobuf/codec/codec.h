@@ -12,10 +12,6 @@
 #include <muduo/net/Buffer.h>
 #include <muduo/net/TcpConnection.h>
 
-#include <boost/function.hpp>
-#include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
-
 #include <google/protobuf/message.h>
 
 // struct ProtobufTransportFormat __attribute__ ((__packed__))
@@ -27,12 +23,12 @@
 //   int32_t  checkSum; // adler32 of nameLen, typeName and protobufData
 // }
 
-typedef boost::shared_ptr<google::protobuf::Message> MessagePtr;
+typedef std::shared_ptr<google::protobuf::Message> MessagePtr;
 
 //
 // FIXME: merge with RpcCodec
 //
-class ProtobufCodec : boost::noncopyable
+class ProtobufCodec : muduo::noncopyable
 {
  public:
 
@@ -46,11 +42,11 @@ class ProtobufCodec : boost::noncopyable
     kParseError,
   };
 
-  typedef boost::function<void (const muduo::net::TcpConnectionPtr&,
+  typedef std::function<void (const muduo::net::TcpConnectionPtr&,
                                 const MessagePtr&,
                                 muduo::Timestamp)> ProtobufMessageCallback;
 
-  typedef boost::function<void (const muduo::net::TcpConnectionPtr&,
+  typedef std::function<void (const muduo::net::TcpConnectionPtr&,
                                 muduo::net::Buffer*,
                                 muduo::Timestamp,
                                 ErrorCode)> ErrorCallback;

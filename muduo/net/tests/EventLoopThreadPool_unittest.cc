@@ -2,8 +2,6 @@
 #include <muduo/net/EventLoop.h>
 #include <muduo/base/Thread.h>
 
-#include <boost/bind.hpp>
-
 #include <stdio.h>
 
 using namespace muduo;
@@ -26,7 +24,7 @@ int main()
   print();
 
   EventLoop loop;
-  loop.runAfter(11, boost::bind(&EventLoop::quit, &loop));
+  loop.runAfter(11, std::bind(&EventLoop::quit, &loop));
 
   {
     printf("Single thread %p:\n", &loop);
@@ -44,7 +42,7 @@ int main()
     model.setThreadNum(1);
     model.start(init);
     EventLoop* nextLoop = model.getNextLoop();
-    nextLoop->runAfter(2, boost::bind(print, nextLoop));
+    nextLoop->runAfter(2, std::bind(print, nextLoop));
     assert(nextLoop != &loop);
     assert(nextLoop == model.getNextLoop());
     assert(nextLoop == model.getNextLoop());
@@ -57,7 +55,7 @@ int main()
     model.setThreadNum(3);
     model.start(init);
     EventLoop* nextLoop = model.getNextLoop();
-    nextLoop->runInLoop(boost::bind(print, nextLoop));
+    nextLoop->runInLoop(std::bind(print, nextLoop));
     assert(nextLoop != &loop);
     assert(nextLoop != model.getNextLoop());
     assert(nextLoop != model.getNextLoop());

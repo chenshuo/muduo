@@ -5,8 +5,6 @@
 #include <muduo/base/Timestamp.h>
 #include <muduo/net/InetAddress.h>
 
-#include <boost/function.hpp>
-#include <boost/noncopyable.hpp>
 #include <boost/ptr_container/ptr_map.hpp>
 
 extern "C"
@@ -28,10 +26,10 @@ class EventLoop;
 namespace cdns
 {
 
-class Resolver : boost::noncopyable
+class Resolver : muduo::noncopyable
 {
  public:
-  typedef boost::function<void(const muduo::net::InetAddress&)> Callback;
+  typedef std::function<void(const muduo::net::InetAddress&)> Callback;
   enum Option
   {
     kDNSandHostsFile,

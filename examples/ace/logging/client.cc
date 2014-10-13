@@ -8,8 +8,6 @@
 #include <muduo/net/TcpClient.h>
 #include <muduo/net/protobuf/ProtobufCodecLite.h>
 
-#include <boost/bind.hpp>
-
 #include <iostream>
 #include <stdio.h>
 
@@ -24,17 +22,17 @@ extern const char logtag[] = "LOG0";
 typedef ProtobufCodecLiteT<LogRecord, logtag> Codec;
 
 // same as asio/char/client.cc
-class LogClient : boost::noncopyable
+class LogClient : noncopyable
 {
  public:
   LogClient(EventLoop* loop, const InetAddress& serverAddr)
     : client_(loop, serverAddr, "LogClient"),
-      codec_(boost::bind(&LogClient::onMessage, this, _1, _2, _3))
+      codec_(std::bind(&LogClient::onMessage, this, _1, _2, _3))
   {
     client_.setConnectionCallback(
-        boost::bind(&LogClient::onConnection, this, _1));
+        std::bind(&LogClient::onConnection, this, _1));
     client_.setMessageCallback(
-        boost::bind(&Codec::onMessage, &codec_, _1, _2, _3));
+        std::bind(&Codec::onMessage, &codec_, _1, _2, _3));
     client_.enableRetry();
   }
 

@@ -8,9 +8,7 @@
 #include <muduo/base/Exception.h>
 #include <muduo/base/Logging.h>
 
-#include <boost/static_assert.hpp>
-#include <boost/type_traits/is_same.hpp>
-#include <boost/weak_ptr.hpp>
+#include <type_traits>
 
 #include <errno.h>
 #include <stdio.h>
@@ -28,8 +26,7 @@ namespace CurrentThread
   __thread char t_tidString[32];
   __thread int t_tidStringLength = 6;
   __thread const char* t_threadName = "unknown";
-  const bool sameType = boost::is_same<int, pid_t>::value;
-  BOOST_STATIC_ASSERT(sameType);
+  static_assert(std::is_same<int, pid_t>::value, "pid_t should be int");
 }
 
 namespace detail
@@ -66,11 +63,11 @@ struct ThreadData
   typedef muduo::Thread::ThreadFunc ThreadFunc;
   ThreadFunc func_;
   string name_;
-  boost::weak_ptr<pid_t> wkTid_;
+  std::weak_ptr<pid_t> wkTid_;
 
   ThreadData(const ThreadFunc& func,
              const string& name,
-             const boost::shared_ptr<pid_t>& tid)
+             const std::shared_ptr<pid_t>& tid)
     : func_(func),
       name_(name),
       wkTid_(tid)
@@ -80,7 +77,7 @@ struct ThreadData
   {
     pid_t tid = muduo::CurrentThread::tid();
 
-    boost::shared_ptr<pid_t> ptid = wkTid_.lock();
+    std::shared_ptr<pid_t> ptid = wkTid_.lock();
     if (ptid)
     {
       *ptid = tid;

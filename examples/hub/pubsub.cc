@@ -1,8 +1,6 @@
 #include "pubsub.h"
 #include "codec.h"
 
-#include <boost/bind.hpp>
-
 using namespace muduo;
 using namespace muduo::net;
 using namespace pubsub;
@@ -14,9 +12,9 @@ PubSubClient::PubSubClient(EventLoop* loop,
 {
   // FIXME: dtor is not thread safe
   client_.setConnectionCallback(
-      boost::bind(&PubSubClient::onConnection, this, _1));
+      std::bind(&PubSubClient::onConnection, this, _1));
   client_.setMessageCallback(
-      boost::bind(&PubSubClient::onMessage, this, _1, _2, _3));
+      std::bind(&PubSubClient::onMessage, this, _1, _2, _3));
 }
 
 void PubSubClient::start()
