@@ -127,6 +127,9 @@ void transmit(const Options& opt)
     payload->data[i] = "0123456789ABCDEF"[i % 16];
   }
 
+  double total_mb = 1.0 * opt.length * opt.number / 1024 / 1024;
+  printf("%.3f MiB in total\n", total_mb);
+
   for (int i = 0; i < opt.number; ++i)
   {
     int nw = write_n(sockfd, payload, total_len);
@@ -142,8 +145,7 @@ void transmit(const Options& opt)
   ::free(payload);
   ::close(sockfd);
   double elapsed = timeDifference(muduo::Timestamp::now(), start);
-  double total_mb = 1.0 * opt.length * opt.number / 1024 / 1024;
-  printf("%.3f MiB transferred\n%.3f MiB/s\n", total_mb, total_mb / elapsed);
+  printf("%.3f seconds\n%.3f MiB/s\n", elapsed, total_mb / elapsed);
 }
 
 void receive(const Options& opt)
