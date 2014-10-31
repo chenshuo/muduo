@@ -59,9 +59,13 @@ static int write_n(int sockfd, const void* buf, int length)
   while (written < length)
   {
     ssize_t nw = ::write(sockfd, static_cast<const char*>(buf) + written, length - written);
-    if (nw >= 0)
+    if (nw > 0)
     {
       written += static_cast<int>(nw);
+    }
+    else if (nw == 0)
+    {
+      break;  // EOF
     }
     else if (errno != EINTR)
     {
@@ -78,9 +82,13 @@ static int read_n(int sockfd, void* buf, int length)
   while (nread < length)
   {
     ssize_t nr = ::read(sockfd, static_cast<char*>(buf) + nread, length - nread);
-    if (nr >= 0)
+    if (nr > 0)
     {
       nread += static_cast<int>(nr);
+    }
+    else if (nr == 0)
+    {
+      break;  // EOF
     }
     else if (errno != EINTR)
     {
