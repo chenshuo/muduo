@@ -160,11 +160,14 @@ class EventLoop : boost::noncopyable
   // unlike in TimerQueue, which is an internal class,
   // we don't expose Channel to client.
   boost::scoped_ptr<Channel> wakeupChannel_;
+  boost::any context_;
+
+  // scratch variables
   ChannelList activeChannels_;
   Channel* currentActiveChannel_;
+
   MutexLock mutex_;
   std::vector<Functor> pendingFunctors_; // @GuardedBy mutex_
-  boost::any context_;
 };
 
 }
