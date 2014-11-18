@@ -1,3 +1,5 @@
+#include "plot.h"
+
 #include <muduo/base/FileUtil.h>
 #include <muduo/base/ProcessInfo.h>
 #include <muduo/net/EventLoop.h>
@@ -7,6 +9,8 @@
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/bind.hpp>
+#include <boost/circular_buffer.hpp>
+#include <boost/type_traits/is_pod.hpp>
 
 #include <sstream>
 #include <stdarg.h>
@@ -19,6 +23,64 @@ using namespace muduo::net;
 // - what if process exits?
 //
 
+// Represent parsed /proc/pid/stat
+struct StatData
+{
+  void parse(const char* startAtState, int kbPerPage)
+  {
+    // istringstream is probably not the most efficient way to parse it,
+    // see muduo-protorpc/examples/collect/ProcFs.cc for alternatives.
+    std::istringstream iss(startAtState);
+
+    //            0    1    2    3     4    5       6   7 8 9  11  13   15
+    // 3770 (cat) R 3718 3770 3718 34818 3770 4202496 214 0 0 0 0 0 0 0 20
+    // 16  18     19      20 21                   22      23      24              25
+    //  0 1 0 298215 5750784 81 18446744073709551615 4194304 4242836 140736345340592
+    //              26
+    // 140736066274232 140575670169216 0 0 0 0 0 0 0 17 0 0 0 0 0 0
+
+    iss >> state;
+    iss >> ppid >> pgrp >> session >> tty_nr >> tpgid >> flags;
+    iss >> minflt >> cminflt >> majflt >> cmajflt;
+    iss >> utime >> stime >> cutime >> cstime;
+    iss >> priority >> nice >> num_threads >> itrealvalue >> starttime;
+    long vsize, rss;
+    iss >> vsize >> rss >> rsslim;
+    vsizeKb = vsize / 1024;
+    rssKb = rss * kbPerPage;
+  }
+  // int pid;
+  char state;
+  int ppid;
+  int pgrp;
+  int session;
+  int tty_nr;
+  int tpgid;
+  int flags;
+
+  long minflt;
+  long cminflt;
+  long majflt;
+  long cmajflt;
+
+  long utime;
+  long stime;
+  long cutime;
+  long cstime;
+
+  long priority;
+  long nice;
+  long num_threads;
+  long itrealvalue;
+  long starttime;
+
+  long vsizeKb;
+  long rssKb;
+  long rsslim;
+};
+
+BOOST_STATIC_ASSERT(boost::is_pod<StatData>::value);
+
 class Procmon : boost::noncopyable
 {
  public:
@@ -30,13 +92,20 @@ class Procmon : boost::noncopyable
       server_(loop, InetAddress(port), getName()),
       procname_(ProcessInfo::procname(readProcFile("stat")).as_string()),
       hostname_(ProcessInfo::hostname()),
-      cmdline_(getCmdLine())
+      cmdline_(getCmdLine()),
+      ticks_(0),
+      cpu_usage_(600 / kPeriod_),  // 10 minutes
+      cpu_chart_(640, 100, 600, kPeriod_),
+      ram_chart_(640, 100, 7200, 30)
   {
+    bzero(&lastStatData_, sizeof lastStatData_);
     server_.setHttpCallback(boost::bind(&Procmon::onRequest, this, _1, _2));
   }
 
   void start()
   {
+    tick();
+    server_.getLoop()->runEvery(kPeriod_, boost::bind(&Procmon::tick, this));
     server_.start();
   }
 
@@ -64,6 +133,15 @@ class Procmon : boost::noncopyable
     else if (req.path() == "/cmdline")
     {
       resp->setBody(cmdline_);
+    }
+    else if (req.path() == "/cpu.png")
+    {
+      std::vector<double> cpu_usage;
+      for (size_t i = 0; i < cpu_usage_.size(); ++i)
+        cpu_usage.push_back(cpu_usage_[i].cpuUsage(kPeriod_, kClockTicksPerSecond_));
+      string png = cpu_chart_.plotCpu(cpu_usage);
+      resp->setContentType("image/png");
+      resp->setBody(png);
     }
     // FIXME: replace with a map
     else if (req.path() == "/environ")
@@ -111,12 +189,6 @@ class Procmon : boost::noncopyable
     appendResponse("<html><head><title>%s on %s</title></head><body>\n",
                    procname_.c_str(), hostname_.c_str());
 
-    //            0    1    2    3     4    5       6   7 8 9  11  13   15
-    // 3770 (cat) R 3718 3770 3718 34818 3770 4202496 214 0 0 0 0 0 0 0 20
-    // 16  18     19      20 21                   22      23      24              25
-    //  0 1 0 298215 5750784 81 18446744073709551615 4194304 4242836 140736345340592
-    //              26
-    // 140736066274232 140575670169216 0 0 0 0 0 0 0 17 0 0 0 0 0 0
     string stat = readProcFile("stat");
     int pid = atoi(stat.c_str());
     assert(pid == pid_);
@@ -130,56 +202,33 @@ class Procmon : boost::noncopyable
     appendResponse("<p>Page generated at %s (UTC)", now.toFormattedString().c_str());
 
     response_.append("<p><table>");
-    // istringstream is probably not the most efficient way to parse it,
-    // see muduo-protorpc/examples/collect/ProcFs.cc for alternatives.
-    std::istringstream iss(procname.end()+1);  // end is ')'
-
-    char state = ' ';
-    iss >> state;
-
-    {
-    int ppid = 0, pgrp = 0, session = 0, tty_nr = 0, tpgid = 0, flags = 0;
-    iss >> ppid >> pgrp >> session >> tty_nr >> tpgid >> flags;
-    }
-
-    long minflt = 0, majflt = 0;
-    {
-    long cminflt = 0, cmajflt = 0;
-    iss >> minflt >> cminflt >> majflt >> cmajflt;
-    }
-
-    long utime = 0, stime = 0;
-    {
-    long cutime = 0, cstime = 0;
-    iss >> utime >> stime >> cutime >> cstime;
-    }
-
-    long priority = 0, nice = 0, num_threads = 0, itrealvalue = 0, starttime = 0;
-    iss >> priority >> nice >> num_threads >> itrealvalue >> starttime;
-
-    long vsize = 0, rss = 0, rsslim = 0;
-    iss >> vsize >> rss >> rsslim;
+    StatData statData;  // how about use lastStatData_ ?
+    bzero(&statData, sizeof statData);
+    statData.parse(procname.end()+1, kbPerPage_);  // end is ')'
 
     appendTableRow("PID", pid);
-    Timestamp started(getStartTime(starttime));  // FIXME: cache it;
-    appendTableRow("Started at", started.toFormattedString() + " (UTC)");
+    Timestamp started(getStartTime(statData.starttime));  // FIXME: cache it;
+    appendTableRow("Started at", started.toFormattedString(false /*showMicroseconds*/) + " (UTC)");
     appendTableRowFloat("Uptime (s)", timeDifference(now, started));  // FIXME: format as days+H:M:S
     appendTableRow("Executable", readLink("exe"));
     appendTableRow("Current dir", readLink("cwd"));
 
-    appendTableRow("State", getState(state));
-    appendTableRowFloat("User time (s)", getSeconds(utime));
-    appendTableRowFloat("System time (s)", getSeconds(stime));
+    appendTableRow("State", getState(statData.state));
+    appendTableRowFloat("User time (s)", getSeconds(statData.utime));
+    appendTableRowFloat("System time (s)", getSeconds(statData.stime));
 
-    appendTableRow("VmSize (KiB)", vsize / 1024);
-    appendTableRow("VmRSS (KiB)", rss * kbPerPage_);
-    appendTableRow("Threads", num_threads);
-    appendTableRow("Priority", priority);
-    appendTableRow("Nice", nice);
+    appendTableRow("VmSize (KiB)", statData.vsizeKb);
+    appendTableRow("VmRSS (KiB)", statData.rssKb);
+    appendTableRow("Threads", statData.num_threads);
+    appendTableRow("CPU usage", "<img src=\"/cpu.png\">");
 
-    appendTableRow("Minor page faults", minflt);
-    appendTableRow("Major page faults", majflt);
-    // user
+    appendTableRow("Priority", statData.priority);
+    appendTableRow("Nice", statData.nice);
+
+    appendTableRow("Minor page faults", statData.minflt);
+    appendTableRow("Major page faults", statData.majflt);
+    // TODO: user
+
     response_.append("</table>");
     response_.append("</body></html>");
   }
@@ -187,7 +236,7 @@ class Procmon : boost::noncopyable
   void fillThreads()
   {
     response_.retrieveAll();
-    // FIXME
+    // FIXME: implement this
   }
 
   string readProcFile(const char* basename)
@@ -242,14 +291,37 @@ class Procmon : boost::noncopyable
 
   Timestamp getStartTime(long starttime)
   {
-  return Timestamp(Timestamp::kMicroSecondsPerSecond * kBootTime_
-                   + Timestamp::kMicroSecondsPerSecond * starttime / kClockTicksPerSecond_);
+    return Timestamp(Timestamp::kMicroSecondsPerSecond * kBootTime_
+                     + Timestamp::kMicroSecondsPerSecond * starttime / kClockTicksPerSecond_);
   }
 
   double getSeconds(long ticks)
   {
     return static_cast<double>(ticks) / kClockTicksPerSecond_;
   }
+
+  void tick()
+  {
+    string stat = readProcFile("stat");  // FIXME: catch file descriptor
+    StringPiece procname = ProcessInfo::procname(stat);
+    StatData statData;
+    bzero(&statData, sizeof statData);
+    statData.parse(procname.end()+1, kbPerPage_);  // end is ')'
+    if (ticks_ > 0)
+    {
+      CpuTime time;
+      time.userTime_ = std::max(0, static_cast<int>(statData.utime - lastStatData_.utime));
+      time.sysTime_ = std::max(0, static_cast<int>(statData.stime - lastStatData_.stime));
+      cpu_usage_.push_back(time);
+    }
+
+    lastStatData_ = statData;
+    ++ticks_;
+  }
+
+  //
+  // static member functions
+  //
 
   static const char* getState(char state)
   {
@@ -289,21 +361,37 @@ class Procmon : boost::noncopyable
     return getLong(stat, "btime ");
   }
 
+  struct CpuTime
+  {
+    int userTime_;
+    int sysTime_;
+    double cpuUsage(double kPeriod, double kClockTicksPerSecond) const
+    {
+      return (userTime_ + sysTime_) / (kClockTicksPerSecond * kPeriod);
+    }
+  };
+
+  const static int kPeriod_ = 2.0;
   const int kClockTicksPerSecond_;
-  const long kbPerPage_;
-  const long kBootTime_;
+  const int kbPerPage_;
+  const long kBootTime_;  // in Unix-time
   const pid_t pid_;
   HttpServer server_;
   const string procname_;
   const string hostname_;
   const string cmdline_;
+  int ticks_;
+  StatData lastStatData_;
+  boost::circular_buffer<CpuTime> cpu_usage_;
+  Plot cpu_chart_;
+  Plot ram_chart_;
   // scratch variables
   Buffer response_;
 };
 
 int Procmon::appendResponse(const char* fmt, ...)
 {
-  char buf[256];
+  char buf[1024];
   va_list args;
   va_start(args, fmt);
   int ret = vsnprintf(buf, sizeof buf, fmt, args);

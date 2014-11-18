@@ -1,2 +1,5 @@
-add_executable(procmon procmon.cc)
-target_link_libraries(procmon muduo_http)
+add_executable(procmon procmon.cc plot.cc)
+target_link_libraries(procmon muduo_http gd)
+
+add_executable(plot_test plot_test.cc plot.cc)
+target_link_libraries(plot_test muduo_base gd)
