@@ -124,6 +124,17 @@ class Procmon : boost::noncopyable
     resp->setStatusMessage("OK");
     resp->setContentType("text/plain");
     resp->addHeader("Server", "Muduo-Procmon");
+
+    /*
+    if (!processExists(pid_))
+    {
+      resp->setStatusCode(HttpResponse::k404NotFound);
+      resp->setStatusMessage("Not Found");
+      resp->setCloseConnection(true);
+      return;
+    }
+    */
+
     if (req.path() == "/")
     {
       resp->setContentType("text/html");
@@ -190,6 +201,11 @@ class Procmon : boost::noncopyable
                    procname_.c_str(), hostname_.c_str());
 
     string stat = readProcFile("stat");
+    if (stat.empty())
+    {
+      appendResponse("<h1>PID %d doesn't exist.</h1></body></html>", pid_);
+      return;
+    }
     int pid = atoi(stat.c_str());
     assert(pid == pid_);
     StringPiece procname = ProcessInfo::procname(stat);
@@ -303,6 +319,8 @@ class Procmon : boost::noncopyable
   void tick()
   {
     string stat = readProcFile("stat");  // FIXME: catch file descriptor
+    if (stat.empty())
+      return;
     StringPiece procname = ProcessInfo::procname(stat);
     StatData statData;
     bzero(&statData, sizeof statData);
