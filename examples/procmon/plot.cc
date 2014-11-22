@@ -20,6 +20,7 @@ Plot::Plot(int width, int height, int totalSeconds, int samplingPeriod)
     white_(gdImageColorAllocate(image_, 255, 255, 240)),
     black_(gdImageColorAllocate(image_, 0, 0, 0)),
     gray_(gdImageColorAllocate(image_, 200, 200, 200)),
+    blue_(gdImageColorAllocate(image_, 128, 128, 255)),
     kRightMargin_(3 * fontWidth_ + 5),
     ratioX_(static_cast<double>(samplingPeriod_ * (width_ - kLeftMargin_ - kRightMargin_)) / totalSeconds_)
 {
@@ -38,7 +39,14 @@ muduo::string Plot::plotCpu(const std::vector<double> data)
   {
     gdImageSetThickness(image_, 2);
     double max = *std::max_element(data.begin(), data.end());
-    max = std::max(0.1, ceil(max*10.0) / 10.0);
+    if (max >= 10.0)
+    {
+      max = ceil(max);
+    }
+    else
+    {
+      max = std::max(0.1, ceil(max*10.0) / 10.0);
+    }
     label(max);
 
     for (size_t i = 0; i < data.size()-1; ++i)
@@ -80,7 +88,7 @@ void Plot::label(double maxValue)
                   width_ - kRightMargin_ + 3,
                   height_ - kMarginY_ - 3 - fontHeight_ / 2,
                   reinterpret_cast<unsigned char*>(buf),
-                  black_);
+                  gray_);
 
     snprintf(buf, sizeof buf, "-%ds", totalSeconds_);
     gdImageString(image_,
@@ -88,7 +96,7 @@ void Plot::label(double maxValue)
                   kLeftMargin_,
                   height_ - kMarginY_ - fontHeight_,
                   reinterpret_cast<unsigned char*>(buf),
-                  black_);
+                  blue_);
 }
 
 int Plot::getX(ssize_t i, ssize_t total) const

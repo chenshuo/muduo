@@ -13,6 +13,7 @@ class Plot : boost::noncopyable
 
  private:
   muduo::string toPng();
+  // pair<shared_ptr<void*>, int> toPng();
   int getX(long x, long total) const;
   int getY(double value) const;
   void label(double maxValue);
@@ -31,6 +32,7 @@ class Plot : boost::noncopyable
   const int white_;
   const int black_;
   const int gray_;
+  const int blue_;
 
   const int kRightMargin_;
   static const int kLeftMargin_ = 5;
