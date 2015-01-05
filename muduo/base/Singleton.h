@@ -43,10 +43,10 @@ class Singleton : boost::noncopyable
   static void init()
   {
     value_ = new T();
-    if (!detail::has_no_destroy<T>::value)
-    {
-      ::atexit(destroy);
-    }
+//    if (!detail::has_no_destroy<T>::value)
+//    {
+//      ::atexit(destroy);
+//    }
   }
 
   static void destroy()
@@ -60,6 +60,7 @@ class Singleton : boost::noncopyable
  private:
   static pthread_once_t ponce_;
   static T*             value_;
+
   //The class Gc is for garbage collection
   class Gc {
   public:
@@ -69,13 +70,14 @@ class Singleton : boost::noncopyable
   		  {
   		        if (value_ != NULL)
   		        {
-  		        	delete value_;
+  		        	destroy();
   		        	value_ = NULL;
   		        }
   		  }
   	  }
 
    };
+
   static Gc gc;
 };
 
