@@ -60,13 +60,34 @@ class Singleton : boost::noncopyable
  private:
   static pthread_once_t ponce_;
   static T*             value_;
+  //The class Gc is for garbage collection
+  class Gc {
+  public:
+	  ~Gc()
+  	  {
+  		  if (!detail::has_no_destroy<T>::value)
+  		  {
+  		        if (value_ != NULL)
+  		        {
+  		        	delete value_;
+  		        	value_ = NULL;
+  		        }
+  		  }
+  	  }
+
+   };
+  static Gc gc;
 };
+
 
 template<typename T>
 pthread_once_t Singleton<T>::ponce_ = PTHREAD_ONCE_INIT;
 
 template<typename T>
 T* Singleton<T>::value_ = NULL;
+
+template<typename T>
+Singleton<T>::Gc Singleton<T>::gc;
 
 }
 #endif
