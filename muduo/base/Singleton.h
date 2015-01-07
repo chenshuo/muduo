@@ -32,6 +32,7 @@ class Singleton : boost::noncopyable
  public:
   static T& instance()
   {
+	/* solve the "KDL problem", even though it may encounter race condition, "init()" can solve it */
 	if (NULL == value_)
 	{
 		ponce_ = PTHREAD_ONCE_INIT;
@@ -46,15 +47,15 @@ class Singleton : boost::noncopyable
 
   static void init()
   {
-	/* Insure the value_ have only one copy, even init() have been invocking twice */
+	/* Insure the "value_" have only one copy, even if the "init()" have been invocking twice or more */
     if (NULL == value_)
     {
     	value_ = new T();
     }
-//    if (!detail::has_no_destroy<T>::value)
-//    {
-//      ::atexit(destroy);
-//    }
+    if (!detail::has_no_destroy<T>::value)
+    {
+      ::atexit(destroy);
+    }
   }
 
   static void destroy()
@@ -65,7 +66,7 @@ class Singleton : boost::noncopyable
     if (NULL != value_)
     {
     	delete value_;
-    	value_ = NULL;	/* avoid  undefined behavior*/
+    	value_ = NULL;	/* avoid  undefined behavior, solve the "KDL problem" */
     }
   }
 
