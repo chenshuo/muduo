@@ -32,7 +32,8 @@ class Singleton : boost::noncopyable
  public:
   static T& instance()
   {
-	/* solve the "KDL problem", even though it may encounter race condition, "init()" can solve it */
+	/* solve the "KDL problem", even though it may encounter race condition, "init()" can solve it
+	 * http://www.cppblog.com/ant/archive/2007/09/07/31445.html*/
 	if (NULL == value_)
 	{
 		ponce_ = PTHREAD_ONCE_INIT;
