@@ -32,7 +32,11 @@ class Singleton : boost::noncopyable
  public:
   static T& instance()
   {
-    pthread_once(&ponce_, &Singleton::init);
+	if (NULL == value_)
+	{
+		ponce_ = PTHREAD_ONCE_INIT;
+		pthread_once(&ponce_, &Singleton::init);
+	}
     return *value_;
   }
 
@@ -42,7 +46,11 @@ class Singleton : boost::noncopyable
 
   static void init()
   {
-    value_ = new T();
+	/* Insure the value_ have only one copy, even init() have been invocking twice */
+    if (NULL == value_)
+    {
+    	value_ = new T();
+    }
 //    if (!detail::has_no_destroy<T>::value)
 //    {
 //      ::atexit(destroy);
@@ -54,42 +62,23 @@ class Singleton : boost::noncopyable
     typedef char T_must_be_complete_type[sizeof(T) == 0 ? -1 : 1];
     T_must_be_complete_type dummy; (void) dummy;
 
-    delete value_;
+    if (NULL != value_)
+    {
+    	delete value_;
+    	value_ = NULL;	/* avoid  undefined behavior*/
+    }
   }
 
  private:
   static pthread_once_t ponce_;
   static T*             value_;
-
-  //The class Gc is for garbage collection
-  class Gc {
-  public:
-	  ~Gc()
-  	  {
-  		  if (!detail::has_no_destroy<T>::value)
-  		  {
-  		        if (value_ != NULL)
-  		        {
-  		        	destroy();
-  		        	value_ = NULL;
-  		        }
-  		  }
-  	  }
-
-   };
-
-  static Gc gc;
 };
-
 
 template<typename T>
 pthread_once_t Singleton<T>::ponce_ = PTHREAD_ONCE_INIT;
 
 template<typename T>
 T* Singleton<T>::value_ = NULL;
-
-template<typename T>
-Singleton<T>::Gc Singleton<T>::gc;
 
 }
 #endif
