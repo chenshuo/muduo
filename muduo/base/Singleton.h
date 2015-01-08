@@ -32,7 +32,13 @@ class Singleton : boost::noncopyable
  public:
   static T& instance()
   {
-    pthread_once(&ponce_, &Singleton::init);
+	/* solve the "KDL problem", even though it may encounter race condition, "init()" can solve it
+	 * http://www.cppblog.com/ant/archive/2007/09/07/31445.html*/
+	if (NULL == value_)
+	{
+		ponce_ = PTHREAD_ONCE_INIT;
+		pthread_once(&ponce_, &Singleton::init);
+	}
     return *value_;
   }
 
@@ -42,10 +48,14 @@ class Singleton : boost::noncopyable
 
   static void init()
   {
-    value_ = new T();
-    if (!detail::has_no_destroy<T>::value)
+	/* Insure the "value_" have only one copy, even if the "init()" have been invocking twice or more */
+    if (NULL == value_)
     {
-      ::atexit(destroy);
+    	value_ = new T();
+    	if (!detail::has_no_destroy<T>::value)
+        {
+    		::atexit(destroy);
+        }
     }
   }
 
@@ -54,7 +64,11 @@ class Singleton : boost::noncopyable
     typedef char T_must_be_complete_type[sizeof(T) == 0 ? -1 : 1];
     T_must_be_complete_type dummy; (void) dummy;
 
-    delete value_;
+    if (NULL != value_)
+    {
+    	delete value_;
+    	value_ = NULL;	/* avoid  undefined behavior, solve the "KDL problem" */
+    }
   }
 
  private:
