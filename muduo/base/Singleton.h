@@ -52,10 +52,10 @@ class Singleton : boost::noncopyable
     if (NULL == value_)
     {
     	value_ = new T();
-    }
-    if (!detail::has_no_destroy<T>::value)
-    {
-      ::atexit(destroy);
+    	if (!detail::has_no_destroy<T>::value)
+        {
+    		::atexit(destroy);
+        }
     }
   }
 
