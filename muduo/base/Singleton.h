@@ -39,6 +39,9 @@ class Singleton : boost::noncopyable
 		ponce_ = PTHREAD_ONCE_INIT;
 		pthread_once(&ponce_, &Singleton::init);
 	}
+
+	pthread_once(&ponce_, &Singleton::nullf);
+
     return *value_;
   }
 
@@ -69,6 +72,11 @@ class Singleton : boost::noncopyable
     	delete value_;
     	value_ = NULL;	/* avoid  undefined behavior, solve the "KDL problem" */
     }
+  }
+
+  static void nullf()
+  {
+
   }
 
  private:
