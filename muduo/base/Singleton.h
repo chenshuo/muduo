@@ -32,7 +32,7 @@ class Singleton : boost::noncopyable
  public:
   static T& instance()
   {
-    pthread_once(&ponce_, &Singleton::init);
+	pthread_once(&ponce_, &Singleton::init);
     return *value_;
   }
 
@@ -45,7 +45,7 @@ class Singleton : boost::noncopyable
     value_ = new T();
     if (!detail::has_no_destroy<T>::value)
     {
-      ::atexit(destroy);
+    	::atexit(destroy);
     }
   }
 
@@ -54,7 +54,13 @@ class Singleton : boost::noncopyable
     typedef char T_must_be_complete_type[sizeof(T) == 0 ? -1 : 1];
     T_must_be_complete_type dummy; (void) dummy;
 
-    delete value_;
+    if (NULL != value_)
+    {
+    	delete value_;
+    	/* avoid  undefined behavior, solve the "KDL problem" */
+    	value_ = NULL;
+    	ponce_ = PTHREAD_ONCE_INIT;
+    }
   }
 
  private:
