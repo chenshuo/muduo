@@ -17,7 +17,7 @@ Plot::Plot(int width, int height, int totalSeconds, int samplingPeriod)
     font_(static_cast<MyGdFont*>(gdFontGetSmall())),
     fontWidth_(font_->w),
     fontHeight_(font_->h),
-    white_(gdImageColorAllocate(image_, 255, 255, 240)),
+    background_(gdImageColorAllocate(image_, 255, 255, 240)),
     black_(gdImageColorAllocate(image_, 0, 0, 0)),
     gray_(gdImageColorAllocate(image_, 200, 200, 200)),
     blue_(gdImageColorAllocate(image_, 128, 128, 255)),
@@ -34,7 +34,7 @@ Plot::~Plot()
 
 muduo::string Plot::plotCpu(const std::vector<double> data)
 {
-  gdImageFilledRectangle(image_, 0, 0, width_, height_, white_);
+  gdImageFilledRectangle(image_, 0, 0, width_, height_, background_);
   if (data.size() > 1)
   {
     gdImageSetThickness(image_, 2);
