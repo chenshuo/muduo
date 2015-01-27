@@ -138,7 +138,7 @@ class Procmon : boost::noncopyable
     if (req.path() == "/")
     {
       resp->setContentType("text/html");
-      fillOverview();
+      fillOverview(req.query());
       resp->setBody(response_.retrieveAllAsString());
     }
     else if (req.path() == "/cmdline")
@@ -193,12 +193,14 @@ class Procmon : boost::noncopyable
     }
   }
 
-  void fillOverview()
+  void fillOverview(const string& query)
   {
     response_.retrieveAll();
     Timestamp now = Timestamp::now();
-    appendResponse("<html><head><title>%s on %s</title></head><body>\n",
+    appendResponse("<html><head><title>%s on %s</title>\n",
                    procname_.c_str(), hostname_.c_str());
+    fillRefresh(query);
+    appendResponse("</head><body>\n");
 
     string stat = readProcFile("stat");
     if (stat.empty())
@@ -211,6 +213,11 @@ class Procmon : boost::noncopyable
     StringPiece procname = ProcessInfo::procname(stat);
     appendResponse("<h1>%s on %s</h1>\n",
                    procname.as_string().c_str(), hostname_.c_str());
+    response_.append("<p>Refresh <a href=\"?refresh=1\">1s</a> ");
+    response_.append("<a href=\"?refresh=2\">2s</a> ");
+    response_.append("<a href=\"?refresh=5\">5s</a> ");
+    response_.append("<a href=\"?refresh=15\">15s</a> ");
+    response_.append("<a href=\"?refresh=60\">60s</a>\n");
     response_.append("<p><a href=\"/cmdline\">Command line</a>\n");
     response_.append("<a href=\"/environ\">Environment variables</a>\n");
     response_.append("<a href=\"/threads\">Threads</a>\n");
@@ -236,7 +243,7 @@ class Procmon : boost::noncopyable
     appendTableRow("VmSize (KiB)", statData.vsizeKb);
     appendTableRow("VmRSS (KiB)", statData.rssKb);
     appendTableRow("Threads", statData.num_threads);
-    appendTableRow("CPU usage", "<img src=\"/cpu.png\">");
+    appendTableRow("CPU usage", "<img src=\"/cpu.png\" height=\"100\" witdh=\"640\">");
 
     appendTableRow("Priority", statData.priority);
     appendTableRow("Nice", statData.nice);
@@ -247,6 +254,19 @@ class Procmon : boost::noncopyable
 
     response_.append("</table>");
     response_.append("</body></html>");
+  }
+
+  void fillRefresh(const string& query)
+  {
+    size_t p = query.find("refresh=");
+    if (p != string::npos)
+    {
+      int seconds = atoi(query.c_str()+p+8);
+      if (seconds > 0)
+      {
+        appendResponse("<meta http-equiv=\"refresh\" content=\"%d\">\n", seconds);
+      }
+    }
   }
 
   void fillThreads()
