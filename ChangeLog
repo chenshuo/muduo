@@ -1,3 +1,9 @@
+2015-01-30   Shuo Chen  <chenshuo@chenshuo.com>
+  * Add examples/procmon
+  * EventLoop supports set/get context by <zieckey>
+  * Fix bug #107
+  * Version 1.0.5
+
 2014-10-05   Shuo Chen  <chenshuo@chenshuo.com>
   * Enrich interfaces of EventLoopThreadPool by <zieckey>
   * Buffer supports reading int64_t by <alisper>
