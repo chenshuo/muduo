@@ -427,6 +427,7 @@ class Procmon : boost::noncopyable
   Buffer response_;
 };
 
+// define outline for __attribute__
 int Procmon::appendResponse(const char* fmt, ...)
 {
   char buf[1024];
