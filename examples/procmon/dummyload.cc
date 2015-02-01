@@ -93,8 +93,7 @@ void load(int percent)
 
     CurrentThread::sleepUsec(10*1000); // 10 ms
   }
-
-  // printf(" total %d\n", count);
+  assert(count == percent);
 }
 
 void fixed()
