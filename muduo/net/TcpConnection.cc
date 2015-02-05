@@ -267,7 +267,7 @@ void TcpConnection::forceCloseInLoop()
   }
 }
 
-const char* TcpConnection::stateToString()
+const char* TcpConnection::stateToString() const
 {
   switch(state_)
   {
