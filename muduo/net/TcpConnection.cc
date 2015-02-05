@@ -68,7 +68,7 @@ TcpConnection::~TcpConnection()
 {
   LOG_DEBUG << "TcpConnection::dtor[" <<  name_ << "] at " << this
             << " fd=" << channel_->fd()
-            << " state=" << state_;
+            << " state=" << stateString();
   assert(state_ == kDisconnected);
 }
 
@@ -267,6 +267,23 @@ void TcpConnection::forceCloseInLoop()
   }
 }
 
+const char* TcpConnection::stateString()
+{
+  switch(state_)
+  {
+    case kDisconnected:
+      return "kDisconnected";
+    case kConnecting:
+      return "kConnecting";
+    case kConnected:
+      return "kConnected";
+    case kDisconnecting:
+      return "kDisconnecting";
+    default:
+      return "unknown state";
+  }
+}
+
 void TcpConnection::setTcpNoDelay(bool on)
 {
   socket_->setTcpNoDelay(on);
@@ -360,7 +377,7 @@ void TcpConnection::handleWrite()
 void TcpConnection::handleClose()
 {
   loop_->assertInLoopThread();
-  LOG_TRACE << "fd = " << channel_->fd() << " state = " << state_;
+  LOG_TRACE << "fd = " << channel_->fd() << " state = " << stateString();
   assert(state_ == kConnected || state_ == kDisconnecting);
   // we don't close fd, leave it to dtor, so we can find leaks easily.
   setState(kDisconnected);

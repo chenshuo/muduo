@@ -123,6 +123,7 @@ class TcpConnection : boost::noncopyable,
   // void shutdownAndForceCloseInLoop(double seconds);
   void forceCloseInLoop();
   void setState(StateE s) { state_ = s; }
+  const char* stateString();
 
   EventLoop* loop_;
   const string name_;
