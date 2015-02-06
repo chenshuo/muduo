@@ -2,7 +2,7 @@
 #include "MemcacheServer.h"
 
 #ifdef HAVE_TCMALLOC
-#include <google/malloc_extension.h>
+#include <gperftools/malloc_extension.h>
 #endif
 
 using namespace muduo;

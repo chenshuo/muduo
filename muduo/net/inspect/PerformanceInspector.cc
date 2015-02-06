@@ -13,8 +13,8 @@
 #include <muduo/base/ProcessInfo.h>
 
 #ifdef HAVE_TCMALLOC
-#include <google/malloc_extension.h>
-#include <google/profiler.h>
+#include <gperftools/malloc_extension.h>
+#include <gperftools/profiler.h>
 
 using namespace muduo;
 using namespace muduo::net;
