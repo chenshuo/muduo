@@ -93,6 +93,7 @@ void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
                                           localAddr,
                                           peerAddr));
   connections_[connName] = conn;
+  conn->setDirection(TcpConnection::kIncomming);
   conn->setConnectionCallback(connectionCallback_);
   conn->setMessageCallback(messageCallback_);
   conn->setWriteCompleteCallback(writeCompleteCallback_);
