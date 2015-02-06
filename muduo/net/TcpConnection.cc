@@ -45,11 +45,13 @@ TcpConnection::TcpConnection(EventLoop* loop,
   : loop_(CHECK_NOTNULL(loop)),
     name_(nameArg),
     state_(kConnecting),
+    direction_(kOutgoing),
     socket_(new Socket(sockfd)),
     channel_(new Channel(loop, sockfd)),
     localAddr_(localAddr),
     peerAddr_(peerAddr),
-    highWaterMark_(64*1024*1024)
+    highWaterMark_(64*1024*1024),
+    forceCloseDelaySeconds_(10.0)
 {
   channel_->setReadCallback(
       boost::bind(&TcpConnection::handleRead, this, _1));
@@ -324,7 +326,20 @@ void TcpConnection::handleRead(Timestamp receiveTime)
   }
   else if (n == 0)
   {
-    handleClose();
+    if (direction_ == kOutgoing)
+    {
+      handleClose();
+    }
+    else
+    {
+      // incoming connection - we need to leave the request on the
+      // connection so that we can reply to it.
+      channel_->disableReading();
+      LOG_DEBUG << "channel (fd=" << channel_->fd() << ") disableReading";
+      loop_->runAfter(
+            forceCloseDelaySeconds_,
+            makeWeakCallback(shared_from_this(), &TcpConnection::forceClose));
+    }
   }
   else
   {

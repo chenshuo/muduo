@@ -43,6 +43,8 @@ class TcpConnection : boost::noncopyable,
                       public boost::enable_shared_from_this<TcpConnection>
 {
  public:
+  enum DirectionE { kOutgoing, kIncomming };
+
   /// Constructs a TcpConnection with a connected sockfd
   ///
   /// User should not create this object.
@@ -94,6 +96,9 @@ class TcpConnection : boost::noncopyable,
   void setHighWaterMarkCallback(const HighWaterMarkCallback& cb, size_t highWaterMark)
   { highWaterMarkCallback_ = cb; highWaterMark_ = highWaterMark; }
 
+  void setForceCloseDelaySeconds(double seconds)
+  { forceCloseDelaySeconds_ = seconds; }
+
   /// Advanced interface
   Buffer* inputBuffer()
   { return &inputBuffer_; }
@@ -105,7 +110,12 @@ class TcpConnection : boost::noncopyable,
   void setCloseCallback(const CloseCallback& cb)
   { closeCallback_ = cb; }
 
+  // Internal use only.
   // called when TcpServer accepts a new connection
+  void setDirection(DirectionE d)
+  { direction_ = d; }
+
+  // called when TcpServer accepts a new connection or TcpClient establishes a connection
   void connectEstablished();   // should be called only once
   // called when TcpServer has removed me from its map
   void connectDestroyed();  // should be called only once
@@ -128,6 +138,7 @@ class TcpConnection : boost::noncopyable,
   EventLoop* loop_;
   const string name_;
   StateE state_;  // FIXME: use atomic variable
+  DirectionE direction_;
   // we don't expose those classes to client.
   boost::scoped_ptr<Socket> socket_;
   boost::scoped_ptr<Channel> channel_;
@@ -142,6 +153,7 @@ class TcpConnection : boost::noncopyable,
   Buffer inputBuffer_;
   Buffer outputBuffer_; // FIXME: use list<Buffer> as output buffer.
   boost::any context_;
+  double forceCloseDelaySeconds_;
   // FIXME: creationTime_, lastReceiveTime_
   //        bytesReceived_, bytesSent_
 };
