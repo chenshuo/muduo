@@ -5,6 +5,9 @@
 
 #include <muduo/base/Date.h>
 #include <stdio.h>  // snprintf
+#ifdef _LIBCPP_VERSION
+#include <time.h>
+#endif
 
 namespace muduo
 {

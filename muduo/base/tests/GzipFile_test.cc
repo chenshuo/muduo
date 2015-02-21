@@ -2,6 +2,10 @@
 
 #include <muduo/base/Logging.h>
 
+#ifdef _LIBCPP_VERSION
+#include <errno.h>
+#endif
+
 int main()
 {
   const char* filename = "/tmp/gzipfile_test.gz";

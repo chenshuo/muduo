@@ -1,8 +1,17 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index a3066c5..9728303 100644
+index d46e1e7..27a243c 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -16,6 +16,7 @@
+@@ -11,13 +11,15 @@ endif()
+ set(CXX_FLAGS
+  -g
+  # -DVALGRIND
+- # -DMUDUO_STD_STRING
++ -DMUDUO_STD_STRING
++ -stdlib=libc++
+  -DCHECK_PTHREAD_RETURN_VALUE
+  -D_FILE_OFFSET_BITS=64
+  -Wall
   -Wextra
   -Werror
   -Wconversion
@@ -10,7 +19,7 @@ index a3066c5..9728303 100644
   -Wno-unused-parameter
   -Wold-style-cast
   -Woverloaded-virtual
-@@ -25,16 +26,15 @@
+@@ -27,16 +29,15 @@ set(CXX_FLAGS
   -march=native
   # -MMD
   # -std=c++0x
