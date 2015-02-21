@@ -2,9 +2,7 @@
 
 #include <muduo/base/Logging.h>
 
-#ifdef _LIBCPP_VERSION
 #include <errno.h>
-#endif
 
 int main()
 {

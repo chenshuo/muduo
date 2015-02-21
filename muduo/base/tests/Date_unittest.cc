@@ -1,9 +1,7 @@
 #include <muduo/base/Date.h>
 #include <assert.h>
 #include <stdio.h>
-#ifdef _LIBCPP_VERSION
 #include <time.h>
-#endif
 
 using muduo::Date;
 

@@ -2,9 +2,7 @@
 
 #include <sys/time.h>
 #include <stdio.h>
-#ifdef _LIBCPP_VERSION
 #include <time.h>
-#endif
 
 #ifndef __STDC_FORMAT_MACROS
 #define __STDC_FORMAT_MACROS
