@@ -38,6 +38,8 @@ class EPollPoller : public Poller
  private:
   static const int kInitEventListSize = 16;
 
+  string opToString(int op) const;
+
   void fillActiveChannels(int numEvents,
                           ChannelList* activeChannels) const;
   void update(int operation, Channel* channel);
