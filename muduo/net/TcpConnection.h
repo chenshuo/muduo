@@ -58,6 +58,7 @@ class TcpConnection : boost::noncopyable,
   const InetAddress& localAddress() const { return localAddr_; }
   const InetAddress& peerAddress() const { return peerAddr_; }
   bool connected() const { return state_ == kConnected; }
+  bool disconnected() const { return state_ == kDisconnected; }
   // return true if success.
   bool getTcpInfo(struct tcp_info*) const;
   string getTcpInfoString() const;
