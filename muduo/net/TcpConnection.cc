@@ -269,7 +269,7 @@ void TcpConnection::forceCloseInLoop()
 
 const char* TcpConnection::stateToString() const
 {
-  switch(state_)
+  switch (state_)
   {
     case kDisconnected:
       return "kDisconnected";

@@ -83,6 +83,7 @@ class Channel : boost::noncopyable
 
   // for debug
   string reventsToString() const;
+  string eventsToString() const;
 
   void doNotLogHup() { logHup_ = false; }
 
@@ -90,6 +91,8 @@ class Channel : boost::noncopyable
   void remove();
 
  private:
+  static string eventsToString(int fd, int ev);
+
   void update();
   void handleEventWithGuard(Timestamp receiveTime);
 
