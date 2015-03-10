@@ -69,6 +69,7 @@ class Client : boost::noncopyable
     else
     {
       conn_.reset();
+      client_.getLoop()->queueInLoop(boost::bind(&CountDownLatch::countDown, finished_));
     }
   }
 
@@ -121,7 +122,6 @@ class Client : boost::noncopyable
     if (acked_ == requests_)
     {
       conn_->shutdown();
-      finished_->countDown();
     }
   }
 
