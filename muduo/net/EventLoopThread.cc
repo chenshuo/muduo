@@ -16,10 +16,11 @@ using namespace muduo;
 using namespace muduo::net;
 
 
-EventLoopThread::EventLoopThread(const ThreadInitCallback& cb)
+EventLoopThread::EventLoopThread(const ThreadInitCallback& cb,
+                                 const string& name)
   : loop_(NULL),
     exiting_(false),
-    thread_(boost::bind(&EventLoopThread::threadFunc, this), "EventLoopThread"), // FIXME: number it
+    thread_(boost::bind(&EventLoopThread::threadFunc, this), name),
     mutex_(),
     cond_(mutex_),
     callback_(cb)

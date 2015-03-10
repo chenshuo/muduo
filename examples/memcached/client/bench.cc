@@ -196,7 +196,7 @@ int main(int argc, char* argv[])
   LOG_WARN << "Connecting " << serverAddr.toIpPort();
 
   EventLoop loop;
-  EventLoopThreadPool pool(&loop);
+  EventLoopThreadPool pool(&loop, "bench-memcache");
 
   int valuelen = 100;
   Client::Operation op = set ? Client::kSet : Client::kGet;

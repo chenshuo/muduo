@@ -11,6 +11,8 @@
 #ifndef MUDUO_NET_EVENTLOOPTHREADPOOL_H
 #define MUDUO_NET_EVENTLOOPTHREADPOOL_H
 
+#include <muduo/base/Types.h>
+
 #include <vector>
 #include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
@@ -30,7 +32,7 @@ class EventLoopThreadPool : boost::noncopyable
  public:
   typedef boost::function<void(EventLoop*)> ThreadInitCallback;
 
-  EventLoopThreadPool(EventLoop* baseLoop);
+  EventLoopThreadPool(EventLoop* baseLoop, const string& name);
   ~EventLoopThreadPool();
   void setThreadNum(int numThreads) { numThreads_ = numThreads; }
   void start(const ThreadInitCallback& cb = ThreadInitCallback());
@@ -50,6 +52,7 @@ class EventLoopThreadPool : boost::noncopyable
  private:
 
   EventLoop* baseLoop_;
+  string name_;
   bool started_;
   int numThreads_;
   int next_;
