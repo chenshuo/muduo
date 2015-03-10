@@ -115,7 +115,7 @@ int main(int argc, char* argv[])
     CountDownLatch allFinished(nClients);
 
     EventLoop loop;
-    EventLoopThreadPool pool(&loop);
+    EventLoopThreadPool pool(&loop, "rpcbench-client");
     pool.setThreadNum(nThreads);
     pool.start();
     InetAddress serverAddr(argv[1], 8888);
