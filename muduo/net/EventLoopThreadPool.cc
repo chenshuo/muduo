@@ -19,9 +19,9 @@ using namespace muduo;
 using namespace muduo::net;
 
 
-EventLoopThreadPool::EventLoopThreadPool(EventLoop* baseLoop, const string& name)
+EventLoopThreadPool::EventLoopThreadPool(EventLoop* baseLoop, const string& nameArg)
   : baseLoop_(baseLoop),
-    name_(name),
+    name_(nameArg),
     started_(false),
     numThreads_(0),
     next_(0)
