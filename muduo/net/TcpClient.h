@@ -31,7 +31,7 @@ class TcpClient : boost::noncopyable
   // TcpClient(EventLoop* loop, const string& host, uint16_t port);
   TcpClient(EventLoop* loop,
             const InetAddress& serverAddr,
-            const string& name);
+            const string& nameArg);
   ~TcpClient();  // force out-line dtor, for scoped_ptr members.
 
   void connect();
@@ -47,6 +47,9 @@ class TcpClient : boost::noncopyable
   EventLoop* getLoop() const { return loop_; }
   bool retry() const;
   void enableRetry() { retry_ = true; }
+
+  const string& name() const
+  { return name_; }
 
   /// Set connection callback.
   /// Not thread safe.
