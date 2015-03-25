@@ -22,6 +22,7 @@ struct Node
 const int kMaxNodes = 1 + 81*4 + 9*9*9*4;
 // const int kMaxColumns = 400;
 const int kRow = 100, kCol = 200, kBox = 300;
+extern const char kNoSolution[] = "NoSolution";
 
 class SudokuSolver
 {
@@ -260,7 +261,7 @@ string solveSudoku(const StringPiece& puzzle)
 {
   assert(puzzle.size() == kCells);
 
-  string result = "NoSolution";
+  string result = kNoSolution;
 
   int board[kCells] = { 0 };
   bool valid = true;
