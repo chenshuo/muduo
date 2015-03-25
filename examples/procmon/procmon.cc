@@ -363,9 +363,9 @@ class Procmon : boost::noncopyable
 
   static const char* getState(char state)
   {
-    // One  character  from  the  string  "RSDZTW"  where R is running, S is sleeping in an
-    // interruptible wait, D is waiting in uninterruptible disk sleep, Z is  zombie,  T  is
-    // traced or stopped (on a signal), and W is paging.
+    // One character from the string "RSDZTW" where R is running, S is sleeping in
+    // an interruptible wait, D is waiting in uninterruptible disk sleep, Z is zombie,
+    // T is traced or stopped (on a signal), and W is paging.
     switch (state)
     {
       case 'R':
