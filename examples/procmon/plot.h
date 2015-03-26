@@ -9,7 +9,7 @@ class Plot : boost::noncopyable
  public:
   Plot(int width, int height, int totalSeconds, int samplingPeriod);
   ~Plot();
-  muduo::string plotCpu(const std::vector<double> data);
+  muduo::string plotCpu(const std::vector<double>& data);
 
  private:
   muduo::string toPng();
