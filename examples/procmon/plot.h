@@ -9,12 +9,12 @@ class Plot : boost::noncopyable
  public:
   Plot(int width, int height, int totalSeconds, int samplingPeriod);
   ~Plot();
-  muduo::string plotCpu(const std::vector<double> data);
+  muduo::string plotCpu(const std::vector<double>& data);
 
  private:
   muduo::string toPng();
   // pair<shared_ptr<void*>, int> toPng();
-  int getX(long x, long total) const;
+  int getX(ssize_t x, ssize_t total) const;
   int getY(double value) const;
   void label(double maxValue);
 
