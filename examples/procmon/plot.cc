@@ -32,7 +32,7 @@ Plot::~Plot()
   gdImageDestroy(image_);
 }
 
-muduo::string Plot::plotCpu(const std::vector<double> data)
+muduo::string Plot::plotCpu(const std::vector<double>& data)
 {
   gdImageFilledRectangle(image_, 0, 0, width_, height_, background_);
   if (data.size() > 1)
