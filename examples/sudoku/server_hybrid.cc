@@ -14,39 +14,13 @@
 #include <boost/circular_buffer.hpp>
 #include <boost/noncopyable.hpp>
 
-//#include <utility>
-
-#include <stdio.h>
-#include <unistd.h>
+//#include <stdio.h>
+//#include <unistd.h>
 
 using namespace muduo;
 using namespace muduo::net;
 
-class SudokuStat : boost::noncopyable
-{
- public:
-  string status() // const
-  {
-    // total requests
-    // requests in last minute
-    // latency in last minute
-    return "";
-  }
-
-  void recordResponse(Timestamp now, Timestamp receive, bool solved)
-  {
-    // int64_t elapsed_us = now.microSecondsSinceEpoch() - receive.microSecondsSinceEpoch();
-
-  }
-
-  void recordBadRequest()
-  {
-  }
-
- private:
-  MutexLock mutex_;
-  boost::circular_buffer<int64_t> requests_;
-};
+#include "stat.h"
 
 class SudokuServer : boost::noncopyable
 {
@@ -56,8 +30,11 @@ class SudokuServer : boost::noncopyable
                int numEventLoops,
                int numThreads)
     : server_(loop, listenAddr, "SudokuServer"),
+      threadPool_(),
       numThreads_(numThreads),
       startTime_(Timestamp::now()),
+      stat_(threadPool_),
+      inspectThread_(),
       inspector_(inspectThread_.startLoop(), InetAddress(9982), "sudoku-solver")
   {
     LOG_INFO << "Use " << numEventLoops << " IO threads.";
@@ -67,8 +44,10 @@ class SudokuServer : boost::noncopyable
     server_.setMessageCallback(
         boost::bind(&SudokuServer::onMessage, this, _1, _2, _3));
     server_.setThreadNum(numEventLoops);
-    inspector_.add("sudoku", "status", boost::bind(&SudokuServer::status, this, _1, _2),
-                   "status of sudoku solver");
+    inspector_.add("sudoku", "stats", boost::bind(&SudokuStat::report, &stat_),
+                   "statistics of sudoku solver");
+    inspector_.add("sudoku", "reset", boost::bind(&SudokuStat::reset, &stat_),
+                   "reset statistics of sudoku solver");
   }
 
   void start()
@@ -169,17 +148,12 @@ class SudokuServer : boost::noncopyable
     stat_.recordResponse(Timestamp::now(), req.receiveTime, result != kNoSolution);
   }
 
-  string status(HttpRequest::Method, const std::vector<string>& args)
-  {
-    return stat_.status();
-  }
-
   TcpServer server_;
   ThreadPool threadPool_;
   const int numThreads_;
   const Timestamp startTime_;
-  SudokuStat stat_;
 
+  SudokuStat stat_;
   EventLoopThread inspectThread_;
   Inspector inspector_;
 };

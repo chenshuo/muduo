@@ -62,6 +62,12 @@ void ThreadPool::stop()
            boost::bind(&muduo::Thread::join, _1));
 }
 
+size_t ThreadPool::queueSize() const
+{
+  MutexLockGuard lock(mutex_);
+  return queue_.size();
+}
+
 void ThreadPool::run(const Task& task)
 {
   if (threads_.empty())
