@@ -1,6 +1,7 @@
 #include <muduo/base/Types.h>
 #include <vector>
 #include <boost/noncopyable.hpp>
+#include <stdlib.h> // ssize_t
 
 typedef struct gdImageStruct* gdImagePtr;
 
