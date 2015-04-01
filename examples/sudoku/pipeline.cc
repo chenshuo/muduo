@@ -19,20 +19,6 @@ using namespace muduo::net;
 typedef std::vector<string> Input;
 typedef boost::shared_ptr<const Input> InputPtr;
 
-InputPtr readInput(std::istream& in)
-{
-  boost::shared_ptr<Input> input(new Input);
-  std::string line;
-  while (getline(in, line))
-  {
-    if (line.size() == implicit_cast<size_t>(kCells))
-    {
-      input->push_back(line.c_str());
-    }
-  }
-  return input;
-}
-
 class SudokuClient : boost::noncopyable
 {
  public:
@@ -40,8 +26,10 @@ class SudokuClient : boost::noncopyable
                const InetAddress& serverAddr,
                const InputPtr& input,
                const string& name,
+               int pipelines,
                bool nodelay)
     : name_(name),
+      pipelines_(pipelines),
       tcpNoDelay_(nodelay),
       client_(loop, serverAddr, name_),
       input_(input),
@@ -56,27 +44,6 @@ class SudokuClient : boost::noncopyable
   void connect()
   {
     client_.connect();
-  }
-
-  void send(int n)
-  {
-    assert(n > 0);
-    if (!conn_)
-      return;
-
-    Timestamp now(Timestamp::now());
-    for (int i = 0; i < n; ++i)
-    {
-      char buf[256];
-      const string& req = (*input_)[count_ % input_->size()];
-      int len = snprintf(buf, sizeof buf, "%s-%08d:%s\r\n",
-                         name_.c_str(), count_, req.c_str());
-      requests_.append(buf, len);
-      sendTime_[count_] = now;
-      ++count_;
-    }
-
-    conn_->send(&requests_);
   }
 
   void report(std::vector<int>* latency, int* infly)
@@ -95,6 +62,7 @@ class SudokuClient : boost::noncopyable
       if (tcpNoDelay_)
         conn->setTcpNoDelay(true);
       conn_ = conn;
+      send(pipelines_);
     }
     else
     {
@@ -102,6 +70,24 @@ class SudokuClient : boost::noncopyable
       conn_.reset();
       // FIXME: exit
     }
+  }
+
+  void send(int n)
+  {
+    Timestamp now(Timestamp::now());
+    Buffer requests;
+    for (int i = 0; i < n; ++i)
+    {
+      char buf[256];
+      const string& req = (*input_)[count_ % input_->size()];
+      int len = snprintf(buf, sizeof buf, "%s-%08d:%s\r\n",
+                         name_.c_str(), count_, req.c_str());
+      requests.append(buf, len);
+      sendTime_[count_] = now;
+      ++count_;
+    }
+
+    conn_->send(&requests);
   }
 
   void onMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp recvTime)
@@ -115,7 +101,11 @@ class SudokuClient : boost::noncopyable
         string response(buf->peek(), crlf);
         buf->retrieveUntil(crlf + 2);
         len = buf->readableBytes();
-        if (!verify(response, recvTime))
+        if (verify(response, recvTime))
+        {
+          send(1);
+        }
+        else
         {
           LOG_ERROR << "Bad response:" << response;
           conn->shutdown();
@@ -162,116 +152,101 @@ class SudokuClient : boost::noncopyable
   }
 
   const string name_;
+  const int pipelines_;
   const bool tcpNoDelay_;
   TcpClient client_;
   TcpConnectionPtr conn_;
-  Buffer requests_;
   const InputPtr input_;
   int count_;
   boost::unordered_map<int, Timestamp> sendTime_;
   std::vector<int> latencies_;
 };
 
-class SudokuLoadtest : boost::noncopyable
+int getPercentile(const std::vector<int>& latencies, int percent)
 {
- public:
-  SudokuLoadtest()
-    : ticks_(0),
-      sofar_(0)
+  // The Nearest Rank method
+  assert(latencies.size() > 0);
+  size_t idx = 0;
+  if (percent > 0)
   {
+    idx = (latencies.size() * percent + 99) / 100 - 1;
+    assert(idx < latencies.size());
+  }
+  return latencies[idx];
+}
+
+void report(boost::ptr_vector<SudokuClient>* clients)
+{
+  std::vector<int> latencies;
+  int infly = 0;
+  for (boost::ptr_vector<SudokuClient>::iterator it = clients->begin();
+       it != clients->end(); ++it)
+  {
+    it->report(&latencies, &infly);
   }
 
-  void runClient(const InputPtr& input, const InetAddress& serverAddr, int rps, int conn, bool nodelay)
+  LogStream stat;
+  stat << "recv " << Fmt("%6zd", latencies.size()) << " in-fly " << infly;
+
+  if (!latencies.empty())
   {
-    EventLoop loop;
-
-    for (int i = 0; i < conn; ++i)
-    {
-      Fmt f("c%04d", i+1);
-      string name(f.data(), f.length());
-      clients_.push_back(new SudokuClient(&loop, serverAddr, input, name, nodelay));
-      clients_.back().connect();
-    }
-
-    loop.runEvery(1.0 / kHz, boost::bind(&SudokuLoadtest::tick, this, rps));
-    loop.runEvery(1.0, boost::bind(&SudokuLoadtest::tock, this));
-    loop.loop();
+    std::sort(latencies.begin(), latencies.end());
+    int min = latencies.front();
+    int max = latencies.back();
+    int sum = std::accumulate(latencies.begin(), latencies.end(), 0);
+    int mean = sum / static_cast<int>(latencies.size());
+    int median = getPercentile(latencies, 50);
+    int p90 = getPercentile(latencies, 90);
+    int p99 = getPercentile(latencies, 99);
+    stat << " min " << min
+         << " max " << max
+         << " avg " << mean
+         << " median " << median
+         << " p90 " << p90
+         << " p99 " << p99;
   }
 
- private:
-  void tick(int rps)
-  {
-    ++ticks_;
-    int64_t reqs = rps * ticks_ / kHz - sofar_;
-    sofar_ += reqs;
+  LOG_INFO << stat.buffer();
+}
 
-    if (reqs > 0)
+InputPtr readInput(std::istream& in)
+{
+  boost::shared_ptr<Input> input(new Input);
+  std::string line;
+  while (getline(in, line))
+  {
+    if (line.size() == implicit_cast<size_t>(kCells))
     {
-      for (boost::ptr_vector<SudokuClient>::iterator it = clients_.begin();
-           it != clients_.end(); ++it)
-      {
-        it->send(static_cast<int>(reqs));
-      }
+      input->push_back(line.c_str());
     }
   }
+  return input;
+}
 
-  void tock()
+void runClient(const InputPtr& input,
+               const InetAddress& serverAddr,
+               int conn,
+               int pipelines,
+               bool nodelay)
+{
+  EventLoop loop;
+  boost::ptr_vector<SudokuClient> clients;
+  for (int i = 0; i < conn; ++i)
   {
-    std::vector<int> latencies;
-    int infly = 0;
-    for (boost::ptr_vector<SudokuClient>::iterator it = clients_.begin();
-         it != clients_.end(); ++it)
-    {
-      it->report(&latencies, &infly);
-    }
-
-    LogStream stat;
-    stat << "recv " << Fmt("%6zd", latencies.size()) << " in-fly " << infly;
-
-    if (!latencies.empty())
-    {
-      std::sort(latencies.begin(), latencies.end());
-      int min = latencies.front();
-      int max = latencies.back();
-      int sum = std::accumulate(latencies.begin(), latencies.end(), 0);
-      int mean = sum / static_cast<int>(latencies.size());
-      int median = getPercentile(latencies, 50);
-      int p90 = getPercentile(latencies, 90);
-      int p99 = getPercentile(latencies, 99);
-      stat << " min " << min
-           << " max " << max
-           << " avg " << mean
-           << " median " << median
-           << " p90 " << p90
-           << " p99 " << p99;
-    }
-
-    LOG_INFO << stat.buffer();
+    Fmt f("c%04d", i+1);
+    string name(f.data(), f.length());
+    clients.push_back(new SudokuClient(&loop, serverAddr, input, name, pipelines, nodelay));
+    clients.back().connect();
   }
 
-  int getPercentile(const std::vector<int>& latencies, int percent)
-  {
-    // The Nearest Rank method
-    assert(latencies.size() > 0);
-    size_t idx = 0;
-    if (percent > 0)
-    {
-      idx = (latencies.size() * percent + 99) / 100 - 1;
-      assert(idx < latencies.size());
-    }
-    return latencies[idx];
-  }
-
-  boost::ptr_vector<SudokuClient> clients_;
-  int64_t ticks_;
-  int64_t sofar_;
-  static const int kHz = 100;
-};
+  loop.runEvery(1.0, boost::bind(report, &clients));
+  loop.loop();
+}
 
 int main(int argc, char* argv[])
 {
   int conn = 1;
-  int rps = 100;
+  int pipelines = 1;
   bool nodelay = false;
   InetAddress serverAddr("127.0.0.1", 9981);
   switch (argc)
@@ -280,10 +255,10 @@ int main(int argc, char* argv[])
       nodelay = string(argv[5]) == "-n";
       // FALL THROUGH
     case 5:
-      conn = atoi(argv[4]);
+      pipelines = atoi(argv[4]);
       // FALL THROUGH
     case 4:
-      rps = atoi(argv[3]);
+      conn = atoi(argv[3]);
       // FALL THROUGH
     case 3:
       serverAddr = InetAddress(argv[2], 9981);
@@ -291,7 +266,7 @@ int main(int argc, char* argv[])
     case 2:
       break;
     default:
-      printf("Usage: %s input server_ip [requests_per_second] [connections] [-n]\n", argv[0]);
+      printf("Usage: %s input server_ip [connections] [pipelines] [-n]\n", argv[0]);
       return 0;
   }
 
@@ -300,8 +275,7 @@ int main(int argc, char* argv[])
   {
     InputPtr input(readInput(in));
     printf("%zd requests from %s\n", input->size(), argv[1]);
-    SudokuLoadtest test;
-    test.runClient(input, serverAddr, rps, conn, nodelay);
+    runClient(input, serverAddr, conn, pipelines, nodelay);
   }
   else
   {
