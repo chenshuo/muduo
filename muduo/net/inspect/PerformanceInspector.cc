@@ -89,7 +89,7 @@ string PerformanceInspector::memhistogram(HttpRequest::Method, const Inspector::
   s << "blocks " << blocks << "\ntotal " << total << "\n";
   for (int i = 0; i < kMallocHistogramSize; ++i)
     s << i << " " << histogram[i] << "\n";
-  return s.buffer().asString();
+  return s.buffer().toString();
 }
 
 string PerformanceInspector::releaseFreeMemory(HttpRequest::Method, const Inspector::ArgList&)

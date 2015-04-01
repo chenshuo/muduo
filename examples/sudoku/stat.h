@@ -55,7 +55,7 @@ class SudokuStat : boost::noncopyable
     int64_t latencyAvg = totalResponses_ == 0 ? 0 : totalLatency_ / totalResponses_;
     result << "latency_us_avg " << latencyAvg << '\n';
     }
-    return result.buffer().asString();
+    return result.buffer().toString();
   }
 
   string reset()
