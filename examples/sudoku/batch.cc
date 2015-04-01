@@ -57,7 +57,7 @@ InputPtr readInput(std::istream& in)
   return input;
 }
 
-typedef boost::function<void(const string&, double)> DoneCallback;
+typedef boost::function<void(const string&, double, int)> DoneCallback;
 
 class SudokuClient : boost::noncopyable
 {
@@ -139,11 +139,11 @@ class SudokuClient : boost::noncopyable
       }
     }
 
-    if (count_ == input_->size())
+    if (count_ == static_cast<int>(input_->size()))
     {
       LOG_INFO << name_ << " done.";
       double elapsed = timeDifference(Timestamp::now(), start_);
-      cb_(name_, elapsed);
+      cb_(name_, elapsed, count_);
       conn->shutdown();
     }
   }
@@ -152,7 +152,7 @@ class SudokuClient : boost::noncopyable
   TcpClient client_;
   InputPtr input_;
   DoneCallback cb_;
-  size_t count_;
+  int count_;
   Timestamp start_;
 };
 
@@ -161,9 +161,11 @@ int g_connections;
 int g_finished;
 EventLoop* g_loop;
 
-void done(const string& name, double elapsed)
+void done(const string& name, double elapsed, int count)
 {
-  LOG_INFO << name << " " << elapsed << " seconds";
+  LOG_INFO << name << " " << elapsed << " seconds "
+           << Fmt("%.3f", 1000 * 1000 * elapsed / count)
+           << " us per request.";
   ++g_finished;
   if (g_finished == g_connections)
   {
