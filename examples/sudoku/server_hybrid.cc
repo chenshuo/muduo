@@ -28,22 +28,26 @@ class SudokuServer : boost::noncopyable
   SudokuServer(EventLoop* loop,
                const InetAddress& listenAddr,
                int numEventLoops,
-               int numThreads)
+               int numThreads,
+               bool nodelay)
     : server_(loop, listenAddr, "SudokuServer"),
       threadPool_(),
       numThreads_(numThreads),
+      tcpNoDelay_(nodelay),
       startTime_(Timestamp::now()),
       stat_(threadPool_),
       inspectThread_(),
       inspector_(inspectThread_.startLoop(), InetAddress(9982), "sudoku-solver")
   {
     LOG_INFO << "Use " << numEventLoops << " IO threads.";
+    LOG_INFO << "TCP no delay " << nodelay;
 
     server_.setConnectionCallback(
         boost::bind(&SudokuServer::onConnection, this, _1));
     server_.setMessageCallback(
         boost::bind(&SudokuServer::onMessage, this, _1, _2, _3));
     server_.setThreadNum(numEventLoops);
+
     inspector_.add("sudoku", "stats", boost::bind(&SudokuStat::report, &stat_),
                    "statistics of sudoku solver");
     inspector_.add("sudoku", "reset", boost::bind(&SudokuStat::reset, &stat_),
@@ -63,6 +67,8 @@ class SudokuServer : boost::noncopyable
     LOG_TRACE << conn->peerAddress().toIpPort() << " -> "
         << conn->localAddress().toIpPort() << " is "
         << (conn->connected() ? "UP" : "DOWN");
+    if (conn->connected() && tcpNoDelay_)
+      conn->setTcpNoDelay(true);
   }
 
   void onMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp receiveTime)
@@ -151,6 +157,7 @@ class SudokuServer : boost::noncopyable
   TcpServer server_;
   ThreadPool threadPool_;
   const int numThreads_;
+  const bool tcpNoDelay_;
   const Timestamp startTime_;
 
   SudokuStat stat_;
@@ -160,9 +167,11 @@ class SudokuServer : boost::noncopyable
 
 int main(int argc, char* argv[])
 {
+  LOG_INFO << argv[0] << " [number of IO threads] [number of worker threads] [-n]";
   LOG_INFO << "pid = " << getpid() << ", tid = " << CurrentThread::tid();
   int numEventLoops = 0;
   int numThreads = 0;
+  bool nodelay = false;
   if (argc > 1)
   {
     numEventLoops = atoi(argv[1]);
@@ -171,10 +180,14 @@ int main(int argc, char* argv[])
   {
     numThreads = atoi(argv[2]);
   }
+  if (argc > 3 && string(argv[3]) == "-n")
+  {
+    nodelay = true;
+  }
 
   EventLoop loop;
   InetAddress listenAddr(9981);
-  SudokuServer server(&loop, listenAddr, numEventLoops, numThreads);
+  SudokuServer server(&loop, listenAddr, numEventLoops, numThreads, nodelay);
 
   server.start();
 

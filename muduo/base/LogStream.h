@@ -152,6 +152,12 @@ class LogStream : boost::noncopyable
     return *this;
   }
 
+  self& operator<<(const Buffer& v)
+  {
+    buffer_.append(v.data(), v.length());
+    return *this;
+  }
+
   void append(const char* data, int len) { buffer_.append(data, len); }
   const Buffer& buffer() const { return buffer_; }
   void resetBuffer() { buffer_.reset(); }

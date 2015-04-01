@@ -6,6 +6,9 @@
 
 using namespace muduo;
 
+// Dancing links algorithm by Donald E. Knuth
+// www-cs-faculty.stanford.edu/~uno/papers/dancing-color.ps.gz
+
 struct Node;
 typedef Node Column;
 struct Node

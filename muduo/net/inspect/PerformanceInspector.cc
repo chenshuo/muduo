@@ -28,6 +28,7 @@ void PerformanceInspector::registerCommands(Inspector* ins)
   ins->add("pprof", "cmdline", PerformanceInspector::cmdline, "get command line");
   ins->add("pprof", "memstats", PerformanceInspector::memstats, "get memory stats");
   ins->add("pprof", "memhistogram", PerformanceInspector::memhistogram, "get memory histogram");
+  ins->add("pprof", "releasefreememory", PerformanceInspector::releaseFreeMemory, "release free memory");
 }
 
 string PerformanceInspector::heap(HttpRequest::Method, const Inspector::ArgList&)
@@ -89,6 +90,15 @@ string PerformanceInspector::memhistogram(HttpRequest::Method, const Inspector::
   for (int i = 0; i < kMallocHistogramSize; ++i)
     s << i << " " << histogram[i] << "\n";
   return s.buffer().asString();
+}
+
+string PerformanceInspector::releaseFreeMemory(HttpRequest::Method, const Inspector::ArgList&)
+{
+  char buf[256];
+  snprintf(buf, sizeof buf, "memory release rate: %f\nAll free memory released.\n",
+           MallocExtension::instance()->GetMemoryReleaseRate());
+  MallocExtension::instance()->ReleaseFreeMemory();
+  return buf;
 }
 
 #endif
