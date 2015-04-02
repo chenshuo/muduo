@@ -67,13 +67,48 @@ class SudokuServer : boost::noncopyable
     LOG_TRACE << conn->peerAddress().toIpPort() << " -> "
         << conn->localAddress().toIpPort() << " is "
         << (conn->connected() ? "UP" : "DOWN");
-    if (conn->connected() && tcpNoDelay_)
-      conn->setTcpNoDelay(true);
+    if (conn->connected())
+    {
+      if (tcpNoDelay_)
+        conn->setTcpNoDelay(true);
+      conn->setHighWaterMarkCallback(
+          boost::bind(&SudokuServer::highWaterMark, this, _1, _2), 5 * 1024 * 1024);
+      bool throttle = false;
+      conn->setContext(throttle);
+    }
+  }
+
+  void highWaterMark(const TcpConnectionPtr& conn, size_t tosend)
+  {
+    LOG_WARN << conn->name() << " high water mark " << tosend;
+    if (tosend < 10 * 1024 * 1024)
+    {
+      conn->setHighWaterMarkCallback(
+          boost::bind(&SudokuServer::highWaterMark, this, _1, _2), 10 * 1024 * 1024);
+      conn->setWriteCompleteCallback(boost::bind(&SudokuServer::writeComplete, this, _1));
+      bool throttle = true;
+      conn->setContext(throttle);
+    }
+    else
+    {
+      conn->send("Bad Request!\r\n");
+      conn->shutdown();  // FIXME: forceClose() ?
+      stat_.recordBadRequest();
+    }
+  }
+
+  void writeComplete(const TcpConnectionPtr& conn)
+  {
+    LOG_INFO << conn->name() << " write complete";
+    conn->setHighWaterMarkCallback(
+        boost::bind(&SudokuServer::highWaterMark, this, _1, _2), 5 * 1024 * 1024);
+    conn->setWriteCompleteCallback(WriteCompleteCallback());
+    bool throttle = false;
+    conn->setContext(throttle);
   }
 
   void onMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp receiveTime)
   {
-    LOG_DEBUG << conn->name();
     size_t len = buf->readableBytes();
     while (len >= kCells + 2)
     {
@@ -134,7 +169,23 @@ class SudokuServer : boost::noncopyable
 
     if (req.puzzle.size() == implicit_cast<size_t>(kCells))
     {
-      threadPool_.run(boost::bind(&SudokuServer::solve, this, conn, req));
+      bool throttle = boost::any_cast<bool>(conn->getContext());
+      if (threadPool_.queueSize() < 1000 * 1000 && !throttle)
+      {
+        threadPool_.run(boost::bind(&SudokuServer::solve, this, conn, req));
+      }
+      else
+      {
+        if (req.id.empty())
+        {
+          conn->send("ServerTooBusy\r\n");
+        }
+        else
+        {
+          conn->send(req.id + ":ServerTooBusy\r\n");
+        }
+        stat_.recordDroppedRequest();
+      }
       return true;
     }
     return false;
