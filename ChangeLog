@@ -1,3 +1,9 @@
+2015-04-03   Shuo Chen  <chenshuo@chenshuo.com>
+  * Fix ProcessInspector::threads().
+  * Minor fixes and improvements from liyuan989 and zieckey.
+  * More Sudoku examples.
+  * Version 1.0.6
+
 2015-01-30   Shuo Chen  <chenshuo@chenshuo.com>
   * Add examples/procmon
   * EventLoop supports set/get context by <zieckey>
