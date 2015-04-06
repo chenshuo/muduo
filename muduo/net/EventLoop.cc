@@ -18,6 +18,7 @@
 #include <boost/bind.hpp>
 
 #include <signal.h>
+#include <errno.h>
 #include <sys/eventfd.h>
 
 using namespace muduo;
@@ -272,21 +273,28 @@ void EventLoop::abortNotInLoopThread()
 
 void EventLoop::wakeup()
 {
-  uint64_t one = 1;
-  ssize_t n = sockets::write(wakeupFd_, &one, sizeof one);
-  if (n != sizeof one)
+  int err;
+  do {
+    err = eventfd_write(wakeupFd_, 1);
+  } while (err == -1 && errno == EINTR);
+
+  if (err != 0)
   {
-    LOG_ERROR << "EventLoop::wakeup() writes " << n << " bytes instead of 8";
+    LOG_ERROR << "EventLoop::wakeup() eventfd_write error";
   }
 }
 
 void EventLoop::handleRead()
 {
-  uint64_t one = 1;
-  ssize_t n = sockets::read(wakeupFd_, &one, sizeof one);
-  if (n != sizeof one)
+  int err;
+  eventfd_t value;
+  do {
+    err = eventfd_read(wakeupFd_, &value);
+  } while (err == -1 && errno == EINTR);
+
+  if (err != 0)
   {
-    LOG_ERROR << "EventLoop::handleRead() reads " << n << " bytes instead of 8";
+    LOG_ERROR << "EventLoop::handleRead() eventfd_read error ";
   }
 }
 
