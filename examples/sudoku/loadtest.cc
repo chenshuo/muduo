@@ -1,6 +1,7 @@
 #include "sudoku.h"
 
 #include <muduo/base/Logging.h>
+#include <muduo/base/FileUtil.h>
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/TcpClient.h>
 
@@ -10,6 +11,8 @@
 
 #include <fstream>
 #include <numeric>
+
+#include "percentile.h"
 
 #include <stdio.h>
 
@@ -176,7 +179,8 @@ class SudokuLoadtest : boost::noncopyable
 {
  public:
   SudokuLoadtest()
-    : ticks_(0),
+    : count_(0),
+      ticks_(0),
       sofar_(0)
   {
   }
@@ -225,44 +229,16 @@ class SudokuLoadtest : boost::noncopyable
       it->report(&latencies, &infly);
     }
 
-    LogStream stat;
-    stat << "recv " << Fmt("%6zd", latencies.size()) << " in-fly " << infly;
-
-    if (!latencies.empty())
-    {
-      std::sort(latencies.begin(), latencies.end());
-      int min = latencies.front();
-      int max = latencies.back();
-      int sum = std::accumulate(latencies.begin(), latencies.end(), 0);
-      int mean = sum / static_cast<int>(latencies.size());
-      int median = getPercentile(latencies, 50);
-      int p90 = getPercentile(latencies, 90);
-      int p99 = getPercentile(latencies, 99);
-      stat << " min " << min
-           << " max " << max
-           << " avg " << mean
-           << " median " << median
-           << " p90 " << p90
-           << " p99 " << p99;
-    }
-
-    LOG_INFO << stat.buffer();
-  }
-
-  int getPercentile(const std::vector<int>& latencies, int percent)
-  {
-    // The Nearest Rank method
-    assert(latencies.size() > 0);
-    size_t idx = 0;
-    if (percent > 0)
-    {
-      idx = (latencies.size() * percent + 99) / 100 - 1;
-      assert(idx < latencies.size());
-    }
-    return latencies[idx];
+    Percentile p(latencies, infly);
+    LOG_INFO << p.report();
+    char buf[64];
+    snprintf(buf, sizeof buf, "l%04d", count_);
+    p.save(latencies, buf);
+    ++count_;
   }
 
   boost::ptr_vector<SudokuClient> clients_;
+  int count_;
   int64_t ticks_;
   int64_t sofar_;
   static const int kHz = 100;
