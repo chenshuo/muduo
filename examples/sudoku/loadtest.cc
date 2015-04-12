@@ -232,7 +232,7 @@ class SudokuLoadtest : boost::noncopyable
     Percentile p(latencies, infly);
     LOG_INFO << p.report();
     char buf[64];
-    snprintf(buf, sizeof buf, "l%04d", count_);
+    snprintf(buf, sizeof buf, "r%04d", count_);
     p.save(latencies, buf);
     ++count_;
   }
