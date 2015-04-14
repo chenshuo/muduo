@@ -85,16 +85,14 @@ class SudokuStat : boost::noncopyable
     ++totalResponses_;
     if (solved)
       ++totalSolved_;
-    if (elapsed_us > 0)
-      totalLatency_ += elapsed_us;
+    totalLatency_ += elapsed_us;
 
     const time_t firstSecond = lastSecond_ - static_cast<ssize_t>(requests_.size()) + 1;
     if (lastSecond_ == second)
     {
       // the most common case
       ++requests_.back();
-      if (elapsed_us > 0)
-        latencies_.back() += elapsed_us;
+      latencies_.back() += elapsed_us;
     }
     else if (lastSecond_ + 1 == second || lastSecond_ == 0)
     {
@@ -103,8 +101,7 @@ class SudokuStat : boost::noncopyable
       requests_.push_back(0);
       latencies_.push_back(0);
       ++requests_.back();
-      if (elapsed_us > 0)
-        latencies_.back() += elapsed_us;
+      latencies_.back() += elapsed_us;
     }
     else if (second > lastSecond_)
     {
@@ -129,8 +126,7 @@ class SudokuStat : boost::noncopyable
         latencies_.push_back(0);
       }
       ++requests_.back();
-      if (elapsed_us > 0)
-        latencies_.back() += elapsed_us;
+      latencies_.back() += elapsed_us;
     }
     else if (second >= firstSecond)
     {
@@ -141,8 +137,7 @@ class SudokuStat : boost::noncopyable
       size_t idx = second - firstSecond;
       assert(idx < requests_.size());
       ++requests_[idx];
-      if (elapsed_us > 0)
-        latencies_[idx] += elapsed_us;
+      latencies_[idx] += elapsed_us;
     }
     else
     {
