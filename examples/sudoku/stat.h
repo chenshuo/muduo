@@ -13,7 +13,8 @@ class SudokuStat : boost::noncopyable
       totalSolved_(0),
       badRequests_(0),
       droppedRequests_(0),
-      totalLatency_(0)
+      totalLatency_(0),
+      badLatency_(0)
   {
   }
 
@@ -31,6 +32,10 @@ class SudokuStat : boost::noncopyable
     result << "bad_requests " << badRequests_ << '\n';
     result << "dropped_requests " << droppedRequests_ << '\n';
     result << "latency_sum_us " << totalLatency_ << '\n';
+    if (badLatency_ > 0)
+    {
+      result << "bad_latency" << badLatency_ << '\n';
+    }
 
     result << "last_second " << lastSecond_ << '\n';
     int64_t requests = 0;
@@ -72,6 +77,7 @@ class SudokuStat : boost::noncopyable
     totalSolved_ = 0;
     badRequests_ = 0;
     totalLatency_ = 0;
+    badLatency_ = 0;
     }
     return "reset done.";
   }
@@ -85,6 +91,11 @@ class SudokuStat : boost::noncopyable
     ++totalResponses_;
     if (solved)
       ++totalSolved_;
+    if (elapsed_us < 0)
+    {
+      ++badLatency_;
+      return;
+    }
     totalLatency_ += elapsed_us;
 
     const time_t firstSecond = lastSecond_ - static_cast<ssize_t>(requests_.size()) + 1;
@@ -176,7 +187,7 @@ class SudokuStat : boost::noncopyable
   time_t lastSecond_;
   boost::circular_buffer<int64_t> requests_;
   boost::circular_buffer<int64_t> latencies_;
-  int64_t totalRequests_, totalResponses_, totalSolved_, badRequests_, droppedRequests_, totalLatency_;
+  int64_t totalRequests_, totalResponses_, totalSolved_, badRequests_, droppedRequests_, totalLatency_, badLatency_;
   // FIXME int128_t for totalLatency_;
 
   static const int kSeconds = 60;
