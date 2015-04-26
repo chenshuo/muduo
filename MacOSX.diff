@@ -305,22 +305,22 @@ index f5e6624..62fbd6f 100644
      if (errorCallback_) errorCallback_();
    }
 +#ifndef POLLRDHUP
-+    const int POLLRDHUP = 0;
++  const int POLLRDHUP = 0;
 +#endif
    if (revents_ & (POLLIN | POLLPRI | POLLRDHUP))
    {
      if (readCallback_) readCallback_(receiveTime);
-@@ -135,8 +138,10 @@ string Channel::eventsToString(int fd, int ev)
+@@ -125,8 +128,10 @@ string Channel::reventsToString() const
      oss << "OUT ";
-   if (ev & POLLHUP)
+   if (revents_ & POLLHUP)
      oss << "HUP ";
 +#ifdef POLLRDHUP
-   if (ev & POLLRDHUP)
+   if (revents_ & POLLRDHUP)
      oss << "RDHUP ";
 +#endif
-   if (ev & POLLERR)
+   if (revents_ & POLLERR)
      oss << "ERR ";
-   if (ev & POLLNVAL)
+   if (revents_ & POLLNVAL)
 diff --git a/muduo/net/Endian.h b/muduo/net/Endian.h
 index b277503..851e449 100644
 --- a/muduo/net/Endian.h
@@ -471,7 +471,7 @@ diff --git a/muduo/net/EventLoop.h b/muduo/net/EventLoop.h
 index 5741961..b03dd67 100644
 --- a/muduo/net/EventLoop.h
 +++ b/muduo/net/EventLoop.h
-@@ -156,7 +156,7 @@ class EventLoop : boost::noncopyable
+@@ -146,7 +146,7 @@ class EventLoop : boost::noncopyable
    Timestamp pollReturnTime_;
    boost::scoped_ptr<Poller> poller_;
    boost::scoped_ptr<TimerQueue> timerQueue_;
