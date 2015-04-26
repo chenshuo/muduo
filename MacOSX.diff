@@ -31,7 +31,7 @@ index d18840f..8c9f075 100644
    list(APPEND CXX_FLAGS "-m32")
  endif()
  string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS}")
- 
+
 -set(CMAKE_CXX_COMPILER "g++")
 +set(CMAKE_CXX_COMPILER "clang++")
  set(CMAKE_CXX_FLAGS_DEBUG "-O0")
@@ -39,13 +39,13 @@ index d18840f..8c9f075 100644
 +set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
  set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
  set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
- 
+
 diff --git a/examples/roundtrip/roundtrip_udp.cc b/examples/roundtrip/roundtrip_udp.cc
 index 5f171b8..d612570 100644
 --- a/examples/roundtrip/roundtrip_udp.cc
 +++ b/examples/roundtrip/roundtrip_udp.cc
 @@ -17,7 +17,12 @@ const size_t frameLen = 2*sizeof(int64_t);
- 
+
  int createNonblockingUDP()
  {
 +#ifndef  __MACH__
@@ -63,18 +63,18 @@ index a4c6ec9..09a6a3a 100644
 +++ b/examples/socks4a/tcprelay.cc
 @@ -1,6 +1,5 @@
  #include "tunnel.h"
- 
+
 -#include <malloc.h>
  #include <stdio.h>
  #include <sys/resource.h>
- 
+
 @@ -43,7 +42,6 @@ void onServerMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp)
- 
+
  void memstat()
  {
 -  malloc_stats();
  }
- 
+
  int main(int argc, char* argv[])
 diff --git a/muduo/base/CMakeLists.txt b/muduo/base/CMakeLists.txt
 index 6e250d4..a76404f 100644
@@ -82,16 +82,16 @@ index 6e250d4..a76404f 100644
 +++ b/muduo/base/CMakeLists.txt
 @@ -16,10 +16,10 @@ set(base_SRCS
    )
- 
+
  add_library(muduo_base ${base_SRCS})
 -target_link_libraries(muduo_base pthread rt)
 +target_link_libraries(muduo_base pthread)
- 
+
  add_library(muduo_base_cpp11 ${base_SRCS})
 -target_link_libraries(muduo_base_cpp11 pthread rt)
 +target_link_libraries(muduo_base_cpp11 pthread)
  set_target_properties(muduo_base_cpp11 PROPERTIES COMPILE_FLAGS "-std=c++0x")
- 
+
  install(TARGETS muduo_base DESTINATION lib)
 diff --git a/muduo/base/Condition.cc b/muduo/base/Condition.cc
 index f10ace3..73a1715 100644
@@ -99,10 +99,10 @@ index f10ace3..73a1715 100644
 +++ b/muduo/base/Condition.cc
 @@ -6,13 +6,21 @@
  #include <muduo/base/Condition.h>
- 
+
  #include <errno.h>
 +#include <sys/time.h>
- 
+
  // returns true if time out, false otherwise.
  bool muduo::Condition::waitForSeconds(int seconds)
  {
@@ -124,7 +124,7 @@ index 999b0e5..ad9da8a 100644
 --- a/muduo/base/FileUtil.cc
 +++ b/muduo/base/FileUtil.cc
 @@ -64,8 +64,12 @@ void FileUtil::AppendFile::flush()
- 
+
  size_t FileUtil::AppendFile::write(const char* logline, size_t len)
  {
 +#ifdef fwrite_unlocked
@@ -134,14 +134,14 @@ index 999b0e5..ad9da8a 100644
 +  return ::fwrite(logline, 1, len, fp_);
 +#endif
  }
- 
+
  FileUtil::ReadSmallFile::ReadSmallFile(StringArg filename)
 diff --git a/muduo/base/Logging.cc b/muduo/base/Logging.cc
 index 341d627..9376007 100644
 --- a/muduo/base/Logging.cc
 +++ b/muduo/base/Logging.cc
 @@ -36,7 +36,12 @@ __thread time_t t_lastSecond;
- 
+
  const char* strerror_tl(int savedErrno)
  {
 +#ifndef __MACH__
@@ -151,7 +151,7 @@ index 341d627..9376007 100644
 +  return t_errnobuf;
 +#endif
  }
- 
+
  Logger::LogLevel initLogLevel()
 diff --git a/muduo/base/Thread.cc b/muduo/base/Thread.cc
 index 9d64780..cddcac1 100644
@@ -168,13 +168,13 @@ index 9d64780..cddcac1 100644
 +#include <sys/prctl.h>
  #include <linux/unistd.h>
 +#endif
- 
+
  namespace muduo
  {
 @@ -35,10 +37,17 @@ namespace CurrentThread
  namespace detail
  {
- 
+
 +#ifdef __MACH__
 +pid_t gettid()
 +{
@@ -186,12 +186,12 @@ index 9d64780..cddcac1 100644
    return static_cast<pid_t>(::syscall(SYS_gettid));
  }
 +#endif
- 
+
  void afterFork()
  {
 @@ -88,7 +97,9 @@ struct ThreadData
      }
- 
+
      muduo::CurrentThread::t_threadName = name_.empty() ? "muduoThread" : name_.c_str();
 +#ifndef __MACH__
      ::prctl(PR_SET_NAME, muduo::CurrentThread::t_threadName);
@@ -205,11 +205,11 @@ index 37959d9..f95beb3 100644
 +++ b/muduo/base/TimeZone.cc
 @@ -8,7 +8,7 @@
  #include <vector>
- 
+
  //#define _BSD_SOURCE
 -#include <endian.h>
 +#include <muduo/net/Endian.h>
- 
+
  #include <stdint.h>
  #include <stdio.h>
 @@ -285,7 +285,7 @@ struct tm TimeZone::toLocalTime(time_t seconds) const
@@ -219,22 +219,22 @@ index 37959d9..f95beb3 100644
 -    localTime.tm_zone = &data.abbreviation[local->arrbIdx];
 +    localTime.tm_zone = const_cast<char*>(&data.abbreviation[local->arrbIdx]);
    }
- 
+
    return localTime;
 diff --git a/muduo/base/tests/AsyncLogging_test.cc b/muduo/base/tests/AsyncLogging_test.cc
 index bd9fe59..e510fd4 100644
 --- a/muduo/base/tests/AsyncLogging_test.cc
 +++ b/muduo/base/tests/AsyncLogging_test.cc
 @@ -4,6 +4,9 @@
- 
+
  #include <stdio.h>
  #include <sys/resource.h>
 +#ifdef __MACH__
 +#include <libgen.h>  // basename()
 +#endif
- 
+
  int kRollSize = 500*1000*1000;
- 
+
 diff --git a/muduo/base/tests/BlockingQueue_test.cc b/muduo/base/tests/BlockingQueue_test.cc
 index c392773..6977578 100644
 --- a/muduo/base/tests/BlockingQueue_test.cc
@@ -256,16 +256,16 @@ index c392773..6977578 100644
 -
 -#endif
  }
- 
+
  int main()
 diff --git a/muduo/base/tests/GzipFile_test.cc b/muduo/base/tests/GzipFile_test.cc
 index 6dc0d4d..b051ca8 100644
 --- a/muduo/base/tests/GzipFile_test.cc
 +++ b/muduo/base/tests/GzipFile_test.cc
 @@ -2,6 +2,8 @@
- 
+
  #include <muduo/base/Logging.h>
- 
+
 +#include <errno.h>
 +
  int main()
@@ -281,9 +281,9 @@ index e77d68d..d27d65e 100644
 +#ifdef __MACH__
 +#include <libgen.h>  // basename()
 +#endif
- 
+
  boost::scoped_ptr<muduo::LogFile> g_logFile;
- 
+
 diff --git a/muduo/net/CMakeLists.txt b/muduo/net/CMakeLists.txt
 index 0127c48..9ea16ed 100644
 --- a/muduo/net/CMakeLists.txt
@@ -300,7 +300,7 @@ diff --git a/muduo/net/Channel.cc b/muduo/net/Channel.cc
 index f5e6624..62fbd6f 100644
 --- a/muduo/net/Channel.cc
 +++ b/muduo/net/Channel.cc
-@@ -102,6 +102,9 @@
+@@ -102,6 +102,9 @@ void Channel::handleEventWithGuard(Timestamp receiveTime)
    {
      if (errorCallback_) errorCallback_();
    }
@@ -327,22 +327,22 @@ index b277503..851e449 100644
 +++ b/muduo/net/Endian.h
 @@ -12,7 +12,28 @@
  #define MUDUO_NET_ENDIAN_H
- 
+
  #include <stdint.h>
 +
 +#ifdef __MACH__
 +#include <libkern/OSByteOrder.h>
-+ 
++
 +#define htobe16(x) OSSwapHostToBigInt16(x)
 +#define htole16(x) OSSwapHostToLittleInt16(x)
 +#define be16toh(x) OSSwapBigToHostInt16(x)
 +#define le16toh(x) OSSwapLittleToHostInt16(x)
-+ 
++
 +#define htobe32(x) OSSwapHostToBigInt32(x)
 +#define htole32(x) OSSwapHostToLittleInt32(x)
 +#define be32toh(x) OSSwapBigToHostInt32(x)
 +#define le32toh(x) OSSwapLittleToHostInt32(x)
-+ 
++
 +#define htobe64(x) OSSwapHostToBigInt64(x)
 +#define htole64(x) OSSwapHostToLittleInt64(x)
 +#define be64toh(x) OSSwapBigToHostInt64(x)
@@ -351,7 +351,7 @@ index b277503..851e449 100644
  #include <endian.h>
 +#endif
 +
- 
+
  namespace muduo
  {
 @@ -60,8 +81,8 @@ inline uint16_t networkToHost16(uint16_t net16)
@@ -363,26 +363,26 @@ index b277503..851e449 100644
 +//#pragma GCC diagnostic error "-Wconversion"
 +//#pragma GCC diagnostic error "-Wold-style-cast"
  #endif
- 
- 
+
+
 diff --git a/muduo/net/EventLoop.cc b/muduo/net/EventLoop.cc
 index 7346838..19fde05 100644
 --- a/muduo/net/EventLoop.cc
 +++ b/muduo/net/EventLoop.cc
 @@ -18,7 +18,8 @@
  #include <boost/bind.hpp>
- 
+
  #include <signal.h>
 -#include <sys/eventfd.h>
 +#include <sys/types.h>
 +#include <sys/socket.h>
- 
+
  using namespace muduo;
  using namespace muduo::net;
 @@ -29,18 +30,6 @@ __thread EventLoop* t_loopInThisThread = 0;
- 
+
  const int kPollTimeMs = 10000;
- 
+
 -int createEventfd()
 -{
 -  int evtfd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
@@ -403,7 +403,7 @@ index 7346838..19fde05 100644
    }
  };
 -#pragma GCC diagnostic error "-Wold-style-cast"
- 
+
  IgnoreSigPipe initObj;
  }
 @@ -69,11 +57,15 @@ EventLoop::EventLoop()
@@ -433,7 +433,7 @@ index 7346838..19fde05 100644
 +  ::close(wakeupFd_[1]);
    t_loopInThisThread = NULL;
  }
- 
+
 @@ -110,12 +103,13 @@ void EventLoop::loop()
    while (!quit_)
    {
@@ -486,7 +486,7 @@ index 394870a..05bb5de 100644
 +++ b/muduo/net/InetAddress.cc
 @@ -19,10 +19,10 @@
  #include <boost/static_assert.hpp>
- 
+
  // INADDR_ANY use (type)value casting.
 -#pragma GCC diagnostic ignored "-Wold-style-cast"
 +// #pragma GCC diagnostic ignored "-Wold-style-cast"
@@ -494,7 +494,7 @@ index 394870a..05bb5de 100644
  static const in_addr_t kInaddrLoopback = INADDR_LOOPBACK;
 -#pragma GCC diagnostic error "-Wold-style-cast"
 +// #pragma GCC diagnostic error "-Wold-style-cast"
- 
+
  //     /* Structure describing an Internet socket address.  */
  //     struct sockaddr_in {
 @@ -83,10 +83,15 @@ bool InetAddress::resolve(StringArg hostname, InetAddress* out)
@@ -503,7 +503,7 @@ index 394870a..05bb5de 100644
    struct hostent* he = NULL;
 -  int herrno = 0;
    bzero(&hent, sizeof(hent));
- 
+
 +#ifndef __MACH__
 +  int herrno = 0;
    int ret = gethostbyname_r(hostname.c_str(), &hent, t_resolveBuffer, sizeof t_resolveBuffer, &he, &herrno);
@@ -519,7 +519,7 @@ index 111d87d..4e0efa7 100644
 --- a/muduo/net/Socket.cc
 +++ b/muduo/net/Socket.cc
 @@ -27,13 +27,18 @@ Socket::~Socket()
- 
+
  bool Socket::getTcpInfo(struct tcp_info* tcpi) const
  {
 +#ifndef __MACH__
@@ -530,7 +530,7 @@ index 111d87d..4e0efa7 100644
 +  return false;
 +#endif
  }
- 
+
  bool Socket::getTcpInfoString(char* buf, int len) const
  {
 +#ifndef __MACH__
@@ -545,7 +545,7 @@ index 111d87d..4e0efa7 100644
 +  return false;
 +#endif
  }
- 
+
  void Socket::bindAddress(const InetAddress& addr)
 diff --git a/muduo/net/SocketsOps.cc b/muduo/net/SocketsOps.cc
 index 188c3cb..1e5f268 100644
@@ -559,17 +559,17 @@ index 188c3cb..1e5f268 100644
 +#include <sys/uio.h>  // readv
 +#endif
  #include <unistd.h>
- 
+
  using namespace muduo;
  using namespace muduo::net;
- 
+
 -namespace
 +namespace muduo
  {
- 
+
  typedef struct sockaddr SA;
- 
- 
+
+
  #if VALGRIND || defined (NO_ACCEPT4)
 +namespace net
 +{
@@ -580,17 +580,17 @@ index 188c3cb..1e5f268 100644
  {
    // non-block
 @@ -45,6 +53,9 @@ void setNonBlockAndCloseOnExec(int sockfd)
- 
+
    (void)ret;
  }
 +
 +}
 +}
  #endif
- 
+
  }
 @@ -71,7 +82,6 @@ struct sockaddr_in* sockets::sockaddr_in_cast(struct sockaddr* addr)
- 
+
  int sockets::createNonblockingOrDie()
  {
 -#if VALGRIND
@@ -599,7 +599,7 @@ index 188c3cb..1e5f268 100644
    {
 @@ -79,13 +89,6 @@ int sockets::createNonblockingOrDie()
    }
- 
+
    setNonBlockAndCloseOnExec(sockfd);
 -#else
 -  int sockfd = ::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
@@ -610,7 +610,7 @@ index 188c3cb..1e5f268 100644
 -#endif
    return sockfd;
  }
- 
+
 @@ -110,13 +113,8 @@ void sockets::listenOrDie(int sockfd)
  int sockets::accept(int sockfd, struct sockaddr_in* addr)
  {
@@ -636,7 +636,7 @@ index a07b1fe..efc779a 100644
 +#ifdef __MACH__
 +void setNonBlockAndCloseOnExec(int sockfd);
 +#endif
- 
+
  int  connect(int sockfd, const struct sockaddr_in& addr);
  void bindOrDie(int sockfd, const struct sockaddr_in& addr);
 diff --git a/muduo/net/TimerQueue.cc b/muduo/net/TimerQueue.cc
@@ -644,9 +644,9 @@ index 0f199e5..7f4813a 100644
 --- a/muduo/net/TimerQueue.cc
 +++ b/muduo/net/TimerQueue.cc
 @@ -19,8 +19,6 @@
- 
+
  #include <boost/bind.hpp>
- 
+
 -#include <sys/timerfd.h>
 -
  namespace muduo
@@ -655,7 +655,7 @@ index 0f199e5..7f4813a 100644
 @@ -28,57 +26,15 @@ namespace net
  namespace detail
  {
- 
+
 -int createTimerfd()
 -{
 -  int timerfd = ::timerfd_create(CLOCK_MONOTONIC,
@@ -712,10 +712,10 @@ index 0f199e5..7f4813a 100644
    }
 +  return static_cast<int>(microseconds / 1000);
  }
- 
+
  }
 @@ -91,22 +47,13 @@ using namespace muduo::net::detail;
- 
+
  TimerQueue::TimerQueue(EventLoop* loop)
    : loop_(loop),
 -    timerfd_(createTimerfd()),
@@ -728,7 +728,7 @@ index 0f199e5..7f4813a 100644
 -  // we are always reading the timerfd, we disarm it with timerfd_settime.
 -  timerfdChannel_.enableReading();
  }
- 
+
  TimerQueue::~TimerQueue()
  {
 -  timerfdChannel_.disableAll();
@@ -744,7 +744,7 @@ index 0f199e5..7f4813a 100644
 -  bool earliestChanged = insert(timer);
 +  insert(timer);
 +}
- 
+
 -  if (earliestChanged)
 +int TimerQueue::getTimeout() const
 +{
@@ -759,20 +759,20 @@ index 0f199e5..7f4813a 100644
 +    return howMuchTimeFromNow(timers_.begin()->second->expiration());
    }
  }
- 
+
 @@ -174,11 +129,10 @@ void TimerQueue::cancelInLoop(TimerId timerId)
    assert(timers_.size() == activeTimers_.size());
  }
- 
+
 -void TimerQueue::handleRead()
 +void TimerQueue::processTimers()
  {
    loop_->assertInLoopThread();
    Timestamp now(Timestamp::now());
 -  readTimerfd(timerfd_, now);
- 
+
    std::vector<Entry> expired = getExpired(now);
- 
+
 @@ -242,11 +196,6 @@ void TimerQueue::reset(const std::vector<Entry>& expired, Timestamp now)
    {
      nextExpire = timers_.begin()->second->expiration();
@@ -783,24 +783,24 @@ index 0f199e5..7f4813a 100644
 -    resetTimerfd(timerfd_, nextExpire);
 -  }
  }
- 
+
  bool TimerQueue::insert(Timer* timer)
 diff --git a/muduo/net/TimerQueue.h b/muduo/net/TimerQueue.h
 index 0cfb02f..d882b71 100644
 --- a/muduo/net/TimerQueue.h
 +++ b/muduo/net/TimerQueue.h
 @@ -56,6 +56,9 @@ class TimerQueue : boost::noncopyable
- 
+
    void cancel(TimerId timerId);
- 
+
 +  int getTimeout() const;
 +  void processTimers();
 +
   private:
- 
+
    // FIXME: use unique_ptr<Timer> instead of raw pointers.
 @@ -66,8 +69,6 @@ class TimerQueue : boost::noncopyable
- 
+
    void addTimerInLoop(Timer* timer);
    void cancelInLoop(TimerId timerId);
 -  // called when timerfd alarms
@@ -810,20 +810,20 @@ index 0cfb02f..d882b71 100644
    void reset(const std::vector<Entry>& expired, Timestamp now);
 @@ -75,9 +76,6 @@ class TimerQueue : boost::noncopyable
    bool insert(Timer* timer);
- 
+
    EventLoop* loop_;
 -  const int timerfd_;
 -  Channel timerfdChannel_;
 -  // Timer list sorted by expiration
    TimerList timers_;
- 
+
    // for cancel()
 diff --git a/muduo/net/poller/DefaultPoller.cc b/muduo/net/poller/DefaultPoller.cc
 index f42f5a4..a6a3133 100644
 --- a/muduo/net/poller/DefaultPoller.cc
 +++ b/muduo/net/poller/DefaultPoller.cc
 @@ -16,6 +16,9 @@ using namespace muduo::net;
- 
+
  Poller* Poller::newDefaultPoller(EventLoop* loop)
  {
 +#ifdef __MACH__
