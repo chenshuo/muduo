@@ -116,9 +116,9 @@ class TcpConnection : noncopyable,
   void handleClose();
   void handleError();
   // void sendInLoop(string&& message);
- public:
   void sendInLoop(const StringPiece& message);
   void sendInLoop(const void* message, size_t len);
+  static void bindSendInLoop(TcpConnection* conn, const string& message);
   void shutdownInLoop();
   // void shutdownAndForceCloseInLoop(double seconds);
   void forceCloseInLoop();

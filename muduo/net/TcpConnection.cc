@@ -91,7 +91,7 @@ void TcpConnection::send(const void* data, int len)
   send(StringPiece(static_cast<const char*>(data), len));
 }
 
-static void sendInLoop1(TcpConnection* conn, const string& message)
+void TcpConnection::bindSendInLoop(TcpConnection* conn, const string& message)
 {
     conn->sendInLoop(message.data(), message.size());
 }
@@ -107,7 +107,7 @@ void TcpConnection::send(const StringPiece& message)
     else
     {
       loop_->runInLoop(
-          std::bind(sendInLoop1,
+          std::bind(bindSendInLoop,
                       this,     // FIXME
                     message.as_string()));
                     // std::forward<string>(message)));
@@ -134,7 +134,7 @@ void TcpConnection::send(Buffer* buf)
                       buf->retrieveAllAsString()));
                     //std::forward<string>(message)));
                     */
-          std::bind(sendInLoop1,
+          std::bind(bindSendInLoop,
                       this,
                       buf->retrieveAllAsString()));
     }
