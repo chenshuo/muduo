@@ -13,10 +13,10 @@
 
 #include <vector>
 
-#include <boost/any.hpp>
-#include <boost/function.hpp>
-#include <boost/noncopyable.hpp>
-#include <boost/scoped_ptr.hpp>
+#include <functional>
+#include <muduo/other/any.h>
+#include <muduo/other/noncopyable.h>
+#include <memory>
 
 #include <muduo/base/Mutex.h>
 #include <muduo/base/CurrentThread.h>
@@ -37,10 +37,10 @@ class TimerQueue;
 /// Reactor, at most one per thread.
 ///
 /// This is an interface class, so don't expose too much details.
-class EventLoop : boost::noncopyable
+class EventLoop : noncopyable
 {
  public:
-  typedef boost::function<void()> Functor;
+  typedef std::function<void()> Functor;
 
   EventLoop();
   ~EventLoop();  // force out-line dtor, for scoped_ptr members.
@@ -127,13 +127,13 @@ class EventLoop : boost::noncopyable
   // bool callingPendingFunctors() const { return callingPendingFunctors_; }
   bool eventHandling() const { return eventHandling_; }
 
-  void setContext(const boost::any& context)
+  void setContext(const cdiggins::any& context)
   { context_ = context; }
 
-  const boost::any& getContext() const
+  const cdiggins::any& getContext() const
   { return context_; }
 
-  boost::any* getMutableContext()
+  cdiggins::any* getMutableContext()
   { return &context_; }
 
   static EventLoop* getEventLoopOfCurrentThread();
@@ -154,13 +154,13 @@ class EventLoop : boost::noncopyable
   int64_t iteration_;
   const pid_t threadId_;
   Timestamp pollReturnTime_;
-  boost::scoped_ptr<Poller> poller_;
-  boost::scoped_ptr<TimerQueue> timerQueue_;
+  std::unique_ptr<Poller> poller_;
+  std::unique_ptr<TimerQueue> timerQueue_;
   int wakeupFd_;
   // unlike in TimerQueue, which is an internal class,
   // we don't expose Channel to client.
-  boost::scoped_ptr<Channel> wakeupChannel_;
-  boost::any context_;
+  std::unique_ptr<Channel> wakeupChannel_;
+  cdiggins::any context_;
 
   // scratch variables
   ChannelList activeChannels_;

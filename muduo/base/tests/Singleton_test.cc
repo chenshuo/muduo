@@ -2,10 +2,10 @@
 #include <muduo/base/CurrentThread.h>
 #include <muduo/base/Thread.h>
 
-#include <boost/noncopyable.hpp>
+#include <muduo/other/noncopyable.h>
 #include <stdio.h>
 
-class Test : boost::noncopyable
+class Test : muduo::noncopyable
 {
  public:
   Test()
@@ -25,7 +25,7 @@ class Test : boost::noncopyable
   muduo::string name_;
 };
 
-class TestNoDestroy : boost::noncopyable
+class TestNoDestroy : muduo::noncopyable
 {
  public:
   // Tag member for Singleton<T>

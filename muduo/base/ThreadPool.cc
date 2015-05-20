@@ -4,10 +4,10 @@
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
 #include <muduo/base/ThreadPool.h>
-
 #include <muduo/base/Exception.h>
 
-#include <boost/bind.hpp>
+#include <algorithm>
+#include <functional>
 #include <assert.h>
 #include <stdio.h>
 
@@ -40,9 +40,9 @@ void ThreadPool::start(int numThreads)
   {
     char id[32];
     snprintf(id, sizeof id, "%d", i+1);
-    threads_.push_back(new muduo::Thread(
-          boost::bind(&ThreadPool::runInThread, this), name_+id));
-    threads_[i].start();
+    threads_.push_back(std::unique_ptr<muduo::Thread>(new muduo::Thread(
+          std::bind(&ThreadPool::runInThread, this), name_+id)));
+    threads_[i]->start();
   }
   if (numThreads == 0 && threadInitCallback_)
   {
@@ -57,9 +57,9 @@ void ThreadPool::stop()
   running_ = false;
   notEmpty_.notifyAll();
   }
-  for_each(threads_.begin(),
+  std::for_each(threads_.begin(),
            threads_.end(),
-           boost::bind(&muduo::Thread::join, _1));
+           std::bind(&muduo::Thread::join, std::placeholders::_1));
 }
 
 size_t ThreadPool::queueSize() const

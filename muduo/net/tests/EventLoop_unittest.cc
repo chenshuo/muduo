@@ -1,7 +1,7 @@
 #include <muduo/net/EventLoop.h>
 #include <muduo/base/Thread.h>
 
-#include <boost/bind.hpp>
+#include <functional>
 
 #include <assert.h>
 #include <stdio.h>

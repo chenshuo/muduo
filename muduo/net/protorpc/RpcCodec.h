@@ -14,9 +14,9 @@
 #include <muduo/base/Timestamp.h>
 #include <muduo/net/protobuf/ProtobufCodecLite.h>
 
-#include <boost/function.hpp>
-#include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
+#include <functional>
+#include <muduo/other/noncopyable.h>
+#include <memory>
 
 namespace muduo
 {
@@ -25,10 +25,10 @@ namespace net
 
 class Buffer;
 class TcpConnection;
-typedef boost::shared_ptr<TcpConnection> TcpConnectionPtr;
+typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
 
 class RpcMessage;
-typedef boost::shared_ptr<RpcMessage> RpcMessagePtr;
+typedef std::shared_ptr<RpcMessage> RpcMessagePtr;
 extern const char rpctag[];// = "RPC0";
 
 // wire format

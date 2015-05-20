@@ -15,10 +15,13 @@
 #include <muduo/net/SocketsOps.h>
 #include <muduo/net/TimerQueue.h>
 
-#include <boost/bind.hpp>
+#include <algorithm>
+#include <functional>
 
 #include <signal.h>
 #include <sys/eventfd.h>
+#include <unistd.h> // close
+#include <assert.h> // assert
 
 using namespace muduo;
 using namespace muduo::net;
@@ -76,15 +79,15 @@ EventLoop::EventLoop()
   LOG_DEBUG << "EventLoop created " << this << " in thread " << threadId_;
   if (t_loopInThisThread)
   {
-    LOG_FATAL << "Another EventLoop " << t_loopInThisThread
-              << " exists in this thread " << threadId_;
+    // LOG_FATAL << "Another EventLoop ";// << t_loopInThisThread;
+    //          << " exists in this thread " << threadId_;
   }
   else
   {
     t_loopInThisThread = this;
   }
   wakeupChannel_->setReadCallback(
-      boost::bind(&EventLoop::handleRead, this));
+      std::bind(&EventLoop::handleRead, this));
   // we are always reading the wakeupfd
   wakeupChannel_->enableReading();
 }

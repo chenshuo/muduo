@@ -4,8 +4,6 @@
 #include <muduo/base/copyable.h>
 #include <muduo/base/Types.h>
 
-#include <boost/operators.hpp>
-
 namespace muduo
 {
 
@@ -15,8 +13,7 @@ namespace muduo
 /// This class is immutable.
 /// It's recommended to pass it by value, since it's passed in register on x64.
 ///
-class Timestamp : public muduo::copyable,
-                  public boost::less_than_comparable<Timestamp>
+class Timestamp : public muduo::copyable
 {
  public:
   ///
@@ -74,6 +71,9 @@ class Timestamp : public muduo::copyable,
 
   static const int kMicroSecondsPerSecond = 1000 * 1000;
 
+  friend bool operator==(Timestamp lhs, Timestamp rhs);
+  friend bool operator<(Timestamp lhs, Timestamp rhs);
+
  private:
   int64_t microSecondsSinceEpoch_;
 };
@@ -113,4 +113,5 @@ inline Timestamp addTime(Timestamp timestamp, double seconds)
 }
 
 }
+
 #endif  // MUDUO_BASE_TIMESTAMP_H

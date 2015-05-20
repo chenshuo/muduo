@@ -12,7 +12,7 @@
 #define MUDUO_BASE_FILEUTIL_H
 
 #include <muduo/base/StringPiece.h>
-#include <boost/noncopyable.hpp>
+#include <muduo/other/noncopyable.h>
 
 namespace muduo
 {
@@ -21,7 +21,7 @@ namespace FileUtil
 {
 
 // read small file < 64KB
-class ReadSmallFile : boost::noncopyable
+class ReadSmallFile : noncopyable
 {
  public:
   ReadSmallFile(StringArg filename);
@@ -63,7 +63,7 @@ int readFile(StringArg filename,
 }
 
 // not thread safe
-class AppendFile : boost::noncopyable
+class AppendFile : noncopyable
 {
  public:
   explicit AppendFile(StringArg filename);

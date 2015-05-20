@@ -5,9 +5,10 @@
 
 #include <map>
 #include <string>
-#include <boost/bind.hpp>
+#include <functional>
 #include <stdio.h>
 #include <sys/wait.h>
+#include <unistd.h>
 
 muduo::MutexLock g_mutex;
 std::map<int, int> g_delays;
@@ -69,7 +70,7 @@ int main(int argc, char* argv[])
   for (int i = 0; i < kThreads; ++i)
   {
     muduo::Timestamp now(muduo::Timestamp::now());
-    muduo::Thread t2(boost::bind(threadFunc2, now));
+    muduo::Thread t2(std::bind(threadFunc2, now));
     t2.start();
     t2.join();
   }

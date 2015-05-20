@@ -4,7 +4,7 @@
 #include <muduo/net/EventLoopThread.h>
 #include <muduo/net/TcpClient.h>
 
-#include <boost/bind.hpp>
+#include <functional>
 
 using namespace muduo;
 using namespace muduo::net;

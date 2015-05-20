@@ -1,7 +1,9 @@
 #include <muduo/base/LogFile.h>
 #include <muduo/base/Logging.h>
 
-boost::scoped_ptr<muduo::LogFile> g_logFile;
+#include <unistd.h> // usleep
+
+std::unique_ptr<muduo::LogFile> g_logFile;
 
 void outputFunc(const char* msg, int len)
 {

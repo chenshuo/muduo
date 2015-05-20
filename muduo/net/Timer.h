@@ -11,7 +11,7 @@
 #ifndef MUDUO_NET_TIMER_H
 #define MUDUO_NET_TIMER_H
 
-#include <boost/noncopyable.hpp>
+#include <muduo/other/noncopyable.h>
 
 #include <muduo/base/Atomic.h>
 #include <muduo/base/Timestamp.h>
@@ -24,7 +24,7 @@ namespace net
 ///
 /// Internal class for timer event.
 ///
-class Timer : boost::noncopyable
+class Timer : noncopyable
 {
  public:
   Timer(const TimerCallback& cb, Timestamp when, double interval)

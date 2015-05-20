@@ -11,10 +11,10 @@
 #ifndef MUDUO_NET_CHANNEL_H
 #define MUDUO_NET_CHANNEL_H
 
-#include <boost/function.hpp>
-#include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
+#include <functional>
+#include <muduo/other/noncopyable.h>
+#include <memory>
+#include <memory>
 
 #include <muduo/base/Timestamp.h>
 
@@ -31,11 +31,11 @@ class EventLoop;
 /// This class doesn't own the file descriptor.
 /// The file descriptor could be a socket,
 /// an eventfd, a timerfd, or a signalfd
-class Channel : boost::noncopyable
+class Channel : noncopyable
 {
  public:
-  typedef boost::function<void()> EventCallback;
-  typedef boost::function<void(Timestamp)> ReadEventCallback;
+  typedef std::function<void()> EventCallback;
+  typedef std::function<void(Timestamp)> ReadEventCallback;
 
   Channel(EventLoop* loop, int fd);
   ~Channel();
@@ -62,7 +62,7 @@ class Channel : boost::noncopyable
 
   /// Tie this channel to the owner object managed by shared_ptr,
   /// prevent the owner object being destroyed in handleEvent.
-  void tie(const boost::shared_ptr<void>&);
+  void tie(const std::shared_ptr<void>&);
 
   int fd() const { return fd_; }
   int events() const { return events_; }
@@ -107,7 +107,7 @@ class Channel : boost::noncopyable
   int        index_; // used by Poller.
   bool       logHup_;
 
-  boost::weak_ptr<void> tie_;
+  std::weak_ptr<void> tie_;
   bool tied_;
   bool eventHandling_;
   bool addedToLoop_;

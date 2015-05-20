@@ -9,11 +9,9 @@
 
 #include <inttypes.h>
 
-#include <boost/static_assert.hpp>
-
 using namespace muduo;
 
-BOOST_STATIC_ASSERT(sizeof(Timestamp) == sizeof(int64_t));
+static_assert(sizeof(Timestamp) == sizeof(int64_t), "sizeof(Timestamp) is not 8B");
 
 string Timestamp::toString() const
 {

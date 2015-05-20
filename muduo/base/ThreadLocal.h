@@ -2,20 +2,21 @@
 // that can be found in the License file.
 //
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
+// Author: modified by Alex Stocks (alexstocks@foxmail.com) to use c++11
 
 #ifndef MUDUO_BASE_THREADLOCAL_H
 #define MUDUO_BASE_THREADLOCAL_H
 
 #include <muduo/base/Mutex.h>  // MCHECK
 
-#include <boost/noncopyable.hpp>
+#include <muduo/other/noncopyable.h>
 #include <pthread.h>
 
 namespace muduo
 {
 
 template<typename T>
-class ThreadLocal : boost::noncopyable
+class ThreadLocal : noncopyable
 {
  public:
   ThreadLocal()

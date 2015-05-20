@@ -16,9 +16,9 @@
 #include <muduo/net/TcpConnection.h>
 
 #include <map>
-#include <boost/noncopyable.hpp>
-#include <boost/scoped_ptr.hpp>
-#include <boost/shared_ptr.hpp>
+#include <muduo/other/noncopyable.h>
+#include <memory>
+#include <memory>
 
 namespace muduo
 {
@@ -33,10 +33,10 @@ class EventLoopThreadPool;
 /// TCP server, supports single-threaded and thread-pool models.
 ///
 /// This is an interface class, so don't expose too much details.
-class TcpServer : boost::noncopyable
+class TcpServer : noncopyable
 {
  public:
-  typedef boost::function<void(EventLoop*)> ThreadInitCallback;
+  typedef std::function<void(EventLoop*)> ThreadInitCallback;
   enum Option
   {
     kNoReusePort,
@@ -68,7 +68,7 @@ class TcpServer : boost::noncopyable
   void setThreadInitCallback(const ThreadInitCallback& cb)
   { threadInitCallback_ = cb; }
   /// valid after calling start()
-  boost::shared_ptr<EventLoopThreadPool> threadPool()
+  std::shared_ptr<EventLoopThreadPool> threadPool()
   { return threadPool_; }
 
   /// Starts the server if it's not listenning.
@@ -105,8 +105,8 @@ class TcpServer : boost::noncopyable
   EventLoop* loop_;  // the acceptor loop
   const string hostport_;
   const string name_;
-  boost::scoped_ptr<Acceptor> acceptor_; // avoid revealing Acceptor
-  boost::shared_ptr<EventLoopThreadPool> threadPool_;
+  std::unique_ptr<Acceptor> acceptor_; // avoid revealing Acceptor
+  std::shared_ptr<EventLoopThreadPool> threadPool_;
   ConnectionCallback connectionCallback_;
   MessageCallback messageCallback_;
   WriteCompleteCallback writeCompleteCallback_;

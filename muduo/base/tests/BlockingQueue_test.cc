@@ -2,8 +2,9 @@
 #include <muduo/base/CountDownLatch.h>
 #include <muduo/base/Thread.h>
 
-#include <boost/bind.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
+#include <algorithm>
+#include <functional>
+#include <vector>
 #include <memory>
 #include <string>
 #include <stdio.h>
@@ -13,17 +14,19 @@ class Test
 {
  public:
   Test(int numThreads)
-    : latch_(numThreads),
-      threads_(numThreads)
+    : latch_(numThreads)
+      // if you do not remark line 20, the program will core. the vector constructor:                     
+      // vector ( size_type n, const T& value= T(), const Allocator& = Allocator() );
+      // , threads_(numThreads)
   {
     for (int i = 0; i < numThreads; ++i)
     {
       char name[32];
       snprintf(name, sizeof name, "work thread %d", i);
-      threads_.push_back(new muduo::Thread(
-            boost::bind(&Test::threadFunc, this), muduo::string(name)));
+      threads_.push_back(std::unique_ptr<muduo::Thread>(new muduo::Thread(
+            std::bind(&Test::threadFunc, this), muduo::string(name))));
     }
-    for_each(threads_.begin(), threads_.end(), boost::bind(&muduo::Thread::start, _1));
+    std::for_each(threads_.begin(), threads_.end(), std::bind(&muduo::Thread::start, std::placeholders::_1));
   }
 
   void run(int times)
@@ -47,7 +50,7 @@ class Test
       queue_.put("stop");
     }
 
-    for_each(threads_.begin(), threads_.end(), boost::bind(&muduo::Thread::join, _1));
+    std::for_each(threads_.begin(), threads_.end(), std::bind(&muduo::Thread::join, std::placeholders::_1));
   }
 
  private:
@@ -74,7 +77,7 @@ class Test
 
   muduo::BlockingQueue<std::string> queue_;
   muduo::CountDownLatch latch_;
-  boost::ptr_vector<muduo::Thread> threads_;
+  std::vector<std::unique_ptr<muduo::Thread>> threads_;
 };
 
 void testMove()

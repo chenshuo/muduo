@@ -19,15 +19,12 @@
 
 #include <muduo/net/Callbacks.h>
 
-#include <boost/function.hpp>
-#include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
-
-#include <boost/bind.hpp>
+#include <functional>
+#include <muduo/other/noncopyable.h>
+#include <memory>
 
 #ifndef NDEBUG
-#include <boost/static_assert.hpp>
-#include <boost/type_traits/is_base_of.hpp>
+#include <type_traits>
 #endif
 
 namespace google
@@ -45,8 +42,8 @@ namespace net
 
 class Buffer;
 class TcpConnection;
-typedef boost::shared_ptr<TcpConnection> TcpConnectionPtr;
-typedef boost::shared_ptr<google::protobuf::Message> MessagePtr;
+typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
+typedef std::shared_ptr<google::protobuf::Message> MessagePtr;
 
 // wire format
 //
@@ -58,7 +55,7 @@ typedef boost::shared_ptr<google::protobuf::Message> MessagePtr;
 // checksum  4-byte  adler32 of tag+payload
 //
 // This is an internal class, you should use ProtobufCodecT instead.
-class ProtobufCodecLite : boost::noncopyable
+class ProtobufCodecLite : noncopyable
 {
  public:
   const static int kHeaderLen = sizeof(int32_t);
@@ -76,15 +73,15 @@ class ProtobufCodecLite : boost::noncopyable
   };
 
   // return false to stop parsing protobuf message
-  typedef boost::function<bool (const TcpConnectionPtr&,
+  typedef std::function<bool (const TcpConnectionPtr&,
                                 StringPiece,
                                 Timestamp)> RawMessageCallback;
 
-  typedef boost::function<void (const TcpConnectionPtr&,
+  typedef std::function<void (const TcpConnectionPtr&,
                                 const MessagePtr&,
                                 Timestamp)> ProtobufMessageCallback;
 
-  typedef boost::function<void (const TcpConnectionPtr&,
+  typedef std::function<void (const TcpConnectionPtr&,
                                 Buffer*,
                                 Timestamp,
                                 ErrorCode)> ErrorCallback;
@@ -144,11 +141,11 @@ template<typename MSG, const char* TAG, typename CODEC=ProtobufCodecLite>  // TA
 class ProtobufCodecLiteT
 {
 #ifndef NDEBUG
-  BOOST_STATIC_ASSERT((boost::is_base_of<ProtobufCodecLite, CODEC>::value));
+  static_assert((std::is_base_of<ProtobufCodecLite, CODEC>::value), "base_of(ProtobufCodecLite)");
 #endif
  public:
-  typedef boost::shared_ptr<MSG> ConcreteMessagePtr;
-  typedef boost::function<void (const TcpConnectionPtr&,
+  typedef std::shared_ptr<MSG> ConcreteMessagePtr;
+  typedef std::function<void (const TcpConnectionPtr&,
                                 const ConcreteMessagePtr&,
                                 Timestamp)> ProtobufMessageCallback;
   typedef ProtobufCodecLite::RawMessageCallback RawMessageCallback;
@@ -160,7 +157,7 @@ class ProtobufCodecLiteT
     : messageCallback_(messageCb),
       codec_(&MSG::default_instance(),
              TAG,
-             boost::bind(&ProtobufCodecLiteT::onRpcMessage, this, _1, _2, _3),
+             std::bind(&ProtobufCodecLiteT::onRpcMessage, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3),
              rawCb,
              errorCb)
   {

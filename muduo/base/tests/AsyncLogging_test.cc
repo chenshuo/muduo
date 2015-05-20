@@ -5,6 +5,9 @@
 #include <stdio.h>
 #include <sys/resource.h>
 
+#include <sys/types.h>
+#include <unistd.h>               // gettpid
+
 int kRollSize = 500*1000*1000;
 
 muduo::AsyncLogging* g_asyncLog = NULL;

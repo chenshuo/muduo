@@ -1,29 +1,35 @@
 #include <muduo/base/BlockingQueue.h>
 #include <muduo/base/CountDownLatch.h>
+#include <muduo/base/Logging.h>
 #include <muduo/base/Thread.h>
 #include <muduo/base/Timestamp.h>
 
-#include <boost/bind.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
+#include <algorithm>
+#include <functional>
+#include <vector>
 #include <map>
 #include <string>
+
 #include <stdio.h>
+#include <unistd.h>
 
 class Bench
 {
  public:
   Bench(int numThreads)
-    : latch_(numThreads),
-      threads_(numThreads)
+    : latch_(numThreads)
+      // if you do not remark line 23, the program will core. the vector constructor:
+      // vector ( size_type n, const T& value= T(), const Allocator& = Allocator() ); 
+      // , threads_(numThreads)
   {
     for (int i = 0; i < numThreads; ++i)
     {
       char name[32];
       snprintf(name, sizeof name, "work thread %d", i);
-      threads_.push_back(new muduo::Thread(
-            boost::bind(&Bench::threadFunc, this), muduo::string(name)));
+      threads_.push_back(std::unique_ptr<muduo::Thread>(new muduo::Thread(
+            std::bind(&Bench::threadFunc, this), muduo::string(name))));
     }
-    for_each(threads_.begin(), threads_.end(), boost::bind(&muduo::Thread::start, _1));
+    std::for_each(threads_.begin(), threads_.end(), std::bind(&muduo::Thread::start, std::placeholders::_1));
   }
 
   void run(int times)
@@ -46,7 +52,7 @@ class Bench
       queue_.put(muduo::Timestamp::invalid());
     }
 
-    for_each(threads_.begin(), threads_.end(), boost::bind(&muduo::Thread::join, _1));
+    std::for_each(threads_.begin(), threads_.end(), std::bind(&muduo::Thread::join, std::placeholders::_1));
   }
 
  private:
@@ -88,7 +94,7 @@ class Bench
 
   muduo::BlockingQueue<muduo::Timestamp> queue_;
   muduo::CountDownLatch latch_;
-  boost::ptr_vector<muduo::Thread> threads_;
+  std::vector<std::unique_ptr<muduo::Thread>> threads_;
 };
 
 int main(int argc, char* argv[])

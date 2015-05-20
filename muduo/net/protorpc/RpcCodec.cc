@@ -15,7 +15,7 @@
 #include <muduo/net/protorpc/rpc.pb.h>
 #include <muduo/net/protorpc/google-inl.h>
 
-#include <boost/bind.hpp>
+#include <functional>
 
 using namespace muduo;
 using namespace muduo::net;

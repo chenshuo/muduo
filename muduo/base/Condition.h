@@ -8,13 +8,13 @@
 
 #include <muduo/base/Mutex.h>
 
-#include <boost/noncopyable.hpp>
+#include <muduo/other/noncopyable.h>
 #include <pthread.h>
 
 namespace muduo
 {
 
-class Condition : boost::noncopyable
+class Condition : noncopyable
 {
  public:
   explicit Condition(MutexLock& mutex)

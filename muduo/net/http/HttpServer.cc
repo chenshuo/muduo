@@ -14,7 +14,7 @@
 #include <muduo/net/http/HttpRequest.h>
 #include <muduo/net/http/HttpResponse.h>
 
-#include <boost/bind.hpp>
+#include <functional>
 
 using namespace muduo;
 using namespace muduo::net;
@@ -151,9 +151,9 @@ HttpServer::HttpServer(EventLoop* loop,
     httpCallback_(detail::defaultHttpCallback)
 {
   server_.setConnectionCallback(
-      boost::bind(&HttpServer::onConnection, this, _1));
+      std::bind(&HttpServer::onConnection, this, std::placeholders::_1));
   server_.setMessageCallback(
-      boost::bind(&HttpServer::onMessage, this, _1, _2, _3));
+      std::bind(&HttpServer::onMessage, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 }
 
 HttpServer::~HttpServer()

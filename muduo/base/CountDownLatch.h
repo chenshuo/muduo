@@ -9,12 +9,12 @@
 #include <muduo/base/Condition.h>
 #include <muduo/base/Mutex.h>
 
-#include <boost/noncopyable.hpp>
+#include <muduo/other/noncopyable.h>
 
 namespace muduo
 {
 
-class CountDownLatch : boost::noncopyable
+class CountDownLatch : noncopyable
 {
  public:
 

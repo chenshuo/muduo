@@ -12,14 +12,14 @@
 #define MUDUO_NET_INSPECT_PROCESSINSPECTOR_H
 
 #include <muduo/net/inspect/Inspector.h>
-#include <boost/noncopyable.hpp>
+#include <muduo/other/noncopyable.h>
 
 namespace muduo
 {
 namespace net
 {
 
-class ProcessInspector : boost::noncopyable
+class ProcessInspector : noncopyable
 {
  public:
   void registerCommands(Inspector* ins);

@@ -15,7 +15,7 @@
 #include <muduo/base/Mutex.h>
 #include <muduo/base/Thread.h>
 
-#include <boost/noncopyable.hpp>
+#include <muduo/other/noncopyable.h>
 
 namespace muduo
 {
@@ -24,10 +24,10 @@ namespace net
 
 class EventLoop;
 
-class EventLoopThread : boost::noncopyable
+class EventLoopThread : noncopyable
 {
  public:
-  typedef boost::function<void(EventLoop*)> ThreadInitCallback;
+  typedef std::function<void(EventLoop*)> ThreadInitCallback;
 
   EventLoopThread(const ThreadInitCallback& cb = ThreadInitCallback(),
                   const string& name = string());

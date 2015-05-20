@@ -17,7 +17,7 @@
 
 #include <google/protobuf/service.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include <map>
 
@@ -146,7 +146,7 @@ class RpcChannel : public ::google::protobuf::RpcChannel
 
   const std::map<std::string, ::google::protobuf::Service*>* services_;
 };
-typedef boost::shared_ptr<RpcChannel> RpcChannelPtr;
+typedef std::shared_ptr<RpcChannel> RpcChannelPtr;
 
 }
 }

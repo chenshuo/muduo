@@ -149,6 +149,10 @@ T* CheckNotNull(Logger::SourceFile file, int line, const char *names, T* ptr)
   return ptr;
 }
 
+#include <stdio.h>
+#define pinfo(fmt, ...)  ::printf("%s-%s-%d: " fmt "\n", \
+  (char*)__FILE__, (char*)__func__, (int)__LINE__, ##__VA_ARGS__)
+
 }
 
 #endif  // MUDUO_BASE_LOGGING_H

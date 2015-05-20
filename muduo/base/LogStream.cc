@@ -2,8 +2,7 @@
 
 #include <algorithm>
 #include <limits>
-#include <boost/static_assert.hpp>
-#include <boost/type_traits/is_arithmetic.hpp>
+#include <type_traits>
 #include <assert.h>
 #include <string.h>
 #include <stdint.h>
@@ -25,10 +24,10 @@ namespace detail
 
 const char digits[] = "9876543210123456789";
 const char* zero = digits + 9;
-BOOST_STATIC_ASSERT(sizeof(digits) == 20);
+static_assert(sizeof(digits) == 20, "sizeof(digits) != 20");
 
 const char digitsHex[] = "0123456789ABCDEF";
-BOOST_STATIC_ASSERT(sizeof digitsHex == 17);
+static_assert(sizeof(digitsHex) == 17, "sizeof(digitsHex) != 20");
 
 // Efficient Integer to String Conversions, by Matthew Wilson.
 template<typename T>
@@ -97,10 +96,10 @@ void FixedBuffer<SIZE>::cookieEnd()
 
 void LogStream::staticCheck()
 {
-  BOOST_STATIC_ASSERT(kMaxNumericSize - 10 > std::numeric_limits<double>::digits10);
-  BOOST_STATIC_ASSERT(kMaxNumericSize - 10 > std::numeric_limits<long double>::digits10);
-  BOOST_STATIC_ASSERT(kMaxNumericSize - 10 > std::numeric_limits<long>::digits10);
-  BOOST_STATIC_ASSERT(kMaxNumericSize - 10 > std::numeric_limits<long long>::digits10);
+  static_assert(kMaxNumericSize - 10 > std::numeric_limits<double>::digits10, "kMaxNumericSize");
+  static_assert(kMaxNumericSize - 10 > std::numeric_limits<long double>::digits10, "kMaxNumericSize");
+  static_assert(kMaxNumericSize - 10 > std::numeric_limits<long>::digits10, "kMaxNumericSize");
+  static_assert(kMaxNumericSize - 10 > std::numeric_limits<long long>::digits10, "kMaxNumericSize");
 }
 
 template<typename T>
@@ -189,7 +188,7 @@ LogStream& LogStream::operator<<(double v)
 template<typename T>
 Fmt::Fmt(const char* fmt, T val)
 {
-  BOOST_STATIC_ASSERT(boost::is_arithmetic<T>::value == true);
+  static_assert(std::is_arithmetic<T>::value == true, "not arithmetic");
 
   length_ = snprintf(buf_, sizeof buf_, fmt, val);
   assert(static_cast<size_t>(length_) < sizeof buf_);

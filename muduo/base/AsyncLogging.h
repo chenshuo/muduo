@@ -2,22 +2,21 @@
 #define MUDUO_BASE_ASYNCLOGGING_H
 
 #include <muduo/base/BlockingQueue.h>
-#include <muduo/base/BoundedBlockingQueue.h>
 #include <muduo/base/CountDownLatch.h>
 #include <muduo/base/Mutex.h>
 #include <muduo/base/Thread.h>
 
 #include <muduo/base/LogStream.h>
 
-#include <boost/bind.hpp>
-#include <boost/noncopyable.hpp>
-#include <boost/scoped_ptr.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
+#include <functional>
+#include <muduo/other/noncopyable.h>
+#include <memory>
+#include <vector>
 
 namespace muduo
 {
 
-class AsyncLogging : boost::noncopyable
+class AsyncLogging : noncopyable
 {
  public:
 
@@ -58,8 +57,10 @@ class AsyncLogging : boost::noncopyable
   void threadFunc();
 
   typedef muduo::detail::FixedBuffer<muduo::detail::kLargeBuffer> Buffer;
-  typedef boost::ptr_vector<Buffer> BufferVector;
-  typedef BufferVector::auto_type BufferPtr;
+  // typedef boost::ptr_vector<Buffer> BufferVector;
+  typedef std::vector<std::unique_ptr<Buffer>> BufferVector;
+  // typedef BufferVector::auto_type BufferPtr;
+  typedef std::unique_ptr<Buffer> BufferPtr;
 
   const int flushInterval_;
   bool running_;
