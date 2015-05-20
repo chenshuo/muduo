@@ -1,17 +1,19 @@
-Muduo is a multithreaded C++ network library based on
-the reactor pattern.
-It runs on Linux with kernel version >= 2.6.28.
-http://code.google.com/p/muduo/
+        muduo依赖boost这个庞大的库，而且还使用cmake才能进行编译，我当时的目标也就只有两个：1 删除muduo代码中boost相关的代码；2 自己添加makefile编译文件，去除与cmake相关的编译代码。
+         
+         目前已经完成的任务是：
+         1 完成了muduo主干目录muduo/base的boost去除，muduo/base/tests下的测试用例【除去依赖zip库的GzipFile_test.cc和依赖boost unit test库的./base/tests/LogStream_test.cc外】全部通过，编译makefile为muduo/base/tests/makefile；
+         2 完成了muduo主干目录muduo/net的boost去除，muduo/net/tests下的测试用例【除去依赖boost unit test库的 ./net/http/tests/HttpRequest_unittest.cc 、./net/tests/InetAddress_unittest.cc 、 ./net/tests/Buffer_unittest.cc和./net/tests/ZlibStream_unittest.cc外】全部通过，编译脚本为muduo/net/tests/makefile。
 
-Copyright (c) 2010, Shuo Chen.  All rights reserved.
-
-Use of this source code is governed by a BSD-style
-license that can be found in the License file.
-
-  __  __           _
- |  \/  |         | |
- | \  / |_   _  __| |_   _  ___
- | |\/| | | | |/ _` | | | |/ _ \
- | |  | | |_| | (_| | |_| | (_) |
- |_|  |_|\__,_|\__,_|\__,_|\___/
+         改造过程中的主要任务就是去除boost相关的代码，相关的经验总结如下：
+         1 把boost::shared_ptr 替换为 std::shared_ptr；
+         2 把boost::weak_ptr 替换为 std::weak_ptr；
+         3 把boost::scoped_ptr 替换为 std::unique_ptr，但是请注意二者之间的差别，unique_ptr如果没有被release，它的对象就会与程序永存；
+         4 把get_pointer(unique_ptr) 替换为 unique_ptr.get()；
+         5 把boost::ptr_vector<T> 替换为 std::vector<std::unique_ptr<T>>；
+         6 在boost::ptr_vector<T> 替换为 std::vector<std::unique_ptr<T>>时候，boost::ptr_vector<T>::ptr_vector(size)禁止替换为std::vector<T>::vector(size)，因为前者是扩容ptr_vector的capacity，而后者则是扩容capacity的同时再构造size个默认对象，相应的代码请参考muduo/base/ests/BlockingQueue_bench.cc和muduo/base/ests/BlockingQueue_test.cc；
+         5 把boost::ptr_vector<T> 替换为 std::vector<std::unique_ptr<T>>时，不要把boost::ptr_vector<T>::pop_back直接替换为std::vector<T>::pop_back，因为前者是pop出最后一个对象并返回这个对象，而std::vector<T>::pop_backpop出最后一个对象并返回void，相应的代码请参考muduo/base/AsyncLogging.cc；
+         6 把boost::ptr_vector<T> 替换为 std::vector<std::unique_ptr<T>>时， 不要简单的以使用boost::ptr_vector<T>::pop_back方式来使用std::vector<T>::push_back，而是应该把分配对象和push_back放在一行代码完成， 因为这里push的是一个std::unique_ptr<T>对象，而std::unique_ptr不支持拷贝复制，相关的参考点在EventLoopThreadPool.ccmuduo/net/EventLoopThreadPool.cc line45-line50；     
+         7 把boost::bind替换为 std::bind，请注意 std::bind只能使用C形式的function和class的static成员函数，相关的参考点在muduo/net/TcpConnection.cc line110 和 line131；
+         8 去除boost::any，替之以cdiggins::any，代码文件为muduo/other/any.h；
+         9 去除boost::noncopyable，替之以muduo::noncopyable，放在muduo/other/noncopyable.h；
 

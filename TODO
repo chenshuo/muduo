@@ -1,5 +1,6 @@
-Always processing timer before IO
-Support string and line protocol
-Add Benchmark
-Support signal handling
+         下一步的收尾工作如下：
+         1 把boost unit test修改为gtest；
+         2 用muduo/examples下的所有的测试用例做回归测试。
+         date:2015/05/20。
+		 
 
