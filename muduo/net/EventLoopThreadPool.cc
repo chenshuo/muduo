@@ -42,6 +42,10 @@ void EventLoopThreadPool::start(const ThreadInitCallback& cb)
   {
     char buf[name_.size() + 32];
     snprintf(buf, sizeof buf, "%s%d", name_.c_str(), i);
+    // std::unique_ptr does not support copy constructor & assign function.
+    // EventLoopThread* t = new EventLoopThread(cb, buf);
+    // threads_.push_back(t);
+    // loops_.push_back(t->startLoop());
     threads_.push_back(std::unique_ptr<EventLoopThread>(new EventLoopThread(cb, buf)));
     loops_.push_back(threads_.back()->startLoop());
   }
