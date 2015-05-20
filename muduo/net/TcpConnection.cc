@@ -128,12 +128,6 @@ void TcpConnection::send(Buffer* buf)
     else
     {
       loop_->runInLoop(
-                  /*
-          std::bind(&TcpConnection::sendInLoop,
-                      this,     // FIXME
-                      buf->retrieveAllAsString()));
-                    //std::forward<string>(message)));
-                    */
           std::bind(bindSendInLoop,
                       this,
                       buf->retrieveAllAsString()));
