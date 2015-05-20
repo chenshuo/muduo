@@ -1,4 +1,4 @@
-# makefile for muduo/base/tests
+# makefile for muduo/net/tests
 
 .SUFFIXES: .sh .h .c .cc .cpp
 
