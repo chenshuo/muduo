@@ -48,11 +48,9 @@ class TimerQueue : noncopyable
   TimerId addTimer(const TimerCallback& cb,
                    Timestamp when,
                    double interval);
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
   TimerId addTimer(TimerCallback&& cb,
                    Timestamp when,
                    double interval);
-#endif
 
   void cancel(TimerId timerId);
 

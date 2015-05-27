@@ -82,10 +82,7 @@ class Test
 
 void testMove()
 {
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
-
 // std::unique_ptr requires gcc 4.4 or later
-#if __GNUC_PREREQ (4,4)
   muduo::BlockingQueue<std::unique_ptr<int>> queue;
   queue.put(std::unique_ptr<int>(new int(42)));
   std::unique_ptr<int> x = queue.take();
@@ -94,9 +91,6 @@ void testMove()
   queue.put(std::move(x));
   std::unique_ptr<int> y = queue.take();
   printf("took %d\n", *y);
-#endif
-
-#endif
 }
 
 int main()

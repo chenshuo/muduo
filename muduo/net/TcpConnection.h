@@ -14,6 +14,7 @@
 #include <muduo/base/StringPiece.h>
 #include <muduo/base/Types.h>
 #include <muduo/net/Callbacks.h>
+#include <muduo/base/WeakCallback.h>
 #include <muduo/net/Buffer.h>
 #include <muduo/net/InetAddress.h>
 
@@ -61,13 +62,12 @@ class TcpConnection : noncopyable,
   bool getTcpInfo(struct tcp_info*) const;
   string getTcpInfoString() const;
 
-  // void send(string&& message); // C++11
+  void send(string&& message); // C++11
   void send(const void* message, int len);
   void send(const StringPiece& message);
-  // void send(Buffer&& message); // C++11
+  void send(Buffer&& message); // C++11
   void send(Buffer* message);  // this one will swap data
   void shutdown(); // NOT thread safe, no simultaneous calling
-  // void shutdownAndForceCloseAfter(double seconds); // NOT thread safe, no simultaneous calling
   void forceClose();
   void forceCloseWithDelay(double seconds);
   void setTcpNoDelay(bool on);

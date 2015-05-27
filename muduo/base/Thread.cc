@@ -164,7 +164,6 @@ Thread::Thread(const ThreadFunc& func, const string& n)
   setDefaultName();
 }
 
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
 Thread::Thread(ThreadFunc&& func, const string& n)
   : started_(false),
     joined_(false),
@@ -175,8 +174,6 @@ Thread::Thread(ThreadFunc&& func, const string& n)
 {
   setDefaultName();
 }
-
-#endif
 
 Thread::~Thread()
 {

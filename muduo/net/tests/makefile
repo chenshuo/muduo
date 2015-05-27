@@ -15,17 +15,28 @@ SRC_DIR		= ./
 OBJ_DIR		= obj
 LIB_DIR		= lib
 BIN_DIR		= bin
-MUDUO_LIB   = libmuduo.a
-BIN			= EventLoop_unittest
-# EchoServer_unittest EventLoopThreadPool_unittest EventLoopThread_unittest \
- EventLoop_unittest TcpClient_reg1 TcpClient_reg2 TcpClient_reg3 TimerQueue_unittest
+MUDUOLIB    = libmuduo.a
 
-INC			= -I$(INC_DIR)
-LIB			= -L$(LIB_DIR) -lmuduo -lpthread
+MUDUO_INC   = -I$(INC_DIR)
+MUDUO_LIB   = -L$(LIB_DIR) -lmuduo -lpthread
+
+GTEST_INC   = -I$(BASE_DIR)/muduo/other/
+GTEST_LIB   = -L$(BASE_DIR)/muduo/other/gtest/lib/ -lgtest
+
+ZLIB_INC    = -I$(BASE_DIR)/muduo/other/zlib/inc
+ZLIB_LIB    = -L$(BASE_DIR)/muduo/other/zlib/lib -lz
+
+INC			= $(MUDUO_INC) $(GTEST_INC) $(ZLIB_INC)
+LIB			= $(MUDUO_LIB) $(GTEST_LIB) $(ZLIB_LIB)
+
+BIN			= ZlibStream_unittest
+# EchoServer_unittest EventLoopThreadPool_unittest EventLoopThread_unittest \
+ EventLoop_unittest TcpClient_reg1 TcpClient_reg2 TcpClient_reg3 \
+ TimerQueue_unittest InetAddress_unittest Buffer_unittest ZlibStream_unittest
 
 all: debug release # strip
 
-debug release gprof: dir $(addprefix $(LIB_DIR)/,$(MUDUO_LIB)) $(addprefix $(BIN_DIR)/,$(BIN))
+debug release gprof: dir $(addprefix $(LIB_DIR)/,$(MUDUOLIB)) $(addprefix $(BIN_DIR)/,$(BIN))
 
 
 #@ do not outoupt this command - ingnore its error and continue to make
@@ -80,6 +91,15 @@ $(BIN_DIR)/TcpClient_reg3:$(addprefix $(OBJ_DIR)/, TcpClient_reg3.o)
 	$(CXX) $(CXXFLAGS) $(CXX_MACRO) -o $@ $^ $(LIB)
 
 $(BIN_DIR)/TimerQueue_unittest:$(addprefix $(OBJ_DIR)/, TimerQueue_unittest.o)
+	$(CXX) $(CXXFLAGS) $(CXX_MACRO) -o $@ $^ $(LIB)
+
+$(BIN_DIR)/InetAddress_unittest:$(addprefix $(OBJ_DIR)/, InetAddress_unittest.o)
+	$(CXX) $(CXXFLAGS) $(CXX_MACRO) -o $@ $^ $(LIB)
+
+$(BIN_DIR)/Buffer_unittest:$(addprefix $(OBJ_DIR)/, Buffer_unittest.o)
+	$(CXX) $(CXXFLAGS) $(CXX_MACRO) -o $@ $^ $(LIB)
+
+$(BIN_DIR)/ZlibStream_unittest:$(addprefix $(OBJ_DIR)/, ZlibStream_unittest.o)
 	$(CXX) $(CXXFLAGS) $(CXX_MACRO) -o $@ $^ $(LIB)
 
 strip:

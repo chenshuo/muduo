@@ -88,7 +88,6 @@ void ThreadPool::run(const Task& task)
   }
 }
 
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
 void ThreadPool::run(Task&& task)
 {
   if (threads_.empty())
@@ -108,7 +107,6 @@ void ThreadPool::run(Task&& task)
     notEmpty_.notify();
   }
 }
-#endif
 
 ThreadPool::Task ThreadPool::take()
 {

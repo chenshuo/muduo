@@ -15,21 +15,31 @@ SRC_DIR		= ./
 OBJ_DIR		= obj
 LIB_DIR		= lib
 BIN_DIR		= bin
-MUDUO_LIB   = libmuduo_base.a
-BIN			= Thread_test \
- AsyncLogging_test Atomic_unittest BlockingQueue_bench BlockingQueue_test \
- Date_unittest Exception_test FileUtil_test Fork_test LogFile_test \
+
+MUDUO_INC   = -I$(INC_DIR)
+MUDUO_LIB   = -L$(LIB_DIR) -lmuduo_base -lpthread
+
+GTEST_INC   = -I$(BASE_DIR)/muduo/other/
+GTEST_LIB   = -L$(BASE_DIR)/muduo/other/gtest/lib/ -lgtest
+
+ZLIB_INC    = -I$(BASE_DIR)/muduo/other/zlib/inc
+ZLIB_LIB    = -L$(BASE_DIR)/muduo/other/zlib/lib -lz
+
+INC			= $(MUDUO_INC) $(GTEST_INC) $(ZLIB_INC)
+LIB			= $(MUDUO_LIB) $(GTEST_LIB) $(ZLIB_LIB)
+
+MUDUOLIB    = libmuduo_base.a
+BIN			= GzipFile_test
+# AsyncLogging_test Atomic_unittest BlockingQueue_bench BlockingQueue_test \
+ Date_unittest Exception_test FileUtil_test Fork_test LogFile_test LogStream_test \
  LogStream_bench Logging_test Mutex_test ProcessInfo_test Singleton_test \
  SingletonThreadLocal_test ThreadLocalSingleton_test ThreadLocal_test \
  ThreadPool_test Thread_bench Thread_test TimeZone_unittest Timestamp_unittest \
-# GzipFile_test 
-
-INC			= -I$(INC_DIR)
-LIB			= -L$(LIB_DIR) -lmuduo_base -lpthread
+ GzipFile_test 
 
 all: debug release # strip
 
-debug release gprof: dir $(addprefix $(LIB_DIR)/,$(MUDUO_LIB)) $(addprefix $(BIN_DIR)/,$(BIN))
+debug release gprof: dir $(addprefix $(LIB_DIR)/,$(MUDUOLIB)) $(addprefix $(BIN_DIR)/,$(BIN))
 
 
 #@ do not outoupt this command - ingnore its error and continue to make
@@ -76,7 +86,6 @@ $(BIN_DIR)/FileUtil_test:$(addprefix $(OBJ_DIR)/, FileUtil_test.o)
 $(BIN_DIR)/Fork_test:$(addprefix $(OBJ_DIR)/, Fork_test.o)
 	$(CXX) $(CXXFLAGS) $(CXX_MACRO) -o $@ $^ $(LIB)
 
-# GzipFile_test need zlib.h && zlib
 $(BIN_DIR)/GzipFile_test:$(addprefix $(OBJ_DIR)/, GzipFile_test.o)
 	$(CXX) $(CXXFLAGS) $(CXX_MACRO) -o $@ $^ $(LIB)
 
@@ -120,6 +129,9 @@ $(BIN_DIR)/TimeZone_unittest:$(addprefix $(OBJ_DIR)/, TimeZone_unittest.o)
 	$(CXX) $(CXXFLAGS) $(CXX_MACRO) -o $@ $^ $(LIB)
 
 $(BIN_DIR)/Timestamp_unittest:$(addprefix $(OBJ_DIR)/, Timestamp_unittest.o)
+	$(CXX) $(CXXFLAGS) $(CXX_MACRO) -o $@ $^ $(LIB)
+
+$(BIN_DIR)/LogStream_test:$(addprefix $(OBJ_DIR)/, LogStream_test.o)
 	$(CXX) $(CXXFLAGS) $(CXX_MACRO) -o $@ $^ $(LIB)
 
 strip:

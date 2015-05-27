@@ -9,7 +9,6 @@
 #include <muduo/net/TcpConnection.h>
 
 #include <muduo/base/Logging.h>
-#include <muduo/base/WeakCallback.h>
 #include <muduo/net/Channel.h>
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/Socket.h>
@@ -86,6 +85,12 @@ string TcpConnection::getTcpInfoString() const
   return buf;
 }
 
+void TcpConnection::send(string&& message)
+{
+  send(StringPiece(static_cast<const char*>(message.data()), (int)(message.size())));
+  message.clear();
+}
+
 void TcpConnection::send(const void* data, int len)
 {
   send(StringPiece(static_cast<const char*>(data), len));
@@ -111,6 +116,25 @@ void TcpConnection::send(const StringPiece& message)
                       this,     // FIXME
                     message.as_string()));
                     // std::forward<string>(message)));
+    }
+  }
+}
+
+void TcpConnection::send(Buffer&& message)
+{
+  if (state_ == kConnected)
+  {
+    if (loop_->isInLoopThread())
+    {
+      sendInLoop(message.peek(), message.readableBytes());
+      message.retrieveAll();
+    }
+    else
+    {
+      loop_->runInLoop(
+          std::bind(bindSendInLoop,
+                      this,
+                      message.retrieveAllAsString()));
     }
   }
 }
@@ -216,29 +240,6 @@ void TcpConnection::shutdownInLoop()
   }
 }
 
-// void TcpConnection::shutdownAndForceCloseAfter(double seconds)
-// {
-//   // FIXME: use compare and swap
-//   if (state_ == kConnected)
-//   {
-//     setState(kDisconnecting);
-//     loop_->runInLoop(std::bind(&TcpConnection::shutdownAndForceCloseInLoop, this, seconds));
-//   }
-// }
-
-// void TcpConnection::shutdownAndForceCloseInLoop(double seconds)
-// {
-//   loop_->assertInLoopThread();
-//   if (!channel_->isWriting())
-//   {
-//     // we are not writing
-//     socket_->shutdownWrite();
-//   }
-//   loop_->runAfter(
-//       seconds,
-//       makeWeakCallback(shared_from_this(),
-//                        &TcpConnection::forceCloseInLoop));
-// }
 
 void TcpConnection::forceClose()
 {

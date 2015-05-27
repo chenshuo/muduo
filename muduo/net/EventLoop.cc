@@ -79,8 +79,8 @@ EventLoop::EventLoop()
   LOG_DEBUG << "EventLoop created " << this << " in thread " << threadId_;
   if (t_loopInThisThread)
   {
-    // LOG_FATAL << "Another EventLoop ";// << t_loopInThisThread;
-    //          << " exists in this thread " << threadId_;
+    LOG_FATAL << "Another EventLoop " << t_loopInThisThread
+              << " exists in this thread " << threadId_;
   }
   else
   {
@@ -190,7 +190,6 @@ TimerId EventLoop::runEvery(double interval, const TimerCallback& cb)
   return timerQueue_->addTimer(cb, time, interval);
 }
 
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
 // FIXME: remove duplication
 void EventLoop::runInLoop(Functor&& cb)
 {
@@ -233,7 +232,6 @@ TimerId EventLoop::runEvery(double interval, TimerCallback&& cb)
   Timestamp time(addTime(Timestamp::now(), interval));
   return timerQueue_->addTimer(std::move(cb), time, interval);
 }
-#endif
 
 void EventLoop::cancel(TimerId timerId)
 {
