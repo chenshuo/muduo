@@ -1,6 +1,10 @@
-         下一步的收尾工作如下：
-         1 把boost unit test修改为gtest；
-         2 用muduo/examples下的所有的测试用例做回归测试。
-         date:2015/05/20。
+date:2015/05/20:
+    下一步的收尾工作如下：
+    1 把boost unit test修改为gtest
 		 
+date:2015/05/27:
+	完成了muduo/base/tests/和muduo/net/tests下面的所有的unittest和zlib相关的测试修改工作。
+	下一步的todo list：
+	1 完成muduo/net/下http这类各个子包的测试工作;
 
+    2 用muduo/examples下的所有的测试用例做回归测试。
