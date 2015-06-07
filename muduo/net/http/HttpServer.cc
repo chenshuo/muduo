@@ -10,6 +10,7 @@
 #include <muduo/net/http/HttpServer.h>
 
 #include <muduo/base/Logging.h>
+#include <muduo/other/any.h>
 #include <muduo/net/http/HttpContext.h>
 #include <muduo/net/http/HttpRequest.h>
 #include <muduo/net/http/HttpResponse.h>
@@ -179,11 +180,12 @@ void HttpServer::onMessage(const TcpConnectionPtr& conn,
                            Buffer* buf,
                            Timestamp receiveTime)
 {
-  HttpContext* context = boost::any_cast<HttpContext>(conn->getMutableContext());
+  HttpContext* context = conn->getMutableContext()->cast<HttpContext*>();
 
   if (!detail::parseRequest(buf, context, receiveTime))
   {
-    conn->send("HTTP/1.1 400 Bad Request\r\n\r\n");
+    string msg("HTTP/1.1 400 Bad Request\r\n\r\n");
+    conn->send(msg);
     conn->shutdown();
   }
 

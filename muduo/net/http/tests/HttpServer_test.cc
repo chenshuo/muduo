@@ -7,6 +7,8 @@
 #include <iostream>
 #include <map>
 
+#include <gtest/gtest.h>
+
 using namespace muduo;
 using namespace muduo::net;
 

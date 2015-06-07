@@ -1,5 +1,0 @@
-hub - a server for broadcasting
-pubsub - a client library of hub
-pub - a command line tool for publishing content on a topic
-sub - a demo tool for subscribing a topic
-

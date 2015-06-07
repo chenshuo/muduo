@@ -64,7 +64,7 @@ void RpcServer::onConnection(const TcpConnectionPtr& conn)
 //                           Buffer* buf,
 //                           Timestamp time)
 // {
-//   RpcChannelPtr& channel = boost::any_cast<RpcChannelPtr&>(conn->getContext());
+//   RpcChannelPtr& channel = conn->getContext()->cast<RpcChannelPtr>();
 //   channel->onMessage(conn, buf, time);
 // }
 
