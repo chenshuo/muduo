@@ -14,11 +14,6 @@ using namespace muduo;
 static_assert(sizeof(Timestamp) == sizeof(int64_t),
               "Timestamp is same size as int64_t");
 
-Timestamp::Timestamp(int64_t microseconds)
-  : microSecondsSinceEpoch_(microseconds)
-{
-}
-
 string Timestamp::toString() const
 {
   char buf[32] = {0};
@@ -58,10 +53,5 @@ Timestamp Timestamp::now()
   gettimeofday(&tv, NULL);
   int64_t seconds = tv.tv_sec;
   return Timestamp(seconds * kMicroSecondsPerSecond + tv.tv_usec);
-}
-
-Timestamp Timestamp::invalid()
-{
-  return Timestamp();
 }
 

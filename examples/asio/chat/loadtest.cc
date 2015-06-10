@@ -142,7 +142,7 @@ int main(int argc, char* argv[])
 
     EventLoop loop;
     g_loop = &loop;
-    EventLoopThreadPool loopPool(&loop);
+    EventLoopThreadPool loopPool(&loop, "chat-loadtest");
     loopPool.setThreadNum(threads);
     loopPool.start();
 

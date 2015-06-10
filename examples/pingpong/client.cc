@@ -86,7 +86,7 @@ class Client : noncopyable
          int timeout,
          int threadCount)
     : loop_(loop),
-      threadPool_(loop),
+      threadPool_(loop, "pingpong-client"),
       sessionCount_(sessionCount),
       timeout_(timeout)
   {

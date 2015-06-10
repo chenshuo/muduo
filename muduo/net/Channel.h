@@ -81,6 +81,7 @@ class Channel : noncopyable
 
   // for debug
   string reventsToString() const;
+  string eventsToString() const;
 
   void doNotLogHup() { logHup_ = false; }
 
@@ -88,6 +89,8 @@ class Channel : noncopyable
   void remove();
 
  private:
+  static string eventsToString(int fd, int ev);
+
   void update();
   void handleEventWithGuard(Timestamp receiveTime);
 

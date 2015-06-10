@@ -88,14 +88,14 @@ void Channel::handleEventWithGuard(Timestamp receiveTime)
   {
     if (logHup_)
     {
-      LOG_WARN << "Channel::handle_event() POLLHUP";
+      LOG_WARN << "fd = " << fd_ << " Channel::handle_event() POLLHUP";
     }
     if (closeCallback_) closeCallback_();
   }
 
   if (revents_ & POLLNVAL)
   {
-    LOG_WARN << "Channel::handle_event() POLLNVAL";
+    LOG_WARN << "fd = " << fd_ << " Channel::handle_event() POLLNVAL";
   }
 
   if (revents_ & (POLLERR | POLLNVAL))
@@ -115,21 +115,31 @@ void Channel::handleEventWithGuard(Timestamp receiveTime)
 
 string Channel::reventsToString() const
 {
+  return eventsToString(fd_, revents_);
+}
+
+string Channel::eventsToString() const
+{
+  return eventsToString(fd_, events_);
+}
+
+string Channel::eventsToString(int fd, int ev)
+{
   std::ostringstream oss;
-  oss << fd_ << ": ";
-  if (revents_ & POLLIN)
+  oss << fd << ": ";
+  if (ev & POLLIN)
     oss << "IN ";
-  if (revents_ & POLLPRI)
+  if (ev & POLLPRI)
     oss << "PRI ";
-  if (revents_ & POLLOUT)
+  if (ev & POLLOUT)
     oss << "OUT ";
-  if (revents_ & POLLHUP)
+  if (ev & POLLHUP)
     oss << "HUP ";
-  if (revents_ & POLLRDHUP)
+  if (ev & POLLRDHUP)
     oss << "RDHUP ";
-  if (revents_ & POLLERR)
+  if (ev & POLLERR)
     oss << "ERR ";
-  if (revents_ & POLLNVAL)
+  if (ev & POLLNVAL)
     oss << "NVAL ";
 
   return oss.str().c_str();

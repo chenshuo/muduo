@@ -91,6 +91,8 @@ void onServerMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp)
           g_tunnels[conn->name()] = tunnel;
           buf->retrieveUntil(where+1);
           char response[] = "\000\x5aUVWXYZ";
+          memcpy(response+2, &addr.sin_port, 2);
+          memcpy(response+4, &addr.sin_addr.s_addr, 4);
           conn->send(response, 8);
         }
         else
