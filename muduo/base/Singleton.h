@@ -7,9 +7,10 @@
 #define MUDUO_BASE_SINGLETON_H
 
 #include <muduo/base/noncopyable.h>
-
+#include <assert.h>
 #include <pthread.h>
 #include <stdlib.h> // atexit
+#include <pthread.h>
 
 namespace muduo
 {
@@ -34,6 +35,7 @@ class Singleton : noncopyable
   static T& instance()
   {
     pthread_once(&ponce_, &Singleton::init);
+    assert(value_ != NULL);
     return *value_;
   }
 
@@ -56,6 +58,7 @@ class Singleton : noncopyable
     T_must_be_complete_type dummy; (void) dummy;
 
     delete value_;
+    value_ = NULL;
   }
 
  private:

@@ -59,9 +59,13 @@ static int write_n(int sockfd, const void* buf, int length)
   while (written < length)
   {
     ssize_t nw = ::write(sockfd, static_cast<const char*>(buf) + written, length - written);
-    if (nw >= 0)
+    if (nw > 0)
     {
       written += static_cast<int>(nw);
+    }
+    else if (nw == 0)
+    {
+      break;  // EOF
     }
     else if (errno != EINTR)
     {
@@ -78,9 +82,13 @@ static int read_n(int sockfd, void* buf, int length)
   while (nread < length)
   {
     ssize_t nr = ::read(sockfd, static_cast<char*>(buf) + nread, length - nread);
-    if (nr >= 0)
+    if (nr > 0)
     {
       nread += static_cast<int>(nr);
+    }
+    else if (nr == 0)
+    {
+      break;  // EOF
     }
     else if (errno != EINTR)
     {
@@ -127,6 +135,9 @@ void transmit(const Options& opt)
     payload->data[i] = "0123456789ABCDEF"[i % 16];
   }
 
+  double total_mb = 1.0 * opt.length * opt.number / 1024 / 1024;
+  printf("%.3f MiB in total\n", total_mb);
+
   for (int i = 0; i < opt.number; ++i)
   {
     int nw = write_n(sockfd, payload, total_len);
@@ -142,8 +153,7 @@ void transmit(const Options& opt)
   ::free(payload);
   ::close(sockfd);
   double elapsed = timeDifference(muduo::Timestamp::now(), start);
-  double total_mb = 1.0 * opt.length * opt.number / 1024 / 1024;
-  printf("%.3f MiB transferred\n%.3f MiB/s\n", total_mb, total_mb / elapsed);
+  printf("%.3f seconds\n%.3f MiB/s\n", elapsed, total_mb / elapsed);
 }
 
 void receive(const Options& opt)
