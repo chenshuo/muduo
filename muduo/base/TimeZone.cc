@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <cassert>
 
 //#define _BSD_SOURCE
 #include <endian.h>
