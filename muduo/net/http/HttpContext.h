@@ -20,6 +20,8 @@ namespace muduo
 namespace net
 {
 
+class Buffer;
+
 class HttpContext : public muduo::copyable
 {
  public:
@@ -37,6 +39,11 @@ class HttpContext : public muduo::copyable
   }
 
   // default copy-ctor, dtor and assignment are fine
+
+  bool processRequestLine(const char* begin, const char* end);
+
+  // return false if any error
+  bool parseRequest(Buffer* buf, Timestamp receiveTime);
 
   bool expectRequestLine() const
   { return state_ == kExpectRequestLine; }
