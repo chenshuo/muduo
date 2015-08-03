@@ -63,7 +63,7 @@ bool HttpContext::parseRequest(Buffer* buf, Timestamp receiveTime)
   bool hasMore = true;
   while (hasMore)
   {
-    if (expectRequestLine())
+    if (state_ == kExpectRequestLine)
     {
       const char* crlf = buf->findCRLF();
       if (crlf)
@@ -73,7 +73,7 @@ bool HttpContext::parseRequest(Buffer* buf, Timestamp receiveTime)
         {
           request_.setReceiveTime(receiveTime);
           buf->retrieveUntil(crlf + 2);
-          receiveRequestLine();
+          state_ = kExpectHeaders;
         }
         else
         {
@@ -85,7 +85,7 @@ bool HttpContext::parseRequest(Buffer* buf, Timestamp receiveTime)
         hasMore = false;
       }
     }
-    else if (expectHeaders())
+    else if (state_ == kExpectHeaders)
     {
       const char* crlf = buf->findCRLF();
       if (crlf)
@@ -98,8 +98,9 @@ bool HttpContext::parseRequest(Buffer* buf, Timestamp receiveTime)
         else
         {
           // empty line, end of header
-          receiveHeaders();
-          hasMore = !gotAll();
+          // FIXME:
+          state_ = kGotAll;
+          hasMore = false;
         }
         buf->retrieveUntil(crlf + 2);
       }
@@ -108,7 +109,7 @@ bool HttpContext::parseRequest(Buffer* buf, Timestamp receiveTime)
         hasMore = false;
       }
     }
-    else if (expectBody())
+    else if (state_ == kExpectBody)
     {
       // FIXME:
     }
