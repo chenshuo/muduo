@@ -27,14 +27,18 @@ set(net_SRCS
   TimerQueue.cc
   )
 
-add_library(muduo_net ${net_SRCS})
+add_library(muduo_net STATIC ${net_SRCS})
+add_library(muduo_net_shared SHARED ${net_SRCS})
 target_link_libraries(muduo_net muduo_base)
+
+set_target_properties(muduo_net_shared PROPERTIES OUTPUT_NAME "muduo_net")
 
 #add_library(muduo_net_cpp11 ${net_SRCS})
 #target_link_libraries(muduo_net_cpp11 muduo_base_cpp11)
 #set_target_properties(muduo_net_cpp11 PROPERTIES COMPILE_FLAGS "-std=c++0x")
 
 install(TARGETS muduo_net DESTINATION lib)
+install(TARGETS muduo_net_shared DESTINATION bin)
 #install(TARGETS muduo_net_cpp11 DESTINATION lib)
 
 set(HEADERS
