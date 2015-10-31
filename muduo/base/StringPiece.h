@@ -202,6 +202,8 @@ template<> struct __type_traits<muduo::StringPiece> {
 #endif
 
 // allow StringPiece to be logged
-std::ostream& operator<<(std::ostream& o, const muduo::StringPiece& piece);
+inline std::ostream& operator<<(std::ostream& o, const muduo::StringPiece& piece){
+ return o.write(piece.data(), piece.size());
+}
 
 #endif  // MUDUO_BASE_STRINGPIECE_H
