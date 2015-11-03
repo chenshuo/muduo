@@ -136,7 +136,7 @@ void EventLoop::loop()
 void EventLoop::quit()
 {
   quit_ = true;
-  // There is a chance that loop() just executes while(!quit_) and exists,
+  // There is a chance that loop() just executes while(!quit_) and exits,
   // then EventLoop destructs, then we are accessing an invalid object.
   // Can be fixed using mutex_ in both places.
   if (!isInLoopThread())
