@@ -1,3 +1,12 @@
+2015-11-09   Shuo Chen  <chenshuo@chenshuo.com>
+  * Add stats to Sudoku examples .
+  * Add example of PeriodicTimer class.
+  * Add thrift examples by <decimalbell>.
+  * Move hiredis example by <decimalbell> to contrib/.
+  * Move HTTP parseRequest to HttpContext class by <decimalbell>.
+  * Other fixes from <harrywong>, <cfreestar>, <qlhuangrui>, <lidw1988>.
+  * Version 1.0.7
+
 2015-04-03   Shuo Chen  <chenshuo@chenshuo.com>
   * Fix ProcessInspector::threads().
   * Minor fixes and improvements from liyuan989 and zieckey.
