@@ -73,9 +73,9 @@ class TcpConnection : boost::noncopyable,
   void forceClose();
   void forceCloseWithDelay(double seconds);
   void setTcpNoDelay(bool on);
-  void startRead(); // Start read from socketfd
-  void stopRead(); // Stop read from socketfd
-  bool isReading() { return reading_; }; // NOT thread safe, may race with start/stopReadInLoop 
+  void startRead();
+  void stopRead();
+  bool isReading() const { return reading_; }; // NOT thread safe, may race with start/stopReadInLoop 
 
   void setContext(const boost::any& context)
   { context_ = context; }
