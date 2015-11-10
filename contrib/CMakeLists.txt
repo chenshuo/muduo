@@ -1,0 +1,5 @@
+if(THRIFT_COMPILER AND THRIFT_INCLUDE_DIR AND THRIFT_LIBRARY)
+  add_subdirectory(thrift)
+else()
+  add_subdirectory(thrift EXCLUDE_FROM_ALL)
+endif()
