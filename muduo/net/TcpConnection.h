@@ -73,6 +73,9 @@ class TcpConnection : boost::noncopyable,
   void forceClose();
   void forceCloseWithDelay(double seconds);
   void setTcpNoDelay(bool on);
+  void startRead();
+  void stopRead();
+  bool isReading() const { return reading_; }; // NOT thread safe, may race with start/stopReadInLoop 
 
   void setContext(const boost::any& context)
   { context_ = context; }
@@ -125,6 +128,8 @@ class TcpConnection : boost::noncopyable,
   void forceCloseInLoop();
   void setState(StateE s) { state_ = s; }
   const char* stateToString() const;
+  void startReadInLoop();
+  void stopReadInLoop();
 
   EventLoop* loop_;
   const string name_;
@@ -143,6 +148,7 @@ class TcpConnection : boost::noncopyable,
   Buffer inputBuffer_;
   Buffer outputBuffer_; // FIXME: use list<Buffer> as output buffer.
   boost::any context_;
+  bool reading_;
   // FIXME: creationTime_, lastReceiveTime_
   //        bytesReceived_, bytesSent_
 };
