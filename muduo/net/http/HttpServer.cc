@@ -57,7 +57,7 @@ HttpServer::~HttpServer()
 void HttpServer::start()
 {
   LOG_WARN << "HttpServer[" << server_.name()
-    << "] starts listenning on " << server_.hostport();
+    << "] starts listenning on " << server_.ipPort();
   server_.start();
 }
 

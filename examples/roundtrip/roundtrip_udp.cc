@@ -35,8 +35,8 @@ void serverReadCallback(int sockfd, muduo::Timestamp receiveTime)
   socklen_t addrLen = sizeof peerAddr;
   ssize_t nr = ::recvfrom(sockfd, message, sizeof message, 0, &peerAddr, &addrLen);
 
-  char addrStr[32];
-  sockets::toIpPort(addrStr, sizeof addrStr, *reinterpret_cast<struct sockaddr_in*>(&peerAddr));
+  char addrStr[64];
+  sockets::toIpPort(addrStr, sizeof addrStr, &peerAddr);
   LOG_DEBUG << "received " << nr << " bytes from " << addrStr;
 
   if (nr < 0)
@@ -118,7 +118,7 @@ void runClient(const char* ip, uint16_t port)
 {
   Socket sock(createNonblockingUDP());
   InetAddress serverAddr(ip, port);
-  int ret = sockets::connect(sock.fd(), serverAddr.getSockAddrInet());
+  int ret = sockets::connect(sock.fd(), serverAddr.getSockAddr());
   if (ret < 0)
   {
     LOG_SYSFATAL << "::connect";
