@@ -17,6 +17,8 @@
 #include <boost/bind.hpp>
 
 #include <errno.h>
+#include <stdlib.h>
+#include <time.h>
 
 using namespace muduo;
 using namespace muduo::net;
@@ -37,6 +39,15 @@ Connector::~Connector()
 {
   LOG_DEBUG << "dtor[" << this << "]";
   assert(!channel_);
+}
+
+void Connector::randomRetryDelayMs()
+{
+	struct timespec tsp;
+	clock_gettime(CLOCK_REALTIME,&tsp);
+	unsigned int seed=static_cast<unsigned int>(tsp.tv_nsec);
+	srand(seed);
+	retryDelayMs_=rand()%1501+500;
 }
 
 void Connector::start()
@@ -122,7 +133,8 @@ void Connector::restart()
 {
   loop_->assertInLoopThread();
   setState(kDisconnected);
-  retryDelayMs_ = kInitRetryDelayMs;
+  randomRetryDelayMs();
+  //retryDelayMs_=kInitRetryDelayMs;
   connect_ = true;
   startInLoop();
 }
@@ -157,7 +169,7 @@ void Connector::resetChannel()
   channel_.reset();
 }
 
-void Connector::handleWrite()
+void Connector::handleWrite()   //writable doesn't mean connected!
 {
   LOG_TRACE << "Connector::handleWrite " << state_;
 

@@ -48,6 +48,7 @@ class Connector : boost::noncopyable,
   enum States { kDisconnected, kConnecting, kConnected };
   static const int kMaxRetryDelayMs = 30*1000;
   static const int kInitRetryDelayMs = 500;
+  void randomRetryDelayMs();
 
   void setState(States s) { state_ = s; }
   void startInLoop();
