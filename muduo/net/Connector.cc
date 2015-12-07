@@ -43,10 +43,6 @@ Connector::~Connector()
 
 void Connector::randomRetryDelayMs()
 {
-	struct timespec tsp;
-	clock_gettime(CLOCK_REALTIME,&tsp);
-	unsigned int seed=static_cast<unsigned int>(tsp.tv_nsec);
-	srand(seed);
 	retryDelayMs_=rand()%1501+500;
 }
 

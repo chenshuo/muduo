@@ -131,6 +131,13 @@ void TcpClient::stop()
   connector_->stop();
 }
 
+void TcpClient::enableRetry()
+{
+	unsigned int seed=static_cast<unsigned int>(time(NULL));
+	srand(seed);
+	retry_=true;
+}
+
 void TcpClient::newConnection(int sockfd)
 {
   loop_->assertInLoopThread();
@@ -175,7 +182,7 @@ void TcpClient::removeConnection(const TcpConnectionPtr& conn)
   loop_->queueInLoop(boost::bind(&TcpConnection::connectDestroyed, conn));
   if (retry_ && connect_)
   {
-    LOG_INFO << "TcpClient::connect[" << name_ << "] - Reconnecting to "
+	LOG_INFO << "TcpClient::connect[" << name_ << "] - Reconnecting to "
              << connector_->serverAddress().toIpPort();
     connector_->restart();
   }

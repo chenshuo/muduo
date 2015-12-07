@@ -46,7 +46,7 @@ class TcpClient : boost::noncopyable
 
   EventLoop* getLoop() const { return loop_; }
   bool retry() const;
-  void enableRetry() { retry_ = true; }
+  void enableRetry();
 
   const string& name() const
   { return name_; }
