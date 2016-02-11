@@ -1,5 +1,11 @@
+2016-02-11   Shuo Chen  <chenshuo@chenshuo.com>
+  * Preliminary support of IPv6.
+  * Last version in C++98/03, next version will use C++11
+  * Add stop/startRead in TcpConnection by <zhang.jako>
+  * Version 1.0.8
+
 2015-11-09   Shuo Chen  <chenshuo@chenshuo.com>
-  * Add stats to Sudoku examples .
+  * Add stats to Sudoku examples.
   * Add example of PeriodicTimer class.
   * Add thrift examples by <decimalbell>.
   * Move hiredis example by <decimalbell> to contrib/.
