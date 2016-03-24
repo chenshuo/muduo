@@ -35,7 +35,7 @@ class Condition : boost::noncopyable
   }
 
   // returns true if time out, false otherwise.
-  bool waitForSeconds(int seconds);
+  bool waitForSeconds(double seconds);
 
   void notify()
   {
