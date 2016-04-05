@@ -236,7 +236,7 @@ void sockets::fromIpPort(const char* ip, uint16_t port,
 {
   addr->sin6_family = AF_INET6;
   addr->sin6_port = hostToNetwork16(port);
-  if (::inet_pton(AF_INET, ip, &addr->sin6_addr) <= 0)
+  if (::inet_pton(AF_INET6, ip, &addr->sin6_addr) <= 0)
   {
     LOG_SYSERR << "sockets::fromIpPort";
   }
