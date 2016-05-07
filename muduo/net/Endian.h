@@ -23,7 +23,7 @@ namespace sockets
 
 // the inline assembler code makes type blur,
 // so we disable warnings for a while.
-#if defined(__clang__) || __GNUC_MINOR__ >= 6
+#if defined(__clang__) || __GNUC_PREREQ (4,6)
 #pragma GCC diagnostic push
 #endif
 #pragma GCC diagnostic ignored "-Wconversion"
@@ -57,7 +57,7 @@ inline uint16_t networkToHost16(uint16_t net16)
 {
   return be16toh(net16);
 }
-#if defined(__clang__) || __GNUC_MINOR__ >= 6
+#if defined(__clang__) || __GNUC_PREREQ (4,6)
 #pragma GCC diagnostic pop
 #else
 #pragma GCC diagnostic warning "-Wconversion"

@@ -54,6 +54,9 @@ BOOST_STATIC_ASSERT(offsetof(sockaddr_in6, sin6_family) == 0);
 BOOST_STATIC_ASSERT(offsetof(sockaddr_in, sin_port) == 2);
 BOOST_STATIC_ASSERT(offsetof(sockaddr_in6, sin6_port) == 2);
 
+#if !(__GNUC_PREREQ (4,6))
+#pragma GCC diagnostic ignored "-Winvalid-offsetof"
+#endif
 InetAddress::InetAddress(uint16_t port, bool loopbackOnly, bool ipv6)
 {
   BOOST_STATIC_ASSERT(offsetof(InetAddress, addr6_) == 0);
