@@ -74,6 +74,22 @@ const struct sockaddr_in6* sockets::sockaddr_in6_cast(const struct sockaddr* add
   return static_cast<const struct sockaddr_in6*>(implicit_cast<const void*>(addr));
 }
 
+bool sockets::setNonblocking(int sockfd)
+{
+  int flags = fcntl(sockfd, F_GETFL, 0);
+  if (flags < 0)
+  {
+    return false;
+  }
+
+  flags = flags | O_NONBLOCK;
+  if (fcntl(sockfd, F_SETFL, flags) < 0)
+  {
+    return false;
+  }
+  return true;
+}
+
 int sockets::createNonblockingOrDie(sa_family_t family)
 {
 #if VALGRIND
