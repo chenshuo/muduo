@@ -27,6 +27,16 @@ class BlockingQueue : boost::noncopyable
   {
   }
 
+
+#ifdef __GXX_EXPERIMENTAL_CXX0X__
+  template<typename ... ARGS>
+  void put (ARGS&& ... args)
+  {
+    MutexLockGuard lock(mutex_);
+    queue_.emplace_back (std::forward<ARGS>(args)...);
+    notEmpty_.notify();
+  }
+#else
   void put(const T& x)
   {
     MutexLockGuard lock(mutex_);
@@ -34,15 +44,6 @@ class BlockingQueue : boost::noncopyable
     notEmpty_.notify(); // wait morphing saves us
     // http://www.domaigne.com/blog/computing/condvars-signal-with-mutex-locked-or-not/
   }
-
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
-  void put(T&& x)
-  {
-    MutexLockGuard lock(mutex_);
-    queue_.push_back(std::move(x));
-    notEmpty_.notify();
-  }
-  // FIXME: emplace()
 #endif
 
   T take()
