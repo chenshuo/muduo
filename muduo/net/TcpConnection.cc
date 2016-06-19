@@ -93,21 +93,12 @@ void TcpConnection::send(const void* data, int len)
 
 void TcpConnection::send(const StringPiece& message)
 {
-  if (state_ == kConnected)
-  {
-    if (loop_->isInLoopThread())
-    {
-      sendInLoop(message);
-    }
-    else
-    {
-      loop_->runInLoop(
-          boost::bind(&TcpConnection::sendInLoop,
-                      this,     // FIXME
-                      message.as_string()));
-                    //std::forward<string>(message)));
-    }
-  }
+  if (state_ != kConnected) return;
+  loop_->runInLoop(
+    boost::bind(&TcpConnection::sendInLoop,
+                this,     // FIXME
+                message.as_string()));
+              //std::forward<string>(message)));
 }
 
 // FIXME efficiency!!!
