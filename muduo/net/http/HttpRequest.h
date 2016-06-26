@@ -165,6 +165,7 @@ class HttpRequest : public muduo::copyable
   void swap(HttpRequest& that)
   {
     std::swap(method_, that.method_);
+    std::swap(version_, that.version_);
     path_.swap(that.path_);
     query_.swap(that.query_);
     receiveTime_.swap(that.receiveTime_);
