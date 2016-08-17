@@ -28,7 +28,6 @@ namespace muduo
 {
 namespace net
 {
-
 /// A buffer class modeled after org.jboss.netty.buffer.ChannelBuffer
 ///
 /// @code
