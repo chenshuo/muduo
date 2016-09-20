@@ -170,6 +170,12 @@ void EventLoop::queueInLoop(const Functor& cb)
   }
 }
 
+size_t EventLoop::queueSize() const
+{
+  MutexLockGuard lock(mutex_);
+  return pendingFunctors_.size();
+}
+
 TimerId EventLoop::runAt(const Timestamp& time, const TimerCallback& cb)
 {
   return timerQueue_->addTimer(cb, time, 0.0);
