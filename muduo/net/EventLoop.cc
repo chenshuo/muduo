@@ -170,7 +170,7 @@ void EventLoop::queueInLoop(const Functor& cb)
   }
 }
 
-size_t EventLoop::queueSize() const
+size_t EventLoop::queueSize()
 {
   MutexLockGuard lock(mutex_);
   return pendingFunctors_.size();
