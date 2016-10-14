@@ -118,8 +118,8 @@ void Hiredis::handleWrite()
 
 void Hiredis::logConnection(bool up) const
 {
-  InetAddress localAddr = sockets::getLocalAddr(fd());
-  InetAddress peerAddr = sockets::getPeerAddr(fd());
+  InetAddress localAddr(sockets::getLocalAddr(fd()));
+  InetAddress peerAddr(sockets::getPeerAddr(fd()));
 
   LOG_INFO << localAddr.toIpPort() << " -> "
            << peerAddr.toIpPort() << " is "

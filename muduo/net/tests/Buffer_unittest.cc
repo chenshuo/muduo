@@ -26,6 +26,7 @@ BOOST_AUTO_TEST_CASE(testBufferAppendRetrieve)
   BOOST_CHECK_EQUAL(buf.readableBytes(), str.size() - str2.size());
   BOOST_CHECK_EQUAL(buf.writableBytes(), Buffer::kInitialSize - str.size());
   BOOST_CHECK_EQUAL(buf.prependableBytes(), Buffer::kCheapPrepend + str2.size());
+  BOOST_CHECK_EQUAL(str2, string(50, 'x'));
 
   buf.append(str);
   BOOST_CHECK_EQUAL(buf.readableBytes(), 2*str.size() - str2.size());
@@ -37,6 +38,7 @@ BOOST_AUTO_TEST_CASE(testBufferAppendRetrieve)
   BOOST_CHECK_EQUAL(buf.readableBytes(), 0);
   BOOST_CHECK_EQUAL(buf.writableBytes(), Buffer::kInitialSize);
   BOOST_CHECK_EQUAL(buf.prependableBytes(), Buffer::kCheapPrepend);
+  BOOST_CHECK_EQUAL(str3, string(350, 'x'));
 }
 
 BOOST_AUTO_TEST_CASE(testBufferGrow)
@@ -133,12 +135,12 @@ BOOST_AUTO_TEST_CASE(testBufferReadInt)
   BOOST_CHECK_EQUAL(buf.writableBytes(), Buffer::kInitialSize);
 
   buf.appendInt8(-1);
-  buf.appendInt16(-1);
-  buf.appendInt32(-1);
+  buf.appendInt16(-2);
+  buf.appendInt32(-3);
   BOOST_CHECK_EQUAL(buf.readableBytes(), 7);
   BOOST_CHECK_EQUAL(buf.readInt8(), -1);
-  BOOST_CHECK_EQUAL(buf.readInt32(), -1);
-  BOOST_CHECK_EQUAL(buf.readInt16(), -1);
+  BOOST_CHECK_EQUAL(buf.readInt16(), -2);
+  BOOST_CHECK_EQUAL(buf.readInt32(), -3);
 }
 
 BOOST_AUTO_TEST_CASE(testBufferFindEOL)

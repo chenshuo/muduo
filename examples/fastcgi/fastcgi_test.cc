@@ -23,6 +23,8 @@ void onRequest(const TcpConnectionPtr& conn,
   {
     LOG_DEBUG << it->first << " = " << it->second;
   }
+  if (in->readableBytes() > 0)
+    LOG_DEBUG << "stdin " << in->retrieveAllAsString();
   Buffer response;
   response.append("Context-Type: text/plain\r\n\r\n");
   if (uri.size() == kCells + kPath.size() && uri.find(kPath) == 0)

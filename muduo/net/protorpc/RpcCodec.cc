@@ -27,7 +27,7 @@ namespace
     GOOGLE_PROTOBUF_VERIFY_VERSION;
     return 0;
   }
-  int dummy = ProtobufVersionCheck();
+  int dummy __attribute__ ((unused)) = ProtobufVersionCheck();
 }
 
 namespace muduo

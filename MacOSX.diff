@@ -838,3 +838,17 @@ index f42f5a4..a6a3133 100644
    }
 +#endif
  }
+
+diff --git a/examples/protobuf/rpcbalancer/balancer_raw.cc b/examples/protobuf/rpcbalancer/balancer_raw.cc
+index 9c2e1db..c30b19d 100644
+--- a/examples/protobuf/rpcbalancer/balancer_raw.cc
++++ b/examples/protobuf/rpcbalancer/balancer_raw.cc
+@@ -12,7 +12,7 @@
+ #include <boost/bind.hpp>
+ #include <boost/ptr_container/ptr_vector.hpp>
+
+-#include <endian.h>
++#include <machine/endian.h>
+ #include <stdio.h>
+
+ using namespace muduo;

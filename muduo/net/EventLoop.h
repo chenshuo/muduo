@@ -75,6 +75,8 @@ class EventLoop : boost::noncopyable
   /// Safe to call from other threads.
   void queueInLoop(const Functor& cb);
 
+  size_t queueSize() const;
+
 #ifdef __GXX_EXPERIMENTAL_CXX0X__
   void runInLoop(Functor&& cb);
   void queueInLoop(Functor&& cb);
@@ -166,7 +168,7 @@ class EventLoop : boost::noncopyable
   ChannelList activeChannels_;
   Channel* currentActiveChannel_;
 
-  MutexLock mutex_;
+  mutable MutexLock mutex_;
   std::vector<Functor> pendingFunctors_; // @GuardedBy mutex_
 };
 

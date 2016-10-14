@@ -136,7 +136,7 @@ void EventLoop::loop()
 void EventLoop::quit()
 {
   quit_ = true;
-  // There is a chance that loop() just executes while(!quit_) and exists,
+  // There is a chance that loop() just executes while(!quit_) and exits,
   // then EventLoop destructs, then we are accessing an invalid object.
   // Can be fixed using mutex_ in both places.
   if (!isInLoopThread())
@@ -168,6 +168,12 @@ void EventLoop::queueInLoop(const Functor& cb)
   {
     wakeup();
   }
+}
+
+size_t EventLoop::queueSize() const
+{
+  MutexLockGuard lock(mutex_);
+  return pendingFunctors_.size();
 }
 
 TimerId EventLoop::runAt(const Timestamp& time, const TimerCallback& cb)

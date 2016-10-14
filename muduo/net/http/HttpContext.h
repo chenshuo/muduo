@@ -20,6 +20,8 @@ namespace muduo
 namespace net
 {
 
+class Buffer;
+
 class HttpContext : public muduo::copyable
 {
  public:
@@ -38,23 +40,11 @@ class HttpContext : public muduo::copyable
 
   // default copy-ctor, dtor and assignment are fine
 
-  bool expectRequestLine() const
-  { return state_ == kExpectRequestLine; }
-
-  bool expectHeaders() const
-  { return state_ == kExpectHeaders; }
-
-  bool expectBody() const
-  { return state_ == kExpectBody; }
+  // return false if any error
+  bool parseRequest(Buffer* buf, Timestamp receiveTime);
 
   bool gotAll() const
   { return state_ == kGotAll; }
-
-  void receiveRequestLine()
-  { state_ = kExpectHeaders; }
-
-  void receiveHeaders()
-  { state_ = kGotAll; }  // FIXME
 
   void reset()
   {
@@ -70,6 +60,8 @@ class HttpContext : public muduo::copyable
   { return request_; }
 
  private:
+  bool processRequestLine(const char* begin, const char* end);
+
   HttpRequestParseState state_;
   HttpRequest request_;
 };
