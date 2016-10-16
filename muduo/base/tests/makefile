@@ -29,13 +29,13 @@ INC			= $(MUDUO_INC) $(GTEST_INC) $(ZLIB_INC)
 LIB			= $(MUDUO_LIB) $(GTEST_LIB) $(ZLIB_LIB)
 
 MUDUOLIB    = libmuduo_base.a
-BIN			= GzipFile_test
-# AsyncLogging_test Atomic_unittest BlockingQueue_bench BlockingQueue_test \
+BIN			= BoundedBlockingQueue_test
+# AsyncLogging_test Atomic_unittest BlockingQueue_bench BlockingQueue_test BoundedBlockingQueue_test \
  Date_unittest Exception_test FileUtil_test Fork_test LogFile_test LogStream_test \
  LogStream_bench Logging_test Mutex_test ProcessInfo_test Singleton_test \
  SingletonThreadLocal_test ThreadLocalSingleton_test ThreadLocal_test \
  ThreadPool_test Thread_bench Thread_test TimeZone_unittest Timestamp_unittest \
- GzipFile_test 
+ GzipFile_test
 
 all: debug release # strip
 
@@ -72,6 +72,9 @@ $(BIN_DIR)/BlockingQueue_bench:$(addprefix $(OBJ_DIR)/, BlockingQueue_bench.o)
 	$(CXX) $(CXXFLAGS) $(CXX_MACRO) -o $@ $^ $(LIB)
 
 $(BIN_DIR)/BlockingQueue_test:$(addprefix $(OBJ_DIR)/, BlockingQueue_test.o)
+	$(CXX) $(CXXFLAGS) $(CXX_MACRO) -o $@ $^ $(LIB)
+
+$(BIN_DIR)/BoundedBlockingQueue_test:$(addprefix $(OBJ_DIR)/, BoundedBlockingQueue_test.o)
 	$(CXX) $(CXXFLAGS) $(CXX_MACRO) -o $@ $^ $(LIB)
 
 $(BIN_DIR)/Date_unittest:$(addprefix $(OBJ_DIR)/, Date_unittest.o)

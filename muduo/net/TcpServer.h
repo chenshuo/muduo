@@ -50,7 +50,7 @@ class TcpServer : noncopyable
             Option option = kNoReusePort);
   ~TcpServer();  // force out-line dtor, for scoped_ptr members.
 
-  const string& hostport() const { return hostport_; }
+  const string& ipPort() const { return ipPort_; }
   const string& name() const { return name_; }
   EventLoop* getLoop() const { return loop_; }
 
@@ -103,7 +103,7 @@ class TcpServer : noncopyable
   typedef std::map<string, TcpConnectionPtr> ConnectionMap;
 
   EventLoop* loop_;  // the acceptor loop
-  const string hostport_;
+  const string ipPort_;
   const string name_;
   std::unique_ptr<Acceptor> acceptor_; // avoid revealing Acceptor
   std::shared_ptr<EventLoopThreadPool> threadPool_;

@@ -60,7 +60,7 @@ bool Socket::getTcpInfoString(char* buf, int len) const
 
 void Socket::bindAddress(const InetAddress& addr)
 {
-  sockets::bindOrDie(sockfd_, addr.getSockAddrInet());
+  sockets::bindOrDie(sockfd_, addr.getSockAddr());
 }
 
 void Socket::listen()
@@ -70,12 +70,12 @@ void Socket::listen()
 
 int Socket::accept(InetAddress* peeraddr)
 {
-  struct sockaddr_in addr;
+  struct sockaddr_in6 addr;
   bzero(&addr, sizeof addr);
   int connfd = sockets::accept(sockfd_, &addr);
   if (connfd >= 0)
   {
-    peeraddr->setSockAddrInet(addr);
+    peeraddr->setSockAddrInet6(addr);
   }
   return connfd;
 }

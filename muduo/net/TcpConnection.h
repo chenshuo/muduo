@@ -62,15 +62,19 @@ class TcpConnection : noncopyable,
   bool getTcpInfo(struct tcp_info*) const;
   string getTcpInfoString() const;
 
-  void send(string&& message); // C++11
+  // void send(string&& message); // C++11
   void send(const void* message, int len);
   void send(const StringPiece& message);
-  void send(Buffer&& message); // C++11
+  // void send(Buffer&& message); // C++11
   void send(Buffer* message);  // this one will swap data
   void shutdown(); // NOT thread safe, no simultaneous calling
+  // void shutdownAndForceCloseAfter(double seconds); // NOT thread safe, no simultaneous calling
   void forceClose();
   void forceCloseWithDelay(double seconds);
   void setTcpNoDelay(bool on);
+  void startRead();
+  void stopRead();
+  bool isReading() const { return reading_; }; // NOT thread safe, may race with start/stopReadInLoop
 
   void setContext(const cdiggins::any& context)
   { context_ = context; }
@@ -124,6 +128,9 @@ class TcpConnection : noncopyable,
   void forceCloseInLoop();
   void setState(StateE s) { state_ = s; }
   const char* stateToString() const;
+  void startReadInLoop();
+  void stopReadInLoop();
+  static void bindStopReadInLoop(TcpConnection* conn);
 
   EventLoop* loop_;
   const string name_;
@@ -142,6 +149,7 @@ class TcpConnection : noncopyable,
   Buffer inputBuffer_;
   Buffer outputBuffer_; // FIXME: use list<Buffer> as output buffer.
   cdiggins::any context_;
+  bool reading_;
   // FIXME: creationTime_, lastReceiveTime_
   //        bytesReceived_, bytesSent_
 };

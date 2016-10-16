@@ -49,7 +49,8 @@ TcpConnection::TcpConnection(EventLoop* loop,
     channel_(new Channel(loop, sockfd)),
     localAddr_(localAddr),
     peerAddr_(peerAddr),
-    highWaterMark_(64*1024*1024)
+    highWaterMark_(64*1024*1024),
+    reading_(true)
 {
   channel_->setReadCallback(
       std::bind(&TcpConnection::handleRead, this, std::placeholders::_1));
@@ -85,20 +86,15 @@ string TcpConnection::getTcpInfoString() const
   return buf;
 }
 
-void TcpConnection::send(string&& message)
-{
-  send(StringPiece(static_cast<const char*>(message.data()), (int)(message.size())));
-  message.clear();
-}
-
 void TcpConnection::send(const void* data, int len)
 {
   send(StringPiece(static_cast<const char*>(data), len));
 }
 
+
 void TcpConnection::bindSendInLoop(TcpConnection* conn, const string& message)
 {
-    conn->sendInLoop(message.data(), message.size());
+  conn->sendInLoop(message.data(), message.size());
 }
 
 void TcpConnection::send(const StringPiece& message)
@@ -112,29 +108,10 @@ void TcpConnection::send(const StringPiece& message)
     else
     {
       loop_->runInLoop(
-          std::bind(bindSendInLoop,
+          std::bind(&bindSendInLoop,
                       this,     // FIXME
                     message.as_string()));
                     // std::forward<string>(message)));
-    }
-  }
-}
-
-void TcpConnection::send(Buffer&& message)
-{
-  if (state_ == kConnected)
-  {
-    if (loop_->isInLoopThread())
-    {
-      sendInLoop(message.peek(), message.readableBytes());
-      message.retrieveAll();
-    }
-    else
-    {
-      loop_->runInLoop(
-          std::bind(bindSendInLoop,
-                      this,
-                      message.retrieveAllAsString()));
     }
   }
 }
@@ -152,7 +129,7 @@ void TcpConnection::send(Buffer* buf)
     else
     {
       loop_->runInLoop(
-          std::bind(bindSendInLoop,
+          std::bind(&bindSendInLoop,
                       this,
                       buf->retrieveAllAsString()));
     }
@@ -293,6 +270,41 @@ const char* TcpConnection::stateToString() const
 void TcpConnection::setTcpNoDelay(bool on)
 {
   socket_->setTcpNoDelay(on);
+}
+
+void TcpConnection::startRead()
+{
+  loop_->runInLoop(std::bind(&TcpConnection::startReadInLoop, this));
+}
+
+void TcpConnection::startReadInLoop()
+{
+  loop_->assertInLoopThread();
+  if (!reading_ || !channel_->isReading())
+  {
+    channel_->enableReading();
+    reading_ = true;
+  }
+}
+
+void TcpConnection::stopRead()
+{
+  loop_->runInLoop(std::bind(&TcpConnection::bindStopReadInLoop, this));
+}
+
+void TcpConnection::bindStopReadInLoop(TcpConnection* conn)
+{
+    conn->stopReadInLoop();
+}
+
+void TcpConnection::stopReadInLoop()
+{
+  loop_->assertInLoopThread();
+  if (reading_ || channel_->isReading())
+  {
+    channel_->disableReading();
+    reading_ = false;
+  }
 }
 
 void TcpConnection::connectEstablished()

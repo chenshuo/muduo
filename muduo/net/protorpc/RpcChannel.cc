@@ -20,14 +20,16 @@ using namespace muduo;
 using namespace muduo::net;
 
 RpcChannel::RpcChannel()
-  : codec_(std::bind(&RpcChannel::onRpcMessage, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)),
+  : codec_(std::bind(&RpcChannel::onRpcMessage, this,
+      std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)),
     services_(NULL)
 {
   LOG_INFO << "RpcChannel::ctor - " << this;
 }
 
 RpcChannel::RpcChannel(const TcpConnectionPtr& conn)
-  : codec_(std::bind(&RpcChannel::onRpcMessage, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)),
+  : codec_(std::bind(&RpcChannel::onRpcMessage, this,
+      std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)),
     conn_(conn),
     services_(NULL)
 {

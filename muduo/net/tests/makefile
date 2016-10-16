@@ -29,10 +29,11 @@ ZLIB_LIB    = -L$(BASE_DIR)/muduo/other/zlib/lib -lz
 INC			= $(MUDUO_INC) $(GTEST_INC) $(ZLIB_INC)
 LIB			= $(MUDUO_LIB) $(GTEST_LIB) $(ZLIB_LIB)
 
-BIN			= ZlibStream_unittest
-# EchoServer_unittest EventLoopThreadPool_unittest EventLoopThread_unittest \
- EventLoop_unittest TcpClient_reg1 TcpClient_reg2 TcpClient_reg3 \
- TimerQueue_unittest InetAddress_unittest Buffer_unittest ZlibStream_unittest
+BIN			= Channel_test
+# Channel_test EchoClient_unittest EchoServer_unittest EventLoopThreadPool_unittest \
+ EventLoopThread_unittest EventLoop_unittest TcpClient_reg1 TcpClient_reg2 \
+ TcpClient_reg3 TimerQueue_unittest InetAddress_unittest Buffer_unittest \
+ ZlibStream_unittest
 
 all: debug release # strip
 
@@ -66,8 +67,14 @@ $(LIB_DIR)/libmuduo.a:$(addprefix $(OBJ_DIR)/, \
 	InetAddress.o TcpConnection.o TimerQueue.o Channel.o Socket.o \
 	Poller.o DefaultPoller.o Acceptor.o EventLoopThreadPool.o SocketsOps.o \
 	Timer.o PollPoller.o EPollPoller.o EventLoopThread.o Buffer.o \
-	TcpClient.o Connector.o) 
+	TcpClient.o Connector.o)
 	$(AR) $(AR_FLAGS) $@ $^
+
+$(BIN_DIR)/Channel_test:$(addprefix $(OBJ_DIR)/, Channel_test.o)
+	$(CXX) $(CXXFLAGS) $(CXX_MACRO) -o $@ $^ $(LIB)
+
+$(BIN_DIR)/EchoClient_unittest:$(addprefix $(OBJ_DIR)/, EchoClient_unittest.o)
+	$(CXX) $(CXXFLAGS) $(CXX_MACRO) -o $@ $^ $(LIB)
 
 $(BIN_DIR)/EchoServer_unittest:$(addprefix $(OBJ_DIR)/, EchoServer_unittest.o)
 	$(CXX) $(CXXFLAGS) $(CXX_MACRO) -o $@ $^ $(LIB)

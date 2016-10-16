@@ -69,7 +69,7 @@ $(LIB_DIR)/libmuduo.a:$(addprefix $(OBJ_DIR)/, \
 	InetAddress.o TcpConnection.o TimerQueue.o Channel.o Socket.o \
 	Poller.o DefaultPoller.o Acceptor.o EventLoopThreadPool.o SocketsOps.o \
 	Timer.o PollPoller.o EPollPoller.o EventLoopThread.o Buffer.o \
-	TcpClient.o Connector.o HttpResponse.o HttpServer.o) 
+	TcpClient.o Connector.o HttpResponse.o HttpServer.o HttpContext.o) 
 	$(AR) $(AR_FLAGS) $@ $^
 
 $(BIN_DIR)/HttpRequest_unittest:$(addprefix $(OBJ_DIR)/, HttpRequest_unittest.o)

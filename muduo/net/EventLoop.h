@@ -74,6 +74,7 @@ class EventLoop : noncopyable
   /// Runs after finish pooling.
   /// Safe to call from other threads.
   void queueInLoop(const Functor& cb);
+  size_t queueSize();
   void runInLoop(Functor&& cb);
   void queueInLoop(Functor&& cb);
 

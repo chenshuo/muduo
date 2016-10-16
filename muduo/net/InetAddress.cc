@@ -38,40 +38,77 @@ static const in_addr_t kInaddrLoopback = INADDR_LOOPBACK;
 using namespace muduo;
 using namespace muduo::net;
 
-static_assert(sizeof(InetAddress) == sizeof(struct sockaddr_in), "inet address size wrong!");
+#if 4 <= __GNUC__
+#define offsetof(type, member)        __builtin_offsetof(type, member)
+#else
+#define offsetof(stt, mem)           (uw)((&((typeof(stt)*)0)->mem))
+#endif
 
-InetAddress::InetAddress(uint16_t port, bool loopbackOnly)
+static_assert(sizeof(InetAddress) == sizeof(struct sockaddr_in6), "inet address size wrong!");
+static_assert(offsetof(sockaddr_in, sin_family) == 0, "offsetof sin_family in sockaddr_in wrong!");
+static_assert(offsetof(sockaddr_in6, sin6_family) == 0, "offsetof sin6_family in sockaddr_in6 wrong!");
+static_assert(offsetof(sockaddr_in, sin_port) == 2, "offsetof sin_port in sockaddr_in wrong!");
+static_assert(offsetof(sockaddr_in6, sin6_port) == 2, "offsetof sin6_port in sockaddr_in6 wrong!");
+
+InetAddress::InetAddress(uint16_t port, bool loopbackOnly, bool ipv6)
 {
-  bzero(&addr_, sizeof addr_);
-  addr_.sin_family = AF_INET;
-  in_addr_t ip = loopbackOnly ? kInaddrLoopback : kInaddrAny;
-  addr_.sin_addr.s_addr = sockets::hostToNetwork32(ip);
-  addr_.sin_port = sockets::hostToNetwork16(port);
+  static_assert(offsetof(InetAddress, addr6_) == 0, "offsetof addr6_ in InetAddress is not 0");
+  static_assert(offsetof(InetAddress, addr_) == 0, "offsetof addr_ in InetAddress is not 0");
+  if (ipv6)
+  {
+    bzero(&addr6_, sizeof addr6_);
+    addr6_.sin6_family = AF_INET6;
+    in6_addr ip = loopbackOnly ? in6addr_loopback : in6addr_any;
+    addr6_.sin6_addr = ip;
+    addr6_.sin6_port = sockets::hostToNetwork16(port);
+  }
+  else
+  {
+    bzero(&addr_, sizeof addr_);
+    addr_.sin_family = AF_INET;
+    in_addr_t ip = loopbackOnly ? kInaddrLoopback : kInaddrAny;
+    addr_.sin_addr.s_addr = sockets::hostToNetwork32(ip);
+    addr_.sin_port = sockets::hostToNetwork16(port);
+  }
 }
 
-InetAddress::InetAddress(StringArg ip, uint16_t port)
+InetAddress::InetAddress(StringArg ip, uint16_t port, bool ipv6)
 {
-  bzero(&addr_, sizeof addr_);
-  sockets::fromIpPort(ip.c_str(), port, &addr_);
+  if (ipv6)
+  {
+    bzero(&addr6_, sizeof addr6_);
+    sockets::fromIpPort(ip.c_str(), port, &addr6_);
+  }
+  else
+  {
+    bzero(&addr_, sizeof addr_);
+    sockets::fromIpPort(ip.c_str(), port, &addr_);
+  }
 }
 
 string InetAddress::toIpPort() const
 {
-  char buf[32];
-  sockets::toIpPort(buf, sizeof buf, addr_);
+  char buf[64] = "";
+  sockets::toIpPort(buf, sizeof buf, getSockAddr());
   return buf;
 }
 
 string InetAddress::toIp() const
 {
-  char buf[32];
-  sockets::toIp(buf, sizeof buf, addr_);
+  char buf[64] = "";
+  sockets::toIp(buf, sizeof buf, getSockAddr());
   return buf;
+}
+
+uint32_t InetAddress::ipNetEndian() const
+{
+  assert(family() == AF_INET);
+  return addr_.sin_addr.s_addr;
 }
 
 uint16_t InetAddress::toPort() const
 {
-  return sockets::networkToHost16(addr_.sin_port);
+  return sockets::networkToHost16(portNetEndian());
 }
 
 static __thread char t_resolveBuffer[64 * 1024];

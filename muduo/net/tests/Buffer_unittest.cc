@@ -34,6 +34,7 @@ TEST(testBufferAppendRetrieve, readWritePrepend)
   EXPECT_EQ(buf.readableBytes(), (unsigned long)(0));
   EXPECT_EQ(buf.writableBytes(), Buffer::kInitialSize);
   EXPECT_EQ(buf.prependableBytes(), Buffer::kCheapPrepend);
+  EXPECT_EQ(str3, string(350, 'x'));
 }
 
 TEST(testBufferGrow, append)
@@ -130,12 +131,12 @@ TEST(testBufferReadInt, read)
   EXPECT_EQ(buf.writableBytes(), Buffer::kInitialSize);
 
   buf.appendInt8(-1);
-  buf.appendInt16(-1);
-  buf.appendInt32(-1);
+  buf.appendInt16(-2);
+  buf.appendInt32(-3);
   EXPECT_EQ(buf.readableBytes(), (unsigned long)7);
   EXPECT_EQ(buf.readInt8(), -1);
-  EXPECT_EQ(buf.readInt32(), -1);
-  EXPECT_EQ(buf.readInt16(), -1);
+  EXPECT_EQ(buf.readInt16(), -2);
+  EXPECT_EQ(buf.readInt32(), -3);
 }
 
 TEST(testBufferFindEOL, findEOL)

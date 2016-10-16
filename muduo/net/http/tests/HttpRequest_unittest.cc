@@ -13,19 +13,6 @@ using muduo::net::Buffer;
 using muduo::net::HttpContext;
 using muduo::net::HttpRequest;
 
-namespace muduo
-{
-namespace net
-{
-namespace detail
-{
-bool parseRequest(Buffer* buf, HttpContext* context, Timestamp receiveTime);
-}
-}
-}
-
-using muduo::net::detail::parseRequest;
-
 TEST(testParseRequestAllInOne, parseRequest)
 {
   HttpContext context;
@@ -34,7 +21,7 @@ TEST(testParseRequestAllInOne, parseRequest)
        "Host: www.chenshuo.com\r\n"
        "\r\n");
 
-  GTEST_CHECK_(parseRequest(&input, &context, Timestamp::now()));
+  GTEST_CHECK_(context.parseRequest(&input, Timestamp::now()));
   GTEST_CHECK_(context.gotAll());
   const HttpRequest& request = context.request();
   EXPECT_EQ(request.method(), HttpRequest::kGet);
@@ -55,12 +42,12 @@ TEST(testParseRequestInTwoPieces, parseRequest)
     HttpContext context;
     Buffer input;
     input.append(all.c_str(), sz1);
-    GTEST_CHECK_(parseRequest(&input, &context, Timestamp::now()));
+    GTEST_CHECK_(context.parseRequest(&input, Timestamp::now()));
     GTEST_CHECK_(!context.gotAll());
 
     size_t sz2 = all.size() - sz1;
     input.append(all.c_str() + sz1, sz2);
-    GTEST_CHECK_(parseRequest(&input, &context, Timestamp::now()));
+    GTEST_CHECK_(context.parseRequest(&input, Timestamp::now()));
     GTEST_CHECK_(context.gotAll());
     const HttpRequest& request = context.request();
     EXPECT_EQ(request.method(), HttpRequest::kGet);
@@ -81,7 +68,7 @@ TEST(testParseRequestEmptyHeaderValue, parseRequest)
        "Accept-Encoding: \r\n"
        "\r\n");
 
-  GTEST_CHECK_(parseRequest(&input, &context, Timestamp::now()));
+  GTEST_CHECK_(context.parseRequest(&input, Timestamp::now()));
   GTEST_CHECK_(context.gotAll());
   const HttpRequest& request = context.request();
   EXPECT_EQ(request.method(), HttpRequest::kGet);
