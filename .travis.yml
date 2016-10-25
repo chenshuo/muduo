@@ -6,6 +6,6 @@ compiler:
 os:
 - linux
 install:
-- libboost-dev
+- sudo apt-get install libboost-dev
 script:
 - ./build.sh
