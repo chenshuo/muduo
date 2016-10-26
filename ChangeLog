@@ -1,6 +1,14 @@
+2016-10-25   Shuo Chen  <chenshuo@chenshuo.com>
+  * Last version in C++98/03, next version will use C++11
+  * Add Travis CI
+  * Add EvevtLoop::queueSize() by <zhuangshi23>
+  * Implement TcpClient::retry() by fdxuwei
+  * Change Condition::waitForSeconds() parameter type from int to double by ChaoShu
+  * Minor fixes by JackDrogon, YuCong, zieckey, wuzhaogai
+  * Version 1.0.9
+
 2016-02-11   Shuo Chen  <chenshuo@chenshuo.com>
   * Preliminary support of IPv6.
-  * Last version in C++98/03, next version will use C++11
   * Add stop/startRead in TcpConnection by <zhang.jako>
   * Version 1.0.8
 
