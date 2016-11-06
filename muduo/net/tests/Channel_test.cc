@@ -85,9 +85,10 @@ class PeriodicTimer
     struct timespec ts;
     bzero(&ts, sizeof ts);
     const int64_t kNanoSecondsPerSecond = 1e9;
+    const int kMinInterval = 1e5;
     int64_t nanoseconds = static_cast<int64_t>(seconds * kNanoSecondsPerSecond);
-    if (nanoseconds < 1e5)
-      nanoseconds = 1e5;
+    if (nanoseconds < kMinInterval)
+      nanoseconds = kMinInterval;
     ts.tv_sec = static_cast<time_t>(nanoseconds / kNanoSecondsPerSecond);
     ts.tv_nsec = static_cast<long>(nanoseconds % kNanoSecondsPerSecond);
     return ts;
