@@ -1,0 +1,11 @@
+language: cpp
+sudo: required
+dist: trusty
+compiler:
+- gcc
+os:
+- linux
+install:
+- sudo apt-get install libboost-dev
+script:
+- ./build.sh
