@@ -37,14 +37,29 @@ class AtomicIntegerT : boost::noncopyable
 
   T get()
   {
-    // in gcc >= 4.7: __atomic_load_n(&value_, __ATOMIC_SEQ_CST)
-    return __sync_val_compare_and_swap(&value_, 0, 0);
+    #ifdef __GNUC__
+       #if __GNUC__ > 4 || \
+          (__GNUC__ == 4 && __GNUC_MINOR__ >= 7 && __GNUC_PATCHLEVEL___ >= 0)
+            return __atomic_load_n(&value_, __ATOMIC_SEQ_CST);
+       #else
+          return __sync_val_compare_and_swap(&value_, 0, 0);
+       #endif
+          return __sync_val_compare_and_swap(&value_, 0, 0);
+    #endif
   }
 
   T getAndAdd(T x)
   {
-    // in gcc >= 4.7: __atomic_fetch_add(&value_, x, __ATOMIC_SEQ_CST)
-    return __sync_fetch_and_add(&value_, x);
+    #ifdef __GNUC__
+      #if __GNUC__ > 4 || \
+        (__GNUC__ == 4 && __GNUC_MINOR__ >= 7 && __GNUC_PATCHLEVEL___ >= 0)
+          return __atomic_fetch_add(&value_, x, __ATOMIC_SEQ_CST);
+      #else
+          return __sync_fetch_and_add(&value_, x);
+      #endif
+    #else
+      return __sync_fetch_and_add(&value_, x);
+    #endif
   }
 
   T addAndGet(T x)
@@ -79,8 +94,16 @@ class AtomicIntegerT : boost::noncopyable
 
   T getAndSet(T newValue)
   {
-    // in gcc >= 4.7: __atomic_store_n(&value, newValue, __ATOMIC_SEQ_CST)
-    return __sync_lock_test_and_set(&value_, newValue);
+    #ifdef __GNUC__
+      #if __GNUC__ > 4 || \
+        (__GNUC__ == 4 && __GNUC_MINOR__ >= 7 && __GNUC_PATCHLEVEL___ >= 0)
+          return __atomic_store_n(&value_, __ATOMIC_SEQ_CST);
+      #else
+          return __sync_lock_test_and_set(&value_, newValue);
+      #endif
+    #else
+      return __sync_lock_test_and_set(&value_, newValue);
+    #endif
   }
 
  private:
