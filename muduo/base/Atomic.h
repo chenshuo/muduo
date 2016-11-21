@@ -97,7 +97,8 @@ class AtomicIntegerT : boost::noncopyable
     #ifdef __GNUC__
       #if __GNUC__ > 4 || \
         (__GNUC__ == 4 && __GNUC_MINOR__ >= 7 && __GNUC_PATCHLEVEL___ >= 0)
-          return __atomic_store_n(&value_, newValue, __ATOMIC_SEQ_CST);
+          __atomic_store_n(&value_, newValue, __ATOMIC_SEQ_CST);
+          return newValue;
       #else
           return __sync_lock_test_and_set(&value_, newValue);
       #endif
