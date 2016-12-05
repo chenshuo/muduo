@@ -2,6 +2,8 @@
 
 #include <muduo/base/Logging.h>
 
+#include <errno.h>
+
 int main()
 {
   const char* filename = "/tmp/gzipfile_test.gz";
