@@ -158,7 +158,7 @@ class Buffer : public muduo::copyable
 
   string retrieveAllAsString()
   {
-    return retrieveAsString(readableBytes());;
+    return retrieveAsString(readableBytes());
   }
 
   string retrieveAsString(size_t len)
