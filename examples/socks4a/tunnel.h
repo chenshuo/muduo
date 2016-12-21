@@ -37,19 +37,8 @@ class Tunnel : public std::enable_shared_from_this<Tunnel>,
     client_.setMessageCallback(
         std::bind(&Tunnel::onClientMessage, shared_from_this(), _1, _2, _3));
     serverConn_->setHighWaterMarkCallback(
-        std::bind(&Tunnel::onHighWaterMarkWeak, std::weak_ptr<Tunnel>(shared_from_this()), _1, _2),
-        10*1024*1024);
-  }
-
-  void teardown()
-  {
-    client_.setConnectionCallback(muduo::net::defaultConnectionCallback);
-    client_.setMessageCallback(muduo::net::defaultMessageCallback);
-    if (serverConn_)
-    {
-      serverConn_->setContext(boost::any());
-      serverConn_->shutdown();
-    }
+        std::bind(&Tunnel::onHighWaterMarkWeak, std::weak_ptr<Tunnel>(shared_from_this()), kServer, _1, _2),
+        1024*1024);
   }
 
   void connect()
@@ -63,6 +52,18 @@ class Tunnel : public std::enable_shared_from_this<Tunnel>,
     // serverConn_.reset();
   }
 
+ private:
+  void teardown()
+  {
+    client_.setConnectionCallback(muduo::net::defaultConnectionCallback);
+    client_.setMessageCallback(muduo::net::defaultMessageCallback);
+    if (serverConn_)
+    {
+      serverConn_->setContext(boost::any());
+      serverConn_->shutdown();
+    }
+  }
+
   void onClientConnection(const muduo::net::TcpConnectionPtr& conn)
   {
     using std::placeholders::_1;
@@ -73,9 +74,10 @@ class Tunnel : public std::enable_shared_from_this<Tunnel>,
     {
       conn->setTcpNoDelay(true);
       conn->setHighWaterMarkCallback(
-          std::bind(&Tunnel::onHighWaterMarkWeak, std::weak_ptr<Tunnel>(shared_from_this()), _1, _2),
-          10*1024*1024);
+          std::bind(&Tunnel::onHighWaterMarkWeak, std::weak_ptr<Tunnel>(shared_from_this()), kClient, _1, _2),
+          1024*1024);
       serverConn_->setContext(conn);
+      serverConn_->startRead();
       if (serverConn_->inputBuffer()->readableBytes() > 0)
       {
         conn->send(serverConn_->inputBuffer());
@@ -103,22 +105,70 @@ class Tunnel : public std::enable_shared_from_this<Tunnel>,
     }
   }
 
-  void onHighWaterMark(const muduo::net::TcpConnectionPtr& conn,
+  enum ServerClient
+  {
+    kServer, kClient
+  };
+
+  void onHighWaterMark(ServerClient which,
+                       const muduo::net::TcpConnectionPtr& conn,
                        size_t bytesToSent)
   {
-    LOG_INFO << "onHighWaterMark " << conn->name()
+    using std::placeholders::_1;
+
+    LOG_INFO << (which == kServer ? "server" : "client")
+             << " onHighWaterMark " << conn->name()
              << " bytes " << bytesToSent;
-    disconnect();
+    if (which == kServer)
+    {
+      client_.connection()->stopRead();
+      serverConn_->setWriteCompleteCallback(
+        std::bind(&Tunnel::onWriteCompleteWeak, std::weak_ptr<Tunnel>(shared_from_this()), kServer, _1));
+    }
+    else
+    {
+      serverConn_->stopRead();
+      client_.connection()->setWriteCompleteCallback(
+        std::bind(&Tunnel::onWriteCompleteWeak, std::weak_ptr<Tunnel>(shared_from_this()), kClient, _1));
+    }
   }
 
   static void onHighWaterMarkWeak(const std::weak_ptr<Tunnel>& wkTunnel,
+                                  ServerClient which,
                                   const muduo::net::TcpConnectionPtr& conn,
                                   size_t bytesToSent)
   {
     std::shared_ptr<Tunnel> tunnel = wkTunnel.lock();
     if (tunnel)
     {
-      tunnel->onHighWaterMark(conn, bytesToSent);
+      tunnel->onHighWaterMark(which, conn, bytesToSent);
+    }
+  }
+
+  void onWriteComplete(ServerClient which, const muduo::net::TcpConnectionPtr& conn)
+  {
+    LOG_INFO << (which == kServer ? "server" : "client")
+             << " onWriteComplete " << conn->name();
+    if (which == kServer)
+    {
+      client_.connection()->startRead();
+      serverConn_->setWriteCompleteCallback(muduo::net::WriteCompleteCallback());
+    }
+    else
+    {
+      serverConn_->startRead();
+      client_.connection()->setWriteCompleteCallback(muduo::net::WriteCompleteCallback());
+    }
+  }
+
+  static void onWriteCompleteWeak(const std::weak_ptr<Tunnel>& wkTunnel,
+                                  ServerClient which,
+                                  const muduo::net::TcpConnectionPtr& conn)
+  {
+    std::shared_ptr<Tunnel> tunnel = wkTunnel.lock();
+    if (tunnel)
+    {
+      tunnel->onWriteComplete(which, conn);
     }
   }
 
