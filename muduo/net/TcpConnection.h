@@ -73,9 +73,10 @@ class TcpConnection : boost::noncopyable,
   void forceClose();
   void forceCloseWithDelay(double seconds);
   void setTcpNoDelay(bool on);
+  // reading or not
   void startRead();
   void stopRead();
-  bool isReading() const { return reading_; }; // NOT thread safe, may race with start/stopReadInLoop 
+  bool isReading() const { return reading_; }; // NOT thread safe, may race with start/stopReadInLoop
 
   void setContext(const boost::any& context)
   { context_ = context; }
@@ -134,6 +135,7 @@ class TcpConnection : boost::noncopyable,
   EventLoop* loop_;
   const string name_;
   StateE state_;  // FIXME: use atomic variable
+  bool reading_;
   // we don't expose those classes to client.
   boost::scoped_ptr<Socket> socket_;
   boost::scoped_ptr<Channel> channel_;
@@ -148,7 +150,6 @@ class TcpConnection : boost::noncopyable,
   Buffer inputBuffer_;
   Buffer outputBuffer_; // FIXME: use list<Buffer> as output buffer.
   boost::any context_;
-  bool reading_;
   // FIXME: creationTime_, lastReceiveTime_
   //        bytesReceived_, bytesSent_
 };
