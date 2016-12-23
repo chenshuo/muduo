@@ -37,7 +37,8 @@ class Tunnel : public std::enable_shared_from_this<Tunnel>,
     client_.setMessageCallback(
         std::bind(&Tunnel::onClientMessage, shared_from_this(), _1, _2, _3));
     serverConn_->setHighWaterMarkCallback(
-        std::bind(&Tunnel::onHighWaterMarkWeak, std::weak_ptr<Tunnel>(shared_from_this()), kServer, _1, _2),
+        std::bind(&Tunnel::onHighWaterMarkWeak,
+                  std::weak_ptr<Tunnel>(shared_from_this()), kServer, _1, _2),
         1024*1024);
   }
 
@@ -62,6 +63,7 @@ class Tunnel : public std::enable_shared_from_this<Tunnel>,
       serverConn_->setContext(boost::any());
       serverConn_->shutdown();
     }
+    clientConn_.reset();
   }
 
   void onClientConnection(const muduo::net::TcpConnectionPtr& conn)
@@ -74,10 +76,12 @@ class Tunnel : public std::enable_shared_from_this<Tunnel>,
     {
       conn->setTcpNoDelay(true);
       conn->setHighWaterMarkCallback(
-          std::bind(&Tunnel::onHighWaterMarkWeak, std::weak_ptr<Tunnel>(shared_from_this()), kClient, _1, _2),
+          std::bind(&Tunnel::onHighWaterMarkWeak,
+                    std::weak_ptr<Tunnel>(shared_from_this()), kClient, _1, _2),
           1024*1024);
       serverConn_->setContext(conn);
       serverConn_->startRead();
+      clientConn_ = conn;
       if (serverConn_->inputBuffer()->readableBytes() > 0)
       {
         conn->send(serverConn_->inputBuffer());
@@ -119,17 +123,26 @@ class Tunnel : public std::enable_shared_from_this<Tunnel>,
     LOG_INFO << (which == kServer ? "server" : "client")
              << " onHighWaterMark " << conn->name()
              << " bytes " << bytesToSent;
+
     if (which == kServer)
     {
-      client_.connection()->stopRead();
-      serverConn_->setWriteCompleteCallback(
-        std::bind(&Tunnel::onWriteCompleteWeak, std::weak_ptr<Tunnel>(shared_from_this()), kServer, _1));
+      if (serverConn_->outputBuffer()->readableBytes() > 0)
+      {
+        clientConn_->stopRead();
+        serverConn_->setWriteCompleteCallback(
+            std::bind(&Tunnel::onWriteCompleteWeak,
+                      std::weak_ptr<Tunnel>(shared_from_this()), kServer, _1));
+      }
     }
     else
     {
-      serverConn_->stopRead();
-      client_.connection()->setWriteCompleteCallback(
-        std::bind(&Tunnel::onWriteCompleteWeak, std::weak_ptr<Tunnel>(shared_from_this()), kClient, _1));
+      if (clientConn_->outputBuffer()->readableBytes() > 0)
+      {
+        serverConn_->stopRead();
+        clientConn_->setWriteCompleteCallback(
+            std::bind(&Tunnel::onWriteCompleteWeak,
+                      std::weak_ptr<Tunnel>(shared_from_this()), kClient, _1));
+      }
     }
   }
 
@@ -151,13 +164,13 @@ class Tunnel : public std::enable_shared_from_this<Tunnel>,
              << " onWriteComplete " << conn->name();
     if (which == kServer)
     {
-      client_.connection()->startRead();
+      clientConn_->startRead();
       serverConn_->setWriteCompleteCallback(muduo::net::WriteCompleteCallback());
     }
     else
     {
       serverConn_->startRead();
-      client_.connection()->setWriteCompleteCallback(muduo::net::WriteCompleteCallback());
+      clientConn_->setWriteCompleteCallback(muduo::net::WriteCompleteCallback());
     }
   }
 
@@ -175,6 +188,7 @@ class Tunnel : public std::enable_shared_from_this<Tunnel>,
  private:
   muduo::net::TcpClient client_;
   muduo::net::TcpConnectionPtr serverConn_;
+  muduo::net::TcpConnectionPtr clientConn_;
 };
 typedef std::shared_ptr<Tunnel> TunnelPtr;
 
