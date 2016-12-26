@@ -32,7 +32,7 @@ RpcServer::RpcServer(EventLoop* loop,
 void RpcServer::registerService(google::protobuf::Service* service)
 {
   const google::protobuf::ServiceDescriptor* desc = service->GetDescriptor();
-  services_[desc->name()] = service;
+  services_[desc->full_name()] = service;
 }
 
 void RpcServer::start()
