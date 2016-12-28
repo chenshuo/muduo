@@ -355,6 +355,7 @@ void TcpConnection::handleRead(Timestamp receiveTime)
   }
   else if (n == 0)
   {
+    messageCallback_(shared_from_this(), &inputBuffer_, receiveTime);
     handleClose();
   }
   else
