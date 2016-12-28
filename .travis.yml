@@ -2,10 +2,13 @@ language: cpp
 sudo: required
 dist: trusty
 compiler:
-- gcc
+  - gcc
 os:
-- linux
+  - linux
 install:
-- sudo apt-get install libboost-dev
+  - sudo apt-get install libboost-dev
+  - sudo apt-get install libprotobuf-dev protobuf-compiler libprotoc-dev
+  - sudo apt-get install libboost-test-dev libboost-program-options-dev
+  - sudo apt-get install zlib1g-dev libc-ares-dev libcurl4-openssl-dev
 script:
-- ./build.sh
+  - ./build.sh
