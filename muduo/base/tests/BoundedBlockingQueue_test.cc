@@ -5,6 +5,8 @@
 #include <boost/bind.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <string>
+#include <vector>
+
 #include <stdio.h>
 
 class Test
