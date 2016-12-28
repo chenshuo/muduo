@@ -3,6 +3,8 @@
 #include <muduo/base/Thread.h>
 
 #include <string>
+#include <vector>
+
 #include <stdio.h>
 
 using std::placeholders::_1;
