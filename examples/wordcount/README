@@ -1,6 +1,6 @@
 A distributed word counting example.
 
-A hasher shards <word,count> to multiple receives by hash(word).
+A hasher shards <word,count> to multiple receivers by hash(word).
 
 A receiver collects <word,count> from multiple hashers
 and writes the result to disk.
