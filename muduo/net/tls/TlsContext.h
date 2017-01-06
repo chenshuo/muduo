@@ -27,6 +27,9 @@ class TlsContext : boost::noncopyable
 
   struct tls* get() { return context_; }
 
+  // if there is no error, this will segfault.
+  const char* error() { return tls_error(context_); }
+
   // void accept(
  private:
   void check(int ret)

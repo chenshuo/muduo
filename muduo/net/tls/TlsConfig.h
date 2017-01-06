@@ -27,23 +27,23 @@ class TlsConfig : boost::noncopyable
 
   void setCaFile(StringArg caFile)
   {
-    Check(tls_config_set_ca_file(config_, caFile.c_str()));
+    check(tls_config_set_ca_file(config_, caFile.c_str()));
   }
 
   void setCertFile(StringArg certFile)
   {
-    Check(tls_config_set_cert_file(config_, certFile.c_str()));
+    check(tls_config_set_cert_file(config_, certFile.c_str()));
   }
 
   void setKeyFile(StringArg keyFile)
   {
-    Check(tls_config_set_key_file(config_, keyFile.c_str()));
+    check(tls_config_set_key_file(config_, keyFile.c_str()));
   }
 
   struct tls_config* get() { return config_; }
 
  private:
-  void Check(int ret)
+  void check(int ret)
   {
     if (ret != 0)
     {

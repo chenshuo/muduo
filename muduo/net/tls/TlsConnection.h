@@ -10,6 +10,7 @@ namespace net {
 class TlsConnection : boost::noncopyable
 {
  public:
+  // FIXME: ctor for server connection
   TlsConnection(const TcpConnectionPtr& conn, TlsContext* context)
     : conn_(conn), state_(kHandshaking)
   {
@@ -21,7 +22,17 @@ class TlsConnection : boost::noncopyable
     handshake();
   }
 
+  // FIXME: ctor for client connection
+  TlsConnection(const TcpConnectionPtr& conn, TlsConfig* config, const string& serverName)
+    : conn_(conn), context_(TlsContext::kClient, config), state_(kHandshaking)
+  {
+    conn_->setMessageCallback(boost::bind(&TlsConnection::onMessage, this, _1, _2, _3));
+    tls_connect_cbs(context_.get(), net_read, net_write, this, serverName.c_str());
+    handshake();
+  }
+
   // FIXME: shutdown
+
  private:
   void handshake()
   {
@@ -37,7 +48,7 @@ class TlsConnection : boost::noncopyable
     }
     else if (ret != TLS_WANT_POLLIN && ret != TLS_WANT_POLLOUT)
     {
-      LOG_ERROR << "WRONG";
+      LOG_ERROR << "WRONG " << context_.error();
       conn_->shutdown();
       // FIXME
     }
@@ -68,9 +79,9 @@ class TlsConnection : boost::noncopyable
 
   static ssize_t net_read(struct tls *ctx, void *buf, size_t len, void *arg)
   {
-    LOG_DEBUG << len;
     TlsConnection* self = static_cast<TlsConnection*>(arg);
     Buffer* in = self->conn_->inputBuffer();
+    LOG_DEBUG << len << " readable " << in->readableBytes();
     if (in->readableBytes() > 0)
     {
       size_t n = std::min(in->readableBytes(), len);
@@ -92,6 +103,7 @@ class TlsConnection : boost::noncopyable
 
   TcpConnectionPtr conn_;
   TlsContext context_;
+
   enum State { kHandshaking, kEstablished };
   State state_;
 };

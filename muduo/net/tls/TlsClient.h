@@ -16,7 +16,8 @@ class TlsClient : boost::noncopyable
             const InetAddress& serverAddr,
             const string& serverName,
             TlsConfig* config)
-    : context_(TlsContext::kClient, config),
+    : config_(config),
+      serverName_(serverName),
       client_(loop, serverAddr, serverName)
   {
     client_.setConnectionCallback(boost::bind(&TlsClient::onConnection, this, _1));
@@ -32,9 +33,8 @@ class TlsClient : boost::noncopyable
   {
     if (conn->connected())
     {
-      // FIXME
-      // TlsConnectionPtr tls(new TlsConnection(conn, &context_));
-      // conn->setContext(tls);
+      TlsConnectionPtr tls(new TlsConnection(conn, config_, serverName_));
+      conn->setContext(tls);
     }
     else
     {
@@ -42,7 +42,8 @@ class TlsClient : boost::noncopyable
     }
   }
 
-  TlsContext context_;
+  TlsConfig* config_;  // not owned
+  string serverName_;
   TcpClient client_;
 };
 
