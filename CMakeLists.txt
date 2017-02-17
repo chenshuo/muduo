@@ -19,10 +19,10 @@ set(CXX_FLAGS
  -Werror
  -Wconversion
  -Wno-unused-parameter
- -Wold-style-cast
+ # -Wold-style-cast
  -Woverloaded-virtual
  -Wpointer-arith
- -Wshadow
+ # -Wshadow
  -Wwrite-strings
  -march=native
  # -MMD
