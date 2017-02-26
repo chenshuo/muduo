@@ -16,6 +16,8 @@
 #include <errno.h>
 #include <poll.h>
 
+#include <boost/core/ignore_unused.hpp>
+
 using namespace muduo;
 using namespace muduo::net;
 
@@ -119,10 +121,10 @@ void PollPoller::removeChannel(Channel* channel)
   assert(channel->isNoneEvent());
   int idx = channel->index();
   assert(0 <= idx && idx < static_cast<int>(pollfds_.size()));
-  const struct pollfd& pfd = pollfds_[idx]; (void)pfd;
+  const struct pollfd& pfd = pollfds_[idx]; boost::ignore_unused(pfd);
   assert(pfd.fd == -channel->fd()-1 && pfd.events == channel->events());
   size_t n = channels_.erase(channel->fd());
-  assert(n == 1); (void)n;
+  assert(n == 1); boost::ignore_unused(n);
   if (implicit_cast<size_t>(idx) == pollfds_.size()-1)
   {
     pollfds_.pop_back();

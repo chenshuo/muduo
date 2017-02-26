@@ -12,6 +12,7 @@
 #include <muduo/net/Channel.h>
 
 #include <boost/static_assert.hpp>
+#include <boost/core/ignore_unused.hpp>
 
 #include <assert.h>
 #include <errno.h>
@@ -133,7 +134,7 @@ void EPollPoller::updateChannel(Channel* channel)
   {
     // update existing one with EPOLL_CTL_MOD/DEL
     int fd = channel->fd();
-    (void)fd;
+		boost::ignore_unused(fd);
     assert(channels_.find(fd) != channels_.end());
     assert(channels_[fd] == channel);
     assert(index == kAdded);
@@ -160,7 +161,7 @@ void EPollPoller::removeChannel(Channel* channel)
   int index = channel->index();
   assert(index == kAdded || index == kDeleted);
   size_t n = channels_.erase(fd);
-  (void)n;
+	boost::ignore_unused(n);
   assert(n == 1);
 
   if (index == kAdded)
