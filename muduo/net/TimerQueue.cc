@@ -18,6 +18,7 @@
 #include <muduo/net/TimerId.h>
 
 #include <boost/bind.hpp>
+#include <boost/core/ignore_unused.hpp>
 
 #include <sys/timerfd.h>
 
@@ -163,7 +164,7 @@ void TimerQueue::cancelInLoop(TimerId timerId)
   if (it != activeTimers_.end())
   {
     size_t n = timers_.erase(Entry(it->first->expiration(), it->first));
-    assert(n == 1); (void)n;
+    assert(n == 1); boost::ignore_unused(n);
     delete it->first; // FIXME: no delete please
     activeTimers_.erase(it);
   }
@@ -210,7 +211,7 @@ std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now)
   {
     ActiveTimer timer(it->second, it->second->sequence());
     size_t n = activeTimers_.erase(timer);
-    assert(n == 1); (void)n;
+    assert(n == 1); boost::ignore_unused(n);
   }
 
   assert(timers_.size() == activeTimers_.size());
@@ -263,12 +264,12 @@ bool TimerQueue::insert(Timer* timer)
   {
     std::pair<TimerList::iterator, bool> result
       = timers_.insert(Entry(when, timer));
-    assert(result.second); (void)result;
+    assert(result.second); boost::ignore_unused(result);
   }
   {
     std::pair<ActiveTimerSet::iterator, bool> result
       = activeTimers_.insert(ActiveTimer(timer, timer->sequence()));
-    assert(result.second); (void)result;
+    assert(result.second); boost::ignore_unused(result);
   }
 
   assert(timers_.size() == activeTimers_.size());

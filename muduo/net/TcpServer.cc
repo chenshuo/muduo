@@ -15,6 +15,7 @@
 #include <muduo/net/SocketsOps.h>
 
 #include <boost/bind.hpp>
+#include <boost/core/ignore_unused.hpp>
 
 #include <stdio.h>  // snprintf
 
@@ -113,7 +114,7 @@ void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn)
   LOG_INFO << "TcpServer::removeConnectionInLoop [" << name_
            << "] - connection " << conn->name();
   size_t n = connections_.erase(conn->name());
-  (void)n;
+	boost::ignore_unused(n);
   assert(n == 1);
   EventLoop* ioLoop = conn->getLoop();
   ioLoop->queueInLoop(

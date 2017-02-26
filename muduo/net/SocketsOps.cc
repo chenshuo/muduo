@@ -19,6 +19,8 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include <boost/core/ignore_unused.hpp>
+
 using namespace muduo;
 using namespace muduo::net;
 
@@ -43,7 +45,7 @@ void setNonBlockAndCloseOnExec(int sockfd)
   ret = ::fcntl(sockfd, F_SETFD, flags);
   // FIXME check
 
-  (void)ret;
+	boost::ignore_unused(ret);
 }
 #endif
 
