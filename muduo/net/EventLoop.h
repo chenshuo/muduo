@@ -18,6 +18,7 @@
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
 
+#include <muduo/base/Atomic.h>
 #include <muduo/base/Mutex.h>
 #include <muduo/base/CurrentThread.h>
 #include <muduo/base/Timestamp.h>
@@ -126,7 +127,6 @@ class EventLoop : boost::noncopyable
     }
   }
   bool isInLoopThread() const { return threadId_ == CurrentThread::tid(); }
-  // bool callingPendingFunctors() const { return callingPendingFunctors_; }
   bool eventHandling() const { return eventHandling_; }
 
   void setContext(const boost::any& context)
@@ -152,7 +152,6 @@ class EventLoop : boost::noncopyable
   bool looping_; /* atomic */
   bool quit_; /* atomic and shared between threads, okay on x86, I guess. */
   bool eventHandling_; /* atomic */
-  bool callingPendingFunctors_; /* atomic */
   int64_t iteration_;
   const pid_t threadId_;
   Timestamp pollReturnTime_;
@@ -162,6 +161,9 @@ class EventLoop : boost::noncopyable
   // unlike in TimerQueue, which is an internal class,
   // we don't expose Channel to client.
   boost::scoped_ptr<Channel> wakeupChannel_;
+  // When we put a functor into the pendingFunctors_ queue,
+  // we need to notify the thread to execute it. But we don't want to notify repeatedly.
+  AtomicInt32 wakeuped_;
   boost::any context_;
 
   // scratch variables
