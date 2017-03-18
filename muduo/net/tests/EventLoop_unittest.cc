@@ -15,7 +15,7 @@ EventLoop* g_loop;
 void callback()
 {
   printf("callback(): pid = %d, tid = %d\n", getpid(), CurrentThread::tid());
-  EventLoop anotherLoop;
+  EventLoop::getEventLoopOfCurrentThread()->quit();
 }
 
 void threadFunc()
@@ -40,5 +40,6 @@ int main()
   Thread thread(threadFunc);
   thread.start();
 
+  loop.runAfter(1.0, callback);
   loop.loop();
 }
