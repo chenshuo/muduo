@@ -111,7 +111,7 @@ void AsyncLogging::threadFunc()
     {
       assert(!buffersToWrite.empty());
       newBuffer1 = std::move(buffersToWrite.back());
-      buffersToWrite.back();
+      buffersToWrite.pop_back();
       newBuffer1->reset();
     }
 
@@ -119,7 +119,7 @@ void AsyncLogging::threadFunc()
     {
       assert(!buffersToWrite.empty());
       newBuffer2 = std::move(buffersToWrite.back());
-      buffersToWrite.back();
+      buffersToWrite.pop_back();
       newBuffer2->reset();
     }
 
