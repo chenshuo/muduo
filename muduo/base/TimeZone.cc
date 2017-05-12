@@ -126,7 +126,7 @@ class File : boost::noncopyable
   int32_t readInt32()
   {
     int32_t x = 0;
-    ssize_t nr = ::fread(&x, 1, sizeof(int32_t), fp_);
+    ssize_t nr = ::fread(&x, sizeof(int32_t), 1, fp_);
     if (nr != sizeof(int32_t))
       throw logic_error("bad int32_t data");
     return be32toh(x);
