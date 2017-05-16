@@ -20,7 +20,9 @@ std::vector<int> g_pipes;
 int numPipes;
 int numActive;
 int numWrites;
-EventLoop* g_loop;
+EventLoop loop;
+EventLoop* g_loop = &loop;
+
 boost::ptr_vector<Channel> g_channels;
 
 int g_reads, g_writes, g_fired;
@@ -119,8 +121,7 @@ int main(int argc, char* argv[])
     }
   }
 
-  EventLoop loop;
-  g_loop = &loop;
+
 
   for (int i = 0; i < numPipes; ++i)
   {
