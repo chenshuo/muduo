@@ -11,7 +11,7 @@ namespace net
 {
 
 // input is zlib compressed data, output uncompressed data
-class ZlibInputStream : noncopyable
+class ZlibInputStream : boost::noncopyable
 {
  public:
   explicit ZlibInputStream(Buffer* output)
@@ -112,7 +112,7 @@ class ZlibInputStream : noncopyable
 };
 
 // input is uncompressed data, output zlib compressed data
-class ZlibOutputStream : noncopyable
+class ZlibOutputStream : boost::noncopyable
 {
  public:
   explicit ZlibOutputStream(Buffer* output)
