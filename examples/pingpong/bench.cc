@@ -139,4 +139,6 @@ int main(int argc, char* argv[])
     it->disableAll();
     it->remove();
   }
+  g_channels.clear();
 }
+
