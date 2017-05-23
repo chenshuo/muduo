@@ -16,9 +16,9 @@ class ZlibInputStream : boost::noncopyable
  public:
   explicit ZlibInputStream(Buffer* output)
       : output_(output),
-      zerror_(Z_OK),
-      bufferSize_(1024),
-      end_(false)
+        zerror_(Z_OK),
+        bufferSize_(1024),
+        end_(false)
   {
     bzero(&zstream_, sizeof zstream_);
     zerror_ = inflateInit(&zstream_);
@@ -121,8 +121,8 @@ class ZlibOutputStream : boost::noncopyable
  public:
   explicit ZlibOutputStream(Buffer* output)
       : output_(output),
-      zerror_(Z_OK),
-      bufferSize_(1024)
+        zerror_(Z_OK),
+        bufferSize_(1024)
   {
     bzero(&zstream_, sizeof zstream_);
     zerror_ = deflateInit(&zstream_, Z_DEFAULT_COMPRESSION);
