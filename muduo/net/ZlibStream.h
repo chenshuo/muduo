@@ -15,9 +15,10 @@ class ZlibInputStream : boost::noncopyable
 {
  public:
   explicit ZlibInputStream(Buffer* output)
-    : output_(output),
+      : output_(output),
       zerror_(Z_OK),
-      bufferSize_(1024)
+      bufferSize_(1024),
+      end_(false)
   {
     bzero(&zstream_, sizeof zstream_);
     zerror_ = inflateInit(&zstream_);
@@ -38,18 +39,18 @@ class ZlibInputStream : boost::noncopyable
 
   bool write(StringPiece buf)
   {
-    if(zerror_ != Z_OK && zerror_ != Z_STREAM_END)
+    if (zerror_ != Z_OK && zerror_ != Z_STREAM_END)
       return false;
 
     assert(zstream_.next_in == NULL && zstream_.avail_in == 0);
     void* in = const_cast<char*>(buf.data());
     zstream_.next_in = static_cast<Bytef*>(in);
     zstream_.avail_in = buf.size();
-    while(zstream_.avail_in > 0 && zerror_ == Z_OK)
+    while (zstream_.avail_in > 0 && zerror_ == Z_OK)
     {
       zerror_ = decompress(Z_NO_FLUSH);
     }
-    if(zstream_.avail_in == 0)
+    if (zstream_.avail_in == 0)
     {
       assert(static_cast<const void*>(zstream_.next_in) == buf.end());
       zstream_.next_in = NULL;
@@ -57,7 +58,7 @@ class ZlibInputStream : boost::noncopyable
     return zerror_ == Z_STREAM_END || zerror_ == Z_OK;
   }
 
-  // decompress input as possible, not guarantee consuming all data.
+  // decompress input as possible, not guarantee consuming all data at once.
   bool write(Buffer* input)
   {
     if(zerror_ != Z_OK)
@@ -66,27 +67,29 @@ class ZlibInputStream : boost::noncopyable
     void* in = const_cast<char*>(input->peek());
     zstream_.next_in = static_cast<Bytef*>(in);
     zstream_.avail_in = static_cast<int>(input->readableBytes());
-    if(zstream_.avail_in > 0 && zerror_ == Z_OK)
+    if (zstream_.avail_in > 0 && zerror_ == Z_OK)
     {
       zerror_ = decompress(Z_NO_FLUSH);
       (void)zerror_;
     }
     input->retrieve(input->readableBytes() - zstream_.avail_in);
-    return zerror_ == Z_OK;
+    return zerror_ == Z_OK || zerror_ == Z_STREAM_END;
   }
 
   bool finish()
   {
-    if(zerror_ != Z_OK && zerror_ != Z_STREAM_END)
+    if ((zerror_ != Z_OK && zerror_ != Z_STREAM_END) || end_)
       return false;
-    while(zerror_ == Z_OK)
+    while (zerror_ == Z_OK)
     {
-      zerror_ = decompress(Z_FINISH);
+      zerror_ = decompress(Z_NO_FLUSH);
       (void)zerror_;
     }
     zerror_ = deflateEnd(&zstream_);
     bool ok = zerror_ == Z_OK;
     zerror_ = Z_STREAM_END;
+    // already called deflateEnd
+    end_ = true;
     return ok;
   }
 
@@ -98,7 +101,7 @@ class ZlibInputStream : boost::noncopyable
     zstream_.avail_out = static_cast<int>(output_->writableBytes());
     int error = ::inflate(&zstream_, flush);
     output_->hasWritten(output_->writableBytes() - zstream_.avail_out);
-    if(output_->writableBytes() == 0 && bufferSize_ < 65536)
+    if (output_->writableBytes() == 0 && bufferSize_ < 65536)
     {
       bufferSize_ *= 2;
     }
@@ -109,6 +112,7 @@ class ZlibInputStream : boost::noncopyable
   z_stream zstream_;
   int zerror_;
   int bufferSize_;
+  bool end_;
 };
 
 // input is uncompressed data, output zlib compressed data
@@ -116,7 +120,7 @@ class ZlibOutputStream : boost::noncopyable
 {
  public:
   explicit ZlibOutputStream(Buffer* output)
-    : output_(output),
+      : output_(output),
       zerror_(Z_OK),
       bufferSize_(1024)
   {
@@ -213,4 +217,3 @@ class ZlibOutputStream : boost::noncopyable
 
 }
 }
-
