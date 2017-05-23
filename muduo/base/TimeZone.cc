@@ -2,6 +2,7 @@
 #include <muduo/base/Date.h>
 
 #include <boost/noncopyable.hpp>
+#include <boost/core/ignore_unused.hpp>
 #include <algorithm>
 #include <stdexcept>
 #include <string>
@@ -204,8 +205,7 @@ bool readTimeZoneFile(const char* zonefile, struct TimeZone::Data* data)
         // int32_t cumleap = f.readInt32();
       }
       // FIXME
-      (void) isstdcnt;
-      (void) isgmtcnt;
+      boost::ignore_unused(isstdcnt, isgmtcnt);
     }
     catch (logic_error& e)
     {

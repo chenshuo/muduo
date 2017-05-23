@@ -10,6 +10,8 @@
 
 #include <sstream>
 
+#include <boost/core/ignore_unused.hpp>
+
 namespace muduo
 {
 
@@ -92,7 +94,7 @@ void defaultOutput(const char* msg, int len)
 {
   size_t n = fwrite(msg, 1, len, stdout);
   //FIXME check n
-  (void)n;
+	boost::ignore_unused(n);
 }
 
 void defaultFlush()
@@ -146,7 +148,7 @@ void Logger::Impl::formatTime()
     int len = snprintf(t_time, sizeof(t_time), "%4d%02d%02d %02d:%02d:%02d",
         tm_time.tm_year + 1900, tm_time.tm_mon + 1, tm_time.tm_mday,
         tm_time.tm_hour, tm_time.tm_min, tm_time.tm_sec);
-    assert(len == 17); (void)len;
+    assert(len == 17); boost::ignore_unused(len);
   }
 
   if (g_logTimeZone.valid())

@@ -17,6 +17,8 @@
 #include <google/protobuf/message.h>
 #include <zlib.h>
 
+#include <boost/core/ignore_unused.hpp>
+
 using namespace muduo;
 using namespace muduo::net;
 
@@ -50,7 +52,7 @@ void ProtobufCodecLite::fillEmptyBuffer(muduo::net::Buffer* buf,
 
   int32_t checkSum = checksum(buf->peek(), static_cast<int>(buf->readableBytes()));
   buf->appendInt32(checkSum);
-  assert(buf->readableBytes() == tag_.size() + byte_size + kChecksumLen); (void) byte_size;
+  assert(buf->readableBytes() == tag_.size() + byte_size + kChecksumLen); boost::ignore_unused(byte_size);
   int32_t len = sockets::hostToNetwork32(static_cast<int32_t>(buf->readableBytes()));
   buf->prepend(&len, sizeof len);
 }

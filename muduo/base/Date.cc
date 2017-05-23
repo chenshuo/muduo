@@ -6,6 +6,8 @@
 #include <muduo/base/Date.h>
 #include <stdio.h>  // snprintf
 
+#include <boost/core/ignore_unused.hpp>
+
 namespace muduo
 {
 namespace detail
@@ -19,7 +21,7 @@ char require_32_bit_integer_at_least[sizeof(int) >= sizeof(int32_t) ? 1 : -1];
 
 int getJulianDayNumber(int year, int month, int day)
 {
-  (void) require_32_bit_integer_at_least; // no warning please
+	boost::ignore_unused(require_32_bit_integer_at_least); // no warning please
   int a = (14 - month) / 12;
   int y = year + 4800 - a;
   int m = month + 12 * a - 3;
