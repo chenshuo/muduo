@@ -84,7 +84,7 @@ void AsyncLogging::threadFunc()
 
     assert(!buffersToWrite.empty());
 
-    if (buffersToWrite.size() > 25)
+    if (buffersToWrite.size() > 2)
     {
       char buf[256];
       snprintf(buf, sizeof buf, "Dropped log messages at %s, %zd larger buffers\n",
