@@ -17,6 +17,7 @@
 
 #include <boost/bind.hpp>
 
+#include <errno.h>
 #include <signal.h>
 #include <sys/eventfd.h>
 
@@ -282,7 +283,8 @@ void EventLoop::wakeup()
   ssize_t n = sockets::write(wakeupFd_, &one, sizeof one);
   if (n != sizeof one)
   {
-    LOG_ERROR << "EventLoop::wakeup() writes " << n << " bytes instead of 8";
+    int savedErrno = errno;
+    LOG_ERROR << "EventLoop::wakeup() writes " << n << " bytes instead of 8. " << strerror(savedErrno);
   }
 }
 
@@ -292,7 +294,8 @@ void EventLoop::handleRead()
   ssize_t n = sockets::read(wakeupFd_, &one, sizeof one);
   if (n != sizeof one)
   {
-    LOG_ERROR << "EventLoop::handleRead() reads " << n << " bytes instead of 8";
+    int savedErrno = errno;
+    LOG_ERROR << "EventLoop::handleRead() reads " << n << " bytes instead of 8. " << strerror(savedErrno);
   }
 }
 
