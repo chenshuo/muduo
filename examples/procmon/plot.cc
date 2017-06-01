@@ -99,7 +99,7 @@ void Plot::label(double maxValue)
                   blue_);
 }
 
-int Plot::getX(ssize_t i, ssize_t total) const
+int Plot::getX(long i, long total) const
 {
   double x = (width_ - kLeftMargin_ - kRightMargin_) + static_cast<double>(i - total) * ratioX_;
   return static_cast<int>(x + 0.5) + kLeftMargin_;
