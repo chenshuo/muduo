@@ -24,3 +24,15 @@ bool muduo::Condition::waitForSeconds(double seconds)
   return ETIMEDOUT == pthread_cond_timedwait(&pcond_, mutex_.getPthreadMutex(), &abstime);
 }
 
+bool muduo::Condition::waitForMSeconds(int mseconds)
+{
+  struct timeval now;
+  gettimeofday(&now, NULL);
+
+  struct timespec abstime;
+  abstime.tv_sec = now.tv_sec + mseconds / 1000;
+  abstime.tv_nsec = now.tv_usec * 1000 + (mseconds % 1000) * 1000000;
+
+  MutexLock::UnassignGuard ug(mutex_);
+  return ETIMEDOUT == pthread_cond_timedwait(&pcond_, mutex_.getPthreadMutex(), &abstime);
+}
