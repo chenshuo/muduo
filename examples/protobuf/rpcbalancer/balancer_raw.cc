@@ -211,7 +211,7 @@ class Balancer : boost::noncopyable
            const string& name,
            const std::vector<InetAddress>& backends)
     : loop_(loop),
-      server_(loop, listenAddr, name),
+      server_(loop_, listenAddr, name),
       codec_(boost::bind(&Balancer::onRpcMessage, this, _1, _2, _3),
              boost::bind(&Balancer::onRawMessage, this, _1, _2, _3)),
       backends_(backends)
