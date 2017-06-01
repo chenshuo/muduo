@@ -91,7 +91,6 @@ void Inspector::add(const string& module,
                     const Callback& cb,
                     const string& help)
 {
-  MutexLockGuard lock(mutex_);
   modules_[module][command] = cb;
   helps_[module][command] = help;
 }
