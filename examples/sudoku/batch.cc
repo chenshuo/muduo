@@ -209,8 +209,8 @@ int main(int argc, char* argv[])
       // FALL THROUGH
     case 3:
       serverAddr = InetAddress(argv[2], 9981);
-      // FALL THROUGH
       local = false;
+      // FALL THROUGH
     case 2:
       input = argv[1];
       break;
