@@ -9,8 +9,6 @@
 #include <muduo/net/TcpConnection.h>
 #include <muduo/net/protorpc/RpcChannel.h>
 
-#include <boost/ptr_container/ptr_vector.hpp>
-
 #include <stdio.h>
 
 using namespace muduo;
@@ -119,18 +117,18 @@ int main(int argc, char* argv[])
     pool.start();
     InetAddress serverAddr(argv[1], 8888);
 
-    boost::ptr_vector<RpcClient> clients;
+    std::vector<std::unique_ptr<RpcClient>> clients;
     for (int i = 0; i < nClients; ++i)
     {
-      clients.push_back(new RpcClient(pool.getNextLoop(), serverAddr, &allConnected, &allFinished));
-      clients.back().connect();
+      clients.emplace_back(new RpcClient(pool.getNextLoop(), serverAddr, &allConnected, &allFinished));
+      clients.back()->connect();
     }
     allConnected.wait();
     Timestamp start(Timestamp::now());
     LOG_INFO << "all connected";
     for (int i = 0; i < nClients; ++i)
     {
-      clients[i].sendRequest();
+      clients[i]->sendRequest();
     }
     allFinished.wait();
     Timestamp end(Timestamp::now());

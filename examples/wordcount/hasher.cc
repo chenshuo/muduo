@@ -3,7 +3,6 @@
 #include <muduo/net/EventLoopThread.h>
 #include <muduo/net/TcpClient.h>
 
-#include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/tokenizer.hpp>
 
 #include <examples/wordcount/hash.h>
@@ -135,7 +134,7 @@ class WordCountSender : muduo::noncopyable
   {
     for (size_t i = 0; i < buckets_.size(); ++i)
     {
-      buckets_[i].connect();
+      buckets_[i]->connect();
     }
     LOG_INFO << "All connected";
   }
@@ -144,7 +143,7 @@ class WordCountSender : muduo::noncopyable
   {
     for (size_t i = 0; i < buckets_.size(); ++i)
     {
-      buckets_[i].disconnect();
+      buckets_[i]->disconnect();
     }
     LOG_INFO << "All disconnected";
   }
@@ -154,7 +153,7 @@ class WordCountSender : muduo::noncopyable
  private:
   EventLoopThread loopThread_;
   EventLoop* loop_;
-  boost::ptr_vector<SendThrottler> buckets_;
+  std::vector<std::unique_ptr<SendThrottler>> buckets_;
 };
 
 WordCountSender::WordCountSender(const std::string& receivers)
@@ -172,7 +171,7 @@ WordCountSender::WordCountSender(const std::string& receivers)
     {
       uint16_t port = static_cast<uint16_t>(atoi(&ipport[colon+1]));
       InetAddress addr(ipport.substr(0, colon), port);
-      buckets_.push_back(new SendThrottler(loop_, addr));
+      buckets_.emplace_back(new SendThrottler(loop_, addr));
     }
     else
     {
@@ -207,7 +206,7 @@ void WordCountSender::processFile(const char* filename)
          it != wordcounts.end(); ++it)
     {
       size_t idx = hash(it->first) % buckets_.size();
-      buckets_[idx].send(it->first, it->second);
+      buckets_[idx]->send(it->first, it->second);
     }
   }
 }

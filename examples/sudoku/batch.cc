@@ -4,8 +4,6 @@
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/TcpClient.h>
 
-#include <boost/ptr_container/ptr_vector.hpp>
-
 #include <fstream>
 
 #include <stdio.h>
@@ -183,13 +181,13 @@ void runClient(std::istream& in, const InetAddress& serverAddr, int conn)
   g_connections = conn;
 
   g_start = Timestamp::now();
-  boost::ptr_vector<SudokuClient> clients;
+  std::vector<std::unique_ptr<SudokuClient>> clients;
   for (int i = 0; i < conn; ++i)
   {
     Fmt f("client-%03d", i+1);
     string name(f.data(), f.length());
-    clients.push_back(new SudokuClient(&loop, serverAddr, input, name, done));
-    clients.back().connect();
+    clients.emplace_back(new SudokuClient(&loop, serverAddr, input, name, done));
+    clients.back()->connect();
   }
 
   loop.loop();

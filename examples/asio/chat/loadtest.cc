@@ -7,8 +7,6 @@
 #include <muduo/net/EventLoopThreadPool.h>
 #include <muduo/net/TcpClient.h>
 
-#include <boost/ptr_container/ptr_vector.hpp>
-
 #include <stdio.h>
 
 using namespace muduo;
@@ -105,13 +103,13 @@ class ChatClient : noncopyable
   Timestamp receiveTime_;
 };
 
-void statistic(const boost::ptr_vector<ChatClient>& clients)
+void statistic(const std::vector<std::unique_ptr<ChatClient>>& clients)
 {
   LOG_INFO << "statistic " << clients.size();
   std::vector<double> seconds(clients.size());
   for (size_t i = 0; i < clients.size(); ++i)
   {
-    seconds[i] = timeDifference(clients[i].receiveTime(), g_startTime);
+    seconds[i] = timeDifference(clients[i]->receiveTime(), g_startTime);
   }
 
   std::sort(seconds.begin(), seconds.end());
@@ -147,13 +145,13 @@ int main(int argc, char* argv[])
     loopPool.start();
 
     g_receiveTime.reserve(g_connections);
-    boost::ptr_vector<ChatClient> clients(g_connections);
+    std::vector<std::unique_ptr<ChatClient>> clients(g_connections);
     g_statistic = std::bind(statistic, std::ref(clients));
 
     for (int i = 0; i < g_connections; ++i)
     {
-      clients.push_back(new ChatClient(loopPool.getNextLoop(), serverAddr));
-      clients[i].connect();
+      clients[i].reset(new ChatClient(loopPool.getNextLoop(), serverAddr));
+      clients[i]->connect();
       usleep(200);
     }
 

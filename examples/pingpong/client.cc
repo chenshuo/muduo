@@ -6,8 +6,6 @@
 #include <muduo/net/EventLoopThreadPool.h>
 #include <muduo/net/InetAddress.h>
 
-#include <boost/ptr_container/ptr_vector.hpp>
-
 #include <utility>
 
 #include <stdio.h>
@@ -108,7 +106,7 @@ class Client : noncopyable
       snprintf(buf, sizeof buf, "C%05d", i);
       Session* session = new Session(threadPool_.getNextLoop(), serverAddr, buf, this);
       session->start();
-      sessions_.push_back(session);
+      sessions_.emplace_back(session);
     }
   }
 
@@ -133,11 +131,10 @@ class Client : noncopyable
 
       int64_t totalBytesRead = 0;
       int64_t totalMessagesRead = 0;
-      for (boost::ptr_vector<Session>::iterator it = sessions_.begin();
-          it != sessions_.end(); ++it)
+      for (const auto& session : sessions_)
       {
-        totalBytesRead += it->bytesRead();
-        totalMessagesRead += it->messagesRead();
+        totalBytesRead += session->bytesRead();
+        totalMessagesRead += session->messagesRead();
       }
       LOG_WARN << totalBytesRead << " total bytes read";
       LOG_WARN << totalMessagesRead << " total messages read";
@@ -161,7 +158,7 @@ class Client : noncopyable
     LOG_WARN << "stop";
     for (auto& session : sessions_)
     {
-      session.stop();
+      session->stop();
     }
   }
 
@@ -169,7 +166,7 @@ class Client : noncopyable
   EventLoopThreadPool threadPool_;
   int sessionCount_;
   int timeout_;
-  boost::ptr_vector<Session> sessions_;
+  std::vector<std::unique_ptr<Session>> sessions_;
   string message_;
   AtomicInt32 numConnected_;
 };

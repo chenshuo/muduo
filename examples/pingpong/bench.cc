@@ -6,8 +6,6 @@
 #include <muduo/net/Channel.h>
 #include <muduo/net/EventLoop.h>
 
-#include <boost/ptr_container/ptr_vector.hpp>
-
 #include <stdio.h>
 #include <sys/resource.h>
 #include <sys/socket.h>
@@ -20,7 +18,7 @@ int numPipes;
 int numActive;
 int numWrites;
 EventLoop* g_loop;
-boost::ptr_vector<Channel> g_channels;
+std::vector<std::unique_ptr<Channel>> g_channels;
 
 int g_reads, g_writes, g_fired;
 
@@ -51,7 +49,7 @@ std::pair<int, int> runOnce()
   Timestamp beforeInit(Timestamp::now());
   for (int i = 0; i < numPipes; ++i)
   {
-    Channel& channel = g_channels[i];
+    Channel& channel = *g_channels[i];
     channel.setReadCallback(std::bind(readCallback, _1, channel.fd(), i));
     channel.enableReading();
   }
@@ -124,7 +122,7 @@ int main(int argc, char* argv[])
   for (int i = 0; i < numPipes; ++i)
   {
     Channel* channel = new Channel(&loop, g_pipes[i*2]);
-    g_channels.push_back(channel);
+    g_channels.emplace_back(channel);
   }
 
   for (int i = 0; i < 25; ++i)
@@ -133,11 +131,10 @@ int main(int argc, char* argv[])
     printf("%8d %8d\n", t.first, t.second);
   }
 
-  for (boost::ptr_vector<Channel>::iterator it = g_channels.begin();
-       it != g_channels.end(); ++it)
+  for (const auto& channel : g_channels)
   {
-    it->disableAll();
-    it->remove();
+    channel->disableAll();
+    channel->remove();
   }
   g_channels.clear();
 }

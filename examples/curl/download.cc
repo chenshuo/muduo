@@ -3,7 +3,6 @@
 #include <examples/curl/Curl.h>
 #include <muduo/base/Logging.h>
 #include <muduo/net/EventLoop.h>
-#include <boost/ptr_container/ptr_vector.hpp>
 #include <stdio.h>
 #include <sstream>
 
@@ -157,10 +156,10 @@ class Downloader : noncopyable
         {
           range << i * pieceLen << "-" << length_ - 1;
         }
-        pieces_.push_back(new Piece(req,
-                                    out,
-                                    range.str().c_str(), // std::string -> muduo::string
-                                    std::bind(&Downloader::onDownloadDone, this)));
+        pieces_[i].reset(new Piece(req,
+                                   out,
+                                   range.str().c_str(), // std::string -> muduo::string
+                                   std::bind(&Downloader::onDownloadDone, this)));
       }
       else
       {
@@ -192,7 +191,7 @@ class Downloader : noncopyable
   bool acceptRanges_;
   int64_t length_;
   FilePtr out_;
-  boost::ptr_vector<Piece> pieces_;
+  std::vector<std::unique_ptr<Piece>> pieces_;
   int concurrent_;
 
   const static int kConcurrent = 4;

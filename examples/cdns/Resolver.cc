@@ -156,7 +156,7 @@ void Resolver::onSockCreate(int sockfd, int type)
   Channel* channel = new Channel(loop_, sockfd);
   channel->setReadCallback(std::bind(&Resolver::onRead, this, sockfd, _1));
   channel->enableReading();
-  channels_.insert(sockfd, channel);
+  channels_[sockfd].reset(channel);
 }
 
 void Resolver::onSockStateChange(int sockfd, bool read, bool write)

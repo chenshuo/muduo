@@ -6,8 +6,6 @@
 #include <muduo/base/Timestamp.h>
 #include <muduo/net/EventLoop.h>
 
-#include <boost/ptr_container/ptr_vector.hpp>
-
 #include <math.h>
 #include <stdio.h>
 
@@ -137,11 +135,11 @@ int main(int argc, char* argv[])
 
   g_percent = argc > 2 ? atoi(argv[2]) : 43;
   int numThreads = argc > 3 ? atoi(argv[3]) : 1;
-  boost::ptr_vector<Thread> threads;
+  std::vector<std::unique_ptr<Thread>> threads;
   for (int i = 0; i < numThreads; ++i)
   {
-    threads.push_back(new Thread(threadFunc));
-    threads.back().start();
+    threads.emplace_back(new Thread(threadFunc));
+    threads.back()->start();
   }
 
   switch (argv[1][0])
@@ -178,6 +176,6 @@ int main(int argc, char* argv[])
   }
   for (int i = 0; i < numThreads; ++i)
   {
-    threads[i].join();
+    threads[i]->join();
   }
 }

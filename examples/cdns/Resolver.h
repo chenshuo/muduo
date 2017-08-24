@@ -5,7 +5,9 @@
 #include <muduo/base/Timestamp.h>
 #include <muduo/net/InetAddress.h>
 
-#include <boost/ptr_container/ptr_map.hpp>
+#include <functional>
+#include <map>
+#include <memory>
 
 extern "C"
 {
@@ -56,7 +58,7 @@ class Resolver : muduo::noncopyable
   muduo::net::EventLoop* loop_;
   ares_channel ctx_;
   bool timerActive_;
-  typedef boost::ptr_map<int, muduo::net::Channel> ChannelList;
+  typedef std::map<int, std::unique_ptr<muduo::net::Channel>> ChannelList;
   ChannelList channels_;
 
   void onRead(int sockfd, muduo::Timestamp t);

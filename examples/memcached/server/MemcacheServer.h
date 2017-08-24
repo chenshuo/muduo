@@ -8,10 +8,9 @@
 #include <muduo/net/TcpServer.h>
 #include <examples/wordcount/hash.h>
 
+#include <array>
 #include <unordered_map>
 #include <unordered_set>
-
-#include <boost/array.hpp>
 
 class MemcacheServer : muduo::noncopyable
 {
@@ -77,7 +76,7 @@ class MemcacheServer : muduo::noncopyable
 
   const static int kShards = 4096;
 
-  boost::array<MapWithLock, kShards> shards_;
+  std::array<MapWithLock, kShards> shards_;
 
   // NOT guarded by mutex_, but here because server_ has to destructs before
   // sessions_

@@ -7,8 +7,6 @@
 #include <muduo/net/protorpc/RpcCodec.h>
 #include <muduo/net/protorpc/rpc.pb.h>
 
-#include <boost/ptr_container/ptr_vector.hpp>
-
 #include <stdio.h>
 
 using namespace muduo;
@@ -152,7 +150,7 @@ class Balancer : noncopyable
   struct PerThread
   {
     size_t current;
-    boost::ptr_vector<BackendSession> backends;
+    std::vector<std::unique_ptr<BackendSession>> backends;
     PerThread() : current(0) { }
   };
 
@@ -167,8 +165,8 @@ class Balancer : noncopyable
     {
       char buf[32];
       snprintf(buf, sizeof buf, "%s#%d", backends_[i].toIpPort().c_str(), count);
-      t.backends.push_back(new BackendSession(ioLoop, backends_[i], buf));
-      t.backends.back().connect();
+      t.backends.emplace_back(new BackendSession(ioLoop, backends_[i], buf));
+      t.backends.back()->connect();
     }
   }
 
@@ -192,7 +190,7 @@ class Balancer : noncopyable
     bool succeed = false;
     for (size_t i = 0; i < t.backends.size() && !succeed; ++i)
     {
-      succeed = t.backends[t.current].send(*msg, conn);
+      succeed = t.backends[t.current]->send(*msg, conn);
       t.current = (t.current+1) % t.backends.size();
     }
     if (!succeed)

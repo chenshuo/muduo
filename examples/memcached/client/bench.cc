@@ -5,7 +5,6 @@
 #include <muduo/net/TcpClient.h>
 
 #include <boost/program_options.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
 #include <iostream>
 
 #include <stdio.h>
@@ -210,11 +209,11 @@ int main(int argc, char* argv[])
   char buf[32];
   CountDownLatch connected(clients);
   CountDownLatch finished(clients);
-  boost::ptr_vector<Client> holder;
+  std::vector<std::unique_ptr<Client>> holder;
   for (int i = 0; i < clients; ++i)
   {
     snprintf(buf, sizeof buf, "%d-", i+1);
-    holder.push_back(new Client(buf,
+    holder.emplace_back(new Client(buf,
                                 pool.getNextLoop(),
                                 serverAddr,
                                 op,
@@ -229,7 +228,7 @@ int main(int argc, char* argv[])
   Timestamp start = Timestamp::now();
   for (int i = 0; i < clients; ++i)
   {
-    holder[i].send();
+    holder[i]->send();
   }
   finished.wait();
   Timestamp end = Timestamp::now();

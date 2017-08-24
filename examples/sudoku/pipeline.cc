@@ -5,8 +5,6 @@
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/TcpClient.h>
 
-#include <boost/ptr_container/ptr_vector.hpp>
-
 #include <fstream>
 #include <numeric>
 #include <unordered_map>
@@ -164,16 +162,15 @@ class SudokuClient : noncopyable
   std::vector<int> latencies_;
 };
 
-void report(boost::ptr_vector<SudokuClient>* clients)
+void report(const std::vector<std::unique_ptr<SudokuClient>>& clients)
 {
   static int count = 0;
 
   std::vector<int> latencies;
   int infly = 0;
-  for (boost::ptr_vector<SudokuClient>::iterator it = clients->begin();
-       it != clients->end(); ++it)
+  for (const auto& client : clients)
   {
-    it->report(&latencies, &infly);
+    client->report(&latencies, &infly);
   }
 
   Percentile p(latencies, infly);
@@ -205,16 +202,16 @@ void runClient(const InputPtr& input,
                bool nodelay)
 {
   EventLoop loop;
-  boost::ptr_vector<SudokuClient> clients;
+  std::vector<std::unique_ptr<SudokuClient>> clients;
   for (int i = 0; i < conn; ++i)
   {
     Fmt f("c%04d", i+1);
     string name(f.data(), f.length());
-    clients.push_back(new SudokuClient(&loop, serverAddr, input, name, pipelines, nodelay));
-    clients.back().connect();
+    clients.emplace_back(new SudokuClient(&loop, serverAddr, input, name, pipelines, nodelay));
+    clients.back()->connect();
   }
 
-  loop.runEvery(1.0, std::bind(report, &clients));
+  loop.runEvery(1.0, std::bind(report, std::ref(clients)));
   loop.loop();
 }
 
