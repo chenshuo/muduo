@@ -11,6 +11,7 @@
 #ifndef MUDUO_NET_EVENTLOOP_H
 #define MUDUO_NET_EVENTLOOP_H
 
+#include <atomic>
 #include <functional>
 #include <vector>
 
@@ -148,7 +149,7 @@ class EventLoop : noncopyable
   typedef std::vector<Channel*> ChannelList;
 
   bool looping_; /* atomic */
-  bool quit_; /* atomic and shared between threads, okay on x86, I guess. */
+  std::atomic<bool> quit_;
   bool eventHandling_; /* atomic */
   bool callingPendingFunctors_; /* atomic */
   int64_t iteration_;

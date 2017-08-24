@@ -8,6 +8,7 @@
 #include <muduo/base/Thread.h>
 #include <muduo/base/LogStream.h>
 
+#include <atomic>
 #include <vector>
 
 namespace muduo
@@ -54,7 +55,7 @@ class AsyncLogging : noncopyable
   typedef BufferVector::value_type BufferPtr;
 
   const int flushInterval_;
-  bool running_;
+  std::atomic<bool> running_;
   string basename_;
   size_t rollSize_;
   muduo::Thread thread_;
