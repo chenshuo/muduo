@@ -18,6 +18,7 @@
 #include <muduo/net/TimerId.h>
 
 #include <sys/timerfd.h>
+#include <unistd.h>
 
 namespace muduo
 {

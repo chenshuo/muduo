@@ -12,6 +12,8 @@
 #include <muduo/base/LogStream.h>
 #include <muduo/base/ProcessInfo.h>
 
+#include <unistd.h>
+
 #ifdef HAVE_TCMALLOC
 #include <gperftools/malloc_extension.h>
 #include <gperftools/profiler.h>

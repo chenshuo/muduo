@@ -4,6 +4,7 @@
 #include <muduo/base/Logging.h>
 
 #include <stdio.h>
+#include <unistd.h>  // usleep
 
 void print()
 {

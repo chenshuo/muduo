@@ -10,6 +10,7 @@
 #include <arpa/inet.h>  // inet_ntop
 
 #include <stdio.h>
+#include <unistd.h>
 
 using namespace muduo;
 using namespace muduo::net;

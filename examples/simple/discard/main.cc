@@ -3,6 +3,8 @@
 #include <muduo/base/Logging.h>
 #include <muduo/net/EventLoop.h>
 
+#include <unistd.h>
+
 using namespace muduo;
 using namespace muduo::net;
 

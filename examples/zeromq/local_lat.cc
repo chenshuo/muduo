@@ -4,6 +4,7 @@
 #include <examples/asio/chat/codec.h>
 
 #include <stdio.h>
+#include <unistd.h>
 
 using std::placeholders::_1;
 using std::placeholders::_2;

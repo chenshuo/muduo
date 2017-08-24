@@ -35,7 +35,7 @@ class TimerId;
 class TimerQueue : noncopyable
 {
  public:
-  TimerQueue(EventLoop* loop);
+  explicit TimerQueue(EventLoop* loop);
   ~TimerQueue();
 
   ///

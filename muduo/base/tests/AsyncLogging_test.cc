@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <sys/resource.h>
+#include <unistd.h>
 
 int kRollSize = 500*1000*1000;
 
