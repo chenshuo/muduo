@@ -7,6 +7,10 @@ compiler:
 os:
   - linux
 install:
+  - sudo apt-get install software-properties-common
+  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+  - sudo apt-get update
+  - sudo apt-get install g++-7
   - sudo apt-get install libboost-dev
   - sudo apt-get install libprotobuf-dev protobuf-compiler libprotoc-dev
   - sudo apt-get install libboost-test-dev libboost-program-options-dev libboost-system-dev
@@ -16,4 +20,5 @@ env:
   - BUILD_TYPE=debug
   - BUILD_TYPE=release
 script:
+  - if [ "$CXX" == "g++" ]; then export CXX="g++-7"; fi
   - ./build.sh
