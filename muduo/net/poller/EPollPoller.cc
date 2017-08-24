@@ -17,6 +17,7 @@
 #include <errno.h>
 #include <poll.h>
 #include <sys/epoll.h>
+#include <unistd.h>
 
 using namespace muduo;
 using namespace muduo::net;

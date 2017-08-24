@@ -8,6 +8,7 @@
 #include <map>
 #include <string>
 #include <stdio.h>
+#include <unistd.h>
 
 class Bench
 {

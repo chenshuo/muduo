@@ -1,6 +1,8 @@
 #include <muduo/base/LogFile.h>
 #include <muduo/base/Logging.h>
 
+#include <unistd.h>
+
 boost::scoped_ptr<muduo::LogFile> g_logFile;
 
 void outputFunc(const char* msg, int len)

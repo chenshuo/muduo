@@ -8,6 +8,7 @@
 #include <boost/bind.hpp>
 #include <stdio.h>
 #include <sys/wait.h>
+#include <unistd.h>
 
 muduo::MutexLock g_mutex;
 std::map<int, int> g_delays;

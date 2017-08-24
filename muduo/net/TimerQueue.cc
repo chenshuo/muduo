@@ -20,6 +20,7 @@
 #include <boost/bind.hpp>
 
 #include <sys/timerfd.h>
+#include <unistd.h>
 
 namespace muduo
 {

@@ -37,7 +37,7 @@ class TimerId;
 class TimerQueue : boost::noncopyable
 {
  public:
-  TimerQueue(EventLoop* loop);
+  explicit TimerQueue(EventLoop* loop);
   ~TimerQueue();
 
   ///

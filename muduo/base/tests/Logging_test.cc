@@ -4,6 +4,7 @@
 #include <muduo/base/TimeZone.h>
 
 #include <stdio.h>
+#include <unistd.h>
 
 int g_total;
 FILE* g_file;

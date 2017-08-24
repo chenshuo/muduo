@@ -15,6 +15,7 @@
 #include <muduo/base/Types.h>
 #include <muduo/base/Timestamp.h>
 #include <vector>
+#include <sys/types.h>
 
 namespace muduo
 {

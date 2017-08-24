@@ -4,6 +4,8 @@
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/protorpc/RpcServer.h>
 
+#include <unistd.h>
+
 using namespace muduo;
 using namespace muduo::net;
 

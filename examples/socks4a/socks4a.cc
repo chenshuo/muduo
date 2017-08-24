@@ -3,6 +3,7 @@
 #include <muduo/net/Endian.h>
 #include <stdio.h>
 #include <netdb.h>
+#include <unistd.h>
 
 using namespace muduo;
 using namespace muduo::net;
