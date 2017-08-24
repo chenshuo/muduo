@@ -46,11 +46,10 @@ TcpServer::~TcpServer()
   for (ConnectionMap::iterator it(connections_.begin());
       it != connections_.end(); ++it)
   {
-    TcpConnectionPtr conn = it->second;
+    TcpConnectionPtr conn(it->second);
     it->second.reset();
     conn->getLoop()->runInLoop(
       boost::bind(&TcpConnection::connectDestroyed, conn));
-    conn.reset();
   }
 }
 
