@@ -7,6 +7,10 @@ compiler:
 os:
   - linux
 install:
+  - sudo apt-get install software-properties-common
+  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+  - sudo apt-get update
+  - sudo apt-get install g++-7
   - sudo apt-get install libboost-dev
   - sudo apt-get install libprotobuf-dev protobuf-compiler libprotoc-dev
   - sudo apt-get install libboost-test-dev libboost-program-options-dev
@@ -16,5 +20,5 @@ env:
   - BUILD_TYPE=debug
   - BUILD_TYPE=release
 script:
-  - if [ "$CXX" == "clang++" ]; then patch -p1 < clang.diff; fi
+  - if [ "$CXX" == "clang++" ]; then patch -p1 < clang.diff; else sed -i 's/g++/g++-7/' CMakeLists.txt; fi
   - ./build.sh
