@@ -63,7 +63,7 @@ void onConnection(const Options& opt, const TcpConnectionPtr& conn)
   }
   else
   {
-    const Context& context = boost::any_cast<Context>(conn->getContext());
+    const Context& context = std::any_cast<Context>(conn->getContext());
     LOG_INFO << "payload bytes " << context.bytes;
     conn->getLoop()->quit();
   }
@@ -71,7 +71,7 @@ void onConnection(const Options& opt, const TcpConnectionPtr& conn)
 
 void onMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp time)
 {
-  Context* context = boost::any_cast<Context>(conn->getMutableContext());
+  Context* context = std::any_cast<Context>(conn->getMutableContext());
   while (buf->readableBytes() >= sizeof(int32_t))
   {
     int32_t length = buf->readInt32();
@@ -137,7 +137,7 @@ void onConnection(const TcpConnectionPtr& conn)
   }
   else
   {
-    const Context& context = boost::any_cast<Context>(conn->getContext());
+    const Context& context = std::any_cast<Context>(conn->getContext());
     LOG_INFO << "payload bytes " << context.bytes;
     conn->getLoop()->quit();
   }
@@ -147,7 +147,7 @@ void onMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp time)
 {
   while (buf->readableBytes() >= sizeof(int32_t))
   {
-    Context* context = boost::any_cast<Context>(conn->getMutableContext());
+    Context* context = std::any_cast<Context>(conn->getMutableContext());
     SessionMessage& session = context->session;
     if (session.number == 0 && session.length == 0)
     {

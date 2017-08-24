@@ -43,9 +43,9 @@ void onConnection(const TcpConnectionPtr& conn)
   }
   else
   {
-    if (!conn->getContext().empty())
+    if (conn->getContext().has_value())
     {
-      FILE* fp = boost::any_cast<FILE*>(conn->getContext());
+      FILE* fp = std::any_cast<FILE*>(conn->getContext());
       if (fp)
       {
         ::fclose(fp);
@@ -56,7 +56,7 @@ void onConnection(const TcpConnectionPtr& conn)
 
 void onWriteComplete(const TcpConnectionPtr& conn)
 {
-  FILE* fp = boost::any_cast<FILE*>(conn->getContext());
+  FILE* fp = std::any_cast<FILE*>(conn->getContext());
   char buf[kBufSize];
   size_t nread = ::fread(buf, 1, sizeof buf, fp);
   if (nread > 0)

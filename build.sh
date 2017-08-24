@@ -5,11 +5,11 @@ set -x
 SOURCE_DIR=`pwd`
 BUILD_DIR=${BUILD_DIR:-../build}
 BUILD_TYPE=${BUILD_TYPE:-release}
-INSTALL_DIR=${INSTALL_DIR:-../${BUILD_TYPE}-install-cpp11}
+INSTALL_DIR=${INSTALL_DIR:-../${BUILD_TYPE}-install-cpp17}
 BUILD_NO_EXAMPLES=${BUILD_NO_EXAMPLES:-0}
 
-mkdir -p $BUILD_DIR/$BUILD_TYPE-cpp11 \
-  && cd $BUILD_DIR/$BUILD_TYPE-cpp11 \
+mkdir -p $BUILD_DIR/$BUILD_TYPE-cpp17 \
+  && cd $BUILD_DIR/$BUILD_TYPE-cpp17 \
   && cmake \
            -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
            -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR \
