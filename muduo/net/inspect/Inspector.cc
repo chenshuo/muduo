@@ -18,12 +18,6 @@
 #include <muduo/net/inspect/PerformanceInspector.h>
 #include <muduo/net/inspect/SystemInspector.h>
 
-//#include <iostream>
-//#include <iterator>
-//#include <sstream>
-//#include <boost/algorithm/string/classification.hpp>
-//#include <boost/algorithm/string/split.hpp>
-
 using namespace muduo;
 using namespace muduo::net;
 

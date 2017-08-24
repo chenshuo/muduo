@@ -67,7 +67,7 @@ void HttpServer::onMessage(const TcpConnectionPtr& conn,
                            Buffer* buf,
                            Timestamp receiveTime)
 {
-  HttpContext* context = boost::any_cast<HttpContext>(conn->getMutableContext());
+  HttpContext* context = std::any_cast<HttpContext>(conn->getMutableContext());
 
   if (!context->parseRequest(buf, receiveTime))
   {

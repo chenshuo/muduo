@@ -27,7 +27,7 @@ set(CXX_FLAGS
  -Wwrite-strings
  -march=native
  # -MMD
- -std=c++11
+ -std=c++17
  -rdynamic
  )
 if(CMAKE_BUILD_BITS EQUAL 32)
@@ -47,7 +47,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
-find_package(Boost REQUIRED)
+find_package(Boost)
 find_package(Protobuf)
 find_package(CURL)
 find_package(ZLIB)
@@ -93,7 +93,9 @@ if(THRIFT_COMPILER AND THRIFT_INCLUDE_DIR AND THRIFT_LIBRARY)
   message(STATUS "found thrift")
 endif()
 
-include_directories(${Boost_INCLUDE_DIRS})
+if(Boost_FOUND)
+  include_directories(${Boost_INCLUDE_DIRS})
+endif()
 
 include_directories(${PROJECT_SOURCE_DIR})
 

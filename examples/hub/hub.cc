@@ -94,7 +94,7 @@ class PubSubServer : noncopyable
     else
     {
       const ConnectionSubscription& connSub
-        = boost::any_cast<const ConnectionSubscription&>(conn->getContext());
+        = std::any_cast<const ConnectionSubscription&>(conn->getContext());
       // subtle: doUnsubscribe will erase *it, so increase before calling.
       for (ConnectionSubscription::const_iterator it = connSub.begin();
            it != connSub.end();)
@@ -153,7 +153,7 @@ class PubSubServer : noncopyable
                    const string& topic)
   {
     ConnectionSubscription* connSub
-      = boost::any_cast<ConnectionSubscription>(conn->getMutableContext());
+      = std::any_cast<ConnectionSubscription>(conn->getMutableContext());
 
     connSub->insert(topic);
     getTopic(topic).add(conn);
@@ -166,7 +166,7 @@ class PubSubServer : noncopyable
     getTopic(topic).remove(conn);
     // topic could be the one to be destroyed, so don't use it after erasing.
     ConnectionSubscription* connSub
-      = boost::any_cast<ConnectionSubscription>(conn->getMutableContext());
+      = std::any_cast<ConnectionSubscription>(conn->getMutableContext());
     connSub->erase(topic);
   }
 

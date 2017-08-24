@@ -60,7 +60,7 @@ class Tunnel : public std::enable_shared_from_this<Tunnel>,
     client_.setMessageCallback(muduo::net::defaultMessageCallback);
     if (serverConn_)
     {
-      serverConn_->setContext(boost::any());
+      serverConn_->setContext(std::any());
       serverConn_->shutdown();
     }
     clientConn_.reset();

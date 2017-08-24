@@ -105,10 +105,10 @@ void onServerMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp)
       }
     }
   }
-  else if (!conn->getContext().empty())
+  else if (conn->getContext().has_value())
   {
     const TcpConnectionPtr& clientConn
-      = boost::any_cast<const TcpConnectionPtr&>(conn->getContext());
+      = std::any_cast<const TcpConnectionPtr&>(conn->getContext());
     clientConn->send(buf);
   }
 }
