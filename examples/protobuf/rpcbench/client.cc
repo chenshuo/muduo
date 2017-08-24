@@ -13,6 +13,7 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 
 #include <stdio.h>
+#include <unistd.h>
 
 using namespace muduo;
 using namespace muduo::net;
