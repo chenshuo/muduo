@@ -119,10 +119,9 @@ void EventLoop::loop()
     }
     // TODO sort channel by priority
     eventHandling_ = true;
-    for (ChannelList::iterator it = activeChannels_.begin();
-        it != activeChannels_.end(); ++it)
+    for (Channel* channel : activeChannels_)
     {
-      currentActiveChannel_ = *it;
+      currentActiveChannel_ = channel;
       currentActiveChannel_->handleEvent(pollReturnTime_);
     }
     currentActiveChannel_ = NULL;
@@ -316,11 +315,9 @@ void EventLoop::doPendingFunctors()
 
 void EventLoop::printActiveChannels() const
 {
-  for (ChannelList::const_iterator it = activeChannels_.begin();
-      it != activeChannels_.end(); ++it)
+  for (const Channel* channel : activeChannels_)
   {
-    const Channel* ch = *it;
-    LOG_TRACE << "{" << ch->reventsToString() << "} ";
+    LOG_TRACE << "{" << channel->reventsToString() << "} ";
   }
 }
 

@@ -41,11 +41,10 @@ TcpServer::~TcpServer()
   loop_->assertInLoopThread();
   LOG_TRACE << "TcpServer::~TcpServer [" << name_ << "] destructing";
 
-  for (ConnectionMap::iterator it(connections_.begin());
-      it != connections_.end(); ++it)
+  for (auto& item : connections_)
   {
-    TcpConnectionPtr conn(it->second);
-    it->second.reset();
+    TcpConnectionPtr conn(item.second);
+    item.second.reset();
     conn->getLoop()->runInLoop(
       std::bind(&TcpConnection::connectDestroyed, conn));
   }
