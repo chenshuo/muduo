@@ -76,8 +76,8 @@ void EchoServer::onConnection(const TcpConnectionPtr& conn)
   }
   else
   {
-    assert(!conn->getContext().empty());
-    const Node& node = boost::any_cast<const Node&>(conn->getContext());
+    assert(conn->getContext().has_value());
+    const Node& node = std::any_cast<const Node&>(conn->getContext());
     connectionList_.erase(node.position);
   }
   dumpConnectionList();
@@ -92,8 +92,8 @@ void EchoServer::onMessage(const TcpConnectionPtr& conn,
            << " bytes at " << time.toString();
   conn->send(msg);
 
-  assert(!conn->getContext().empty());
-  Node* node = boost::any_cast<Node>(conn->getMutableContext());
+  assert(conn->getContext().has_value());
+  Node* node = std::any_cast<Node>(conn->getMutableContext());
   node->lastReceiveTime = time;
   connectionList_.splice(connectionList_.end(), connectionList_, node->position);
   assert(node->position == --connectionList_.end());
@@ -111,7 +111,7 @@ void EchoServer::onTimer()
     TcpConnectionPtr conn = it->lock();
     if (conn)
     {
-      Node* n = boost::any_cast<Node>(conn->getMutableContext());
+      Node* n = std::any_cast<Node>(conn->getMutableContext());
       double age = timeDifference(now, n->lastReceiveTime);
       if (age > idleSeconds_)
       {
@@ -152,7 +152,7 @@ void EchoServer::dumpConnectionList() const
     if (conn)
     {
       printf("conn %p\n", get_pointer(conn));
-      const Node& n = boost::any_cast<const Node&>(conn->getContext());
+      const Node& n = std::any_cast<const Node&>(conn->getContext());
       printf("    time %s\n", n.lastReceiveTime.toString().c_str());
     }
     else
