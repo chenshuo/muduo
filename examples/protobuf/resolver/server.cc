@@ -5,6 +5,8 @@
 #include <muduo/net/protorpc/RpcServer.h>
 #include <examples/cdns/Resolver.h>
 
+#include <unistd.h>
+
 using namespace muduo;
 using namespace muduo::net;
 
