@@ -167,7 +167,7 @@ class SudokuServer : noncopyable
 
     if (req.puzzle.size() == implicit_cast<size_t>(kCells))
     {
-      bool throttle = boost::any_cast<bool>(conn->getContext());
+      bool throttle = std::any_cast<bool>(conn->getContext());
       if (threadPool_.queueSize() < 1000 * 1000 && !throttle)
       {
         threadPool_.run(std::bind(&SudokuServer::solve, this, conn, req));

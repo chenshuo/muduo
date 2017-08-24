@@ -46,8 +46,8 @@ void EchoServer::onConnection(const TcpConnectionPtr& conn)
   }
   else
   {
-    assert(!conn->getContext().empty());
-    WeakEntryPtr weakEntry(boost::any_cast<WeakEntryPtr>(conn->getContext()));
+    assert(conn->getContext().has_value());
+    WeakEntryPtr weakEntry(std::any_cast<WeakEntryPtr>(conn->getContext()));
     LOG_DEBUG << "Entry use_count = " << weakEntry.use_count();
   }
 }
@@ -61,8 +61,8 @@ void EchoServer::onMessage(const TcpConnectionPtr& conn,
            << " bytes at " << time.toString();
   conn->send(msg);
 
-  assert(!conn->getContext().empty());
-  WeakEntryPtr weakEntry(boost::any_cast<WeakEntryPtr>(conn->getContext()));
+  assert(conn->getContext().has_value());
+  WeakEntryPtr weakEntry(std::any_cast<WeakEntryPtr>(conn->getContext()));
   EntryPtr entry(weakEntry.lock());
   if (entry)
   {
