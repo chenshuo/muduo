@@ -14,17 +14,23 @@ addons:
     - llvm-toolchain-trusty-5.0
     packages:
     # install toolchains
-    - g++-7
     - clang-5.0
+    - g++-7
+    - libboost-dev
+    - libboost-test-dev
+    - libboost-program-options-dev
+    - libc-ares-dev
+    - libcurl4-openssl-dev
+    - libgd-dev
+    - zlib1g-dev
 #install:
-#  - sudo apt-get install libboost-dev
 #  - sudo apt-get install libprotobuf-dev protobuf-compiler libprotoc-dev
-#  - sudo apt-get install libboost-test-dev libboost-program-options-dev
-#  - sudo apt-get install libc-ares-dev libcurl4-openssl-dev
-#  - sudo apt-get install zlib1g-dev libgd-dev
 env:
   - BUILD_TYPE=debug
   - BUILD_TYPE=release
 script:
   - if [ "$CXX" == "clang++" ]; then patch -p1 < clang.diff; else sed -i 's/g++/g++-7/' CMakeLists.txt; fi
+  - g++-7 -v
+  - clang++-5.0 -v
+  - grep CXX_COMPILER CMakeLists.txt
   - ./build.sh
