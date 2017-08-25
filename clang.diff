@@ -1,5 +1,5 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 81bd126..38c7387 100644
+index c3b90ce..2fe2997 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -18,7 +18,9 @@ set(CXX_FLAGS
@@ -12,11 +12,13 @@ index 81bd126..38c7387 100644
   -Wold-style-cast
   -Woverloaded-virtual
   -Wpointer-arith
-@@ -27,16 +29,15 @@ set(CXX_FLAGS
+@@ -26,17 +28,16 @@ set(CXX_FLAGS
+  -Wwrite-strings
   -march=native
   # -MMD
-  -std=c++0x
+- -std=c++17
 - -rdynamic
++ -std=c++1z
   )
  if(CMAKE_BUILD_BITS EQUAL 32)
    list(APPEND CXX_FLAGS "-m32")
@@ -24,7 +26,7 @@ index 81bd126..38c7387 100644
  string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS}")
  
 -set(CMAKE_CXX_COMPILER "g++")
-+set(CMAKE_CXX_COMPILER "clang++")
++set(CMAKE_CXX_COMPILER "clang++-5.0")
  set(CMAKE_CXX_FLAGS_DEBUG "-O0")
 -set(CMAKE_CXX_FLAGS_RELEASE "-O2 -finline-limit=1000 -DNDEBUG")
 +set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
