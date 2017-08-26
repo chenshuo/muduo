@@ -6,19 +6,32 @@ compiler:
   - clang
 os:
   - linux
-install:
-  - sudo apt-get install software-properties-common
-  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-  - sudo apt-get update
-  - sudo apt-get install g++-7
-  - sudo apt-get install libboost-dev
-  - sudo apt-get install libprotobuf-dev protobuf-compiler libprotoc-dev
-  - sudo apt-get install libboost-test-dev libboost-program-options-dev libboost-system-dev
-  - sudo apt-get install libc-ares-dev libcurl4-openssl-dev
-  - sudo apt-get install zlib1g-dev libgd-dev
+addons:
+  apt:
+    sources:
+    # add PPAs with more up-to-date toolchains
+    - ubuntu-toolchain-r-test
+    - llvm-toolchain-trusty-5.0
+    packages:
+    # install toolchains
+    - clang-5.0
+    - g++-7
+    - libboost-dev
+    - libboost-test-dev
+    - libboost-program-options-dev
+    - libc-ares-dev
+    - libcurl4-openssl-dev
+    - libgd-dev
+    - libprotobuf-dev
+    - libprotoc-dev
+    - protobuf-compiler
+    - zlib1g-dev
 env:
   - BUILD_TYPE=debug
   - BUILD_TYPE=release
 script:
   - if [ "$CXX" == "g++" ]; then export CXX="g++-7"; fi
+  - if [ "$CXX" == "clang++" ]; then sudo apt remove libprotobuf-dev; fi
+  - g++-7 -v
+  - clang++-5.0 -v
   - ./build.sh
