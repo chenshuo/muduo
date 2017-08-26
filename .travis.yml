@@ -22,9 +22,10 @@ addons:
     - libc-ares-dev
     - libcurl4-openssl-dev
     - libgd-dev
+    - libprotobuf-dev
+    - libprotoc-dev
+    - protobuf-compiler
     - zlib1g-dev
-#install:
-#  - sudo apt-get install libprotobuf-dev protobuf-compiler libprotoc-dev
 env:
   - BUILD_TYPE=debug
   - BUILD_TYPE=release
@@ -33,4 +34,5 @@ script:
   - g++-7 -v
   - clang++-5.0 -v
   - grep CXX_COMPILER CMakeLists.txt
+  - if [ "$CXX" == "clang++" ]; then sudo apt remove libprotobuf-dev; fi
   - ./build.sh
