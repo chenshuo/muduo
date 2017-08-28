@@ -152,7 +152,6 @@ BOOST_AUTO_TEST_CASE(testBufferFindEOL)
   BOOST_CHECK_EQUAL(buf.findEOL(buf.peek()+90000), null);
 }
 
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
 void output(Buffer&& buf, const void* inner)
 {
   Buffer newbuf(std::move(buf));
@@ -169,4 +168,3 @@ BOOST_AUTO_TEST_CASE(testMove)
   // printf("Buffer at %p, inner %p\n", &buf, inner);
   output(std::move(buf), inner);
 }
-#endif

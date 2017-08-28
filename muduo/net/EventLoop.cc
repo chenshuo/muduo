@@ -145,7 +145,7 @@ void EventLoop::quit()
   }
 }
 
-void EventLoop::runInLoop(const Functor& cb)
+void EventLoop::runInLoop(Functor cb)
 {
   if (isInLoopThread())
   {
@@ -153,15 +153,15 @@ void EventLoop::runInLoop(const Functor& cb)
   }
   else
   {
-    queueInLoop(cb);
+    queueInLoop(std::move(cb));
   }
 }
 
-void EventLoop::queueInLoop(const Functor& cb)
+void EventLoop::queueInLoop(Functor cb)
 {
   {
   MutexLockGuard lock(mutex_);
-  pendingFunctors_.push_back(cb);
+  pendingFunctors_.push_back(std::move(cb));
   }
 
   if (!isInLoopThread() || callingPendingFunctors_)
@@ -176,67 +176,22 @@ size_t EventLoop::queueSize() const
   return pendingFunctors_.size();
 }
 
-TimerId EventLoop::runAt(const Timestamp& time, const TimerCallback& cb)
-{
-  return timerQueue_->addTimer(cb, time, 0.0);
-}
-
-TimerId EventLoop::runAfter(double delay, const TimerCallback& cb)
-{
-  Timestamp time(addTime(Timestamp::now(), delay));
-  return runAt(time, cb);
-}
-
-TimerId EventLoop::runEvery(double interval, const TimerCallback& cb)
-{
-  Timestamp time(addTime(Timestamp::now(), interval));
-  return timerQueue_->addTimer(cb, time, interval);
-}
-
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
-// FIXME: remove duplication
-void EventLoop::runInLoop(Functor&& cb)
-{
-  if (isInLoopThread())
-  {
-    cb();
-  }
-  else
-  {
-    queueInLoop(std::move(cb));
-  }
-}
-
-void EventLoop::queueInLoop(Functor&& cb)
-{
-  {
-  MutexLockGuard lock(mutex_);
-  pendingFunctors_.push_back(std::move(cb));  // emplace_back
-  }
-
-  if (!isInLoopThread() || callingPendingFunctors_)
-  {
-    wakeup();
-  }
-}
-
-TimerId EventLoop::runAt(const Timestamp& time, TimerCallback&& cb)
+TimerId EventLoop::runAt(Timestamp time, TimerCallback cb)
 {
   return timerQueue_->addTimer(std::move(cb), time, 0.0);
 }
 
-TimerId EventLoop::runAfter(double delay, TimerCallback&& cb)
+TimerId EventLoop::runAfter(double delay, TimerCallback cb)
 {
   Timestamp time(addTime(Timestamp::now(), delay));
   return runAt(time, std::move(cb));
 }
 
-TimerId EventLoop::runEvery(double interval, TimerCallback&& cb)
+TimerId EventLoop::runEvery(double interval, TimerCallback cb)
 {
   Timestamp time(addTime(Timestamp::now(), interval));
   return timerQueue_->addTimer(std::move(cb), time, interval);
 }
-#endif
 
 void EventLoop::cancel(TimerId timerId)
 {

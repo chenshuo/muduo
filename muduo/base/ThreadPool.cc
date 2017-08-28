@@ -68,28 +68,7 @@ size_t ThreadPool::queueSize() const
   return queue_.size();
 }
 
-void ThreadPool::run(const Task& task)
-{
-  if (threads_.empty())
-  {
-    task();
-  }
-  else
-  {
-    MutexLockGuard lock(mutex_);
-    while (isFull())
-    {
-      notFull_.wait();
-    }
-    assert(!isFull());
-
-    queue_.push_back(task);
-    notEmpty_.notify();
-  }
-}
-
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
-void ThreadPool::run(Task&& task)
+void ThreadPool::run(Task task)
 {
   if (threads_.empty())
   {
@@ -108,7 +87,6 @@ void ThreadPool::run(Task&& task)
     notEmpty_.notify();
   }
 }
-#endif
 
 ThreadPool::Task ThreadPool::take()
 {

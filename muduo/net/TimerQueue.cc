@@ -114,18 +114,7 @@ TimerQueue::~TimerQueue()
   }
 }
 
-TimerId TimerQueue::addTimer(const TimerCallback& cb,
-                             Timestamp when,
-                             double interval)
-{
-  Timer* timer = new Timer(cb, when, interval);
-  loop_->runInLoop(
-      std::bind(&TimerQueue::addTimerInLoop, this, timer));
-  return TimerId(timer, timer->sequence());
-}
-
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
-TimerId TimerQueue::addTimer(TimerCallback&& cb,
+TimerId TimerQueue::addTimer(TimerCallback cb,
                              Timestamp when,
                              double interval)
 {
@@ -134,7 +123,6 @@ TimerId TimerQueue::addTimer(TimerCallback&& cb,
       std::bind(&TimerQueue::addTimerInLoop, this, timer));
   return TimerId(timer, timer->sequence());
 }
-#endif
 
 void TimerQueue::cancel(TimerId timerId)
 {

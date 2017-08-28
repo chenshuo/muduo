@@ -43,14 +43,9 @@ class TimerQueue : noncopyable
   /// repeats if @c interval > 0.0.
   ///
   /// Must be thread safe. Usually be called from other threads.
-  TimerId addTimer(const TimerCallback& cb,
+  TimerId addTimer(TimerCallback cb,
                    Timestamp when,
                    double interval);
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
-  TimerId addTimer(TimerCallback&& cb,
-                   Timestamp when,
-                   double interval);
-#endif
 
   void cancel(TimerId timerId);
 

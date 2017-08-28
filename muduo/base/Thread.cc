@@ -65,10 +65,10 @@ struct ThreadData
   string name_;
   std::weak_ptr<pid_t> wkTid_;
 
-  ThreadData(const ThreadFunc& func,
+  ThreadData(ThreadFunc func,
              const string& name,
              const std::shared_ptr<pid_t>& tid)
-    : func_(func),
+    : func_(std::move(func)),
       name_(name),
       wkTid_(tid)
   { }
@@ -152,19 +152,7 @@ void CurrentThread::sleepUsec(int64_t usec)
 
 AtomicInt32 Thread::numCreated_;
 
-Thread::Thread(const ThreadFunc& func, const string& n)
-  : started_(false),
-    joined_(false),
-    pthreadId_(0),
-    tid_(new pid_t(0)),
-    func_(func),
-    name_(n)
-{
-  setDefaultName();
-}
-
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
-Thread::Thread(ThreadFunc&& func, const string& n)
+Thread::Thread(ThreadFunc func, const string& n)
   : started_(false),
     joined_(false),
     pthreadId_(0),
@@ -174,8 +162,6 @@ Thread::Thread(ThreadFunc&& func, const string& n)
 {
   setDefaultName();
 }
-
-#endif
 
 Thread::~Thread()
 {
