@@ -55,11 +55,13 @@ int main()
 
   muduo::Thread t1(threadFunc);
   t1.start();
+  printf("t1.tid=%d\n", t1.tid());
   t1.join();
 
   muduo::Thread t2(std::bind(threadFunc2, 42),
                    "thread for free function with argument");
   t2.start();
+  printf("t2.tid=%d\n", t2.tid());
   t2.join();
 
   Foo foo(87.53);

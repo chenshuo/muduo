@@ -63,26 +63,25 @@ struct ThreadData
   typedef muduo::Thread::ThreadFunc ThreadFunc;
   ThreadFunc func_;
   string name_;
-  std::weak_ptr<pid_t> wkTid_;
+  pid_t* tid_;
+  CountDownLatch* latch_;
 
   ThreadData(ThreadFunc func,
              const string& name,
-             const std::shared_ptr<pid_t>& tid)
+             pid_t* tid,
+             CountDownLatch* latch)
     : func_(std::move(func)),
       name_(name),
-      wkTid_(tid)
+      tid_(tid),
+      latch_(latch)
   { }
 
   void runInThread()
   {
-    pid_t tid = muduo::CurrentThread::tid();
-
-    std::shared_ptr<pid_t> ptid = wkTid_.lock();
-    if (ptid)
-    {
-      *ptid = tid;
-      ptid.reset();
-    }
+    *tid_ = muduo::CurrentThread::tid();
+    tid_ = NULL;
+    latch_->countDown();
+    latch_ = NULL;
 
     muduo::CurrentThread::t_threadName = name_.empty() ? "muduoThread" : name_.c_str();
     ::prctl(PR_SET_NAME, muduo::CurrentThread::t_threadName);
@@ -156,9 +155,10 @@ Thread::Thread(ThreadFunc func, const string& n)
   : started_(false),
     joined_(false),
     pthreadId_(0),
-    tid_(new pid_t(0)),
+    tid_(0),
     func_(std::move(func)),
-    name_(n)
+    name_(n),
+    latch_(1)
 {
   setDefaultName();
 }
@@ -187,12 +187,17 @@ void Thread::start()
   assert(!started_);
   started_ = true;
   // FIXME: move(func_)
-  detail::ThreadData* data = new detail::ThreadData(func_, name_, tid_);
+  detail::ThreadData* data = new detail::ThreadData(func_, name_, &tid_, &latch_);
   if (pthread_create(&pthreadId_, NULL, &detail::startThread, data))
   {
     started_ = false;
     delete data; // or no delete?
     LOG_SYSFATAL << "Failed in pthread_create";
+  }
+  else
+  {
+    latch_.wait();
+    assert(tid_ > 0);
   }
 }
 

@@ -7,6 +7,7 @@
 #define MUDUO_BASE_THREAD_H
 
 #include <muduo/base/Atomic.h>
+#include <muduo/base/CountDownLatch.h>
 #include <muduo/base/Types.h>
 
 #include <functional>
@@ -30,7 +31,7 @@ class Thread : noncopyable
 
   bool started() const { return started_; }
   // pthread_t pthreadId() const { return pthreadId_; }
-  pid_t tid() const { return *tid_; }
+  pid_t tid() const { return tid_; }
   const string& name() const { return name_; }
 
   static int numCreated() { return numCreated_.get(); }
@@ -41,9 +42,10 @@ class Thread : noncopyable
   bool       started_;
   bool       joined_;
   pthread_t  pthreadId_;
-  std::shared_ptr<pid_t> tid_;
+  pid_t      tid_;
   ThreadFunc func_;
   string     name_;
+  CountDownLatch latch_;
 
   static AtomicInt32 numCreated_;
 };
