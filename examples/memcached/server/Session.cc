@@ -23,19 +23,19 @@ bool Session::SpaceSeparator::operator()(InputIterator& next, InputIterator end,
     ++next;
   if (next == end)
   {
-    tok.clear();
+    tok = std::string_view();
     return false;
   }
   InputIterator start(next);
   const char* sp = static_cast<const char*>(memchr(start, ' ', end - start));
   if (sp)
   {
-    tok.set(start, static_cast<int>(sp - start));
+    tok = std::string_view(start, sp - start);
     next = sp;
   }
   else
   {
-    tok.set(start, static_cast<int>(end - next));
+    tok = std::string_view(start, end - next);
     next = end;
   }
   return true;
@@ -226,7 +226,7 @@ bool Session::processRequest(StringPiece request)
     reply("ERROR\r\n");
     return true;
   }
-  (*beg).CopyToString(&command_);
+  command_ = *beg;
   ++beg;
   if (command_ == "set" || command_ == "add" || command_ == "replace"
       || command_ == "append" || command_ == "prepend" || command_ == "cas")
@@ -318,7 +318,7 @@ void Session::reply(muduo::StringPiece msg)
 {
   if (!noreply_)
   {
-    conn_->send(msg.data(), msg.size());
+    conn_->send(msg.data(), static_cast<int>(msg.size()));
   }
 }
 

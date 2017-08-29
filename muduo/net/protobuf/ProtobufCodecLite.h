@@ -84,11 +84,11 @@ class ProtobufCodecLite : noncopyable
                     const RawMessageCallback& rawCb = RawMessageCallback(),
                     const ErrorCallback& errorCb = defaultErrorCallback)
     : prototype_(prototype),
-      tag_(tagArg.as_string()),
+      tag_(tagArg),
       messageCallback_(messageCb),
       rawCb_(rawCb),
       errorCallback_(errorCb),
-      kMinMessageLen(tagArg.size() + kChecksumLen)
+      kMinMessageLen(static_cast<int>(tagArg.size() + kChecksumLen))
   {
   }
 

@@ -45,7 +45,7 @@ class GzipFile : noncopyable
   int read(void* buf, int len) { return ::gzread(file_, buf, len); }
 
   // return the number of uncompressed bytes actually written
-  int write(StringPiece buf) { return ::gzwrite(file_, buf.data(), buf.size()); }
+  int write(StringPiece buf) { return ::gzwrite(file_, buf.data(), static_cast<unsigned>(buf.size())); }
 
   // number of uncompressed bytes
   off_t tell() const { return ::gztell(file_); }
