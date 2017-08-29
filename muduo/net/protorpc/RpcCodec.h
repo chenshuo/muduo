@@ -25,7 +25,7 @@ typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
 
 class RpcMessage;
 typedef std::shared_ptr<RpcMessage> RpcMessagePtr;
-extern const char rpctag[];// = "RPC0";
+extern const char rpctag[5];// = "RPC0";
 
 // wire format
 //
