@@ -28,7 +28,7 @@ struct RawMessage
   bool parse(const string& tag)
   {
     const char* const body = message_.data() + ProtobufCodecLite::kHeaderLen;
-    const int bodylen = message_.size() - ProtobufCodecLite::kHeaderLen;
+    const int bodylen = static_cast<int>(message_.size()) - ProtobufCodecLite::kHeaderLen;
     const int taglen = static_cast<int>(tag.size());
     if (ProtobufCodecLite::validateChecksum(body, bodylen)
         && (memcmp(body, tag.data(), tag.size()) == 0)
@@ -55,7 +55,7 @@ struct RawMessage
     memcpy(const_cast<void*>(loc_), &le64, sizeof(le64));
 
     const char* body = message_.data() + ProtobufCodecLite::kHeaderLen;
-    int bodylen = message_.size() - ProtobufCodecLite::kHeaderLen;
+    int bodylen = static_cast<int>(message_.size()) - ProtobufCodecLite::kHeaderLen;
     int32_t checkSum = ProtobufCodecLite::checksum(body, bodylen - ProtobufCodecLite::kChecksumLen);
     int32_t be32 = sockets::hostToNetwork32(checkSum);
     memcpy(const_cast<char*>(body + bodylen - ProtobufCodecLite::kChecksumLen), &be32, sizeof(be32));

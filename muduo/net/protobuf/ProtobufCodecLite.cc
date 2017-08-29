@@ -98,7 +98,7 @@ void ProtobufCodecLite::onMessage(const TcpConnectionPtr& conn,
 
 bool ProtobufCodecLite::parseFromBuffer(StringPiece buf, google::protobuf::Message* message)
 {
-  return message->ParseFromArray(buf.data(), buf.size());
+  return message->ParseFromArray(buf.data(), static_cast<int>(buf.size()));
 }
 
 int ProtobufCodecLite::serializeToBuffer(const google::protobuf::Message& message, Buffer* buf)

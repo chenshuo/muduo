@@ -75,7 +75,7 @@ class ZlibOutputStream : noncopyable
     assert(zstream_.next_in == NULL && zstream_.avail_in == 0);
     void* in = const_cast<char*>(buf.data());
     zstream_.next_in = static_cast<Bytef*>(in);
-    zstream_.avail_in = buf.size();
+    zstream_.avail_in = static_cast<unsigned>(buf.size());
     while (zstream_.avail_in > 0 && zerror_ == Z_OK)
     {
       zerror_ = compress(Z_NO_FLUSH);

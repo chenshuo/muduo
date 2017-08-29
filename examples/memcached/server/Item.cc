@@ -16,7 +16,7 @@ Item::Item(StringPiece keyArg,
            int exptimeArg,
            int valuelen,
            uint64_t casArg)
-  : keylen_(keyArg.size()),
+  : keylen_(static_cast<int>(keyArg.size())),
     flags_(flagsArg),
     rel_exptime_(exptimeArg),
     valuelen_(valuelen),
@@ -56,7 +56,7 @@ void Item::output(Buffer* out, bool needCas) const
 void Item::resetKey(StringPiece k)
 {
   assert(k.size() <= 250);
-  keylen_ = k.size();
+  keylen_ = static_cast<int>(k.size());
   receivedBytes_ = 0;
   append(k.data(), k.size());
   hash_ = boost::hash_range(k.begin(), k.end());

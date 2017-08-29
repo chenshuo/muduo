@@ -89,7 +89,7 @@ class Procmon : noncopyable
       kBootTime_(getBootTime()),
       pid_(pid),
       server_(loop, InetAddress(port), getName()),
-      procname_(ProcessInfo::procname(readProcFile("stat")).as_string()),
+      procname_(ProcessInfo::procname(readProcFile("stat"))),
       hostname_(ProcessInfo::hostname()),
       cmdline_(getCmdLine()),
       ticks_(0),
@@ -211,7 +211,7 @@ class Procmon : noncopyable
     assert(pid == pid_);
     StringPiece procname = ProcessInfo::procname(stat);
     appendResponse("<h1>%s on %s</h1>\n",
-                   procname.as_string().c_str(), hostname_.c_str());
+                   string(procname).c_str(), hostname_.c_str());
     response_.append("<p>Refresh <a href=\"?refresh=1\">1s</a> ");
     response_.append("<a href=\"?refresh=2\">2s</a> ");
     response_.append("<a href=\"?refresh=5\">5s</a> ");

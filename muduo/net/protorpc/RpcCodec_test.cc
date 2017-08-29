@@ -49,14 +49,14 @@ int main()
   RpcCodec codec(rpcMessageCallback);
   codec.fillEmptyBuffer(&buf1, message);
   print(buf1);
-  s1 = buf1.toStringPiece().as_string();
+  s1 = buf1.toStringPiece();
   }
 
   {
   ProtobufCodecLite codec(&RpcMessage::default_instance(), "RPC0", messageCallback);
   codec.fillEmptyBuffer(&buf2, message);
   print(buf2);
-  s2 = buf2.toStringPiece().as_string();
+  s2 = buf2.toStringPiece();
   codec.onMessage(TcpConnectionPtr(), &buf1, Timestamp::now());
   assert(g_msgptr);
   assert(g_msgptr->DebugString() == message.DebugString());
@@ -71,7 +71,7 @@ int main()
   ProtobufCodecLite codec(&RpcMessage::default_instance(), "XYZ", messageCallback);
   codec.fillEmptyBuffer(&buf, message);
   print(buf);
-  s2 = buf.toStringPiece().as_string();
+  s2 = buf.toStringPiece();
   codec.onMessage(TcpConnectionPtr(), &buf, Timestamp::now());
   assert(g_msgptr);
   assert(g_msgptr->DebugString() == message.DebugString());
