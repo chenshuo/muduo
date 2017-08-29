@@ -103,7 +103,7 @@ void TcpConnection::send(const StringPiece& message)
       loop_->runInLoop(
           std::bind(fp,
                     this,     // FIXME
-                    message.as_string()));
+                    string(message)));
                     //std::forward<string>(message)));
     }
   }

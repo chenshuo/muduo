@@ -143,7 +143,7 @@ string ProcessInfo::hostname()
 
 string ProcessInfo::procname()
 {
-  return procname(procStat()).as_string();
+  return string(procname(procStat()));
 }
 
 StringPiece ProcessInfo::procname(const string& stat)
@@ -153,7 +153,7 @@ StringPiece ProcessInfo::procname(const string& stat)
   size_t rp = stat.rfind(')');
   if (lp != string::npos && rp != string::npos && lp < rp)
   {
-    name.set(stat.data()+lp+1, static_cast<int>(rp-lp-1));
+    name = std::string_view(stat.data()+lp+1, rp-lp-1);
   }
   return name;
 }
