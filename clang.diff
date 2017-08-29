@@ -1,18 +1,19 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index c3b90ce..2fe2997 100644
+index c3b90ce..dfaa0a0 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -18,7 +18,9 @@ set(CXX_FLAGS
+@@ -18,7 +18,10 @@ set(CXX_FLAGS
   -Wextra
   -Werror
   -Wconversion
++ -Wno-null-dereference
 + -Wno-sign-conversion
   -Wno-unused-parameter
 + -Wno-unused-private-field
   -Wold-style-cast
   -Woverloaded-virtual
   -Wpointer-arith
-@@ -26,17 +28,16 @@ set(CXX_FLAGS
+@@ -26,17 +29,16 @@ set(CXX_FLAGS
   -Wwrite-strings
   -march=native
   # -MMD
