@@ -203,7 +203,7 @@ std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now)
   Entry sentry(now, reinterpret_cast<Timer*>(UINTPTR_MAX));
   TimerList::iterator end = timers_.lower_bound(sentry);
   assert(end == timers_.end() || now < end->first);
-  std::copy(timers_.begin(), end, back_inserter(expired));
+  expired.assign(timers_.begin(), end);
   timers_.erase(timers_.begin(), end);
 
   for (std::vector<Entry>::iterator it = expired.begin();
