@@ -59,6 +59,8 @@ class TimerQueue : boost::noncopyable
  private:
 
   // FIXME: use unique_ptr<Timer> instead of raw pointers.
+  // This requires heterogeneous comparison lookup (N3465) from C++14
+  // so that we can find an T* in a set<unique_ptr<T>>.
   typedef std::pair<Timestamp, Timer*> Entry;
   typedef std::set<Entry> TimerList;
   typedef std::pair<Timer*, int64_t> ActiveTimer;
