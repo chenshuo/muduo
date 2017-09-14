@@ -16,9 +16,9 @@
 #include <muduo/net/TcpConnection.h>
 
 #include <map>
-#include <muduo/other/noncopyable.h>
+#include <muduo/base/noncopyable.h>
 #include <memory>
-#include <memory>
+
 
 namespace muduo
 {

@@ -15,7 +15,7 @@
 #include <muduo/base/Mutex.h>
 #include <muduo/base/Thread.h>
 
-#include <muduo/other/noncopyable.h>
+#include <muduo/base/noncopyable.h>
 
 namespace muduo
 {

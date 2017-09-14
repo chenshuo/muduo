@@ -12,7 +12,7 @@
 #ifndef MUDUO_NET_BOILERPLATE_H
 #define MUDUO_NET_BOILERPLATE_H
 
-#include <muduo/other/noncopyable.h>
+#include <muduo/base/noncopyable.h>
 
 namespace muduo
 {

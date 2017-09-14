@@ -15,7 +15,7 @@
 
 #include <functional>
 #include <muduo/other/any.h>
-#include <muduo/other/noncopyable.h>
+#include <muduo/base/noncopyable.h>
 #include <memory>
 
 #include <muduo/base/Mutex.h>
@@ -144,7 +144,7 @@ class EventLoop : noncopyable
   typedef std::vector<Channel*> ChannelList;
 
   bool looping_; /* atomic */
-  bool quit_; /* atomic and shared between threads, okay on x86, I guess. */
+  std::atomic<bool> quit_;
   bool eventHandling_; /* atomic */
   bool callingPendingFunctors_; /* atomic */
   int64_t iteration_;

@@ -19,7 +19,7 @@
 #include <muduo/net/InetAddress.h>
 
 #include <muduo/other/any.h>
-#include <muduo/other/noncopyable.h>
+#include <muduo/base/noncopyable.h>
 #include <memory>
 
 // struct tcp_info is in <netinet/tcp.h>

@@ -12,7 +12,7 @@
 #define MUDUO_NET_CHANNEL_H
 
 #include <functional>
-#include <muduo/other/noncopyable.h>
+#include <muduo/base/noncopyable.h>
 #include <memory>
 #include <memory>
 

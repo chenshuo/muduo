@@ -12,7 +12,7 @@
 #include <muduo/base/Types.h>
 
 #include <functional>
-#include <muduo/other/noncopyable.h>
+#include <muduo/base/noncopyable.h>
 #include <vector>
 
 #include <deque>

@@ -13,7 +13,7 @@
 
 #include <map>
 #include <vector>
-#include <muduo/other/noncopyable.h>
+#include <muduo/base/noncopyable.h>
 
 #include <muduo/base/Timestamp.h>
 #include <muduo/net/EventLoop.h>

@@ -6,7 +6,8 @@
 #ifndef MUDUO_BASE_THREADLOCALSINGLETON_H
 #define MUDUO_BASE_THREADLOCALSINGLETON_H
 
-#include <muduo/other/noncopyable.h>
+#include <muduo/base/noncopyable.h>
+
 #include <assert.h>
 #include <pthread.h>
 

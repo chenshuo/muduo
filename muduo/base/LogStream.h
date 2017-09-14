@@ -8,7 +8,7 @@
 #ifndef MUDUO_STD_STRING
 #include <string>
 #endif
-#include <muduo/other/noncopyable.h>
+#include <muduo/base/noncopyable.h>
 
 namespace muduo
 {

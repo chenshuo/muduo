@@ -3,7 +3,7 @@
 #include <muduo/base/Thread.h>
 
 #include <functional>
-#include <muduo/other/noncopyable.h>
+#include <muduo/base/noncopyable.h>
 #include <stdio.h>
 
 class Test : muduo::noncopyable

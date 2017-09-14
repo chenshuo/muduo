@@ -6,7 +6,8 @@
 #ifndef MUDUO_BASE_SINGLETON_H
 #define MUDUO_BASE_SINGLETON_H
 
-#include <muduo/other/noncopyable.h>
+#include <muduo/base/noncopyable.h>
+
 #include <assert.h>
 #include <stdlib.h> // atexit
 #include <pthread.h>

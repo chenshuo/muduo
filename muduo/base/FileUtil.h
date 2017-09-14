@@ -12,7 +12,7 @@
 #define MUDUO_BASE_FILEUTIL_H
 
 #include <muduo/base/StringPiece.h>
-#include <muduo/other/noncopyable.h>
+#include <muduo/base/noncopyable.h>
 
 namespace muduo
 {

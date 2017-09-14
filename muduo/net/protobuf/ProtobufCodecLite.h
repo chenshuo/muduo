@@ -20,7 +20,7 @@
 #include <muduo/net/Callbacks.h>
 
 #include <functional>
-#include <muduo/other/noncopyable.h>
+#include <muduo/base/noncopyable.h>
 #include <memory>
 
 #ifndef NDEBUG

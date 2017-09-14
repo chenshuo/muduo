@@ -2,14 +2,15 @@
 #define MUDUO_BASE_ASYNCLOGGING_H
 
 #include <muduo/base/BlockingQueue.h>
+#include <muduo/base/BoundedBlockingQueue.h>
 #include <muduo/base/CountDownLatch.h>
 #include <muduo/base/Mutex.h>
 #include <muduo/base/Thread.h>
 
 #include <muduo/base/LogStream.h>
-
+#include <atomic>
 #include <functional>
-#include <muduo/other/noncopyable.h>
+#include <muduo/base/noncopyable.h>
 #include <memory>
 #include <vector>
 
@@ -63,7 +64,7 @@ class AsyncLogging : noncopyable
   typedef std::unique_ptr<Buffer> BufferPtr;
 
   const int flushInterval_;
-  bool running_;
+  std::atomic<bool> running_;
   string basename_;
   size_t rollSize_;
   muduo::Thread thread_;

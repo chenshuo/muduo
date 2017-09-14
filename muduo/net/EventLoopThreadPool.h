@@ -11,7 +11,7 @@
 #ifndef MUDUO_NET_EVENTLOOPTHREADPOOL_H
 #define MUDUO_NET_EVENTLOOPTHREADPOOL_H
 
-#include <muduo/other/noncopyable.h>
+#include <muduo/base/noncopyable.h>
 #include <muduo/base/Types.h>
 
 #include <vector>

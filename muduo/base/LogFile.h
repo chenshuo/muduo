@@ -4,7 +4,7 @@
 #include <muduo/base/Mutex.h>
 #include <muduo/base/Types.h>
 
-#include <muduo/other/noncopyable.h>
+#include <muduo/base/noncopyable.h>
 #include <memory>
 
 namespace muduo

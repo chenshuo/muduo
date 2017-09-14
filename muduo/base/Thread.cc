@@ -26,8 +26,7 @@ namespace CurrentThread
   __thread char t_tidString[32];
   __thread int t_tidStringLength = 6;
   __thread const char* t_threadName = "unknown";
-  const bool sameType = std::is_same<int, pid_t>::value;
-  static_assert(sameType, "not the same type");
+  static_assert(std::is_same<int, pid_t>::value, "pid_t should be int");
 }
 
 namespace detail

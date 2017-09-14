@@ -4,7 +4,7 @@
 #include <muduo/base/Thread.h>
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/InetAddress.h>
-#include <muduo/other/noncopyable.h>
+#include <muduo/base/noncopyable.h>
 
 #include <functional> // bind
 #include <memory> // unique_ptr

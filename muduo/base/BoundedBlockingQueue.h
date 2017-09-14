@@ -9,7 +9,7 @@
 #include <muduo/base/Condition.h>
 #include <muduo/base/Mutex.h>
 
-#include <muduo/other/noncopyable.h>
+#include <muduo/base/noncopyable.h>
 #include <muduo/other/circular_buffer.h>
 #include <vector>
 #include <assert.h>

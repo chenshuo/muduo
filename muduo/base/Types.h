@@ -13,6 +13,8 @@
 #include <assert.h>
 #endif
 
+#include <muduo/base/noncopyable.h>
+
 ///
 /// The most common stuffs.
 ///

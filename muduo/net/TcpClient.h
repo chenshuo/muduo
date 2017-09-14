@@ -11,7 +11,7 @@
 #ifndef MUDUO_NET_TCPCLIENT_H
 #define MUDUO_NET_TCPCLIENT_H
 
-#include <muduo/other/noncopyable.h>
+#include <muduo/base/noncopyable.h>
 
 #include <muduo/base/Mutex.h>
 #include <muduo/net/TcpConnection.h>

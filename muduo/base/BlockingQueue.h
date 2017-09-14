@@ -9,7 +9,7 @@
 #include <muduo/base/Condition.h>
 #include <muduo/base/Mutex.h>
 
-#include <muduo/other/noncopyable.h>
+#include <muduo/base/noncopyable.h>
 #include <deque>
 #include <assert.h>
 

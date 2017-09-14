@@ -12,7 +12,7 @@
 #define MUDUO_NET_ACCEPTOR_H
 
 #include <functional>
-#include <muduo/other/noncopyable.h>
+#include <muduo/base/noncopyable.h>
 
 #include <muduo/net/Channel.h>
 #include <muduo/net/Socket.h>

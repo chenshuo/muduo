@@ -14,7 +14,7 @@
 #include <muduo/net/InetAddress.h>
 
 #include <functional>
-#include <muduo/other/noncopyable.h>
+#include <muduo/base/noncopyable.h>
 #include <memory>
 
 namespace muduo

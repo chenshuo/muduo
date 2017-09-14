@@ -1,7 +1,7 @@
 #pragma once
 
 #include <muduo/base/StringPiece.h>
-#include <muduo/other/noncopyable.h>
+#include <muduo/base/noncopyable.h>
 #include <zlib.h>
 
 namespace muduo

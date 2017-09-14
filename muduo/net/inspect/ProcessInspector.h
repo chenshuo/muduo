@@ -12,7 +12,7 @@
 #define MUDUO_NET_INSPECT_PROCESSINSPECTOR_H
 
 #include <muduo/net/inspect/Inspector.h>
-#include <muduo/other/noncopyable.h>
+#include <muduo/base/noncopyable.h>
 
 namespace muduo
 {

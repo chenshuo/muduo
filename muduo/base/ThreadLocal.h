@@ -8,8 +8,8 @@
 #define MUDUO_BASE_THREADLOCAL_H
 
 #include <muduo/base/Mutex.h>  // MCHECK
+#include <muduo/base/noncopyable.h>
 
-#include <muduo/other/noncopyable.h>
 #include <pthread.h>
 
 namespace muduo

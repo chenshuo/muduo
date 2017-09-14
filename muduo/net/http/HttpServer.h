@@ -12,7 +12,7 @@
 #define MUDUO_NET_HTTP_HTTPSERVER_H
 
 #include <muduo/net/TcpServer.h>
-#include <muduo/other/noncopyable.h>
+#include <muduo/base/noncopyable.h>
 
 namespace muduo
 {

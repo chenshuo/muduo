@@ -11,7 +11,8 @@
 
 using namespace muduo;
 
-static_assert(sizeof(Timestamp) == sizeof(int64_t), "sizeof(Timestamp) is not 8B");
+static_assert(sizeof(Timestamp) == sizeof(int64_t),
+              "Timestamp is same size as int64_t");
 
 string Timestamp::toString() const
 {

@@ -15,7 +15,7 @@
 #include <muduo/net/protobuf/ProtobufCodecLite.h>
 
 #include <functional>
-#include <muduo/other/noncopyable.h>
+#include <muduo/base/noncopyable.h>
 #include <memory>
 
 namespace muduo

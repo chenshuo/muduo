@@ -11,7 +11,7 @@
 #ifndef MUDUO_NET_TIMER_H
 #define MUDUO_NET_TIMER_H
 
-#include <muduo/other/noncopyable.h>
+#include <muduo/base/noncopyable.h>
 
 #include <muduo/base/Atomic.h>
 #include <muduo/base/Timestamp.h>
