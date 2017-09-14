@@ -23,7 +23,7 @@ Muduo is based on boost which is a large monst lib. And muduo also use cmake to 
 - 9 boost::bind-> std::bind;
 	*Pls attention that the function that std::bind use should be C-style function of C++ class static funtion(code example:muduo/net/TcpConnection.cc line110 & line131*).
 - 10 boost::any-> cdiggins::any(muduo/other/any.h)
-- 11 boost::noncopyable -> muduo::noncopyable(muduo/other/noncopyable.h)
+- 11 boost::noncopyable -> muduo::noncopyable(muduo/base/noncopyable.h)
 - 12 add offsetof macro in muduo/net/InetAddress.cc
 
 # Change Log #
