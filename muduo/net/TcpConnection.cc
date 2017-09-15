@@ -118,14 +118,15 @@ void TcpConnection::send(Buffer* buf)
     if (loop_->isInLoopThread())
     {
       sendInLoop(buf->peek(), buf->readableBytes());
-      buf->retrieveAll();
+      //buf->retrieveAll();
     }
     else
     {
       loop_->runInLoop(
           boost::bind(&TcpConnection::sendInLoop,
                       this,     // FIXME
-                      buf->retrieveAllAsString()));
+                      string(buf->peek(), buf->readableBytes()) ));
+                      //buf->retrieveAllAsString()));
                     //std::forward<string>(message)));
     }
   }
