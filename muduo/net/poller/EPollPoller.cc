@@ -65,7 +65,7 @@ Timestamp EPollPoller::poll(int timeoutMs, ChannelList* activeChannels)
   Timestamp now(Timestamp::now());
   if (numEvents > 0)
   {
-    LOG_TRACE << numEvents << " events happended";
+    LOG_TRACE << numEvents << " events happened";
     fillActiveChannels(numEvents, activeChannels);
     if (implicit_cast<size_t>(numEvents) == events_.size())
     {
@@ -74,7 +74,7 @@ Timestamp EPollPoller::poll(int timeoutMs, ChannelList* activeChannels)
   }
   else if (numEvents == 0)
   {
-    LOG_TRACE << "nothing happended";
+    LOG_TRACE << "nothing happened";
   }
   else
   {
