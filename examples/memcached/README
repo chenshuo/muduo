@@ -9,7 +9,7 @@ Server limits:
 
 Server goals:
  - Pass as many feature tests as possible
- - Prefer simplicity over performence
+ - Prefer simplicity over performance
 
 TODO:
  - incr/decr
