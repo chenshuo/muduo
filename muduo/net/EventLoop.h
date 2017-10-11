@@ -12,7 +12,7 @@
 #define MUDUO_NET_EVENTLOOP_H
 
 #include <vector>
-
+#include <atomic>
 #include <functional>
 #include <muduo/other/any.h>
 #include <muduo/base/noncopyable.h>
