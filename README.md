@@ -31,3 +31,4 @@ Muduo is based on boost which is a large monst lib. And muduo also use cmake to 
 - 1 create this project 2015-05-20.
 - 2 sync with github.com/chenshuo/muduo master on 2016-10-16 which lastest version is v1.0.8.
 - 3 sync with https://github.com/chenshuo/muduo/tree/cpp11 on 2017-09-14 which lastest version is v1.0.9.
+- 4 add contrib/hiredis on 2017-10-17.
