@@ -14,11 +14,12 @@ name="zookeeper"
 
 base=muduo/base/tests/lib
 net=muduo/net/tests/lib
+contrib=contrib
 build=build
 
 usage() {
-    echo "Usage: $0 build [base | net | all] # in default, build all."
-    echo "       $0 clean [base | net | all] # in default, clean all."
+    echo "Usage: $0 build [base | net | hiredis | all] # in default, build all."
+    echo "       $0 clean [base | net | hiredis | all] # in default, clean all."
 }
 
 build() {
@@ -26,7 +27,10 @@ build() {
     echo "target:" $target
     # make build dir.
     if [ ! -d "build" ]; then
-        mkdir -p build/lib
+        mkdir -p $build/lib
+    fi
+    if [ ! -d "bin" ]; then
+        mkdir -p $build/bin
     fi
 
     case C"$target" in
@@ -38,11 +42,17 @@ build() {
             cd muduo/net/tests  && make -f makefile && cd -
             cp $net/libmuduo.a  $build/lib
             ;;
+        Chiredis)
+            cd $contrib/hiredis && make -f makefile && cd -
+            cp $contrib/hiredis/bin/* $build/bin
+            ;;
         C*)
             cd muduo/base/tests  && make -f makefile && cd -
             cp $base/libmuduo_base.a  $build/lib
             cd muduo/net/tests  && make -f makefile && cd -
             cp $net/libmuduo.a  $build/lib
+            cd $contrib/hiredis && make -f makefile && cd -
+            cp $contrib/hiredis/bin/* $build/bin
             ;;
     esac
 }
@@ -60,9 +70,14 @@ clean() {
             cd muduo/net/tests  && make -f makefile clean && cd -
             rm -rf $build/lib/libmuduo.a
             ;;
+        Chiredis)
+            cd $contrib/hiredis  && make -f makefile clean && cd -
+            rm -rf $build/bin/*
+            ;;
         C*)
             cd muduo/base/tests  && make -f makefile clean && cd -
-            cd muduo/net/tests  && make -f makefile clean && cd -
+            cd muduo/net/tests   && make -f makefile clean && cd -
+            cd $contrib/hiredis  && make -f makefile clean && cd -
             rm -rf $build
             ;;
     esac
