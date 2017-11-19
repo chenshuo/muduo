@@ -17,6 +17,7 @@
 #include <stdio.h>  // snprintf
 #include <strings.h>  // bzero
 #include <sys/socket.h>
+#include <sys/uio.h>  // readv
 #include <unistd.h>
 
 using namespace muduo;
