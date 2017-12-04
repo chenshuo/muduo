@@ -84,8 +84,8 @@ class PeriodicTimer
   {
     struct timespec ts;
     bzero(&ts, sizeof ts);
-    const int64_t kNanoSecondsPerSecond = 1e9;
-    const int kMinInterval = 1e5;
+    const int64_t kNanoSecondsPerSecond = 1000000000;
+    const int kMinInterval = 100000;
     int64_t nanoseconds = static_cast<int64_t>(seconds * kNanoSecondsPerSecond);
     if (nanoseconds < kMinInterval)
       nanoseconds = kMinInterval;
