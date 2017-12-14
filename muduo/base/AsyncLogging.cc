@@ -132,7 +132,7 @@ void AsyncLogging::threadFunc()
 
   for (size_t i = 0; i < buffers_.size(); ++i)
   {
-    output.append(buffers_[i]->data(), buffers_[i]->length());
+    output.append(buffers_[i].data(), buffers_[i].length());
   }
 
   output.flush();
