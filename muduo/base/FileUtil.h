@@ -74,7 +74,7 @@ class AppendFile : boost::noncopyable
 
   void flush();
 
-  size_t writtenBytes() const { return writtenBytes_; }
+  off_t writtenBytes() const { return writtenBytes_; }
 
  private:
 
@@ -82,7 +82,7 @@ class AppendFile : boost::noncopyable
 
   FILE* fp_;
   char buffer_[64*1024];
-  size_t writtenBytes_;
+  off_t writtenBytes_;
 };
 }
 

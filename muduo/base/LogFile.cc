@@ -10,7 +10,7 @@
 using namespace muduo;
 
 LogFile::LogFile(const string& basename,
-                 size_t rollSize,
+                 off_t rollSize,
                  bool threadSafe,
                  int flushInterval,
                  int checkEveryN)
