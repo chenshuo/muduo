@@ -18,7 +18,7 @@ class LogFile : noncopyable
 {
  public:
   LogFile(const string& basename,
-          size_t rollSize,
+          off_t rollSize,
           bool threadSafe = true,
           int flushInterval = 3,
           int checkEveryN = 1024);
@@ -34,7 +34,7 @@ class LogFile : noncopyable
   static string getLogFileName(const string& basename, time_t* now);
 
   const string basename_;
-  const size_t rollSize_;
+  const off_t rollSize_;
   const int flushInterval_;
   const int checkEveryN_;
 
