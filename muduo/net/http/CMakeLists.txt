@@ -9,6 +9,7 @@ target_link_libraries(muduo_http muduo_net)
 
 install(TARGETS muduo_http DESTINATION lib)
 set(HEADERS
+  HttpContext.h
   HttpRequest.h
   HttpResponse.h
   HttpServer.h
