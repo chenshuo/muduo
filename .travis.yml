@@ -11,10 +11,8 @@ addons:
     sources:
     # add PPAs with more up-to-date toolchains
     - ubuntu-toolchain-r-test
-    - llvm-toolchain-trusty-5.0
     packages:
     # install toolchains
-    - clang-5.0
     - g++-7
     - libboost-dev
     - libboost-test-dev
@@ -31,7 +29,6 @@ env:
   - BUILD_TYPE=release
 script:
   - if [ "$CXX" == "g++" ]; then export CXX="g++-7"; fi
-  - if [ "$CXX" == "clang++" ]; then sudo apt remove libprotobuf-dev; fi
   - g++-7 -v
-  - clang++-5.0 -v
+  - clang++ -v
   - ./build.sh
