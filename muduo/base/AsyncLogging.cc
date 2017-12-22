@@ -124,6 +124,17 @@ void AsyncLogging::threadFunc()
     buffersToWrite.clear();
     output.flush();
   }
+
+  if (currentBuffer_)
+  {
+    output.append(currentBuffer_->data(), currentBuffer_->length());
+  }
+
+  for (size_t i = 0; i < buffers_.size(); ++i)
+  {
+    output.append(buffers_[i].data(), buffers_[i].length());
+  }
+
   output.flush();
 }
 
