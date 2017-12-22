@@ -11,10 +11,8 @@ addons:
     sources:
     # add PPAs with more up-to-date toolchains
     - ubuntu-toolchain-r-test
-    - llvm-toolchain-trusty-5.0
     packages:
     # install toolchains
-    - clang-5.0
     - g++-7
     - libboost-dev
     - libboost-test-dev
@@ -32,6 +30,6 @@ env:
 script:
   - if [ "$CXX" == "clang++" ]; then patch -p1 < clang.diff; else sed -i 's/g++/g++-7/' CMakeLists.txt; fi
   - g++-7 -v
-  - clang++-5.0 -v
+  - clang++ -v
   - grep CXX_COMPILER CMakeLists.txt
   - ./build.sh
