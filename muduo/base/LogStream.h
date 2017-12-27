@@ -16,8 +16,8 @@ namespace muduo
 namespace detail
 {
 
-const int kSmallBuffer = 4000;
-const int kLargeBuffer = 4000*1000;
+const int kSmallBuffer = 4096;
+const int kLargeBuffer = 4096*1024;
 
 template<int SIZE>
 class FixedBuffer : boost::noncopyable
@@ -36,11 +36,16 @@ class FixedBuffer : boost::noncopyable
 
   void append(const char* /*restrict*/ buf, size_t len)
   {
-    // FIXME: append partially
     if (implicit_cast<size_t>(avail()) > len)
     {
       memcpy(cur_, buf, len);
       cur_ += len;
+    }
+    else
+    {
+      size_t avail_len = static_cast<size_t>(avail());
+      memcpy(cur_, buf, avail_len);
+      cur_ += avail_len;
     }
   }
 
