@@ -61,7 +61,8 @@ void AsyncLogging::threadFunc()
   newBuffer2->bzero();
   BufferVector buffersToWrite;
   buffersToWrite.reserve(16);
-  while (running_)
+
+  do
   {
     assert(newBuffer1 && newBuffer1->length() == 0);
     assert(newBuffer2 && newBuffer2->length() == 0);
@@ -123,18 +124,7 @@ void AsyncLogging::threadFunc()
 
     buffersToWrite.clear();
     output.flush();
-  }
+  } while (running_);
 
-  if (currentBuffer_)
-  {
-    output.append(currentBuffer_->data(), currentBuffer_->length());
-  }
-
-  for (size_t i = 0; i < buffers_.size(); ++i)
-  {
-    output.append(buffers_[i].data(), buffers_[i].length());
-  }
-
-  output.flush();
 }
 
