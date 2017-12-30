@@ -19,6 +19,7 @@
 #include <muduo/net/Callbacks.h>
 #include <muduo/net/Channel.h>
 
+
 namespace muduo
 {
 namespace net
@@ -32,6 +33,10 @@ class TimerId;
 /// A best efforts timer queue.
 /// No guarantee that the callback will be on time.
 ///
+
+typedef std::shared_ptr<Timer> TimerPtr;
+typedef std::function<bool(TimerPtr,TimerPtr)> TimerPtrLessComp;
+
 class TimerQueue : noncopyable
 {
  public:
@@ -49,36 +54,27 @@ class TimerQueue : noncopyable
 
   void cancel(TimerId timerId);
 
+  static bool lesscomp(TimerPtr lhs, TimerPtr rhs);
+
  private:
+  typedef std::set<TimerPtr,TimerPtrLessComp> TimerList;
 
-  // FIXME: use unique_ptr<Timer> instead of raw pointers.
-  // This requires heterogeneous comparison lookup (N3465) from C++14
-  // so that we can find an T* in a set<unique_ptr<T>>.
-  typedef std::pair<Timestamp, Timer*> Entry;
-  typedef std::set<Entry> TimerList;
-  typedef std::pair<Timer*, int64_t> ActiveTimer;
-  typedef std::set<ActiveTimer> ActiveTimerSet;
-
-  void addTimerInLoop(Timer* timer);
+  void addTimerInLoop(TimerPtr timer);
   void cancelInLoop(TimerId timerId);
   // called when timerfd alarms
   void handleRead();
   // move out all expired timers
-  std::vector<Entry> getExpired(Timestamp now);
-  void reset(const std::vector<Entry>& expired, Timestamp now);
+  void getExpired(Timestamp now,std::vector<TimerPtr>&);
+  void reset(std::vector<TimerPtr >& expired, Timestamp now);
 
-  bool insert(Timer* timer);
+  bool insert(TimerPtr &timer);
 
   EventLoop* loop_;
   const int timerfd_;
   Channel timerfdChannel_;
-  // Timer list sorted by expiration
-  TimerList timers_;
 
-  // for cancel()
-  ActiveTimerSet activeTimers_;
-  bool callingExpiredTimers_; /* atomic */
-  ActiveTimerSet cancelingTimers_;
+  TimerList timers_;
+  TimerList timersCancle_;
 };
 
 }
