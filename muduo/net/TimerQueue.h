@@ -29,13 +29,9 @@ class EventLoop;
 class Timer;
 class TimerId;
 
-///
-/// A best efforts timer queue.
-/// No guarantee that the callback will be on time.
-///
-
 typedef std::shared_ptr<Timer> TimerPtr;
 typedef std::function<bool(TimerPtr,TimerPtr)> TimerPtrLessComp;
+typedef std::set<TimerPtr, TimerPtrLessComp> TimerList;
 
 class TimerQueue : noncopyable
 {
@@ -43,36 +39,19 @@ class TimerQueue : noncopyable
   explicit TimerQueue(EventLoop* loop);
   ~TimerQueue();
 
-  ///
-  /// Schedules the callback to be run at given time,
-  /// repeats if @c interval > 0.0.
-  ///
-  /// Must be thread safe. Usually be called from other threads.
-  TimerId addTimer(TimerCallback cb,
-                   Timestamp when,
-                   double interval);
-
+  TimerId addTimer(TimerCallback cb, Timestamp when, double interval);
   void cancel(TimerId timerId);
-
+  void handleTimerEvent(Timestamp stamp);
   static bool lesscomp(TimerPtr lhs, TimerPtr rhs);
+  int getNextTimeout(Timestamp stamp);
 
  private:
-  typedef std::set<TimerPtr,TimerPtrLessComp> TimerList;
-
   void addTimerInLoop(TimerPtr timer);
   void cancelInLoop(TimerId timerId);
-  // called when timerfd alarms
-  void handleRead();
-  // move out all expired timers
   void getExpired(Timestamp now,std::vector<TimerPtr>&);
   void reset(std::vector<TimerPtr >& expired, Timestamp now);
 
-  bool insert(TimerPtr &timer);
-
   EventLoop* loop_;
-  const int timerfd_;
-  Channel timerfdChannel_;
-
   TimerList timers_;
   TimerList timersCancle_;
 };

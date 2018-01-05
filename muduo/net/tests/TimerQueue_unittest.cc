@@ -26,10 +26,10 @@ void print(const char* msg)
   }
 }
 
-void cancel(TimerId timer)
+void cancel(TimerId timer,const char* msg)
 {
   g_loop->cancel(timer);
-  printf("cancelled at %s\n", Timestamp::now().toString().c_str());
+  printf("%s cancelled at %s\n", msg, Timestamp::now().toString().c_str());
 }
 
 int main()
@@ -46,14 +46,14 @@ int main()
     loop.runAfter(2.5, std::bind(print, "once2.5"));
     loop.runAfter(3.5, std::bind(print, "once3.5"));
     TimerId t45 = loop.runAfter(4.5, std::bind(print, "once4.5"));
-    loop.runAfter(4.2, std::bind(cancel, t45));
-    loop.runAfter(4.8, std::bind(cancel, t45));
+    loop.runAfter(4.2, std::bind(cancel, t45, "cancel t4.5 4.2"));
+    loop.runAfter(4.8, std::bind(cancel, t45, "cancel t4.5 4.8"));
     loop.runEvery(2, std::bind(print, "every2"));
     TimerId t3 = loop.runEvery(3, std::bind(print, "every3"));
-    loop.runAfter(9.001, std::bind(cancel, t3));
+    loop.runAfter(9.001, std::bind(cancel, t3, "cancel t3 9.001"));
 
     loop.loop();
-    print("main loop exits");
+    print("main loop exits\n");
   }
   sleep(1);
   {
@@ -61,6 +61,6 @@ int main()
     EventLoop* loop = loopThread.startLoop();
     loop->runAfter(2, printTid);
     sleep(3);
-    print("thread loop exits");
+    print("thread loop exits\n");
   }
 }

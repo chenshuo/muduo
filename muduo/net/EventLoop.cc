@@ -28,8 +28,6 @@ namespace
 {
 __thread EventLoop* t_loopInThisThread = 0;
 
-const int kPollTimeMs = 10000;
-
 int createEventfd()
 {
   int evtfd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
@@ -66,7 +64,6 @@ EventLoop::EventLoop()
     quit_(false),
     eventHandling_(false),
     callingPendingFunctors_(false),
-    iteration_(0),
     threadId_(CurrentThread::tid()),
     poller_(Poller::newDefaultPoller(this)),
     timerQueue_(new TimerQueue(this)),
@@ -105,14 +102,18 @@ void EventLoop::loop()
   assert(!looping_);
   assertInLoopThread();
   looping_ = true;
-  quit_ = false;  // FIXME: what if someone calls quit() before loop() ?
   LOG_TRACE << "EventLoop " << this << " start looping";
 
   while (!quit_)
   {
+    int timeout = 0;
+    if (pendingFunctors_.empty())
+    {
+      timeout = timerQueue_->getNextTimeout(Timestamp::now());
+    }
+
     activeChannels_.clear();
-    pollReturnTime_ = poller_->poll(kPollTimeMs, &activeChannels_);
-    ++iteration_;
+    pollReturnTime_ = poller_->poll(timeout, &activeChannels_);
     if (Logger::logLevel() <= Logger::TRACE)
     {
       printActiveChannels();
@@ -127,6 +128,7 @@ void EventLoop::loop()
     currentActiveChannel_ = NULL;
     eventHandling_ = false;
     doPendingFunctors();
+    timerQueue_->handleTimerEvent(pollReturnTime_);
   }
 
   LOG_TRACE << "EventLoop " << this << " stop looping";

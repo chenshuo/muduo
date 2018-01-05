@@ -40,8 +40,8 @@ class PeriodicTimer
  public:
   PeriodicTimer(EventLoop* loop, double interval, const TimerCallback& cb)
     : loop_(loop),
-      timerfd_(muduo::net::detail::createTimerfd()),
-      timerfdChannel_(loop, timerfd_),
+      timerfd_(0),
+      timerfdChannel_(loop,0),
       interval_(interval),
       cb_(cb)
   {
@@ -74,7 +74,7 @@ class PeriodicTimer
   void handleRead()
   {
     loop_->assertInLoopThread();
-    muduo::net::detail::readTimerfd(timerfd_, Timestamp::now());
+    // muduo::net::detail::readTimerfd(timerfd_, Timestamp::now());
     if (cb_)
       cb_();
   }

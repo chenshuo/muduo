@@ -43,6 +43,7 @@ public:
 
   Timestamp expiration() const { return expiration_; }
   bool repeat() const { return repeat_; }
+  double getInterval() const { return interval_; }
   void restart(Timestamp now);
 private:
   const TimerCallback callback_;
