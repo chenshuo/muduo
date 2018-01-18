@@ -1,3 +1,12 @@
+2018-01-18   Shuo Chen  <chenshuo@chenshuo.com>
+  * Fix race condition between Thread::tid() and Thread::start().
+  * Change protorpc format, add back package name. (Go does this since 1.2)
+  * examples/socks4a/tunnel.h stops reading if output buffer is full.
+  * Fixes for GCC 6/7
+  * Minor fixes by huntinux, liangshaocong, zhoudayang2, octocat_lee,
+  jack.xsuperman, ligewei, yqsy.
+  * Version 1.1.0
+
 2016-10-25   Shuo Chen  <chenshuo@chenshuo.com>
   * Last version in C++98/03, next version will use C++11
   * Add Travis CI
