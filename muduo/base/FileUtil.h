@@ -13,7 +13,7 @@
 
 #include <muduo/base/StringPiece.h>
 #include <boost/noncopyable.hpp>
-#include <stdio.h>
+#include <sys/types.h>  // for off_t
 
 namespace muduo
 {
