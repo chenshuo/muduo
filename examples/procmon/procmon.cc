@@ -90,7 +90,7 @@ class Procmon : boost::noncopyable
       kBootTime_(getBootTime()),
       pid_(pid),
       server_(loop, InetAddress(port), getName()),
-      procname_(ProcessInfo::procname(readProcFile("stat")).as_string()),
+      procname_(procname ? procname : ProcessInfo::procname(readProcFile("stat")).as_string()),
       hostname_(ProcessInfo::hostname()),
       cmdline_(getCmdLine()),
       ticks_(0),
@@ -462,7 +462,7 @@ int main(int argc, char* argv[])
 
   EventLoop loop;
   uint16_t port = static_cast<uint16_t>(atoi(argv[2]));
-  Procmon procmon(&loop, pid, port, argc > 3 ? argv[3] : "");
+  Procmon procmon(&loop, pid, port, argc > 3 ? argv[3] : NULL);
   procmon.start();
   loop.loop();
 }
