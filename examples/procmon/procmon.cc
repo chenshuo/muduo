@@ -1,6 +1,7 @@
 #include "plot.h"
 
 #include <muduo/base/FileUtil.h>
+#include <muduo/base/Logging.h>
 #include <muduo/base/ProcessInfo.h>
 #include <muduo/net/EventLoop.h>
 #include <muduo/net/http/HttpRequest.h>
@@ -13,8 +14,11 @@
 #include <boost/type_traits/is_pod.hpp>
 
 #include <sstream>
+
+#include <dirent.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <sys/stat.h>
 
 using namespace muduo;
 using namespace muduo::net;
@@ -98,6 +102,22 @@ class Procmon : boost::noncopyable
       cpu_chart_(640, 100, 600, kPeriod_),
       ram_chart_(640, 100, 7200, 30)
   {
+    {
+    // chdir to the same cwd of the process being monitored.
+    string cwd = readLink("cwd");
+    if (::chdir(cwd.c_str()))
+    {
+      LOG_SYSERR << "Cannot chdir() to " << cwd;
+    }
+    }
+
+    {
+    char cwd[1024];
+    if (::getcwd(cwd, sizeof cwd))
+    {
+      LOG_INFO << "Current dir: " << cwd;
+    }
+    }
     bzero(&lastStatData_, sizeof lastStatData_);
     server_.setHttpCallback(boost::bind(&Procmon::onRequest, this, _1, _2));
   }
@@ -180,9 +200,14 @@ class Procmon : boost::noncopyable
     {
       resp->setBody(readProcFile("status"));
     }
+    else if (req.path() == "/files")
+    {
+      listFiles();
+      resp->setBody(response_.retrieveAllAsString());
+    }
     else if (req.path() == "/threads")
     {
-      fillThreads();
+      listThreads();
       resp->setBody(response_.retrieveAllAsString());
     }
     else
@@ -269,7 +294,53 @@ class Procmon : boost::noncopyable
     }
   }
 
-  void fillThreads()
+  static int dirFilter(const struct dirent* d)
+  {
+    return (d->d_name[0] != '.');
+  }
+
+  static char getDirType(char d_type)
+  {
+    switch (d_type)
+    {
+      case DT_REG: return '-';
+      case DT_DIR: return 'd';
+      case DT_LNK: return 'l';
+      default: return '?';
+    }
+  }
+
+  void listFiles()
+  {
+    struct dirent** namelist = NULL;
+    int result = ::scandir(".", &namelist, dirFilter, alphasort);
+    for (int i = 0; i < result; ++i)
+    {
+      struct stat stat;
+      if (::lstat(namelist[i]->d_name, &stat) == 0)
+      {
+        Timestamp mtime(stat.st_mtime * Timestamp::kMicroSecondsPerSecond);
+        appendResponse("%c %9ld %s %s", getDirType(namelist[i]->d_type), stat.st_size,
+                       mtime.toFormattedString(/*showMicroseconds=*/false).c_str(),
+                       namelist[i]->d_name);
+        if (namelist[i]->d_type == DT_LNK)
+        {
+          char link[1024];
+          ssize_t len = ::readlink(namelist[i]->d_name, link, sizeof link - 1);
+          if (len > 0)
+          {
+            link[len] = '\0';
+            appendResponse(" -> %s", link);
+          }
+        }
+        appendResponse("\n");
+      }
+      ::free(namelist[i]);
+    }
+    ::free(namelist);
+  }
+
+  void listThreads()
   {
     response_.retrieveAll();
     // FIXME: implement this
