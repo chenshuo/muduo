@@ -1,7 +1,7 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -18,7 +18,11 @@ set(CXX_FLAGS
+@@ -18,25 +18,29 @@ set(CXX_FLAGS
   -Wextra
   -Werror
   -Wconversion
@@ -13,7 +13,9 @@ diff --git a/CMakeLists.txt b/CMakeLists.txt
   -Wold-style-cast
   -Woverloaded-virtual
   -Wpointer-arith
-@@ -27,16 +31,15 @@ set(CXX_FLAGS
+  -Wshadow
++ -Wthread-safety
+  -Wwrite-strings
   -march=native
   # -MMD
   -std=c++0x

@@ -47,7 +47,7 @@ class MemcacheServer : muduo::noncopyable
   const time_t startTime_;
 
   mutable muduo::MutexLock mutex_;
-  std::unordered_map<string, SessionPtr> sessions_;
+  std::unordered_map<string, SessionPtr> sessions_ GUARDED_BY(mutex_);
 
   // a complicated solution to save memory
   struct Hash
@@ -81,7 +81,7 @@ class MemcacheServer : muduo::noncopyable
   // NOT guarded by mutex_, but here because server_ has to destructs before
   // sessions_
   muduo::net::TcpServer server_;
-  std::unique_ptr<Stats> stats_;
+  std::unique_ptr<Stats> stats_ PT_GUARDED_BY(mutex_);
 };
 
 #endif  // MUDUO_EXAMPLES_MEMCACHED_SERVER_MEMCACHESERVER_H

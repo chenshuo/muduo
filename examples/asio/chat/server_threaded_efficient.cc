@@ -86,7 +86,7 @@ class ChatServer : noncopyable
   TcpServer server_;
   LengthHeaderCodec codec_;
   MutexLock mutex_;
-  ConnectionListPtr connections_;
+  ConnectionListPtr connections_ GUARDED_BY(mutex_);
 };
 
 int main(int argc, char* argv[])

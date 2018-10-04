@@ -109,8 +109,8 @@ class LogClient : noncopyable
   TcpClient client_;
   Codec codec_;
   MutexLock mutex_;
-  LogRecord logRecord_;
-  TcpConnectionPtr connection_;
+  LogRecord logRecord_ GUARDED_BY(mutex_);
+  TcpConnectionPtr connection_ GUARDED_BY(mutex_);
 };
 
 }

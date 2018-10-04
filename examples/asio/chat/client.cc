@@ -73,7 +73,7 @@ class ChatClient : noncopyable
   TcpClient client_;
   LengthHeaderCodec codec_;
   MutexLock mutex_;
-  TcpConnectionPtr connection_;
+  TcpConnectionPtr connection_ GUARDED_BY(mutex_);
 };
 
 int main(int argc, char* argv[])

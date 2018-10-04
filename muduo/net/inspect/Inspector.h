@@ -57,8 +57,8 @@ class Inspector : noncopyable
   std::unique_ptr<PerformanceInspector> performanceInspector_;
   std::unique_ptr<SystemInspector> systemInspector_;
   MutexLock mutex_;
-  std::map<string, CommandList> modules_;
-  std::map<string, HelpList> helps_;
+  std::map<string, CommandList> modules_ GUARDED_BY(mutex_);
+  std::map<string, HelpList> helps_ GUARDED_BY(mutex_);
 };
 
 }

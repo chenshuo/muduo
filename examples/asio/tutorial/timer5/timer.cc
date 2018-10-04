@@ -56,9 +56,9 @@ class Printer : muduo::noncopyable
 private:
 
   muduo::MutexLock mutex_;
-  muduo::net::EventLoop* loop1_;
-  muduo::net::EventLoop* loop2_;
-  int count_;
+  muduo::net::EventLoop* loop1_ PT_GUARDED_BY(mutex_);
+  muduo::net::EventLoop* loop2_ PT_GUARDED_BY(mutex_);
+  int count_ GUARDED_BY(mutex_);
 };
 
 int main()

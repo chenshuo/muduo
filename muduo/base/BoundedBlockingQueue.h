@@ -79,9 +79,9 @@ class BoundedBlockingQueue : noncopyable
 
  private:
   mutable MutexLock          mutex_;
-  Condition                  notEmpty_;
-  Condition                  notFull_;
-  boost::circular_buffer<T>  queue_;
+  Condition                  notEmpty_ GUARDED_BY(mutex_);
+  Condition                  notFull_ GUARDED_BY(mutex_);
+  boost::circular_buffer<T>  queue_ GUARDED_BY(mutex_);
 };
 
 }
