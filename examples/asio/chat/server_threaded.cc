@@ -73,7 +73,7 @@ class ChatServer : boost::noncopyable
   TcpServer server_;
   LengthHeaderCodec codec_;
   MutexLock mutex_;
-  ConnectionList connections_;
+  ConnectionList connections_ GUARDED_BY(mutex_);
 };
 
 int main(int argc, char* argv[])

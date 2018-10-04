@@ -142,7 +142,7 @@ class RpcChannel : public ::google::protobuf::RpcChannel
   AtomicInt64 id_;
 
   MutexLock mutex_;
-  std::map<int64_t, OutstandingCall> outstandings_;
+  std::map<int64_t, OutstandingCall> outstandings_ GUARDED_BY(mutex_);
 
   const std::map<std::string, ::google::protobuf::Service*>* services_;
 };

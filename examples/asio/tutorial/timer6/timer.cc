@@ -100,7 +100,7 @@ private:
   muduo::MutexLock mutex_;
   muduo::net::EventLoop* loop1_;
   muduo::net::EventLoop* loop2_;
-  int count_;
+  int count_ GUARDED_BY(mutex_);
 };
 
 int main()

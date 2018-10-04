@@ -60,8 +60,8 @@ class Inspector : boost::noncopyable
   boost::scoped_ptr<PerformanceInspector> performanceInspector_;
   boost::scoped_ptr<SystemInspector> systemInspector_;
   MutexLock mutex_;
-  std::map<string, CommandList> modules_;
-  std::map<string, HelpList> helps_;
+  std::map<string, CommandList> modules_ GUARDED_BY(mutex_);
+  std::map<string, HelpList> helps_ GUARDED_BY(mutex_);
 };
 
 }

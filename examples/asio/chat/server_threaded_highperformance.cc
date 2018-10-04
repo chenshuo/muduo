@@ -103,7 +103,7 @@ class ChatServer : boost::noncopyable
   typedef ThreadLocalSingleton<ConnectionList> LocalConnections;
 
   MutexLock mutex_;
-  std::set<EventLoop*> loops_;
+  std::set<EventLoop*> loops_ GUARDED_BY(mutex_);
 };
 
 int main(int argc, char* argv[])

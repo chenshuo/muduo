@@ -37,11 +37,11 @@ class EventLoopThread : boost::noncopyable
  private:
   void threadFunc();
 
-  EventLoop* loop_;
+  EventLoop* loop_ GUARDED_BY(mutex_);
   bool exiting_;
   Thread thread_;
   MutexLock mutex_;
-  Condition cond_;
+  Condition cond_ GUARDED_BY(mutex_);
   ThreadInitCallback callback_;
 };
 

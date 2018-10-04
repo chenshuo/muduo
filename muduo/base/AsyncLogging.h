@@ -41,7 +41,7 @@ class AsyncLogging : boost::noncopyable
     latch_.wait();
   }
 
-  void stop()
+  void stop() NO_THREAD_SAFETY_ANALYSIS
   {
     running_ = false;
     cond_.notify();
@@ -62,15 +62,15 @@ class AsyncLogging : boost::noncopyable
 
   const int flushInterval_;
   bool running_;
-  string basename_;
-  off_t rollSize_;
+  const string basename_;
+  const off_t rollSize_;
   muduo::Thread thread_;
   muduo::CountDownLatch latch_;
   muduo::MutexLock mutex_;
-  muduo::Condition cond_;
-  BufferPtr currentBuffer_;
-  BufferPtr nextBuffer_;
-  BufferVector buffers_;
+  muduo::Condition cond_ GUARDED_BY(mutex_);
+  BufferPtr currentBuffer_ GUARDED_BY(mutex_);
+  BufferPtr nextBuffer_ GUARDED_BY(mutex_);
+  BufferVector buffers_ GUARDED_BY(mutex_);
 };
 
 }

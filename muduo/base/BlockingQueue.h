@@ -71,8 +71,8 @@ class BlockingQueue : boost::noncopyable
 
  private:
   mutable MutexLock mutex_;
-  Condition         notEmpty_;
-  std::deque<T>     queue_;
+  Condition         notEmpty_ GUARDED_BY(mutex_);
+  std::deque<T>     queue_ GUARDED_BY(mutex_);
 };
 
 }

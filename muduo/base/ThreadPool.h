@@ -53,12 +53,12 @@ class ThreadPool : boost::noncopyable
   Task take();
 
   mutable MutexLock mutex_;
-  Condition notEmpty_;
-  Condition notFull_;
+  Condition notEmpty_ GUARDED_BY(mutex_);
+  Condition notFull_ GUARDED_BY(mutex_);
   string name_;
   Task threadInitCallback_;
   boost::ptr_vector<muduo::Thread> threads_;
-  std::deque<Task> queue_;
+  std::deque<Task> queue_ GUARDED_BY(mutex_);
   size_t maxQueueSize_;
   bool running_;
 };

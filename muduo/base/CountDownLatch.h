@@ -28,8 +28,8 @@ class CountDownLatch : boost::noncopyable
 
  private:
   mutable MutexLock mutex_;
-  Condition condition_;
-  int count_;
+  Condition condition_ GUARDED_BY(mutex_);
+  int count_ GUARDED_BY(mutex_);
 };
 
 }

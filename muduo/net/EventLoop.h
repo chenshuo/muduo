@@ -169,7 +169,7 @@ class EventLoop : boost::noncopyable
   Channel* currentActiveChannel_;
 
   mutable MutexLock mutex_;
-  std::vector<Functor> pendingFunctors_; // @GuardedBy mutex_
+  std::vector<Functor> pendingFunctors_ GUARDED_BY(mutex_);
 };
 
 }

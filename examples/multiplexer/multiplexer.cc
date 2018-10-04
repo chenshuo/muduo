@@ -288,9 +288,9 @@ class MultiplexServer
   int64_t oldCounter_;
   Timestamp startTime_;
   MutexLock mutex_;
-  TcpConnectionPtr backendConn_;
-  std::map<int, TcpConnectionPtr> clientConns_;
-  std::queue<int> availIds_;
+  TcpConnectionPtr backendConn_ GUARDED_BY(mutex_);
+  std::map<int, TcpConnectionPtr> clientConns_ GUARDED_BY(mutex_);
+  std::queue<int> availIds_ GUARDED_BY(mutex_);
 };
 
 int main(int argc, char* argv[])

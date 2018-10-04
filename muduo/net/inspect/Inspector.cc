@@ -173,6 +173,7 @@ void Inspector::onRequest(const HttpRequest& req, HttpResponse* resp)
     else
     {
       string module = result[0];
+      MutexLockGuard lock(mutex_);
       std::map<string, CommandList>::const_iterator commListI = modules_.find(module);
       if (commListI != modules_.end())
       {
