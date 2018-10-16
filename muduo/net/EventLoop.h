@@ -160,6 +160,7 @@ class EventLoop : noncopyable
   std::vector<Functor> pendingFunctors_ GUARDED_BY(mutex_);
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
+
 #endif  // MUDUO_NET_EVENTLOOP_H

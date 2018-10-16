@@ -21,7 +21,7 @@ ParseResult parseMessage(muduo::net::Buffer* buf,
                          string* cmd,
                          string* topic,
                          string* content);
-}
+}  // namespace pubsub
 
 #endif  // MUDUO_EXAMPLES_HUB_CODEC_H
 

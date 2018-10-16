@@ -47,5 +47,6 @@ class TimeZone : public muduo::copyable
   std::shared_ptr<Data> data_;
 };
 
-}
+}  // namespace muduo
+
 #endif  // MUDUO_BASE_TIMEZONE_H

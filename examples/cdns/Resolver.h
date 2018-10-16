@@ -71,6 +71,6 @@ class Resolver : muduo::noncopyable
   static int ares_sock_create_callback(int sockfd, int type, void* data);
   static void ares_sock_state_callback(void* data, int sockfd, int read, int write);
 };
-}
+}  // namespace cdns
 
 #endif

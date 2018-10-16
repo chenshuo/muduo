@@ -122,8 +122,8 @@ void* startThread(void* obj)
   return NULL;
 }
 
-}
-}
+}  // namespace detail
+}  // namespace muduo
 
 using namespace muduo;
 

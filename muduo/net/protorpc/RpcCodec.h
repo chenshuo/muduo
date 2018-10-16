@@ -39,7 +39,7 @@ extern const char rpctag[];// = "RPC0";
 
 typedef ProtobufCodecLiteT<RpcMessage, rpctag> RpcCodec;
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_PROTORPC_RPCCODEC_H

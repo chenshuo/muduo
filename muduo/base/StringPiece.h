@@ -48,7 +48,8 @@
 #include <string>
 #endif
 
-namespace muduo {
+namespace muduo
+{
 
 // For passing C-style string argument to a function.
 class StringArg // copyable
@@ -181,7 +182,7 @@ class StringPiece {
   }
 };
 
-}   // namespace muduo
+}  // namespace muduo
 
 // ------------------------------------------------------------------
 // Functions used to create STL containers that use StringPiece

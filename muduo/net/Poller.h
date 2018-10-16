@@ -65,6 +65,7 @@ class Poller : noncopyable
   EventLoop* ownerLoop_;
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
+
 #endif  // MUDUO_NET_POLLER_H

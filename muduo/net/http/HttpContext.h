@@ -66,7 +66,7 @@ class HttpContext : public muduo::copyable
   HttpRequest request_;
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_HTTP_HTTPCONTEXT_H

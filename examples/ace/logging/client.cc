@@ -113,7 +113,7 @@ class LogClient : noncopyable
   TcpConnectionPtr connection_ GUARDED_BY(mutex_);
 };
 
-}
+}  // namespace logging
 
 int main(int argc, char* argv[])
 {

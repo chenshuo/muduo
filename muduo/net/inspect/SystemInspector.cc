@@ -19,11 +19,9 @@ namespace muduo
 {
 namespace inspect
 {
-
 string uptime(Timestamp now, Timestamp start, bool showMicroseconds);
 long getLong(const string& content, const char* key);
 int stringPrintf(string* out, const char* fmt, ...) __attribute__ ((format (printf, 2, 3)));
-
 }
 }
 

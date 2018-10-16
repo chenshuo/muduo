@@ -32,7 +32,7 @@ class ProcessInspector : noncopyable
   static string username_;
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_INSPECT_PROCESSINSPECTOR_H

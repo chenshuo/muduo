@@ -1,0 +1,15 @@
+---
+# Only run one check for now.
+Checks:          '-clang-analyzer-*,llvm-namespace-comment'
+WarningsAsErrors: ''
+HeaderFilterRegex: ''
+AnalyzeTemporaryDtors: false
+FormatStyle:     none
+User:            chenshuo
+CheckOptions:
+  - key:             llvm-namespace-comment.ShortNamespaceLines
+    value:           '10'
+  - key:             llvm-namespace-comment.SpacesBeforeComments
+    value:           '2'
+...
+

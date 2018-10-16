@@ -26,7 +26,7 @@ struct has_no_destroy
   template <typename C> static int32_t test(...);
   const static bool value = sizeof(test<T>(0)) == 1;
 };
-}
+}  // namespace detail
 
 template<typename T>
 class Singleton : noncopyable
@@ -72,6 +72,6 @@ pthread_once_t Singleton<T>::ponce_ = PTHREAD_ONCE_INIT;
 template<typename T>
 T* Singleton<T>::value_ = NULL;
 
-}
-#endif
+}  // namespace muduo
 
+#endif

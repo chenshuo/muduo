@@ -42,6 +42,6 @@ class PubSubClient : muduo::noncopyable
   ConnectionCallback connectionCallback_;
   SubscribeCallback subscribeCallback_;
 };
-}
+}  // namespace pubsub
 
 #endif  // MUDUO_EXAMPLES_HUB_PUBSUB_H

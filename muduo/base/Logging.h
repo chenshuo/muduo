@@ -149,6 +149,6 @@ T* CheckNotNull(Logger::SourceFile file, int line, const char *names, T* ptr)
   return ptr;
 }
 
-}
+}  // namespace muduo
 
 #endif  // MUDUO_BASE_LOGGING_H

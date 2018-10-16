@@ -146,7 +146,7 @@ class RpcChannel : public ::google::protobuf::RpcChannel
 };
 typedef std::shared_ptr<RpcChannel> RpcChannelPtr;
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_PROTORPC_RPCCHANNEL_H

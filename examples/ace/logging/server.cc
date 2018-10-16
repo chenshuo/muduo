@@ -115,7 +115,7 @@ class LogServer : noncopyable
   TcpServer server_;
 };
 
-}
+}  // namespace logging
 
 int main(int argc, char* argv[])
 {

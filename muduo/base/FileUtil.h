@@ -16,7 +16,6 @@
 
 namespace muduo
 {
-
 namespace FileUtil
 {
 
@@ -84,9 +83,9 @@ class AppendFile : noncopyable
   char buffer_[64*1024];
   off_t writtenBytes_;
 };
-}
 
-}
+}  // namespace FileUtil
+}  // namespace muduo
 
 #endif  // MUDUO_BASE_FILEUTIL_H
 

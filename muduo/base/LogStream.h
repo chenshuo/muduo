@@ -72,7 +72,7 @@ class FixedBuffer : noncopyable
   char* cur_;
 };
 
-}
+}  // namespace detail
 
 class LogStream : noncopyable
 {
@@ -193,6 +193,6 @@ inline LogStream& operator<<(LogStream& s, const Fmt& fmt)
   return s;
 }
 
-}
-#endif  // MUDUO_BASE_LOGSTREAM_H
+}  // namespace muduo
 
+#endif  // MUDUO_BASE_LOGSTREAM_H

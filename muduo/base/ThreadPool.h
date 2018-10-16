@@ -57,6 +57,6 @@ class ThreadPool : noncopyable
   bool running_;
 };
 
-}
+}  // namespace muduo
 
 #endif

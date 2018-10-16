@@ -52,7 +52,7 @@ class Acceptor : noncopyable
   int idleFd_;
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_ACCEPTOR_H

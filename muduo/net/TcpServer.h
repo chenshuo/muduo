@@ -114,7 +114,7 @@ class TcpServer : noncopyable
   ConnectionMap connections_;
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_TCPSERVER_H

@@ -123,6 +123,6 @@ inline To down_cast(From* f)                     // so we only accept pointers
   return static_cast<To>(f);
 }
 
-}
+}  // namespace muduo
 
 #endif

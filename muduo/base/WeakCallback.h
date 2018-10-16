@@ -116,6 +116,7 @@ WeakCallback<CLASS> makeWeakCallback(const std::shared_ptr<CLASS>& object,
 }
 
 #endif  // __GXX_EXPERIMENTAL_CXX0X__
-}
+
+}  // namespace muduo
 
 #endif

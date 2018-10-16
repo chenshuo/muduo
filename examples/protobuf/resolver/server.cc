@@ -68,7 +68,7 @@ class ResolverServiceImpl : public ResolverService
   cdns::Resolver resolver_;
 };
 
-}
+}  // namespace resolver
 
 int main()
 {

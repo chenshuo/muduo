@@ -97,7 +97,7 @@ void onMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp time)
   }
 }
 
-}
+}  // namespace trans
 
 void transmit(const Options& opt)
 {
@@ -197,7 +197,7 @@ void onMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp time)
   }
 }
 
-}
+}  // namespace receiving
 
 void receive(const Options& opt)
 {

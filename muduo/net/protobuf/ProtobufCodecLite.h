@@ -185,7 +185,7 @@ class ProtobufCodecLiteT
   CODEC codec_;
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_PROTOBUF_CODEC_H

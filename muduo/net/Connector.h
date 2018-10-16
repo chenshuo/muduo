@@ -67,7 +67,7 @@ class Connector : noncopyable,
   int retryDelayMs_;
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_CONNECTOR_H

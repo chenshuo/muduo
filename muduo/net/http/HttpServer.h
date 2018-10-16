@@ -62,7 +62,7 @@ class HttpServer : noncopyable
   HttpCallback httpCallback_;
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_HTTP_HTTPSERVER_H

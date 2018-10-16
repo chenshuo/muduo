@@ -55,7 +55,7 @@ std::vector<string> split(const string& str)
   return result;
 }
 
-}
+}  // namespace
 
 extern char favicon[1743];
 

@@ -57,8 +57,8 @@ struct sockaddr_in6 getLocalAddr(int sockfd);
 struct sockaddr_in6 getPeerAddr(int sockfd);
 bool isSelfConnect(int sockfd);
 
-}
-}
-}
+}  // namespace sockets
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_SOCKETSOPS_H

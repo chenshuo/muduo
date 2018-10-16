@@ -81,6 +81,6 @@ class TimerQueue : noncopyable
   ActiveTimerSet cancelingTimers_;
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 #endif  // MUDUO_NET_TIMERQUEUE_H

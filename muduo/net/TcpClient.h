@@ -84,7 +84,7 @@ class TcpClient : noncopyable
   TcpConnectionPtr connection_ GUARDED_BY(mutex_);
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_TCPCLIENT_H

@@ -34,7 +34,7 @@ class PerformanceInspector : noncopyable
   static string symbol(HttpRequest::Method, const Inspector::ArgList&);
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_INSPECT_PERFORMANCEINSPECTOR_H

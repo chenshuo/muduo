@@ -48,7 +48,7 @@ void setNonBlockAndCloseOnExec(int sockfd)
 }
 #endif
 
-}
+}  // namespace
 
 const struct sockaddr* sockets::sockaddr_cast(const struct sockaddr_in6* addr)
 {

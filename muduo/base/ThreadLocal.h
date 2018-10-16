@@ -54,5 +54,6 @@ class ThreadLocal : noncopyable
   pthread_key_t pkey_;
 };
 
-}
+}  // namespace muduo
+
 #endif

@@ -44,6 +44,6 @@ class PollPoller : public Poller
   PollFdList pollfds_;
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 #endif  // MUDUO_NET_POLLER_POLLPOLLER_H

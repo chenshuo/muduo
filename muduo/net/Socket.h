@@ -83,6 +83,7 @@ class Socket : noncopyable
   const int sockfd_;
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
+
 #endif  // MUDUO_NET_SOCKET_H

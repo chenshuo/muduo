@@ -50,6 +50,6 @@ class EPollPoller : public Poller
   EventList events_;
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 #endif  // MUDUO_NET_POLLER_EPOLLPOLLER_H

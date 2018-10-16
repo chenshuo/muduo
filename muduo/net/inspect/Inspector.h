@@ -61,7 +61,7 @@ class Inspector : noncopyable
   std::map<string, HelpList> helps_ GUARDED_BY(mutex_);
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_INSPECT_INSPECTOR_H

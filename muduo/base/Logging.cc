@@ -104,7 +104,7 @@ Logger::OutputFunc g_output = defaultOutput;
 Logger::FlushFunc g_flush = defaultFlush;
 TimeZone g_logTimeZone;
 
-}
+}  // namespace muduo
 
 using namespace muduo;
 

@@ -19,6 +19,7 @@ namespace muduo
 {
 namespace net
 {
+
 ///
 /// Internal class for timer event.
 ///
@@ -55,6 +56,8 @@ class Timer : noncopyable
 
   static AtomicInt64 s_numCreated_;
 };
-}
-}
+
+}  // namespace net
+}  // namespace muduo
+
 #endif  // MUDUO_NET_TIMER_H

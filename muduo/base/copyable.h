@@ -14,6 +14,6 @@ class copyable
   ~copyable() = default;
 };
 
-};
+}  // namespace muduo
 
 #endif  // MUDUO_BASE_COPYABLE_H

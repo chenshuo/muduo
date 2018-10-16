@@ -67,6 +67,6 @@ class BlockingQueue : noncopyable
   std::deque<T>     queue_ GUARDED_BY(mutex_);
 };
 
-}
+}  // namespace muduo
 
 #endif  // MUDUO_BASE_BLOCKINGQUEUE_H

@@ -74,8 +74,8 @@ size_t convertHex(char buf[], uintptr_t value)
 template class FixedBuffer<kSmallBuffer>;
 template class FixedBuffer<kLargeBuffer>;
 
-}
-}
+}  // namespace detail
+}  // namespace muduo
 
 template<int SIZE>
 const char* FixedBuffer<SIZE>::debugString()

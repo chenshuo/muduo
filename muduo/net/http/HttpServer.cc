@@ -31,9 +31,9 @@ void defaultHttpCallback(const HttpRequest&, HttpResponse* resp)
   resp->setCloseConnection(true);
 }
 
-}
-}
-}
+}  // namespace detail
+}  // namespace net
+}  // namespace muduo
 
 HttpServer::HttpServer(EventLoop* loop,
                        const InetAddress& listenAddr,

@@ -79,5 +79,5 @@ __thread T* ThreadLocalSingleton<T>::t_value_ = 0;
 template<typename T>
 typename ThreadLocalSingleton<T>::Deleter ThreadLocalSingleton<T>::deleter_;
 
-}
+}  // namespace muduo
 #endif

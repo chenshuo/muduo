@@ -416,7 +416,7 @@ class Buffer : public muduo::copyable
   static const char kCRLF[];
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_BUFFER_H

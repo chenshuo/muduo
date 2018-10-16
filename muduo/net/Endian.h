@@ -64,9 +64,8 @@ inline uint16_t networkToHost16(uint16_t net16)
 #pragma GCC diagnostic warning "-Wold-style-cast"
 #endif
 
-
-}
-}
-}
+}  // namespace sockets
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_ENDIAN_H

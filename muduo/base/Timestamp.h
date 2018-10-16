@@ -113,5 +113,6 @@ inline Timestamp addTime(Timestamp timestamp, double seconds)
   return Timestamp(timestamp.microSecondsSinceEpoch() + delta);
 }
 
-}
+}  // namespace muduo
+
 #endif  // MUDUO_BASE_TIMESTAMP_H

@@ -76,9 +76,9 @@ inline void fillHMS(unsigned seconds, struct tm* utc)
   utc->tm_hour = minutes / 60;
 }
 
-}
+}  // namespace detail
 const int kSecondsPerDay = 24*60*60;
-}
+}  // namespace muduo
 
 using namespace muduo;
 using namespace std;
@@ -249,8 +249,8 @@ const Localtime* findLocaltime(const TimeZone::Data& data, Transition sentry, Co
   return local;
 }
 
-}
-}
+}  // namespace detail
+}  // namespace muduo
 
 
 TimeZone::TimeZone(const char* zonefile)

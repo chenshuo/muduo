@@ -154,7 +154,7 @@ class TcpConnection : noncopyable,
 
 typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_TCPCONNECTION_H

@@ -47,9 +47,9 @@ void removeConnector(const ConnectorPtr& connector)
   //connector->
 }
 
-}
-}
-}
+}  // namespace detail
+}  // namespace net
+}  // namespace muduo
 
 TcpClient::TcpClient(EventLoop* loop,
                      const InetAddress& serverAddr,

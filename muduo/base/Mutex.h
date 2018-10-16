@@ -223,7 +223,7 @@ class SCOPED_CAPABILITY MutexLockGuard : noncopyable
   MutexLock& mutex_;
 };
 
-}
+}  // namespace muduo
 
 // Prevent misuse like:
 // MutexLockGuard(mutex_);

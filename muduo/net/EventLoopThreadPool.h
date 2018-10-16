@@ -63,7 +63,7 @@ class EventLoopThreadPool : noncopyable
   std::vector<EventLoop*> loops_;
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_EVENTLOOPTHREADPOOL_H

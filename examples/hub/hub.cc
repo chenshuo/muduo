@@ -193,7 +193,7 @@ class PubSubServer : noncopyable
   std::map<string, Topic> topics_;
 };
 
-}
+}  // namespace pubsub
 
 int main(int argc, char* argv[])
 {

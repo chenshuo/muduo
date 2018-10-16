@@ -38,7 +38,7 @@ const char* getSocketType(int type)
 }
 
 const bool kDebug = false;
-}
+}  // namespace
 
 Resolver::Resolver(EventLoop* loop, Option opt)
   : loop_(loop),

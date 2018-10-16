@@ -50,5 +50,5 @@ class Thread : noncopyable
   static AtomicInt32 numCreated_;
 };
 
-}
+}  // namespace muduo
 #endif

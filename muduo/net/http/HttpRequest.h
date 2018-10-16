@@ -181,7 +181,7 @@ class HttpRequest : public muduo::copyable
   std::map<string, string> headers_;
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_HTTP_HTTPREQUEST_H

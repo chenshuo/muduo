@@ -114,8 +114,8 @@ int stringPrintf(string* out, const char* fmt, ...)
   return ret;
 }
 
-}
-}
+}  // namespace inspect
+}  // namespace muduo
 
 using namespace muduo::inspect;
 

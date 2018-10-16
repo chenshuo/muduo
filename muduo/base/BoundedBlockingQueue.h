@@ -84,6 +84,6 @@ class BoundedBlockingQueue : noncopyable
   boost::circular_buffer<T>  queue_ GUARDED_BY(mutex_);
 };
 
-}
+}  // namespace muduo
 
 #endif  // MUDUO_BASE_BOUNDEDBLOCKINGQUEUE_H

@@ -49,5 +49,5 @@ class LogFile : noncopyable
   const static int kRollPerSeconds_ = 60*60*24;
 };
 
-}
+}  // namespace muduo
 #endif  // MUDUO_BASE_LOGFILE_H

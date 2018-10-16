@@ -76,7 +76,7 @@ void defaultMessageCallback(const TcpConnectionPtr& conn,
                             Buffer* buffer,
                             Timestamp receiveTime);
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_CALLBACKS_H

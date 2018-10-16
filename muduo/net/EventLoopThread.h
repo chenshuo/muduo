@@ -43,8 +43,8 @@ class EventLoopThread : noncopyable
   ThreadInitCallback callback_;
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_EVENTLOOPTHREAD_H
 

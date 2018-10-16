@@ -87,10 +87,11 @@ class AtomicIntegerT : noncopyable
  private:
   volatile T value_;
 };
-}
+}  // namespace detail
 
 typedef detail::AtomicIntegerT<int32_t> AtomicInt32;
 typedef detail::AtomicIntegerT<int64_t> AtomicInt64;
-}
+
+}  // namespace muduo
 
 #endif  // MUDUO_BASE_ATOMIC_H

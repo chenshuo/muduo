@@ -81,4 +81,4 @@ class GzipFile : noncopyable
   gzFile file_;
 };
 
-}
+}  // namespace muduo

@@ -30,5 +30,5 @@ class CountDownLatch : noncopyable
   int count_ GUARDED_BY(mutex_);
 };
 
-}
+}  // namespace muduo
 #endif  // MUDUO_BASE_COUNTDOWNLATCH_H

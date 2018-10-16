@@ -85,6 +85,6 @@ class Hiredis : public std::enable_shared_from_this<Hiredis>,
   DisconnectCallback disconnectCb_;
 };
 
-}
+}  // namespace hiredis
 
 #endif  // MUDUO_EXAMPLES_HIREDIS_HIREDIS_H

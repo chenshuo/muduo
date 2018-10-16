@@ -26,7 +26,7 @@ class EchoServiceImpl : public EchoService
   }
 };
 
-}
+}  // namespace echo
 
 int main(int argc, char* argv[])
 {

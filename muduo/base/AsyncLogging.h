@@ -67,5 +67,6 @@ class AsyncLogging : noncopyable
   BufferVector buffers_ GUARDED_BY(mutex_);
 };
 
-}
+}  // namespace muduo
+
 #endif  // MUDUO_BASE_ASYNCLOGGING_H

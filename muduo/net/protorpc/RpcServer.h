@@ -51,7 +51,7 @@ class RpcServer
   std::map<std::string, ::google::protobuf::Service*> services_;
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_PROTORPC_RPCSERVER_H

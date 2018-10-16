@@ -27,7 +27,7 @@ class SudokuServiceImpl : public SudokuService
   }
 };
 
-}
+}  // namespace sudoku
 
 int main()
 {

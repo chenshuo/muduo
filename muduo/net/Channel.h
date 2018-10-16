@@ -106,6 +106,7 @@ class Channel : noncopyable
   EventCallback errorCallback_;
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
+
 #endif  // MUDUO_NET_CHANNEL_H

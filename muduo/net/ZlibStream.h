@@ -141,6 +141,5 @@ class ZlibOutputStream : noncopyable
   int bufferSize_;
 };
 
-}
-}
-
+}  // namespace net
+}  // namespace muduo

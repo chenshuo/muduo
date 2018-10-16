@@ -137,6 +137,6 @@ class Curl : muduo::noncopyable
   int prevRunningHandles_;
 };
 
-}
+}  // namespace curl
 
 #endif

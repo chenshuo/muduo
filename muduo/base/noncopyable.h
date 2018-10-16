@@ -15,6 +15,6 @@ class noncopyable
   void operator=(const noncopyable&) = delete;
 };
 
-}
+}  // namespace muduo
 
 #endif  // MUDUO_BASE_NONCOPYABLE_H
