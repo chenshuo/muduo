@@ -155,7 +155,6 @@ int FileUtil::ReadSmallFile::readToString(int maxSize,
 
 int FileUtil::ReadSmallFile::readToBuffer(int* size)
 {
-  int err = err_;
   if (fd_ >= 0)
   {
     ssize_t n = ::pread(fd_, buf_, sizeof(buf_)-1, 0);
@@ -167,12 +166,9 @@ int FileUtil::ReadSmallFile::readToBuffer(int* size)
       }
       buf_[n] = '\0';
     }
-    else
-    {
-      err = errno;
-    }
+    err_ = errno;
   }
-  return err;
+  return err_;
 }
 
 template int FileUtil::readFile(StringArg filename,
