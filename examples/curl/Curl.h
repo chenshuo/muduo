@@ -139,4 +139,4 @@ class Curl : muduo::noncopyable
 
 }  // namespace curl
 
-#endif
+#endif  // MUDUO_EXAMPLES_CURL_CURL_H

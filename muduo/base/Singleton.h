@@ -74,4 +74,4 @@ T* Singleton<T>::value_ = NULL;
 
 }  // namespace muduo
 
-#endif
+#endif  // MUDUO_BASE_SINGLETON_H

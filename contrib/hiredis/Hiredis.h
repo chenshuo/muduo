@@ -1,5 +1,5 @@
-#ifndef MUDUO_EXAMPLES_HIREDIS_HIREDIS_H
-#define MUDUO_EXAMPLES_HIREDIS_HIREDIS_H
+#ifndef MUDUO_CONTRIB_HIREDIS_HIREDIS_H
+#define MUDUO_CONTRIB_HIREDIS_HIREDIS_H
 
 #include <muduo/base/StringPiece.h>
 #include <muduo/base/Types.h>
@@ -87,4 +87,4 @@ class Hiredis : public std::enable_shared_from_this<Hiredis>,
 
 }  // namespace hiredis
 
-#endif  // MUDUO_EXAMPLES_HIREDIS_HIREDIS_H
+#endif  // MUDUO_CONTRIB_HIREDIS_HIREDIS_H

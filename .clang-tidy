@@ -1,6 +1,6 @@
 ---
 # Only run one check for now.
-Checks:          '-clang-analyzer-*,llvm-namespace-comment'
+Checks:          '-clang-analyzer-*,misc-muduo-*'
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
 AnalyzeTemporaryDtors: false
@@ -11,5 +11,7 @@ CheckOptions:
     value:           '10'
   - key:             llvm-namespace-comment.SpacesBeforeComments
     value:           '2'
+  - key:   MuduoRootDirectory
+    value: '/muduo-cpp11/'
 ...
 

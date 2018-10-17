@@ -49,4 +49,4 @@ namespace CurrentThread
 }  // namespace CurrentThread
 }  // namespace muduo
 
-#endif
+#endif  // MUDUO_BASE_CURRENTTHREAD_H

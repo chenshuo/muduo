@@ -11,8 +11,8 @@
 // For Protobuf codec supporting multiple message types, check
 // examples/protobuf/codec
 
-#ifndef MUDUO_NET_PROTOBUF_CODEC_H
-#define MUDUO_NET_PROTOBUF_CODEC_H
+#ifndef MUDUO_NET_PROTOBUF_PROTOBUFCODECLITE_H
+#define MUDUO_NET_PROTOBUF_PROTOBUFCODECLITE_H
 
 #include <muduo/base/StringPiece.h>
 #include <muduo/base/Timestamp.h>
@@ -188,4 +188,4 @@ class ProtobufCodecLiteT
 }  // namespace net
 }  // namespace muduo
 
-#endif  // MUDUO_NET_PROTOBUF_CODEC_H
+#endif  // MUDUO_NET_PROTOBUF_PROTOBUFCODECLITE_H

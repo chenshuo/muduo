@@ -73,4 +73,4 @@ class Resolver : muduo::noncopyable
 };
 }  // namespace cdns
 
-#endif
+#endif  // MUDUO_EXAMPLES_CDNS_RESOLVER_H

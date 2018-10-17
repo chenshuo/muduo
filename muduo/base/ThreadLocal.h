@@ -56,4 +56,4 @@ class ThreadLocal : noncopyable
 
 }  // namespace muduo
 
-#endif
+#endif  // MUDUO_BASE_THREADLOCAL_H

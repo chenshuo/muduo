@@ -51,4 +51,4 @@ class Thread : noncopyable
 };
 
 }  // namespace muduo
-#endif
+#endif  // MUDUO_BASE_THREAD_H

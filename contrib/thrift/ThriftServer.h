@@ -1,5 +1,5 @@
-#ifndef MUDUO_EXAMPLES_THRIFT_THRIFTSERVER_H
-#define MUDUO_EXAMPLES_THRIFT_THRIFTSERVER_H
+#ifndef MUDUO_CONTRIB_THRIFT_THRIFTSERVER_H
+#define MUDUO_CONTRIB_THRIFT_THRIFTSERVER_H
 
 #include <map>
 
@@ -217,6 +217,6 @@ class ThriftServer : boost::noncopyable,
   muduo::ThreadPool workerThreadPool_;
   muduo::MutexLock mutex_;
   std::map<muduo::string, ThriftConnectionPtr> conns_;
-}; // ThriftServer
+};
 
-#endif // MUDUO_EXAMPLES_THRIFT_THRIFTSERVER_H
+#endif  // MUDUO_CONTRIB_THRIFT_THRIFTSERVER_H

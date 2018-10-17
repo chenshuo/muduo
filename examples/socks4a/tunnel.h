@@ -192,4 +192,4 @@ class Tunnel : public std::enable_shared_from_this<Tunnel>,
 };
 typedef std::shared_ptr<Tunnel> TunnelPtr;
 
-#endif
+#endif  // MUDUO_EXAMPLES_SOCKS4A_TUNNEL_H

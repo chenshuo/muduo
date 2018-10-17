@@ -80,4 +80,4 @@ template<typename T>
 typename ThreadLocalSingleton<T>::Deleter ThreadLocalSingleton<T>::deleter_;
 
 }  // namespace muduo
-#endif
+#endif  // MUDUO_BASE_THREADLOCALSINGLETON_H
