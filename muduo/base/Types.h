@@ -2,6 +2,7 @@
 #define MUDUO_BASE_TYPES_H
 
 #include <stdint.h>
+#include <string.h>  // memset
 #ifdef MUDUO_STD_STRING
 #include <string>
 #else  // !MUDUO_STD_STRING
@@ -20,6 +21,10 @@
 ///
 namespace muduo
 {
+inline void memZero(void* p, size_t n)
+{
+  memset(p, 0, n);
+}
 
 #ifdef MUDUO_STD_STRING
 using std::string;

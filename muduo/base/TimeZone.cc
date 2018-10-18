@@ -12,7 +12,6 @@
 
 #include <stdint.h>
 #include <stdio.h>
-#include <strings.h>
 
 namespace muduo
 {
@@ -272,7 +271,7 @@ TimeZone::TimeZone(int eastOfUtc, const char* name)
 struct tm TimeZone::toLocalTime(time_t seconds) const
 {
   struct tm localTime;
-  bzero(&localTime, sizeof(localTime));
+  memZero(&localTime, sizeof(localTime));
   assert(data_ != NULL);
   const Data& data(*data_);
 
@@ -317,7 +316,7 @@ time_t TimeZone::fromLocalTime(const struct tm& localTm) const
 struct tm TimeZone::toUtcTime(time_t secondsSinceEpoch, bool yday)
 {
   struct tm utc;
-  bzero(&utc, sizeof(utc));
+  memZero(&utc, sizeof(utc));
   utc.tm_zone = "GMT";
   int seconds = static_cast<int>(secondsSinceEpoch % kSecondsPerDay);
   int days = static_cast<int>(secondsSinceEpoch / kSecondsPerDay);

@@ -53,7 +53,7 @@ class PeriodicTimer
   void start()
   {
     struct itimerspec spec;
-    bzero(&spec, sizeof spec);
+    memZero(&spec, sizeof spec);
     spec.it_interval = toTimeSpec(interval_);
     spec.it_value = spec.it_interval;
     int ret = ::timerfd_settime(timerfd_, 0 /* relative timer */, &spec, NULL);
@@ -82,7 +82,7 @@ class PeriodicTimer
   static struct timespec toTimeSpec(double seconds)
   {
     struct timespec ts;
-    bzero(&ts, sizeof ts);
+    memZero(&ts, sizeof ts);
     const int64_t kNanoSecondsPerSecond = 1000000000;
     const int kMinInterval = 100000;
     int64_t nanoseconds = static_cast<int64_t>(seconds * kNanoSecondsPerSecond);

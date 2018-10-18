@@ -1,6 +1,6 @@
 ---
 # Only run one check for now.
-Checks:          '-clang-analyzer-*,misc-muduo-*'
+Checks:          '-clang-*,clang-analyzer-security.*'
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
 AnalyzeTemporaryDtors: false

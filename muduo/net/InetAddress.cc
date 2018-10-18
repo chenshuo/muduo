@@ -13,7 +13,6 @@
 #include <muduo/net/SocketsOps.h>
 
 #include <netdb.h>
-#include <strings.h>  // bzero
 #include <netinet/in.h>
 
 // INADDR_ANY use (type)value casting.
@@ -62,7 +61,7 @@ InetAddress::InetAddress(uint16_t port, bool loopbackOnly, bool ipv6)
   static_assert(offsetof(InetAddress, addr_) == 0, "addr_ offset 0");
   if (ipv6)
   {
-    bzero(&addr6_, sizeof addr6_);
+    memZero(&addr6_, sizeof addr6_);
     addr6_.sin6_family = AF_INET6;
     in6_addr ip = loopbackOnly ? in6addr_loopback : in6addr_any;
     addr6_.sin6_addr = ip;
@@ -70,7 +69,7 @@ InetAddress::InetAddress(uint16_t port, bool loopbackOnly, bool ipv6)
   }
   else
   {
-    bzero(&addr_, sizeof addr_);
+    memZero(&addr_, sizeof addr_);
     addr_.sin_family = AF_INET;
     in_addr_t ip = loopbackOnly ? kInaddrLoopback : kInaddrAny;
     addr_.sin_addr.s_addr = sockets::hostToNetwork32(ip);
@@ -82,12 +81,12 @@ InetAddress::InetAddress(StringArg ip, uint16_t port, bool ipv6)
 {
   if (ipv6)
   {
-    bzero(&addr6_, sizeof addr6_);
+    memZero(&addr6_, sizeof addr6_);
     sockets::fromIpPort(ip.c_str(), port, &addr6_);
   }
   else
   {
-    bzero(&addr_, sizeof addr_);
+    memZero(&addr_, sizeof addr_);
     sockets::fromIpPort(ip.c_str(), port, &addr_);
   }
 }
@@ -125,7 +124,7 @@ bool InetAddress::resolve(StringArg hostname, InetAddress* out)
   struct hostent hent;
   struct hostent* he = NULL;
   int herrno = 0;
-  bzero(&hent, sizeof(hent));
+  memZero(&hent, sizeof(hent));
 
   int ret = gethostbyname_r(hostname.c_str(), &hent, t_resolveBuffer, sizeof t_resolveBuffer, &he, &herrno);
   if (ret == 0 && he != NULL)

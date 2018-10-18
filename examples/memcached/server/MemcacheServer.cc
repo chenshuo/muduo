@@ -11,7 +11,7 @@ muduo::AtomicInt64 g_cas;
 
 MemcacheServer::Options::Options()
 {
-  bzero(this, sizeof(*this));
+  memZero(this, sizeof(*this));
 }
 
 struct MemcacheServer::Stats

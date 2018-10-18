@@ -117,7 +117,7 @@ class Procmon : noncopyable
       LOG_INFO << "Current dir: " << cwd;
     }
     }
-    bzero(&lastStatData_, sizeof lastStatData_);
+    memZero(&lastStatData_, sizeof lastStatData_);
     server_.setHttpCallback(std::bind(&Procmon::onRequest, this, _1, _2));
   }
 
@@ -250,7 +250,7 @@ class Procmon : noncopyable
 
     response_.append("<p><table>");
     StatData statData;  // how about use lastStatData_ ?
-    bzero(&statData, sizeof statData);
+    memZero(&statData, sizeof statData);
     statData.parse(procname.end()+1, kbPerPage_);  // end is ')'
 
     appendTableRow("PID", pid);
@@ -413,7 +413,7 @@ class Procmon : noncopyable
       return;
     StringPiece procname = ProcessInfo::procname(stat);
     StatData statData;
-    bzero(&statData, sizeof statData);
+    memZero(&statData, sizeof statData);
     statData.parse(procname.end()+1, kbPerPage_);  // end is ')'
     if (ticks_ > 0)
     {

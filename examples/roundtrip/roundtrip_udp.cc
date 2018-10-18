@@ -29,7 +29,7 @@ void serverReadCallback(int sockfd, muduo::Timestamp receiveTime)
 {
   int64_t message[2];
   struct sockaddr peerAddr;
-  bzero(&peerAddr, sizeof peerAddr);
+  memZero(&peerAddr, sizeof peerAddr);
   socklen_t addrLen = sizeof peerAddr;
   ssize_t nr = ::recvfrom(sockfd, message, sizeof message, 0, &peerAddr, &addrLen);
 

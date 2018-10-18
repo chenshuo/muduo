@@ -52,7 +52,7 @@ class FixedBuffer : noncopyable
   void add(size_t len) { cur_ += len; }
 
   void reset() { cur_ = data_; }
-  void bzero() { ::bzero(data_, sizeof data_); }
+  void bzero() { memZero(data_, sizeof data_); }
 
   // for used by GDB
   const char* debugString();

@@ -1,12 +1,12 @@
 #include <examples/ace/ttcp/common.h>
 #include <muduo/base/Timestamp.h>
+#include <muduo/base/Types.h>
 
 #undef NDEBUG
 
 #include <assert.h>
 #include <errno.h>
 #include <stdio.h>
-#include <strings.h>
 #include <unistd.h>
 
 #include <netinet/in.h>
@@ -25,7 +25,7 @@ static int acceptOrDie(uint16_t port)
   }
 
   struct sockaddr_in addr;
-  bzero(&addr, sizeof(addr));
+  muduo::memZero(&addr, sizeof(addr));
   addr.sin_family = AF_INET;
   addr.sin_port = htons(port);
   addr.sin_addr.s_addr = INADDR_ANY;
@@ -42,7 +42,7 @@ static int acceptOrDie(uint16_t port)
   }
 
   struct sockaddr_in peer_addr;
-  bzero(&peer_addr, sizeof(peer_addr));
+  muduo::memZero(&peer_addr, sizeof(peer_addr));
   socklen_t addrlen = 0;
   int sockfd = ::accept(listenfd, reinterpret_cast<struct sockaddr*>(&peer_addr), &addrlen);
   if (sockfd < 0)

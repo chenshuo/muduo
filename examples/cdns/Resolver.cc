@@ -122,7 +122,7 @@ void Resolver::onQueryResult(int status, struct hostent* result, const Callback&
 {
   LOG_DEBUG << "onQueryResult " << status;
   struct sockaddr_in addr;
-  bzero(&addr, sizeof addr);
+  memZero(&addr, sizeof addr);
   addr.sin_family = AF_INET;
   addr.sin_port = 0;
   if (result)

@@ -14,7 +14,6 @@
 
 #include <netinet/in.h>
 #include <netinet/tcp.h>
-#include <strings.h>  // bzero
 #include <stdio.h>  // snprintf
 
 using namespace muduo;
@@ -28,7 +27,7 @@ Socket::~Socket()
 bool Socket::getTcpInfo(struct tcp_info* tcpi) const
 {
   socklen_t len = sizeof(*tcpi);
-  bzero(tcpi, len);
+  memZero(tcpi, len);
   return ::getsockopt(sockfd_, SOL_TCP, TCP_INFO, tcpi, &len) == 0;
 }
 
@@ -71,7 +70,7 @@ void Socket::listen()
 int Socket::accept(InetAddress* peeraddr)
 {
   struct sockaddr_in6 addr;
-  bzero(&addr, sizeof addr);
+  memZero(&addr, sizeof addr);
   int connfd = sockets::accept(sockfd_, &addr);
   if (connfd >= 0)
   {
