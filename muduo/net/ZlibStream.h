@@ -19,7 +19,7 @@ class ZlibInputStream : noncopyable
     : output_(output),
       zerror_(Z_OK)
   {
-    bzero(&zstream_, sizeof zstream_);
+    memZero(&zstream_, sizeof zstream_);
     zerror_ = inflateInit(&zstream_);
   }
 
@@ -50,7 +50,7 @@ class ZlibOutputStream : noncopyable
       zerror_(Z_OK),
       bufferSize_(1024)
   {
-    bzero(&zstream_, sizeof zstream_);
+    memZero(&zstream_, sizeof zstream_);
     zerror_ = deflateInit(&zstream_, Z_DEFAULT_COMPRESSION);
   }
 
