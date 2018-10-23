@@ -95,7 +95,7 @@ class RpcChannel : public ::google::protobuf::RpcChannel
 
   explicit RpcChannel(const TcpConnectionPtr& conn);
 
-  ~RpcChannel();
+  ~RpcChannel() override;
 
   void setConnection(const TcpConnectionPtr& conn)
   {
@@ -116,7 +116,7 @@ class RpcChannel : public ::google::protobuf::RpcChannel
                   ::google::protobuf::RpcController* controller,
                   const ::google::protobuf::Message* request,
                   ::google::protobuf::Message* response,
-                  ::google::protobuf::Closure* done);
+                  ::google::protobuf::Closure* done) override;
 
   void onMessage(const TcpConnectionPtr& conn,
                  Buffer* buf,

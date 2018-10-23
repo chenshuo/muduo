@@ -29,11 +29,11 @@ class EPollPoller : public Poller
 {
  public:
   EPollPoller(EventLoop* loop);
-  virtual ~EPollPoller();
+  ~EPollPoller() override;
 
-  virtual Timestamp poll(int timeoutMs, ChannelList* activeChannels);
-  virtual void updateChannel(Channel* channel);
-  virtual void removeChannel(Channel* channel);
+  Timestamp poll(int timeoutMs, ChannelList* activeChannels) override;
+  void updateChannel(Channel* channel) override;
+  void removeChannel(Channel* channel) override;
 
  private:
   static const int kInitEventListSize = 16;
