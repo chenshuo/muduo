@@ -18,6 +18,8 @@ template<typename T>
 class ThreadLocalSingleton : noncopyable
 {
  public:
+  ThreadLocalSingleton() = delete;
+  ~ThreadLocalSingleton() = delete;
 
   static T& instance()
   {
@@ -35,9 +37,6 @@ class ThreadLocalSingleton : noncopyable
   }
 
  private:
-  ThreadLocalSingleton();
-  ~ThreadLocalSingleton();
-
   static void destructor(void* obj)
   {
     assert(obj == t_value_);

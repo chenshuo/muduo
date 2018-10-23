@@ -1,6 +1,6 @@
 ---
 # Only run a few checks for now.
-Checks:          '-clang-*,clang-analyzer-security.*,google-runtime-references'
+Checks:          'modernize-use-equals-delete'
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
 AnalyzeTemporaryDtors: false

@@ -32,6 +32,9 @@ template<typename T>
 class Singleton : noncopyable
 {
  public:
+  Singleton() = delete;
+  ~Singleton() = delete;
+
   static T& instance()
   {
     pthread_once(&ponce_, &Singleton::init);
@@ -40,9 +43,6 @@ class Singleton : noncopyable
   }
 
  private:
-  Singleton();
-  ~Singleton();
-
   static void init()
   {
     value_ = new T();
