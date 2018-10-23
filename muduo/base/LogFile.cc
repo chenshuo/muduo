@@ -28,9 +28,7 @@ LogFile::LogFile(const string& basename,
   rollFile();
 }
 
-LogFile::~LogFile()
-{
-}
+LogFile::~LogFile() = default;
 
 void LogFile::append(const char* logline, int len)
 {

@@ -91,7 +91,7 @@ class ProtobufCodecLite : noncopyable
   {
   }
 
-  virtual ~ProtobufCodecLite() { }
+  virtual ~ProtobufCodecLite() = default;
 
   const string& tag() const { return tag_; }
 

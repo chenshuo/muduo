@@ -23,9 +23,7 @@ Exception::Exception(const string& msg)
   fillStackTrace();
 }
 
-Exception::~Exception() throw ()
-{
-}
+Exception::~Exception() throw () = default;
 
 const char* Exception::what() const throw()
 {

@@ -24,9 +24,7 @@ PollPoller::PollPoller(EventLoop* loop)
 {
 }
 
-PollPoller::~PollPoller()
-{
-}
+PollPoller::~PollPoller() = default;
 
 Timestamp PollPoller::poll(int timeoutMs, ChannelList* activeChannels)
 {

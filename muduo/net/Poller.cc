@@ -18,9 +18,7 @@ Poller::Poller(EventLoop* loop)
 {
 }
 
-Poller::~Poller()
-{
-}
+Poller::~Poller() = default;
 
 bool Poller::hasChannel(Channel* channel) const
 {
