@@ -10,6 +10,10 @@ target_link_libraries(echoclient_unittest muduo_net)
 add_executable(eventloop_unittest EventLoop_unittest.cc)
 target_link_libraries(eventloop_unittest muduo_net)
 
+add_executable(eventloop_unittest2 EventLoop_unittest2.cc)
+target_link_libraries(eventloop_unittest2 muduo_net)
+add_test(NAME eventloop_unittest2 COMMAND eventloop_unittest2)
+
 add_executable(eventloopthread_unittest EventLoopThread_unittest.cc)
 target_link_libraries(eventloopthread_unittest muduo_net)
 

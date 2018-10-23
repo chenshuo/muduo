@@ -65,7 +65,6 @@ EventLoop::EventLoop()
   : looping_(false),
     quit_(false),
     eventHandling_(false),
-    callingPendingFunctors_(false),
     iteration_(0),
     threadId_(CurrentThread::tid()),
     poller_(Poller::newDefaultPoller(this)),
@@ -140,7 +139,7 @@ void EventLoop::quit()
   // There is a chance that loop() just executes while(!quit_) and exits,
   // then EventLoop destructs, then we are accessing an invalid object.
   // Can be fixed using mutex_ in both places.
-  if (!isInLoopThread())
+  if (!wakeuped_.get())
   {
     wakeup();
   }
@@ -165,7 +164,7 @@ void EventLoop::queueInLoop(const Functor& cb)
   pendingFunctors_.push_back(cb);
   }
 
-  if (!isInLoopThread() || callingPendingFunctors_)
+  if (!wakeuped_.get())
   {
     wakeup();
   }
@@ -215,7 +214,7 @@ void EventLoop::queueInLoop(Functor&& cb)
   pendingFunctors_.push_back(std::move(cb));  // emplace_back
   }
 
-  if (!isInLoopThread() || callingPendingFunctors_)
+  if (!wakeuped_.get())
   {
     wakeup();
   }
@@ -285,6 +284,7 @@ void EventLoop::wakeup()
   {
     LOG_ERROR << "EventLoop::wakeup() writes " << n << " bytes instead of 8";
   }
+  wakeuped_.getAndSet(1);
 }
 
 void EventLoop::handleRead()
@@ -300,18 +300,18 @@ void EventLoop::handleRead()
 void EventLoop::doPendingFunctors()
 {
   std::vector<Functor> functors;
-  callingPendingFunctors_ = true;
 
   {
   MutexLockGuard lock(mutex_);
   functors.swap(pendingFunctors_);
+  // After swapped the pending funtors, we need to set wakeuped_ to 0
+  wakeuped_.getAndSet(0);
   }
 
   for (size_t i = 0; i < functors.size(); ++i)
   {
     functors[i]();
   }
-  callingPendingFunctors_ = false;
 }
 
 void EventLoop::printActiveChannels() const
