@@ -34,9 +34,9 @@ RpcChannel::RpcChannel(const TcpConnectionPtr& conn)
 RpcChannel::~RpcChannel()
 {
   LOG_INFO << "RpcChannel::dtor - " << this;
-  for (std::map<int64_t, OutstandingCall>::iterator it = outstandings_.begin(); it != outstandings_.end(); ++it)
+  for (const auto& outstanding : outstandings_)
   {
-    OutstandingCall out = it->second;
+    OutstandingCall out = outstanding.second;
     delete out.response;
     delete out.done;
   }

@@ -75,11 +75,10 @@ int main(int argc, char* argv[])
   }
   {
     muduo::MutexLockGuard lock(g_mutex);
-    for (std::map<int, int>::iterator it = g_delays.begin();
-        it != g_delays.end(); ++it)
+    for (const std::pair<int, int>& delay : g_delays)
     {
       printf("delay = %d, count = %d\n",
-             it->first, it->second);
+             delay.first, delay.second);
     }
   }
 

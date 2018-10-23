@@ -1,6 +1,6 @@
 ---
 # Only run a few checks for now.
-Checks:          'modernize-use-noexcept'
+Checks:          'modernize-loop-convert'
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
 AnalyzeTemporaryDtors: false

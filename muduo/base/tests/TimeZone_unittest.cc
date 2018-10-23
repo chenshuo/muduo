@@ -148,9 +148,9 @@ void testNewYork()
 
   };
 
-  for (size_t i = 0; i < sizeof cases / sizeof cases[0]; ++i)
+  for (const auto& c : cases)
   {
-    test(tz, cases[i]);
+    test(tz, c);
   }
 }
 
@@ -180,9 +180,9 @@ void testLondon()
 
   };
 
-  for (size_t i = 0; i < sizeof cases / sizeof cases[0]; ++i)
+  for (const auto& c : cases)
   {
-    test(tz, cases[i]);
+    test(tz, c);
   }
 }
 
@@ -196,9 +196,9 @@ void testHongKong()
 
   };
 
-  for (size_t i = 0; i < sizeof cases / sizeof cases[0]; ++i)
+  for (const auto& c : cases)
   {
-    test(tz, cases[i]);
+    test(tz, c);
   }
 }
 
@@ -219,9 +219,9 @@ void testSydney()
 
   };
 
-  for (size_t i = 0; i < sizeof cases / sizeof cases[0]; ++i)
+  for (const auto& c : cases)
   {
-    test(tz, cases[i]);
+    test(tz, c);
   }
 }
 
@@ -259,9 +259,9 @@ void testFixedTimezone()
 
   };
 
-  for (size_t i = 0; i < sizeof cases / sizeof cases[0]; ++i)
+  for (const auto& c : cases)
   {
-    test(tz, cases[i]);
+    test(tz, c);
   }
 }
 

@@ -261,9 +261,9 @@ void EventLoop::doPendingFunctors()
   functors.swap(pendingFunctors_);
   }
 
-  for (size_t i = 0; i < functors.size(); ++i)
+  for (const Functor& functor : functors)
   {
-    functors[i]();
+    functor();
   }
   callingPendingFunctors_ = false;
 }

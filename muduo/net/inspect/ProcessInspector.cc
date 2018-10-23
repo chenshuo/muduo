@@ -215,10 +215,9 @@ string ProcessInspector::threads(HttpRequest::Method, const Inspector::ArgList&)
   string result = "  TID NAME             S    User Time  System Time\n";
   result.reserve(threads.size() * 64);
   string stat;
-  for (size_t i = 0; i < threads.size(); ++i)
+  for (pid_t tid : threads)
   {
     char buf[256];
-    int tid = threads[i];
     snprintf(buf, sizeof buf, "/proc/%d/task/%d/stat", ProcessInfo::pid(), tid);
     if (FileUtil::readFile(buf, 65536, &stat) == 0)
     {

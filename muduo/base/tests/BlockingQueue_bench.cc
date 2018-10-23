@@ -85,12 +85,11 @@ class Bench
     printf("tid=%d, %s stopped\n",
            muduo::CurrentThread::tid(),
            muduo::CurrentThread::name());
-    for (std::map<int, int>::iterator it = delays.begin();
-        it != delays.end(); ++it)
+    for (const std::pair<int, int>& delay : delays)
     {
       printf("tid = %d, delay = %d, count = %d\n",
              muduo::CurrentThread::tid(),
-             it->first, it->second);
+             delay.first, delay.second);
     }
   }
 

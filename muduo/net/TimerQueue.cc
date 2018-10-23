@@ -107,10 +107,9 @@ TimerQueue::~TimerQueue()
   timerfdChannel_.remove();
   ::close(timerfd_);
   // do not remove channel, since we're in EventLoop::dtor();
-  for (TimerList::iterator it = timers_.begin();
-      it != timers_.end(); ++it)
+  for (const Entry& timer : timers_)
   {
-    delete it->second;
+    delete timer.second;
   }
 }
 
@@ -172,10 +171,9 @@ void TimerQueue::handleRead()
   callingExpiredTimers_ = true;
   cancelingTimers_.clear();
   // safe to callback outside critical section
-  for (std::vector<Entry>::iterator it = expired.begin();
-      it != expired.end(); ++it)
+  for (const Entry& it : expired)
   {
-    it->second->run();
+    it.second->run();
   }
   callingExpiredTimers_ = false;
 
@@ -192,10 +190,9 @@ std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now)
   std::copy(timers_.begin(), end, back_inserter(expired));
   timers_.erase(timers_.begin(), end);
 
-  for (std::vector<Entry>::iterator it = expired.begin();
-      it != expired.end(); ++it)
+  for (const Entry& it : expired)
   {
-    ActiveTimer timer(it->second, it->second->sequence());
+    ActiveTimer timer(it.second, it.second->sequence());
     size_t n = activeTimers_.erase(timer);
     assert(n == 1); (void)n;
   }
@@ -208,20 +205,19 @@ void TimerQueue::reset(const std::vector<Entry>& expired, Timestamp now)
 {
   Timestamp nextExpire;
 
-  for (std::vector<Entry>::const_iterator it = expired.begin();
-      it != expired.end(); ++it)
+  for (const Entry& it : expired)
   {
-    ActiveTimer timer(it->second, it->second->sequence());
-    if (it->second->repeat()
+    ActiveTimer timer(it.second, it.second->sequence());
+    if (it.second->repeat()
         && cancelingTimers_.find(timer) == cancelingTimers_.end())
     {
-      it->second->restart(now);
-      insert(it->second);
+      it.second->restart(now);
+      insert(it.second);
     }
     else
     {
       // FIXME move to a free list
-      delete it->second; // FIXME: no delete please
+      delete it.second; // FIXME: no delete please
     }
   }
 

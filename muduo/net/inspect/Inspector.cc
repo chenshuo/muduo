@@ -122,17 +122,15 @@ void Inspector::onRequest(const HttpRequest& req, HttpResponse* resp)
          ++helpListI)
     {
       const HelpList& list = helpListI->second;
-      for (HelpList::const_iterator it = list.begin();
-           it != list.end();
-           ++it)
+      for (const std::pair<string, string>& it : list)
       {
         result += "/";
         result += helpListI->first;
         result += "/";
-        result += it->first;
-        size_t len = helpListI->first.size() + it->first.size();
+        result += it.first;
+        size_t len = helpListI->first.size() + it.first.size();
         result += string(len >= 25 ? 1 : 25 - len, ' ');
-        result += it->second;
+        result += it.second;
         result += "\n";
       }
     }

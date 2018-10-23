@@ -95,10 +95,10 @@ void AsyncLogging::threadFunc()
       buffersToWrite.erase(buffersToWrite.begin()+2, buffersToWrite.end());
     }
 
-    for (size_t i = 0; i < buffersToWrite.size(); ++i)
+    for (const auto& buffer : buffersToWrite)
     {
       // FIXME: use unbuffered stdio FILE ? or use ::writev ?
-      output.append(buffersToWrite[i]->data(), buffersToWrite[i]->length());
+      output.append(buffer->data(), buffer->length());
     }
 
     if (buffersToWrite.size() > 2)
