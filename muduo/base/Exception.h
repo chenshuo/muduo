@@ -17,9 +17,9 @@ class Exception : public std::exception
  public:
   explicit Exception(const char* what);
   explicit Exception(const string& what);
-  ~Exception() throw() override;
-  const char* what() const throw() override;
-  const char* stackTrace() const throw();
+  ~Exception() noexcept override;
+  const char* what() const noexcept override;
+  const char* stackTrace() const noexcept;
 
  private:
   void fillStackTrace();

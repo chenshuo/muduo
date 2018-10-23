@@ -1,6 +1,6 @@
 ---
 # Only run a few checks for now.
-Checks:          'modernize-use-equals-default'
+Checks:          'modernize-use-noexcept'
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
 AnalyzeTemporaryDtors: false

@@ -23,14 +23,14 @@ Exception::Exception(const string& msg)
   fillStackTrace();
 }
 
-Exception::~Exception() throw () = default;
+Exception::~Exception() noexcept = default;
 
-const char* Exception::what() const throw()
+const char* Exception::what() const noexcept
 {
   return message_.c_str();
 }
 
-const char* Exception::stackTrace() const throw()
+const char* Exception::stackTrace() const noexcept
 {
   return stack_.c_str();
 }

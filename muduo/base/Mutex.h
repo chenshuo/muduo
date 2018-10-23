@@ -89,7 +89,7 @@ extern void __assert_perror_fail (int errnum,
                                   const char *file,
                                   unsigned int line,
                                   const char *function)
-    __THROW __attribute__ ((__noreturn__));
+    noexcept __attribute__ ((__noreturn__));
 __END_DECLS
 #endif
 
