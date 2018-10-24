@@ -11,6 +11,7 @@
 #ifndef MUDUO_NET_CHANNEL_H
 #define MUDUO_NET_CHANNEL_H
 
+#include <muduo/base/noncopyable.h>
 #include <muduo/base/Timestamp.h>
 
 #include <functional>

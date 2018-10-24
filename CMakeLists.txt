@@ -13,7 +13,6 @@ option(MUDUO_BUILD_EXAMPLES "Build Muduo examples" ON)
 set(CXX_FLAGS
  -g
  # -DVALGRIND
- # -DMUDUO_STD_STRING
  -DCHECK_PTHREAD_RETURN_VALUE
  -D_FILE_OFFSET_BITS=64
  -Wall
@@ -28,7 +27,7 @@ set(CXX_FLAGS
  -Wwrite-strings
  -march=native
  # -MMD
- -std=c++0x
+ -std=c++11
  -rdynamic
  )
 if(CMAKE_BUILD_BITS EQUAL 32)

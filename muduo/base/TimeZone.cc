@@ -1,4 +1,5 @@
 #include <muduo/base/TimeZone.h>
+#include <muduo/base/noncopyable.h>
 #include <muduo/base/Date.h>
 
 #include <algorithm>

@@ -11,6 +11,7 @@
 #ifndef MUDUO_BASE_FILEUTIL_H
 #define MUDUO_BASE_FILEUTIL_H
 
+#include <muduo/base/noncopyable.h>
 #include <muduo/base/StringPiece.h>
 #include <sys/types.h>  // for off_t
 

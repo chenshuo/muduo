@@ -1,6 +1,7 @@
 #ifndef MUDUO_EXAMPLES_CURL_CURL_H
 #define MUDUO_EXAMPLES_CURL_CURL_H
 
+#include <muduo/base/noncopyable.h>
 #include <muduo/base/StringPiece.h>
 
 #include <muduo/net/Callbacks.h>

@@ -11,6 +11,7 @@
 #ifndef MUDUO_NET_TCPCONNECTION_H
 #define MUDUO_NET_TCPCONNECTION_H
 
+#include <muduo/base/noncopyable.h>
 #include <muduo/base/StringPiece.h>
 #include <muduo/base/Types.h>
 #include <muduo/net/Callbacks.h>

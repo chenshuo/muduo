@@ -1,3 +1,4 @@
+#include <muduo/base/noncopyable.h>
 #include <muduo/base/Types.h>
 #include <vector>
 #include <stdlib.h> // ssize_t

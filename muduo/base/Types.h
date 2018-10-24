@@ -3,34 +3,24 @@
 
 #include <stdint.h>
 #include <string.h>  // memset
-#ifdef MUDUO_STD_STRING
 #include <string>
-#else  // !MUDUO_STD_STRING
-#include <ext/vstring.h>
-#include <ext/vstring_fwd.h>
-#endif
 
 #ifndef NDEBUG
 #include <assert.h>
 #endif
-
-#include <muduo/base/noncopyable.h>
 
 ///
 /// The most common stuffs.
 ///
 namespace muduo
 {
+
+using std::string;
+
 inline void memZero(void* p, size_t n)
 {
   memset(p, 0, n);
 }
-
-#ifdef MUDUO_STD_STRING
-using std::string;
-#else  // !MUDUO_STD_STRING
-typedef __gnu_cxx::__sso_string string;
-#endif
 
 // Taken from google-protobuf stubs/common.h
 //

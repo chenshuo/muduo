@@ -14,6 +14,7 @@
 #ifndef MUDUO_NET_PROTOBUF_PROTOBUFCODECLITE_H
 #define MUDUO_NET_PROTOBUF_PROTOBUFCODECLITE_H
 
+#include <muduo/base/noncopyable.h>
 #include <muduo/base/StringPiece.h>
 #include <muduo/base/Timestamp.h>
 #include <muduo/net/Callbacks.h>

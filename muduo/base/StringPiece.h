@@ -44,9 +44,6 @@
 #include <iosfwd>    // for ostream forward-declaration
 
 #include <muduo/base/Types.h>
-#ifndef MUDUO_STD_STRING
-#include <string>
-#endif
 
 namespace muduo
 {
@@ -62,12 +59,6 @@ class StringArg // copyable
   StringArg(const string& str)
     : str_(str.c_str())
   { }
-
-#ifndef MUDUO_STD_STRING
-  StringArg(const std::string& str)
-    : str_(str.c_str())
-  { }
-#endif
 
   const char* c_str() const { return str_; }
 
@@ -93,10 +84,6 @@ class StringPiece {
       length_(static_cast<int>(strlen(ptr_))) { }
   StringPiece(const string& str)
     : ptr_(str.data()), length_(static_cast<int>(str.size())) { }
-#ifndef MUDUO_STD_STRING
-  StringPiece(const std::string& str)
-    : ptr_(str.data()), length_(static_cast<int>(str.size())) { }
-#endif
   StringPiece(const char* offset, int len)
     : ptr_(offset), length_(len) { }
 
@@ -169,12 +156,6 @@ class StringPiece {
   void CopyToString(string* target) const {
     target->assign(ptr_, length_);
   }
-
-#ifndef MUDUO_STD_STRING
-  void CopyToStdString(std::string* target) const {
-    target->assign(ptr_, length_);
-  }
-#endif
 
   // Does "this" start with "x"
   bool starts_with(const StringPiece& x) const {

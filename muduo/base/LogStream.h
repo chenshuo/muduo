@@ -1,13 +1,11 @@
 #ifndef MUDUO_BASE_LOGSTREAM_H
 #define MUDUO_BASE_LOGSTREAM_H
 
+#include <muduo/base/noncopyable.h>
 #include <muduo/base/StringPiece.h>
 #include <muduo/base/Types.h>
 #include <assert.h>
 #include <string.h> // memcpy
-#ifndef MUDUO_STD_STRING
-#include <string>
-#endif
 
 namespace muduo
 {
@@ -137,14 +135,6 @@ class LogStream : noncopyable
     buffer_.append(v.c_str(), v.size());
     return *this;
   }
-
-#ifndef MUDUO_STD_STRING
-  self& operator<<(const std::string& v)
-  {
-    buffer_.append(v.c_str(), v.size());
-    return *this;
-  }
-#endif
 
   self& operator<<(const StringPiece& v)
   {
