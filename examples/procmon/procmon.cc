@@ -19,6 +19,8 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <sys/stat.h>
+#define __STDC_FORMAT_MACROS
+#include <inttypes.h>
 
 using namespace muduo;
 using namespace muduo::net;
@@ -320,7 +322,8 @@ class Procmon : boost::noncopyable
       if (::lstat(namelist[i]->d_name, &stat) == 0)
       {
         Timestamp mtime(stat.st_mtime * Timestamp::kMicroSecondsPerSecond);
-        appendResponse("%c %9ld %s %s", getDirType(namelist[i]->d_type), stat.st_size,
+        int64_t size = stat.st_size;
+        appendResponse("%c %9" PRId64 " %s %s", getDirType(namelist[i]->d_type), size,
                        mtime.toFormattedString(/*showMicroseconds=*/false).c_str(),
                        namelist[i]->d_name);
         if (namelist[i]->d_type == DT_LNK)
