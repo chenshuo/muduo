@@ -281,9 +281,6 @@ struct sockaddr_in6 sockets::getPeerAddr(int sockfd)
   return peeraddr;
 }
 
-#if !(__GNUC_PREREQ (4,6))
-#pragma GCC diagnostic ignored "-Wstrict-aliasing"
-#endif
 bool sockets::isSelfConnect(int sockfd)
 {
   struct sockaddr_in6 localaddr = getLocalAddr(sockfd);
