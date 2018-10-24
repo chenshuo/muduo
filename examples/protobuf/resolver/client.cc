@@ -67,7 +67,7 @@ class RpcClient : noncopyable
         NewCallback(this, &RpcClient::resolved, response, host));
   }
 
-  void resolved(resolver::ResolveResponse* resp, std::string host)
+  void resolved(resolver::ResolveResponse* resp, std::string host) // pass by value for NewCallback above
   {
     if (resp->resolved())
     {
@@ -76,7 +76,7 @@ class RpcClient : noncopyable
       inet_ntop(AF_INET, &ip, buf, sizeof buf);
 
       LOG_INFO << "resolved " << host << " : " << buf << "\n"
-               << resp->DebugString().c_str();
+               << resp->DebugString();
     }
     else
     {

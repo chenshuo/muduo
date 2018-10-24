@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
   }
   {
     muduo::MutexLockGuard lock(g_mutex);
-    for (const std::pair<int, int>& delay : g_delays)
+    for (const auto& delay : g_delays)
     {
       printf("delay = %d, count = %d\n",
              delay.first, delay.second);

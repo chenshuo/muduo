@@ -8,8 +8,6 @@
 #include <stdio.h>
 #include <unistd.h>
 
-using std::placeholders::_1;
-
 class Test
 {
  public:

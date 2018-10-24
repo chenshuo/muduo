@@ -4,15 +4,13 @@
 #include <muduo/net/TcpConnection.h>
 #include <map>
 
-using muduo::string;
-
 // one FastCgiCodec per TcpConnection
 // both lighttpd and nginx do not implement multiplexing,
 // so there is no concurrent requests of one connection.
 class FastCgiCodec : muduo::noncopyable
 {
  public:
-  typedef std::map<string, string> ParamMap;
+  typedef std::map<std::string, std::string> ParamMap;
   typedef std::function<void (const muduo::net::TcpConnectionPtr& conn,
                                 ParamMap&,
                                 muduo::net::Buffer*)> Callback;

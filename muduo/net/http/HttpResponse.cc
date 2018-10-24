@@ -34,7 +34,7 @@ void HttpResponse::appendToBuffer(Buffer* output) const
     output->append("Connection: Keep-Alive\r\n");
   }
 
-  for (const std::pair<string, string>& header : headers_)
+  for (const auto& header : headers_)
   {
     output->append(header.first);
     output->append(": ");

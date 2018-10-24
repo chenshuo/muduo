@@ -9,8 +9,6 @@
 #include <stdio.h>
 #include <unistd.h>
 
-using std::placeholders::_1;
-
 class Bench
 {
  public:
@@ -85,7 +83,7 @@ class Bench
     printf("tid=%d, %s stopped\n",
            muduo::CurrentThread::tid(),
            muduo::CurrentThread::name());
-    for (const std::pair<int, int>& delay : delays)
+    for (const auto& delay : delays)
     {
       printf("tid = %d, delay = %d, count = %d\n",
              muduo::CurrentThread::tid(),

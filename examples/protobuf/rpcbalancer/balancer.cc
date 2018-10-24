@@ -120,8 +120,7 @@ class Balancer : noncopyable
            const InetAddress& listenAddr,
            const string& name,
            const std::vector<InetAddress>& backends)
-    : loop_(loop),
-      server_(loop, listenAddr, name),
+    : server_(loop, listenAddr, name),
       codec_(std::bind(&Balancer::onRpcMessage, this, _1, _2, _3)),
       backends_(backends)
   {
@@ -200,7 +199,6 @@ class Balancer : noncopyable
     }
   }
 
-  EventLoop* loop_;
   TcpServer server_;
   RpcCodec codec_;
   std::vector<InetAddress> backends_;

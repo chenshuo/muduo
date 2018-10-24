@@ -7,9 +7,6 @@
 
 #include <memory>
 
-using muduo::string;
-using muduo::StringPiece;
-
 namespace muduo
 {
 namespace net
@@ -37,7 +34,7 @@ class Item : muduo::noncopyable
     kCas,
   };
 
-  static ItemPtr makeItem(StringPiece keyArg,
+  static ItemPtr makeItem(muduo::StringPiece keyArg,
                           uint32_t flagsArg,
                           int exptimeArg,
                           int valuelen,
@@ -47,7 +44,7 @@ class Item : muduo::noncopyable
     //return ItemPtr(new Item(keyArg, flagsArg, exptimeArg, valuelen, casArg));
   }
 
-  Item(StringPiece keyArg,
+  Item(muduo::StringPiece keyArg,
        uint32_t flagsArg,
        int exptimeArg,
        int valuelen,
@@ -114,7 +111,7 @@ class Item : muduo::noncopyable
 
   void output(muduo::net::Buffer* out, bool needCas = false) const;
 
-  void resetKey(StringPiece k);
+  void resetKey(muduo::StringPiece k);
 
  private:
   int totalLen() const { return keylen_ + valuelen_; }

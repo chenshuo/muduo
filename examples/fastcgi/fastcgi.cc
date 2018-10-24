@@ -81,7 +81,7 @@ bool FastCgiCodec::parseAllParams()
       return false;
     if (paramsStream_.readableBytes() >= nameLen+valueLen)
     {
-      string name = paramsStream_.retrieveAsString(nameLen);
+      std::string name = paramsStream_.retrieveAsString(nameLen);
       params_[name] = paramsStream_.retrieveAsString(valueLen);
     }
     else

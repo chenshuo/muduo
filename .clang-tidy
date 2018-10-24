@@ -1,6 +1,6 @@
 ---
 # Only run a few checks for now.
-Checks:          'modernize-loop-convert'
+Checks:          'performance-*'
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
 AnalyzeTemporaryDtors: false

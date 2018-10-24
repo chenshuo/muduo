@@ -67,7 +67,7 @@ class RpcClient : noncopyable
 
   void replied(echo::EchoResponse* resp)
   {
-    // LOG_INFO << "replied:\n" << resp->DebugString().c_str();
+    // LOG_INFO << "replied:\n" << resp->DebugString();
     // loop_->quit();
     ++count_;
     if (count_ < kRequests)

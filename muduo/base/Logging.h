@@ -33,7 +33,7 @@ class Logger
   {
    public:
     template<int N>
-    inline SourceFile(const char (&arr)[N])
+    SourceFile(const char (&arr)[N])
       : data_(arr),
         size_(N-1)
     {

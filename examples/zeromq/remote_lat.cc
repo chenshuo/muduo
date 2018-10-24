@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
     g_msgSize = atoi(argv[3]);
     g_message.assign(g_msgSize, 'H');
     g_totalMsgs = argc > 4 ? atoi(argv[4]) : 10000;
-    g_tcpNoDelay = argc > 5 ? atoi(argv[5]) : 0;
+    g_tcpNoDelay = argc > 5 ? atoi(argv[5]) : false;
 
     muduo::net::EventLoop loop;
     muduo::net::InetAddress serverAddr(ip, port);

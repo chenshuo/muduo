@@ -122,7 +122,7 @@ void Inspector::onRequest(const HttpRequest& req, HttpResponse* resp)
          ++helpListI)
     {
       const HelpList& list = helpListI->second;
-      for (const std::pair<string, string>& it : list)
+      for (const auto& it : list)
       {
         result += "/";
         result += helpListI->first;

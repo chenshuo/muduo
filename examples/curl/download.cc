@@ -23,11 +23,11 @@ class Piece : noncopyable
   Piece(const curl::RequestPtr& req,
         const FilePtr& out,
         const muduo::string& range,
-        const std::function<void()> done)
+        std::function<void()> done)
     : req_(req),
       out_(out),
       range_(range),
-      doneCb_(done)
+      doneCb_(std::move(done))
   {
     LOG_INFO << "range: " << range;
     req->setRange(range);
@@ -158,7 +158,7 @@ class Downloader : noncopyable
         }
         pieces_[i].reset(new Piece(req,
                                    out,
-                                   range.str().c_str(), // std::string -> muduo::string
+                                   range.str(),
                                    std::bind(&Downloader::onDownloadDone, this)));
       }
       else

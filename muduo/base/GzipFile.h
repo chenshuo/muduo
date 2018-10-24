@@ -15,7 +15,7 @@ namespace muduo
 class GzipFile : noncopyable
 {
  public:
-  GzipFile(GzipFile&& rhs)
+  GzipFile(GzipFile&& rhs) noexcept
     : file_(rhs.file_)
   {
     rhs.file_ = NULL;
@@ -29,7 +29,7 @@ class GzipFile : noncopyable
     }
   }
 
-  GzipFile& operator=(GzipFile&& rhs)
+  GzipFile& operator=(GzipFile&& rhs) noexcept
   {
     swap(rhs);
     return *this;

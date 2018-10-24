@@ -87,12 +87,10 @@ void EchoServer::dumpConnectionBuckets() const
   {
     const Bucket& bucket = *bucketI;
     printf("[%d] len = %zd : ", idx, bucket.size());
-    for (Bucket::const_iterator it = bucket.begin();
-        it != bucket.end();
-        ++it)
+    for (const auto& it : bucket)
     {
-      bool connectionDead = (*it)->weakConn_.expired();
-      printf("%p(%ld)%s, ", get_pointer(*it), it->use_count(),
+      bool connectionDead = it->weakConn_.expired();
+      printf("%p(%ld)%s, ", get_pointer(it), it.use_count(),
           connectionDead ? " DEAD" : "");
     }
     puts("");

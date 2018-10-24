@@ -67,7 +67,7 @@ class AppendFile : noncopyable
 
   ~AppendFile();
 
-  void append(const char* logline, const size_t len);
+  void append(const char* logline, size_t len);
 
   void flush();
 

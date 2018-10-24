@@ -29,9 +29,7 @@ MemcacheServer::MemcacheServer(muduo::net::EventLoop* loop, const Options& optio
       std::bind(&MemcacheServer::onConnection, this, _1));
 }
 
-MemcacheServer::~MemcacheServer()
-{
-}
+MemcacheServer::~MemcacheServer() = default;
 
 void MemcacheServer::start()
 {

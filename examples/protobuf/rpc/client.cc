@@ -55,7 +55,7 @@ class RpcClient : noncopyable
 
   void solved(sudoku::SudokuResponse* resp)
   {
-    LOG_INFO << "solved:\n" << resp->DebugString().c_str();
+    LOG_INFO << "solved:\n" << resp->DebugString();
     client_.disconnect();
   }
 

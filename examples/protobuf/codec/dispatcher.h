@@ -23,7 +23,7 @@ typedef std::shared_ptr<google::protobuf::Message> MessagePtr;
 class Callback : muduo::noncopyable
 {
  public:
-  virtual ~Callback() {};
+  virtual ~Callback() = default;
   virtual void onMessage(const muduo::net::TcpConnectionPtr&,
                          const MessagePtr& message,
                          muduo::Timestamp) const = 0;
@@ -44,9 +44,9 @@ class CallbackT : public Callback
   {
   }
 
-  virtual void onMessage(const muduo::net::TcpConnectionPtr& conn,
-                         const MessagePtr& message,
-                         muduo::Timestamp receiveTime) const
+  void onMessage(const muduo::net::TcpConnectionPtr& conn,
+                 const MessagePtr& message,
+                 muduo::Timestamp receiveTime) const override
   {
     std::shared_ptr<T> concrete = muduo::down_pointer_cast<T>(message);
     assert(concrete != NULL);

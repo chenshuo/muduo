@@ -28,8 +28,8 @@ class Plot : muduo::noncopyable
   const int height_;
   const int totalSeconds_;
   const int samplingPeriod_;
-  const gdImagePtr image_;
-  const MyGdFontPtr font_;
+  gdImagePtr const image_;
+  MyGdFontPtr const font_;
   const int fontWidth_;
   const int fontHeight_;
   const int background_;

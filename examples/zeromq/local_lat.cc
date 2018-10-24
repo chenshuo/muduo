@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
   if (argc > 1)
   {
     uint16_t port = static_cast<uint16_t>(atoi(argv[1]));
-    g_tcpNoDelay = argc > 2 ? atoi(argv[2]) : 0;
+    g_tcpNoDelay = argc > 2 ? atoi(argv[2]) : false;
     int threadCount = argc > 3 ? atoi(argv[3]) : 0;
 
     LOG_INFO << "pid = " << getpid() << ", listen port = " << port;

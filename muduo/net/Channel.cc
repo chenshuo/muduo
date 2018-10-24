@@ -142,5 +142,5 @@ string Channel::eventsToString(int fd, int ev)
   if (ev & POLLNVAL)
     oss << "NVAL ";
 
-  return oss.str().c_str();
+  return oss.str();
 }

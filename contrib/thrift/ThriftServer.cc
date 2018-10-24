@@ -7,9 +7,7 @@
 using namespace muduo;
 using namespace muduo::net;
 
-ThriftServer::~ThriftServer()
-{
-}
+ThriftServer::~ThriftServer() = default;
 
 void ThriftServer::serve()
 {

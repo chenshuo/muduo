@@ -169,7 +169,7 @@ class CAPABILITY("mutex") MutexLock : noncopyable
   class UnassignGuard : noncopyable
   {
    public:
-    UnassignGuard(MutexLock& owner)
+    explicit UnassignGuard(MutexLock& owner)
       : owner_(owner)
     {
       owner_.unassignHolder();

@@ -19,7 +19,7 @@ void onRequest(const HttpRequest& req, HttpResponse* resp)
   if (!benchmark)
   {
     const std::map<string, string>& headers = req.headers();
-    for (const std::pair<string, string>& header : headers)
+    for (const auto& header : headers)
     {
       std::cout << header.first << ": " << header.second << std::endl;
     }
