@@ -15,15 +15,22 @@ namespace muduo
 class Exception : public std::exception
 {
  public:
-  explicit Exception(const char* what);
-  explicit Exception(const string& what);
-  ~Exception() noexcept override;
-  const char* what() const noexcept override;
-  const char* stackTrace() const noexcept;
+  Exception(string what);
+  ~Exception() noexcept override = default;
+
+  // default copy-ctor and operator= are okay.
+
+  const char* what() const noexcept override
+  {
+    return message_.c_str();
+  }
+
+  const char* stackTrace() const noexcept
+  {
+    return stack_.c_str();
+  }
 
  private:
-  void fillStackTrace();
-
   string message_;
   string stack_;
 };
