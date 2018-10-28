@@ -46,6 +46,10 @@ class AsyncLogging : noncopyable
     thread_.join();
   }
 
+  void flush() {
+    stop();
+  }
+
  private:
 
   void threadFunc();

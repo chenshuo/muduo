@@ -126,6 +126,12 @@ void AsyncLogging::threadFunc()
     buffersToWrite.clear();
     output.flush();
   }
+  {
+    muduo::MutexLockGuard lock(mutex_);
+    output.append(currentBuffer_->data(), currentBuffer_->length());
+    for (const auto& val : buffers_)
+      output.append(val->data(), val->length());
+  }
   output.flush();
 }
 
