@@ -15,6 +15,7 @@ class Test
     : queue_(20),
       latch_(numThreads)
   {
+    threads_.reserve(numThreads);
     for (int i = 0; i < numThreads; ++i)
     {
       char name[32];
