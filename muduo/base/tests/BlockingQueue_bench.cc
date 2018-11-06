@@ -13,9 +13,9 @@ class Bench
 {
  public:
   Bench(int numThreads)
-    : latch_(numThreads),
-      threads_(numThreads)
+    : latch_(numThreads)
   {
+    threads_.reserve(numThreads);
     for (int i = 0; i < numThreads; ++i)
     {
       char name[32];
