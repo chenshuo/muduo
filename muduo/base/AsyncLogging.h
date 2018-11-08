@@ -54,8 +54,10 @@ class AsyncLogging : noncopyable
  private:
 
   void threadFunc();
+  void append_unlocked(const char* buf, int len);
 
-  typedef muduo::detail::FixedBuffer<muduo::detail::kLargeBuffer> Buffer;
+  static const int kBufferSize = muduo::detail::kLargeBuffer;
+  typedef muduo::detail::FixedBuffer<kBufferSize> Buffer;
   typedef std::vector<std::unique_ptr<Buffer>> BufferVector;
   typedef BufferVector::value_type BufferPtr;
 
