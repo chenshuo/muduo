@@ -125,7 +125,7 @@ void AsyncLogging::append_unlocked(const char* buf, int len)
   mutex_.assertLocked();
   while (len > kBufferSize)
   {
-      append(buf, kBufferSize);
+      append_unlocked(buf, kBufferSize);
       buf += kBufferSize;
       len -= kBufferSize;
   }
