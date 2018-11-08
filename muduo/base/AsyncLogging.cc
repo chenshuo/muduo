@@ -33,26 +33,12 @@ AsyncLogging::AsyncLogging(const string& basename,
 
 void AsyncLogging::append(const char* logline, int len)
 {
+  if (!running_)
+  {
+      return;
+  }
   muduo::MutexLockGuard lock(mutex_);
-  if (currentBuffer_->avail() > len)
-  {
-    currentBuffer_->append(logline, len);
-  }
-  else
-  {
-    buffers_.push_back(std::move(currentBuffer_));
-
-    if (nextBuffer_)
-    {
-      currentBuffer_ = std::move(nextBuffer_);
-    }
-    else
-    {
-      currentBuffer_.reset(new Buffer); // Rarely happens
-    }
-    currentBuffer_->append(logline, len);
-    cond_.notify();
-  }
+  append_unlocked(logline, len);
 }
 
 void AsyncLogging::threadFunc()
@@ -134,3 +120,32 @@ void AsyncLogging::threadFunc()
   output.flush();
 }
 
+void AsyncLogging::append_unlocked(const char* buf, int len)
+{
+  mutex_.assertLocked();
+  while (len > kBufferSize)
+  {
+      append(buf, kBufferSize);
+      buf += kBufferSize;
+      len -= kBufferSize;
+  }
+  if (currentBuffer_->avail() > len)
+  {
+    currentBuffer_->append(buf, len);
+  }
+  else
+  {
+    buffers_.push_back(std::move(currentBuffer_));
+
+    if (nextBuffer_)
+    {
+      currentBuffer_ = std::move(nextBuffer_);
+    }
+    else
+    {
+      currentBuffer_.reset(new Buffer); // Rarely happens
+    }
+    currentBuffer_->append(buf, len);
+    cond_.notify();
+  }
+}
