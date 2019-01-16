@@ -1,6 +1,7 @@
 #ifndef MUDUO_CONTRIB_HIREDIS_HIREDIS_H
 #define MUDUO_CONTRIB_HIREDIS_HIREDIS_H
 
+#include <muduo/base/noncopyable.h>
 #include <muduo/base/StringPiece.h>
 #include <muduo/base/Types.h>
 #include <muduo/net/Callbacks.h>
