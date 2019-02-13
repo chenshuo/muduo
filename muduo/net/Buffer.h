@@ -18,7 +18,7 @@
 #include <muduo/net/Endian.h>
 
 #include <algorithm>
-#include <vector>
+#include <string>
 
 #include <assert.h>
 #include <string.h>
@@ -46,7 +46,7 @@ class Buffer : public muduo::copyable
   static const size_t kInitialSize = 1024;
 
   explicit Buffer(size_t initialSize = kInitialSize)
-    : buffer_(kCheapPrepend + initialSize),
+    : buffer_(kCheapPrepend + initialSize, 0),
       readerIndex_(kCheapPrepend),
       writerIndex_(kCheapPrepend)
   {
@@ -361,7 +361,7 @@ class Buffer : public muduo::copyable
 
   void shrink(size_t reserve)
   {
-    // FIXME: use vector::shrink_to_fit() in C++ 11 if possible.
+    // FIXME: use string::shrink_to_fit() in C++ 11 if possible.
     Buffer other;
     other.ensureWritableBytes(readableBytes()+reserve);
     other.append(toStringPiece());
@@ -409,7 +409,7 @@ class Buffer : public muduo::copyable
   }
 
  private:
-  std::vector<char> buffer_;
+  std::string buffer_;
   size_t readerIndex_;
   size_t writerIndex_;
 
