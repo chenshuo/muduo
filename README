@@ -21,6 +21,8 @@ Tested on:
 To build, run:
   ./build.sh
 
+See https://github.com/chenshuo/muduo-tutorial for
+how to use muduo in your project.
   __  __           _
  |  \/  |         | |
  | \  / |_   _  __| |_   _  ___

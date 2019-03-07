@@ -1,0 +1,8 @@
+cc_binary(
+    name = "inspector",
+    srcs = ["Inspector_test.cc"],
+    copts = ["-I."],
+    deps = [
+        "//muduo/net/inspect",
+    ],
+)

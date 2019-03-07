@@ -11,9 +11,9 @@ set(base_SRCS
   LogStream.cc
   ProcessInfo.cc
   Timestamp.cc
-  TimeZone.cc
   Thread.cc
   ThreadPool.cc
+  TimeZone.cc
   )
 
 add_library(muduo_base ${base_SRCS})
