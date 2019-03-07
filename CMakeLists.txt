@@ -8,7 +8,10 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release")
 endif()
 
-option(MUDUO_BUILD_EXAMPLES "Build Muduo examples" ON)
+# only build examples if this is the main project
+if(CMAKE_PROJECT_NAME STREQUAL "muduo")
+  option(MUDUO_BUILD_EXAMPLES "Build Muduo examples" ON)
+endif()
 
 set(CXX_FLAGS
  -g

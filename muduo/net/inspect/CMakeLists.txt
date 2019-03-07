@@ -19,7 +19,7 @@ set(HEADERS
   )
 install(FILES ${HEADERS} DESTINATION include/muduo/net/inspect)
 
-if(NOT CMAKE_BUILD_NO_EXAMPLES)
+if(MUDUO_BUILD_EXAMPLES)
 add_executable(inspector_test tests/Inspector_test.cc)
 target_link_libraries(inspector_test muduo_inspect)
 endif()
