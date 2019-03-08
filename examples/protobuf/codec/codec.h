@@ -9,8 +9,8 @@
 #ifndef MUDUO_EXAMPLES_PROTOBUF_CODEC_CODEC_H
 #define MUDUO_EXAMPLES_PROTOBUF_CODEC_CODEC_H
 
-#include <muduo/net/Buffer.h>
-#include <muduo/net/TcpConnection.h>
+#include "muduo/net/Buffer.h"
+#include "muduo/net/TcpConnection.h"
 
 #include <google/protobuf/message.h>
 

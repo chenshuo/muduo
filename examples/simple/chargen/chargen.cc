@@ -1,7 +1,7 @@
-#include "chargen.h"
+#include "examples/simple/chargen/chargen.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/net/EventLoop.h>
+#include "muduo/base/Logging.h"
+#include "muduo/net/EventLoop.h"
 
 #include <stdio.h>
 

@@ -1,6 +1,6 @@
-#include "codec.h"
-#include <muduo/net/Endian.h>
-#include <examples/protobuf/codec/query.pb.h>
+#include "examples/protobuf/codec/codec.h"
+#include "muduo/net/Endian.h"
+#include "examples/protobuf/codec/query.pb.h"
 
 #include <stdio.h>
 #include <zlib.h>  // adler32

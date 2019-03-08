@@ -1,11 +1,11 @@
 #ifndef MUDUO_EXAMPLES_MEMCACHED_SERVER_SESSION_H
 #define MUDUO_EXAMPLES_MEMCACHED_SERVER_SESSION_H
 
-#include "Item.h"
+#include "examples/memcached/server/Item.h"
 
-#include <muduo/base/Logging.h>
+#include "muduo/base/Logging.h"
 
-#include <muduo/net/TcpConnection.h>
+#include "muduo/net/TcpConnection.h"
 
 #include <boost/tokenizer.hpp>
 

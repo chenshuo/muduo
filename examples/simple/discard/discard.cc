@@ -1,6 +1,6 @@
-#include "discard.h"
+#include "examples/simple/discard/discard.h"
 
-#include <muduo/base/Logging.h>
+#include "muduo/base/Logging.h"
 
 using namespace muduo;
 using namespace muduo::net;

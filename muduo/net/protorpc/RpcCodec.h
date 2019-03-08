@@ -11,8 +11,8 @@
 #ifndef MUDUO_NET_PROTORPC_RPCCODEC_H
 #define MUDUO_NET_PROTORPC_RPCCODEC_H
 
-#include <muduo/base/Timestamp.h>
-#include <muduo/net/protobuf/ProtobufCodecLite.h>
+#include "muduo/base/Timestamp.h"
+#include "muduo/net/protobuf/ProtobufCodecLite.h"
 
 namespace muduo
 {

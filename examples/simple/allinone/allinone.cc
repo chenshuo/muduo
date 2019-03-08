@@ -1,11 +1,11 @@
-#include "../chargen/chargen.h"
-#include "../daytime/daytime.h"
-#include "../discard/discard.h"
-#include "../echo/echo.h"
-#include "../time/time.h"
+#include "examples/simple/chargen/chargen.h"
+#include "examples/simple/daytime/daytime.h"
+#include "examples/simple/discard/discard.h"
+#include "examples/simple/echo/echo.h"
+#include "examples/simple/time/time.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/net/EventLoop.h>
+#include "muduo/base/Logging.h"
+#include "muduo/net/EventLoop.h"
 
 #include <unistd.h>
 

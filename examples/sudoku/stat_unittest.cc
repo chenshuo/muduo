@@ -1,6 +1,6 @@
-#include <muduo/base/Logging.h>
-#include <muduo/base/Thread.h>
-#include <muduo/base/ThreadPool.h>
+#include "muduo/base/Logging.h"
+#include "muduo/base/Thread.h"
+#include "muduo/base/ThreadPool.h"
 
 #include <boost/circular_buffer.hpp>
 #define BOOST_TEST_MAIN
@@ -9,7 +9,7 @@
 
 using namespace muduo;
 
-#include "stat.h"
+#include "examples/sudoku/stat.h"
 
 #include <stdio.h>
 

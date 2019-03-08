@@ -9,8 +9,8 @@
 #ifndef MUDUO_EXAMPLES_PROTOBUF_CODEC_DISPATCHER_LITE_H
 #define MUDUO_EXAMPLES_PROTOBUF_CODEC_DISPATCHER_LITE_H
 
-#include <muduo/base/noncopyable.h>
-#include <muduo/net/Callbacks.h>
+#include "muduo/base/noncopyable.h"
+#include "muduo/net/Callbacks.h"
 
 #include <google/protobuf/message.h>
 

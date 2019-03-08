@@ -1,8 +1,8 @@
-#include "MemcacheServer.h"
+#include "examples/memcached/server/MemcacheServer.h"
 
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/EventLoopThread.h>
-#include <muduo/net/inspect/Inspector.h>
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/EventLoopThread.h"
+#include "muduo/net/inspect/Inspector.h"
 
 #include <boost/program_options.hpp>
 

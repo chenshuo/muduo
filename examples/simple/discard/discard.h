@@ -1,7 +1,7 @@
 #ifndef MUDUO_EXAMPLES_SIMPLE_DISCARD_DISCARD_H
 #define MUDUO_EXAMPLES_SIMPLE_DISCARD_DISCARD_H
 
-#include <muduo/net/TcpServer.h>
+#include "muduo/net/TcpServer.h"
 
 // RFC 863
 class DiscardServer

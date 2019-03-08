@@ -44,7 +44,6 @@ cc_library(
         "poller/EPollPoller.h",
         "poller/PollPoller.h",
     ],
-    copts = ["-I."],
     visibility = ["//visibility:public"],
     deps = [
         "//muduo/base",

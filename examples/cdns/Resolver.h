@@ -1,10 +1,10 @@
 #ifndef MUDUO_EXAMPLES_CDNS_RESOLVER_H
 #define MUDUO_EXAMPLES_CDNS_RESOLVER_H
 
-#include <muduo/base/noncopyable.h>
-#include <muduo/base/StringPiece.h>
-#include <muduo/base/Timestamp.h>
-#include <muduo/net/InetAddress.h>
+#include "muduo/base/noncopyable.h"
+#include "muduo/base/StringPiece.h"
+#include "muduo/base/Timestamp.h"
+#include "muduo/net/InetAddress.h"
 
 #include <functional>
 #include <map>

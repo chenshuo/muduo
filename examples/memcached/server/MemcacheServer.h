@@ -1,12 +1,12 @@
 #ifndef MUDUO_EXAMPLES_MEMCACHED_SERVER_MEMCACHESERVER_H
 #define MUDUO_EXAMPLES_MEMCACHED_SERVER_MEMCACHESERVER_H
 
-#include "Item.h"
-#include "Session.h"
+#include "examples/memcached/server/Item.h"
+#include "examples/memcached/server/Session.h"
 
-#include <muduo/base/Mutex.h>
-#include <muduo/net/TcpServer.h>
-#include <examples/wordcount/hash.h>
+#include "muduo/base/Mutex.h"
+#include "muduo/net/TcpServer.h"
+#include "examples/wordcount/hash.h"
 
 #include <array>
 #include <unordered_map>

@@ -18,7 +18,6 @@ cc_library(
         "Timestamp.cc",
     ],
     hdrs = glob(["*.h"]),
-    copts = ["-I."],
     linkopts = ["-pthread"],
     visibility = ["//visibility:public"],
 )

@@ -6,8 +6,8 @@
 #ifndef MUDUO_BASE_BLOCKINGQUEUE_H
 #define MUDUO_BASE_BLOCKINGQUEUE_H
 
-#include <muduo/base/Condition.h>
-#include <muduo/base/Mutex.h>
+#include "muduo/base/Condition.h"
+#include "muduo/base/Mutex.h"
 
 #include <deque>
 #include <assert.h>

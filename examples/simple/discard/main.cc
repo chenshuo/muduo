@@ -1,7 +1,7 @@
-#include "discard.h"
+#include "examples/simple/discard/discard.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/net/EventLoop.h>
+#include "muduo/base/Logging.h"
+#include "muduo/net/EventLoop.h"
 
 #include <unistd.h>
 
