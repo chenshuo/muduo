@@ -1,10 +1,8 @@
-#include <examples/cdns/Resolver.h>
+#include "examples/cdns/Resolver.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/net/Channel.h>
-#include <muduo/net/EventLoop.h>
-
-#include <boost/bind.hpp>
+#include "muduo/base/Logging.h"
+#include "muduo/net/Channel.h"
+#include "muduo/net/EventLoop.h"
 
 #include <ares.h>
 #include <netdb.h>
@@ -40,7 +38,7 @@ const char* getSocketType(int type)
 }
 
 const bool kDebug = false;
-}
+}  // namespace
 
 Resolver::Resolver(EventLoop* loop, Option opt)
   : loop_(loop),
@@ -89,7 +87,7 @@ bool Resolver::resolve(StringArg hostname, const Callback& cb)
   LOG_DEBUG << "timeout " <<  timeout << " active " << timerActive_;
   if (!timerActive_)
   {
-    loop_->runAfter(timeout, boost::bind(&Resolver::onTimer, this));
+    loop_->runAfter(timeout, std::bind(&Resolver::onTimer, this));
     timerActive_ = true;
   }
   return queryData != NULL;
@@ -116,7 +114,7 @@ void Resolver::onTimer()
   }
   else
   {
-    loop_->runAfter(timeout, boost::bind(&Resolver::onTimer, this));
+    loop_->runAfter(timeout, std::bind(&Resolver::onTimer, this));
   }
 }
 
@@ -124,7 +122,7 @@ void Resolver::onQueryResult(int status, struct hostent* result, const Callback&
 {
   LOG_DEBUG << "onQueryResult " << status;
   struct sockaddr_in addr;
-  bzero(&addr, sizeof addr);
+  memZero(&addr, sizeof addr);
   addr.sin_family = AF_INET;
   addr.sin_port = 0;
   if (result)
@@ -156,9 +154,9 @@ void Resolver::onSockCreate(int sockfd, int type)
   loop_->assertInLoopThread();
   assert(channels_.find(sockfd) == channels_.end());
   Channel* channel = new Channel(loop_, sockfd);
-  channel->setReadCallback(boost::bind(&Resolver::onRead, this, sockfd, _1));
+  channel->setReadCallback(std::bind(&Resolver::onRead, this, sockfd, _1));
   channel->enableReading();
-  channels_.insert(sockfd, channel);
+  channels_[sockfd].reset(channel);
 }
 
 void Resolver::onSockStateChange(int sockfd, bool read, bool write)

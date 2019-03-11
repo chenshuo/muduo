@@ -1,9 +1,7 @@
-#include "echo.h"
+#include "examples/idleconnection/echo.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/net/EventLoop.h>
-
-#include <boost/bind.hpp>
+#include "muduo/base/Logging.h"
+#include "muduo/net/EventLoop.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -19,10 +17,10 @@ EchoServer::EchoServer(EventLoop* loop,
     connectionBuckets_(idleSeconds)
 {
   server_.setConnectionCallback(
-      boost::bind(&EchoServer::onConnection, this, _1));
+      std::bind(&EchoServer::onConnection, this, _1));
   server_.setMessageCallback(
-      boost::bind(&EchoServer::onMessage, this, _1, _2, _3));
-  loop->runEvery(1.0, boost::bind(&EchoServer::onTimer, this));
+      std::bind(&EchoServer::onMessage, this, _1, _2, _3));
+  loop->runEvery(1.0, std::bind(&EchoServer::onTimer, this));
   connectionBuckets_.resize(idleSeconds);
   dumpConnectionBuckets();
 }
@@ -89,12 +87,10 @@ void EchoServer::dumpConnectionBuckets() const
   {
     const Bucket& bucket = *bucketI;
     printf("[%d] len = %zd : ", idx, bucket.size());
-    for (Bucket::const_iterator it = bucket.begin();
-        it != bucket.end();
-        ++it)
+    for (const auto& it : bucket)
     {
-      bool connectionDead = (*it)->weakConn_.expired();
-      printf("%p(%ld)%s, ", get_pointer(*it), it->use_count(),
+      bool connectionDead = it->weakConn_.expired();
+      printf("%p(%ld)%s, ", get_pointer(it), it.use_count(),
           connectionDead ? " DEAD" : "");
     }
     puts("");

@@ -3,7 +3,7 @@
 //
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
-#include <muduo/base/Date.h>
+#include "muduo/base/Date.h"
 #include <stdio.h>  // snprintf
 
 namespace muduo
@@ -40,9 +40,9 @@ struct Date::YearMonthDay getYearMonthDay(int julianDayNumber)
   ymd.year = b * 100 + d - 4800 + (m / 10);
   return ymd;
 }
-}
+}  // namespace detail
 const int Date::kJulianDayOf1970_01_01 = detail::getJulianDayNumber(1970, 1, 1);
-}
+}  // namespace muduo
 
 using namespace muduo;
 using namespace muduo::detail;

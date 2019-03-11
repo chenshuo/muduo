@@ -1,23 +1,20 @@
 #ifndef MUDUO_EXAMPLES_MEMCACHED_SERVER_SESSION_H
 #define MUDUO_EXAMPLES_MEMCACHED_SERVER_SESSION_H
 
-#include "Item.h"
+#include "examples/memcached/server/Item.h"
 
-#include <muduo/base/Logging.h>
+#include "muduo/base/Logging.h"
 
-#include <muduo/net/TcpConnection.h>
+#include "muduo/net/TcpConnection.h"
 
-#include <boost/bind.hpp>
-#include <boost/enable_shared_from_this.hpp>
-#include <boost/noncopyable.hpp>
 #include <boost/tokenizer.hpp>
 
 using muduo::string;
 
 class MemcacheServer;
 
-class Session : boost::noncopyable,
-                public boost::enable_shared_from_this<Session>
+class Session : public std::enable_shared_from_this<Session>,
+                muduo::noncopyable
 {
  public:
   Session(MemcacheServer* owner, const muduo::net::TcpConnectionPtr& conn)
@@ -32,8 +29,12 @@ class Session : boost::noncopyable,
       bytesRead_(0),
       requestsProcessed_(0)
   {
+    using std::placeholders::_1;
+    using std::placeholders::_2;
+    using std::placeholders::_3;
+
     conn_->setMessageCallback(
-        boost::bind(&Session::onMessage, this, _1, _2, _3));
+        std::bind(&Session::onMessage, this, _1, _2, _3));
   }
 
   ~Session()
@@ -108,6 +109,6 @@ class Session : boost::noncopyable,
   static string kLongestKey;
 };
 
-typedef boost::shared_ptr<Session> SessionPtr;
+typedef std::shared_ptr<Session> SessionPtr;
 
 #endif  // MUDUO_EXAMPLES_MEMCACHED_SERVER_SESSION_H

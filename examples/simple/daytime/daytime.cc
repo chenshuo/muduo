@@ -1,9 +1,7 @@
-#include "daytime.h"
+#include "examples/simple/daytime/daytime.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/net/EventLoop.h>
-
-#include <boost/bind.hpp>
+#include "muduo/base/Logging.h"
+#include "muduo/net/EventLoop.h"
 
 using namespace muduo;
 using namespace muduo::net;
@@ -13,9 +11,9 @@ DaytimeServer::DaytimeServer(EventLoop* loop,
   : server_(loop, listenAddr, "DaytimeServer")
 {
   server_.setConnectionCallback(
-      boost::bind(&DaytimeServer::onConnection, this, _1));
+      std::bind(&DaytimeServer::onConnection, this, _1));
   server_.setMessageCallback(
-      boost::bind(&DaytimeServer::onMessage, this, _1, _2, _3));
+      std::bind(&DaytimeServer::onMessage, this, _1, _2, _3));
 }
 
 void DaytimeServer::start()

@@ -1,3 +1,6 @@
+add_executable(channel_test Channel_test.cc)
+target_link_libraries(channel_test muduo_net)
+
 add_executable(echoserver_unittest EchoServer_unittest.cc)
 target_link_libraries(echoserver_unittest muduo_net)
 
@@ -17,11 +20,6 @@ if(BOOSTTEST_LIBRARY)
 add_executable(buffer_unittest Buffer_unittest.cc)
 target_link_libraries(buffer_unittest muduo_net boost_unit_test_framework)
 add_test(NAME buffer_unittest COMMAND buffer_unittest)
-
-add_executable(buffer_cpp11_unittest Buffer_unittest.cc)
-target_link_libraries(buffer_cpp11_unittest muduo_net_cpp11 boost_unit_test_framework)
-set_target_properties(buffer_cpp11_unittest PROPERTIES COMPILE_FLAGS "-std=c++0x")
-add_test(NAME buffer_cpp11_unittest COMMAND buffer_cpp11_unittest)
 
 add_executable(inetaddress_unittest InetAddress_unittest.cc)
 target_link_libraries(inetaddress_unittest muduo_net boost_unit_test_framework)

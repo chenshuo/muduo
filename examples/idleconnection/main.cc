@@ -1,17 +1,18 @@
-#include "echo.h"
+#include "examples/idleconnection/echo.h"
 #include <stdio.h>
 
-#include <muduo/base/Logging.h>
-#include <muduo/net/EventLoop.h>
+#include "muduo/base/Logging.h"
+#include "muduo/net/EventLoop.h"
 
 using namespace muduo;
 using namespace muduo::net;
 
+/*
 void testHash()
 {
-  boost::hash<boost::shared_ptr<int> > h;
-  boost::shared_ptr<int> x1(new int(10));
-  boost::shared_ptr<int> x2(new int(10));
+  boost::hash<std::shared_ptr<int> > h;
+  std::shared_ptr<int> x1(new int(10));
+  std::shared_ptr<int> x2(new int(10));
   h(x1);
   assert(h(x1) != h(x2));
   x1 = x2;
@@ -21,10 +22,11 @@ void testHash()
   x2.reset();
   assert(h(x1) == h(x2));
 }
+*/
 
 int main(int argc, char* argv[])
 {
-  testHash();
+  // testHash();
   EventLoop loop;
   InetAddress listenAddr(2007);
   int idleSeconds = 10;

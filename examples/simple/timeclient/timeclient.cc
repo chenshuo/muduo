@@ -1,10 +1,8 @@
-#include <muduo/base/Logging.h>
-#include <muduo/net/Endian.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/InetAddress.h>
-#include <muduo/net/TcpClient.h>
-
-#include <boost/bind.hpp>
+#include "muduo/base/Logging.h"
+#include "muduo/net/Endian.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/InetAddress.h"
+#include "muduo/net/TcpClient.h"
 
 #include <utility>
 
@@ -14,7 +12,7 @@
 using namespace muduo;
 using namespace muduo::net;
 
-class TimeClient : boost::noncopyable
+class TimeClient : noncopyable
 {
  public:
   TimeClient(EventLoop* loop, const InetAddress& serverAddr)
@@ -22,9 +20,9 @@ class TimeClient : boost::noncopyable
       client_(loop, serverAddr, "TimeClient")
   {
     client_.setConnectionCallback(
-        boost::bind(&TimeClient::onConnection, this, _1));
+        std::bind(&TimeClient::onConnection, this, _1));
     client_.setMessageCallback(
-        boost::bind(&TimeClient::onMessage, this, _1, _2, _3));
+        std::bind(&TimeClient::onMessage, this, _1, _2, _3));
     // client_.enableRetry();
   }
 

@@ -1,18 +1,23 @@
-#include <muduo/base/TimeZone.h>
-#include <muduo/base/Date.h>
+// Use of this source code is governed by a BSD-style license
+// that can be found in the License file.
+//
+// Author: Shuo Chen (chenshuo at chenshuo dot com)
 
-#include <boost/noncopyable.hpp>
+#include "muduo/base/TimeZone.h"
+#include "muduo/base/noncopyable.h"
+#include "muduo/base/Date.h"
+
 #include <algorithm>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
+#include <assert.h>
 //#define _BSD_SOURCE
 #include <endian.h>
 
 #include <stdint.h>
 #include <stdio.h>
-#include <strings.h>
 
 namespace muduo
 {
@@ -76,9 +81,9 @@ inline void fillHMS(unsigned seconds, struct tm* utc)
   utc->tm_hour = minutes / 60;
 }
 
-}
+}  // namespace detail
 const int kSecondsPerDay = 24*60*60;
-}
+}  // namespace muduo
 
 using namespace muduo;
 using namespace std;
@@ -96,7 +101,7 @@ namespace muduo
 namespace detail
 {
 
-class File : boost::noncopyable
+class File : noncopyable
 {
  public:
   File(const char* file)
@@ -249,8 +254,8 @@ const Localtime* findLocaltime(const TimeZone::Data& data, Transition sentry, Co
   return local;
 }
 
-}
-}
+}  // namespace detail
+}  // namespace muduo
 
 
 TimeZone::TimeZone(const char* zonefile)
@@ -272,7 +277,7 @@ TimeZone::TimeZone(int eastOfUtc, const char* name)
 struct tm TimeZone::toLocalTime(time_t seconds) const
 {
   struct tm localTime;
-  bzero(&localTime, sizeof(localTime));
+  memZero(&localTime, sizeof(localTime));
   assert(data_ != NULL);
   const Data& data(*data_);
 
@@ -317,7 +322,7 @@ time_t TimeZone::fromLocalTime(const struct tm& localTm) const
 struct tm TimeZone::toUtcTime(time_t secondsSinceEpoch, bool yday)
 {
   struct tm utc;
-  bzero(&utc, sizeof(utc));
+  memZero(&utc, sizeof(utc));
   utc.tm_zone = "GMT";
   int seconds = static_cast<int>(secondsSinceEpoch % kSecondsPerDay);
   int days = static_cast<int>(secondsSinceEpoch / kSecondsPerDay);

@@ -1,11 +1,11 @@
-#include <examples/protobuf/resolver/resolver.pb.h>
+#include "examples/protobuf/resolver/resolver.pb.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/protorpc/RpcServer.h>
-#include <examples/cdns/Resolver.h>
+#include "muduo/base/Logging.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/protorpc/RpcServer.h"
+#include "examples/cdns/Resolver.h"
 
-#include <boost/bind.hpp>
+#include <unistd.h>
 
 using namespace muduo;
 using namespace muduo::net;
@@ -29,7 +29,7 @@ class ResolverServiceImpl : public ResolverService
     LOG_INFO << "ResolverServiceImpl::Resolve " << request->address();
 
     bool succeed = resolver_.resolve(request->address(),
-                                     boost::bind(&ResolverServiceImpl::doneCallback,
+                                     std::bind(&ResolverServiceImpl::doneCallback,
                                                  this,
                                                  request->address(),
                                                  _1,
@@ -51,12 +51,12 @@ class ResolverServiceImpl : public ResolverService
 
   {
     LOG_INFO << "ResolverServiceImpl::doneCallback " << host;
-    int32_t ip = address.getSockAddrInet().sin_addr.s_addr;
+    int32_t ip = address.ipNetEndian();
     if (ip)
     {
       response->set_resolved(true);
       response->add_ip(ip);
-      response->add_port(address.getSockAddrInet().sin_port);
+      response->add_port(address.portNetEndian());
     }
     else
     {
@@ -68,7 +68,7 @@ class ResolverServiceImpl : public ResolverService
   cdns::Resolver resolver_;
 };
 
-}
+}  // namespace resolver
 
 int main()
 {

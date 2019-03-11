@@ -1,10 +1,8 @@
-#include "codec.h"
+#include "examples/hub/codec.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/TcpServer.h>
-
-#include <boost/bind.hpp>
+#include "muduo/base/Logging.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/TcpServer.h"
 
 #include <map>
 #include <set>
@@ -66,7 +64,7 @@ class Topic : public muduo::copyable
   std::set<TcpConnectionPtr> audiences_;
 };
 
-class PubSubServer : boost::noncopyable
+class PubSubServer : noncopyable
 {
  public:
   PubSubServer(muduo::net::EventLoop* loop,
@@ -75,10 +73,10 @@ class PubSubServer : boost::noncopyable
       server_(loop, listenAddr, "PubSubServer")
   {
     server_.setConnectionCallback(
-        boost::bind(&PubSubServer::onConnection, this, _1));
+        std::bind(&PubSubServer::onConnection, this, _1));
     server_.setMessageCallback(
-        boost::bind(&PubSubServer::onMessage, this, _1, _2, _3));
-    loop_->runEvery(1.0, boost::bind(&PubSubServer::timePublish, this));
+        std::bind(&PubSubServer::onMessage, this, _1, _2, _3));
+    loop_->runEvery(1.0, std::bind(&PubSubServer::timePublish, this));
   }
 
   void start()
@@ -195,7 +193,7 @@ class PubSubServer : boost::noncopyable
   std::map<string, Topic> topics_;
 };
 
-}
+}  // namespace pubsub
 
 int main(int argc, char* argv[])
 {

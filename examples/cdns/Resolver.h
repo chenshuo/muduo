@@ -1,13 +1,14 @@
 #ifndef MUDUO_EXAMPLES_CDNS_RESOLVER_H
 #define MUDUO_EXAMPLES_CDNS_RESOLVER_H
 
-#include <muduo/base/StringPiece.h>
-#include <muduo/base/Timestamp.h>
-#include <muduo/net/InetAddress.h>
+#include "muduo/base/noncopyable.h"
+#include "muduo/base/StringPiece.h"
+#include "muduo/base/Timestamp.h"
+#include "muduo/net/InetAddress.h"
 
-#include <boost/function.hpp>
-#include <boost/noncopyable.hpp>
-#include <boost/ptr_container/ptr_map.hpp>
+#include <functional>
+#include <map>
+#include <memory>
 
 extern "C"
 {
@@ -28,10 +29,10 @@ class EventLoop;
 namespace cdns
 {
 
-class Resolver : boost::noncopyable
+class Resolver : muduo::noncopyable
 {
  public:
-  typedef boost::function<void(const muduo::net::InetAddress&)> Callback;
+  typedef std::function<void(const muduo::net::InetAddress&)> Callback;
   enum Option
   {
     kDNSandHostsFile,
@@ -58,7 +59,7 @@ class Resolver : boost::noncopyable
   muduo::net::EventLoop* loop_;
   ares_channel ctx_;
   bool timerActive_;
-  typedef boost::ptr_map<int, muduo::net::Channel> ChannelList;
+  typedef std::map<int, std::unique_ptr<muduo::net::Channel>> ChannelList;
   ChannelList channels_;
 
   void onRead(int sockfd, muduo::Timestamp t);
@@ -71,6 +72,6 @@ class Resolver : boost::noncopyable
   static int ares_sock_create_callback(int sockfd, int type, void* data);
   static void ares_sock_state_callback(void* data, int sockfd, int read, int write);
 };
-}
+}  // namespace cdns
 
-#endif
+#endif  // MUDUO_EXAMPLES_CDNS_RESOLVER_H

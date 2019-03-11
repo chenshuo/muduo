@@ -1,13 +1,11 @@
-#include <examples/ace/logging/logrecord.pb.h>
+#include "examples/ace/logging/logrecord.pb.h"
 
-#include <muduo/base/Atomic.h>
-#include <muduo/base/FileUtil.h>
-#include <muduo/base/Logging.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/TcpServer.h>
-#include <muduo/net/protobuf/ProtobufCodecLite.h>
-
-#include <boost/bind.hpp>
+#include "muduo/base/Atomic.h"
+#include "muduo/base/FileUtil.h"
+#include "muduo/base/Logging.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/TcpServer.h"
+#include "muduo/net/protobuf/ProtobufCodecLite.h"
 
 #include <stdio.h>
 
@@ -19,15 +17,15 @@ namespace logging
 extern const char logtag[] = "LOG0";
 typedef ProtobufCodecLiteT<LogRecord, logtag> Codec;
 
-class Session : boost::noncopyable
+class Session : noncopyable
 {
  public:
   explicit Session(const TcpConnectionPtr& conn)
-    : codec_(boost::bind(&Session::onMessage, this, _1, _2, _3)),
+    : codec_(std::bind(&Session::onMessage, this, _1, _2, _3)),
       file_(getFileName(conn))
   {
     conn->setMessageCallback(
-        boost::bind(&Codec::onMessage, &codec_, _1, _2, _3));
+        std::bind(&Codec::onMessage, &codec_, _1, _2, _3));
   }
 
  private:
@@ -75,11 +73,11 @@ class Session : boost::noncopyable
   FileUtil::AppendFile file_;
   static AtomicInt32 globalCount_;
 };
-typedef boost::shared_ptr<Session> SessionPtr;
+typedef std::shared_ptr<Session> SessionPtr;
 
 AtomicInt32 Session::globalCount_;
 
-class LogServer : boost::noncopyable
+class LogServer : noncopyable
 {
  public:
   LogServer(EventLoop* loop, const InetAddress& listenAddr, int numThreads)
@@ -87,7 +85,7 @@ class LogServer : boost::noncopyable
       server_(loop_, listenAddr, "AceLoggingServer")
   {
     server_.setConnectionCallback(
-        boost::bind(&LogServer::onConnection, this, _1));
+        std::bind(&LogServer::onConnection, this, _1));
     if (numThreads > 1)
     {
       server_.setThreadNum(numThreads);
@@ -117,7 +115,7 @@ class LogServer : boost::noncopyable
   TcpServer server_;
 };
 
-}
+}  // namespace logging
 
 int main(int argc, char* argv[])
 {

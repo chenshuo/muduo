@@ -1,32 +1,30 @@
-#include "codec.h"
+#include "examples/asio/chat/codec.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/base/Mutex.h>
-#include <muduo/base/ThreadLocalSingleton.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/TcpServer.h>
-
-#include <boost/bind.hpp>
-#include <boost/shared_ptr.hpp>
+#include "muduo/base/Logging.h"
+#include "muduo/base/Mutex.h"
+#include "muduo/base/ThreadLocalSingleton.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/TcpServer.h"
 
 #include <set>
 #include <stdio.h>
+#include <unistd.h>
 
 using namespace muduo;
 using namespace muduo::net;
 
-class ChatServer : boost::noncopyable
+class ChatServer : noncopyable
 {
  public:
   ChatServer(EventLoop* loop,
              const InetAddress& listenAddr)
   : server_(loop, listenAddr, "ChatServer"),
-    codec_(boost::bind(&ChatServer::onStringMessage, this, _1, _2, _3))
+    codec_(std::bind(&ChatServer::onStringMessage, this, _1, _2, _3))
   {
     server_.setConnectionCallback(
-        boost::bind(&ChatServer::onConnection, this, _1));
+        std::bind(&ChatServer::onConnection, this, _1));
     server_.setMessageCallback(
-        boost::bind(&LengthHeaderCodec::onMessage, &codec_, _1, _2, _3));
+        std::bind(&LengthHeaderCodec::onMessage, &codec_, _1, _2, _3));
   }
 
   void setThreadNum(int numThreads)
@@ -36,7 +34,7 @@ class ChatServer : boost::noncopyable
 
   void start()
   {
-    server_.setThreadInitCallback(boost::bind(&ChatServer::threadInit, this, _1));
+    server_.setThreadInitCallback(std::bind(&ChatServer::threadInit, this, _1));
     server_.start();
   }
 
@@ -61,7 +59,7 @@ class ChatServer : boost::noncopyable
                        const string& message,
                        Timestamp)
   {
-    EventLoop::Functor f = boost::bind(&ChatServer::distributeMessage, this, message);
+    EventLoop::Functor f = std::bind(&ChatServer::distributeMessage, this, message);
     LOG_DEBUG;
 
     MutexLockGuard lock(mutex_);
@@ -102,7 +100,7 @@ class ChatServer : boost::noncopyable
   typedef ThreadLocalSingleton<ConnectionList> LocalConnections;
 
   MutexLock mutex_;
-  std::set<EventLoop*> loops_;
+  std::set<EventLoop*> loops_ GUARDED_BY(mutex_);
 };
 
 int main(int argc, char* argv[])

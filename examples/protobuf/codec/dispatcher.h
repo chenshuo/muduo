@@ -9,27 +9,21 @@
 #ifndef MUDUO_EXAMPLES_PROTOBUF_CODEC_DISPATCHER_H
 #define MUDUO_EXAMPLES_PROTOBUF_CODEC_DISPATCHER_H
 
-#include <muduo/net/Callbacks.h>
+#include "muduo/base/noncopyable.h"
+#include "muduo/net/Callbacks.h"
 
 #include <google/protobuf/message.h>
 
 #include <map>
 
-#include <boost/function.hpp>
-#include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
+#include <type_traits>
 
-#ifndef NDEBUG
-#include <boost/static_assert.hpp>
-#include <boost/type_traits/is_base_of.hpp>
-#endif
+typedef std::shared_ptr<google::protobuf::Message> MessagePtr;
 
-typedef boost::shared_ptr<google::protobuf::Message> MessagePtr;
-
-class Callback : boost::noncopyable
+class Callback : muduo::noncopyable
 {
  public:
-  virtual ~Callback() {};
+  virtual ~Callback() = default;
   virtual void onMessage(const muduo::net::TcpConnectionPtr&,
                          const MessagePtr& message,
                          muduo::Timestamp) const = 0;
@@ -38,12 +32,11 @@ class Callback : boost::noncopyable
 template <typename T>
 class CallbackT : public Callback
 {
-#ifndef NDEBUG
-  BOOST_STATIC_ASSERT((boost::is_base_of<google::protobuf::Message, T>::value));
-#endif
+  static_assert(std::is_base_of<google::protobuf::Message, T>::value,
+                "T must be derived from gpb::Message.");
  public:
-  typedef boost::function<void (const muduo::net::TcpConnectionPtr&,
-                                const boost::shared_ptr<T>& message,
+  typedef std::function<void (const muduo::net::TcpConnectionPtr&,
+                                const std::shared_ptr<T>& message,
                                 muduo::Timestamp)> ProtobufMessageTCallback;
 
   CallbackT(const ProtobufMessageTCallback& callback)
@@ -51,11 +44,11 @@ class CallbackT : public Callback
   {
   }
 
-  virtual void onMessage(const muduo::net::TcpConnectionPtr& conn,
-                         const MessagePtr& message,
-                         muduo::Timestamp receiveTime) const
+  void onMessage(const muduo::net::TcpConnectionPtr& conn,
+                 const MessagePtr& message,
+                 muduo::Timestamp receiveTime) const override
   {
-    boost::shared_ptr<T> concrete = muduo::down_pointer_cast<T>(message);
+    std::shared_ptr<T> concrete = muduo::down_pointer_cast<T>(message);
     assert(concrete != NULL);
     callback_(conn, concrete, receiveTime);
   }
@@ -67,7 +60,7 @@ class CallbackT : public Callback
 class ProtobufDispatcher
 {
  public:
-  typedef boost::function<void (const muduo::net::TcpConnectionPtr&,
+  typedef std::function<void (const muduo::net::TcpConnectionPtr&,
                                 const MessagePtr& message,
                                 muduo::Timestamp)> ProtobufMessageCallback;
 
@@ -94,12 +87,12 @@ class ProtobufDispatcher
   template<typename T>
   void registerMessageCallback(const typename CallbackT<T>::ProtobufMessageTCallback& callback)
   {
-    boost::shared_ptr<CallbackT<T> > pd(new CallbackT<T>(callback));
+    std::shared_ptr<CallbackT<T> > pd(new CallbackT<T>(callback));
     callbacks_[T::descriptor()] = pd;
   }
 
  private:
-  typedef std::map<const google::protobuf::Descriptor*, boost::shared_ptr<Callback> > CallbackMap;
+  typedef std::map<const google::protobuf::Descriptor*, std::shared_ptr<Callback> > CallbackMap;
 
   CallbackMap callbacks_;
   ProtobufMessageCallback defaultCallback_;

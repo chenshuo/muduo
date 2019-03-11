@@ -1,0 +1,21 @@
+---
+# Only run a few checks for now.
+Checks:          'performance-*'
+WarningsAsErrors: ''
+HeaderFilterRegex: ''
+AnalyzeTemporaryDtors: false
+FormatStyle:     none
+User:            chenshuo
+CheckOptions:
+  - key:             google-runtime-references.WhiteListTypes
+    value:           'muduo::MutexLock'
+  - key:             llvm-namespace-comment.ShortNamespaceLines
+    value:           '10'
+  - key:             llvm-namespace-comment.SpacesBeforeComments
+    value:           '2'
+  - key:   MuduoRootDirectory
+    value: '/muduo-cpp11/'
+ExtraArgs:
+  - '-Wno-sign-conversion'
+...
+

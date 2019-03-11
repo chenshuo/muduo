@@ -1,6 +1,6 @@
-#include "MemcacheServer.h"
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/inspect/ProcessInspector.h>
+#include "examples/memcached/server/MemcacheServer.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/inspect/ProcessInspector.h"
 
 #include <stdio.h>
 #ifdef HAVE_TCMALLOC

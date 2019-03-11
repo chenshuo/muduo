@@ -1,6 +1,6 @@
-#include "tunnel.h"
+#include "examples/socks4a/tunnel.h"
 
-#include <muduo/base/ThreadLocal.h>
+#include "muduo/base/ThreadLocal.h"
 #include <stdio.h>
 
 using namespace muduo;
@@ -18,6 +18,7 @@ void onServerConnection(const TcpConnectionPtr& conn)
   if (conn->connected())
   {
     conn->setTcpNoDelay(true);
+    conn->stopRead();
     size_t current = 0;
     {
     MutexLockGuard guard(g_mutex);

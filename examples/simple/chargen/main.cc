@@ -1,7 +1,9 @@
-#include "chargen.h"
+#include "examples/simple/chargen/chargen.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/net/EventLoop.h>
+#include "muduo/base/Logging.h"
+#include "muduo/net/EventLoop.h"
+
+#include <unistd.h>
 
 using namespace muduo;
 using namespace muduo::net;

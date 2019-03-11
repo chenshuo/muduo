@@ -6,16 +6,16 @@
 #ifndef MUDUO_BASE_THREADLOCAL_H
 #define MUDUO_BASE_THREADLOCAL_H
 
-#include <muduo/base/Mutex.h>  // MCHECK
+#include "muduo/base/Mutex.h"
+#include "muduo/base/noncopyable.h"
 
-#include <boost/noncopyable.hpp>
 #include <pthread.h>
 
 namespace muduo
 {
 
 template<typename T>
-class ThreadLocal : boost::noncopyable
+class ThreadLocal : noncopyable
 {
  public:
   ThreadLocal()
@@ -54,5 +54,6 @@ class ThreadLocal : boost::noncopyable
   pthread_key_t pkey_;
 };
 
-}
-#endif
+}  // namespace muduo
+
+#endif  // MUDUO_BASE_THREADLOCAL_H

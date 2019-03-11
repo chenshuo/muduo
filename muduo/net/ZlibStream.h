@@ -1,7 +1,7 @@
 #pragma once
 
-#include <muduo/net/Buffer.h>
-#include <boost/noncopyable.hpp>
+#include "muduo/base/noncopyable.h"
+#include "muduo/net/Buffer.h"
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #include <zlib.h>
 
@@ -12,14 +12,14 @@ namespace net
 
 // input is zlib compressed data, output uncompressed data
 // FIXME: finish this
-class ZlibInputStream : boost::noncopyable
+class ZlibInputStream : noncopyable
 {
  public:
   explicit ZlibInputStream(Buffer* output)
     : output_(output),
       zerror_(Z_OK)
   {
-    bzero(&zstream_, sizeof zstream_);
+    memZero(&zstream_, sizeof zstream_);
     zerror_ = inflateInit(&zstream_);
   }
 
@@ -42,7 +42,7 @@ class ZlibInputStream : boost::noncopyable
 };
 
 // input is uncompressed data, output zlib compressed data
-class ZlibOutputStream : boost::noncopyable
+class ZlibOutputStream : noncopyable
 {
  public:
   explicit ZlibOutputStream(Buffer* output)
@@ -50,7 +50,7 @@ class ZlibOutputStream : boost::noncopyable
       zerror_(Z_OK),
       bufferSize_(1024)
   {
-    bzero(&zstream_, sizeof zstream_);
+    memZero(&zstream_, sizeof zstream_);
     zerror_ = deflateInit(&zstream_, Z_DEFAULT_COMPRESSION);
   }
 
@@ -141,6 +141,5 @@ class ZlibOutputStream : boost::noncopyable
   int bufferSize_;
 };
 
-}
-}
-
+}  // namespace net
+}  // namespace muduo

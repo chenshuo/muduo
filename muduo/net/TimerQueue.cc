@@ -10,16 +10,15 @@
 #define __STDC_LIMIT_MACROS
 #endif
 
-#include <muduo/net/TimerQueue.h>
+#include "muduo/net/TimerQueue.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/Timer.h>
-#include <muduo/net/TimerId.h>
-
-#include <boost/bind.hpp>
+#include "muduo/base/Logging.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/Timer.h"
+#include "muduo/net/TimerId.h"
 
 #include <sys/timerfd.h>
+#include <unistd.h>
 
 namespace muduo
 {
@@ -71,8 +70,8 @@ void resetTimerfd(int timerfd, Timestamp expiration)
   // wake up loop by timerfd_settime()
   struct itimerspec newValue;
   struct itimerspec oldValue;
-  bzero(&newValue, sizeof newValue);
-  bzero(&oldValue, sizeof oldValue);
+  memZero(&newValue, sizeof newValue);
+  memZero(&oldValue, sizeof oldValue);
   newValue.it_value = howMuchTimeFromNow(expiration);
   int ret = ::timerfd_settime(timerfd, 0, &newValue, &oldValue);
   if (ret)
@@ -81,9 +80,9 @@ void resetTimerfd(int timerfd, Timestamp expiration)
   }
 }
 
-}
-}
-}
+}  // namespace detail
+}  // namespace net
+}  // namespace muduo
 
 using namespace muduo;
 using namespace muduo::net;
@@ -97,7 +96,7 @@ TimerQueue::TimerQueue(EventLoop* loop)
     callingExpiredTimers_(false)
 {
   timerfdChannel_.setReadCallback(
-      boost::bind(&TimerQueue::handleRead, this));
+      std::bind(&TimerQueue::handleRead, this));
   // we are always reading the timerfd, we disarm it with timerfd_settime.
   timerfdChannel_.enableReading();
 }
@@ -108,39 +107,26 @@ TimerQueue::~TimerQueue()
   timerfdChannel_.remove();
   ::close(timerfd_);
   // do not remove channel, since we're in EventLoop::dtor();
-  for (TimerList::iterator it = timers_.begin();
-      it != timers_.end(); ++it)
+  for (const Entry& timer : timers_)
   {
-    delete it->second;
+    delete timer.second;
   }
 }
 
-TimerId TimerQueue::addTimer(const TimerCallback& cb,
-                             Timestamp when,
-                             double interval)
-{
-  Timer* timer = new Timer(cb, when, interval);
-  loop_->runInLoop(
-      boost::bind(&TimerQueue::addTimerInLoop, this, timer));
-  return TimerId(timer, timer->sequence());
-}
-
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
-TimerId TimerQueue::addTimer(TimerCallback&& cb,
+TimerId TimerQueue::addTimer(TimerCallback cb,
                              Timestamp when,
                              double interval)
 {
   Timer* timer = new Timer(std::move(cb), when, interval);
   loop_->runInLoop(
-      boost::bind(&TimerQueue::addTimerInLoop, this, timer));
+      std::bind(&TimerQueue::addTimerInLoop, this, timer));
   return TimerId(timer, timer->sequence());
 }
-#endif
 
 void TimerQueue::cancel(TimerId timerId)
 {
   loop_->runInLoop(
-      boost::bind(&TimerQueue::cancelInLoop, this, timerId));
+      std::bind(&TimerQueue::cancelInLoop, this, timerId));
 }
 
 void TimerQueue::addTimerInLoop(Timer* timer)
@@ -185,10 +171,9 @@ void TimerQueue::handleRead()
   callingExpiredTimers_ = true;
   cancelingTimers_.clear();
   // safe to callback outside critical section
-  for (std::vector<Entry>::iterator it = expired.begin();
-      it != expired.end(); ++it)
+  for (const Entry& it : expired)
   {
-    it->second->run();
+    it.second->run();
   }
   callingExpiredTimers_ = false;
 
@@ -205,10 +190,9 @@ std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now)
   std::copy(timers_.begin(), end, back_inserter(expired));
   timers_.erase(timers_.begin(), end);
 
-  for (std::vector<Entry>::iterator it = expired.begin();
-      it != expired.end(); ++it)
+  for (const Entry& it : expired)
   {
-    ActiveTimer timer(it->second, it->second->sequence());
+    ActiveTimer timer(it.second, it.second->sequence());
     size_t n = activeTimers_.erase(timer);
     assert(n == 1); (void)n;
   }
@@ -221,20 +205,19 @@ void TimerQueue::reset(const std::vector<Entry>& expired, Timestamp now)
 {
   Timestamp nextExpire;
 
-  for (std::vector<Entry>::const_iterator it = expired.begin();
-      it != expired.end(); ++it)
+  for (const Entry& it : expired)
   {
-    ActiveTimer timer(it->second, it->second->sequence());
-    if (it->second->repeat()
+    ActiveTimer timer(it.second, it.second->sequence());
+    if (it.second->repeat()
         && cancelingTimers_.find(timer) == cancelingTimers_.end())
     {
-      it->second->restart(now);
-      insert(it->second);
+      it.second->restart(now);
+      insert(it.second);
     }
     else
     {
       // FIXME move to a free list
-      delete it->second; // FIXME: no delete please
+      delete it.second; // FIXME: no delete please
     }
   }
 

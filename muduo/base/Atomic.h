@@ -6,7 +6,8 @@
 #ifndef MUDUO_BASE_ATOMIC_H
 #define MUDUO_BASE_ATOMIC_H
 
-#include <boost/noncopyable.hpp>
+#include "muduo/base/noncopyable.h"
+
 #include <stdint.h>
 
 namespace muduo
@@ -15,7 +16,7 @@ namespace muduo
 namespace detail
 {
 template<typename T>
-class AtomicIntegerT : boost::noncopyable
+class AtomicIntegerT : noncopyable
 {
  public:
   AtomicIntegerT()
@@ -79,17 +80,18 @@ class AtomicIntegerT : boost::noncopyable
 
   T getAndSet(T newValue)
   {
-    // in gcc >= 4.7: __atomic_store_n(&value, newValue, __ATOMIC_SEQ_CST)
+    // in gcc >= 4.7: __atomic_exchange_n(&value, newValue, __ATOMIC_SEQ_CST)
     return __sync_lock_test_and_set(&value_, newValue);
   }
 
  private:
   volatile T value_;
 };
-}
+}  // namespace detail
 
 typedef detail::AtomicIntegerT<int32_t> AtomicInt32;
 typedef detail::AtomicIntegerT<int64_t> AtomicInt64;
-}
+
+}  // namespace muduo
 
 #endif  // MUDUO_BASE_ATOMIC_H

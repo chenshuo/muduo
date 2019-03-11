@@ -1,9 +1,9 @@
-#include "Hiredis.h"
+#include "contrib/hiredis/Hiredis.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/net/Channel.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/SocketsOps.h>
+#include "muduo/base/Logging.h"
+#include "muduo/net/Channel.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/SocketsOps.h"
 
 #include <hiredis/async.h>
 
@@ -11,7 +11,7 @@ using namespace muduo;
 using namespace muduo::net;
 using namespace hiredis;
 
-static void dummy(const boost::shared_ptr<Channel>&)
+static void dummy(const std::shared_ptr<Channel>&)
 {
 }
 
@@ -81,8 +81,8 @@ void Hiredis::setChannel()
   LOG_DEBUG << this;
   assert(!channel_);
   channel_.reset(new Channel(loop_, fd()));
-  channel_->setReadCallback(boost::bind(&Hiredis::handleRead, this, _1));
-  channel_->setWriteCallback(boost::bind(&Hiredis::handleWrite, this));
+  channel_->setReadCallback(std::bind(&Hiredis::handleRead, this, _1));
+  channel_->setWriteCallback(std::bind(&Hiredis::handleWrite, this));
 }
 
 void Hiredis::removeChannel()
@@ -90,7 +90,7 @@ void Hiredis::removeChannel()
   LOG_DEBUG << this;
   channel_->disableAll();
   channel_->remove();
-  loop_->queueInLoop(boost::bind(dummy, channel_));
+  loop_->queueInLoop(std::bind(dummy, channel_));
   channel_.reset();
 }
 
@@ -118,8 +118,8 @@ void Hiredis::handleWrite()
 
 void Hiredis::logConnection(bool up) const
 {
-  InetAddress localAddr = sockets::getLocalAddr(fd());
-  InetAddress peerAddr = sockets::getPeerAddr(fd());
+  InetAddress localAddr(sockets::getLocalAddr(fd()));
+  InetAddress peerAddr(sockets::getPeerAddr(fd()));
 
   LOG_INFO << localAddr.toIpPort() << " -> "
            << peerAddr.toIpPort() << " is "
@@ -229,7 +229,7 @@ void Hiredis::commandCallback(redisReply* reply, CommandCallback* cb)
 
 int Hiredis::ping()
 {
-  return command(boost::bind(&Hiredis::pingCallback, this, _1, _2), "PING");
+  return command(std::bind(&Hiredis::pingCallback, this, _1, _2), "PING");
 }
 
 void Hiredis::pingCallback(Hiredis* me, redisReply* reply)

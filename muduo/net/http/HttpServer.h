@@ -11,8 +11,7 @@
 #ifndef MUDUO_NET_HTTP_HTTPSERVER_H
 #define MUDUO_NET_HTTP_HTTPSERVER_H
 
-#include <muduo/net/TcpServer.h>
-#include <boost/noncopyable.hpp>
+#include "muduo/net/TcpServer.h"
 
 namespace muduo
 {
@@ -26,18 +25,16 @@ class HttpResponse;
 /// It is not a fully HTTP 1.1 compliant server, but provides minimum features
 /// that can communicate with HttpClient and Web browser.
 /// It is synchronous, just like Java Servlet.
-class HttpServer : boost::noncopyable
+class HttpServer : noncopyable
 {
  public:
-  typedef boost::function<void (const HttpRequest&,
-                                HttpResponse*)> HttpCallback;
+  typedef std::function<void (const HttpRequest&,
+                              HttpResponse*)> HttpCallback;
 
   HttpServer(EventLoop* loop,
              const InetAddress& listenAddr,
              const string& name,
              TcpServer::Option option = TcpServer::kNoReusePort);
-
-  ~HttpServer();  // force out-line dtor, for scoped_ptr members.
 
   EventLoop* getLoop() const { return server_.getLoop(); }
 
@@ -65,7 +62,7 @@ class HttpServer : boost::noncopyable
   HttpCallback httpCallback_;
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_HTTP_HTTPSERVER_H

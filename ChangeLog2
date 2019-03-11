@@ -1,0 +1,12 @@
+2018-10-24   Shuo Chen  <chenshuo@chenshuo.com>
+  * First release of C++11 version of muduo.
+  * Forked after v1.0.9, e6c04c43 is the base. changes in cpp98 branch are integrated
+  * Replace boost::shared_ptr/boost::weak_ptr with std::shared_ptr/std::weak_ptr.
+  * Replace boost::function/boost::bind with std::function/std::bind/lambda.
+  * Replace boost::ptr_vector<T> with std::vector<std::unique_ptr<T>>.
+  * Replace boost::noncopyable with muduo::noncopyable.
+  * Replace boost::scoped_ptr with std::unique_ptr.
+  * Replace BOOST_STATIC_ASSERT with static_assert.
+  * Replace boost type_traits with std type_traits.
+  * Version 2.0.0
+

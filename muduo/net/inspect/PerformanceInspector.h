@@ -11,15 +11,14 @@
 #ifndef MUDUO_NET_INSPECT_PERFORMANCEINSPECTOR_H
 #define MUDUO_NET_INSPECT_PERFORMANCEINSPECTOR_H
 
-#include <muduo/net/inspect/Inspector.h>
-#include <boost/noncopyable.hpp>
+#include "muduo/net/inspect/Inspector.h"
 
 namespace muduo
 {
 namespace net
 {
 
-class PerformanceInspector : boost::noncopyable
+class PerformanceInspector : noncopyable
 {
  public:
   void registerCommands(Inspector* ins);
@@ -35,7 +34,7 @@ class PerformanceInspector : boost::noncopyable
   static string symbol(HttpRequest::Method, const Inspector::ArgList&);
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_INSPECT_PERFORMANCEINSPECTOR_H

@@ -1,9 +1,7 @@
-#include "time.h"
+#include "examples/simple/time/time.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/net/Endian.h>
-
-#include <boost/bind.hpp>
+#include "muduo/base/Logging.h"
+#include "muduo/net/Endian.h"
 
 using namespace muduo;
 using namespace muduo::net;
@@ -13,9 +11,9 @@ TimeServer::TimeServer(muduo::net::EventLoop* loop,
   : server_(loop, listenAddr, "TimeServer")
 {
   server_.setConnectionCallback(
-      boost::bind(&TimeServer::onConnection, this, _1));
+      std::bind(&TimeServer::onConnection, this, _1));
   server_.setMessageCallback(
-      boost::bind(&TimeServer::onMessage, this, _1, _2, _3));
+      std::bind(&TimeServer::onMessage, this, _1, _2, _3));
 }
 
 void TimeServer::start()

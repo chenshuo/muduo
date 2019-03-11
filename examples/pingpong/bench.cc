@@ -1,17 +1,15 @@
 // Benchmark inspired by libevent/test/bench.c
 // See also: http://libev.schmorp.de/bench.html
 
-#include <muduo/base/Logging.h>
-#include <muduo/base/Thread.h>
-#include <muduo/net/Channel.h>
-#include <muduo/net/EventLoop.h>
-
-#include <boost/bind.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
+#include "muduo/base/Logging.h"
+#include "muduo/base/Thread.h"
+#include "muduo/net/Channel.h"
+#include "muduo/net/EventLoop.h"
 
 #include <stdio.h>
 #include <sys/resource.h>
 #include <sys/socket.h>
+#include <unistd.h>
 
 using namespace muduo;
 using namespace muduo::net;
@@ -21,7 +19,7 @@ int numPipes;
 int numActive;
 int numWrites;
 EventLoop* g_loop;
-boost::ptr_vector<Channel> g_channels;
+std::vector<std::unique_ptr<Channel>> g_channels;
 
 int g_reads, g_writes, g_fired;
 
@@ -52,8 +50,8 @@ std::pair<int, int> runOnce()
   Timestamp beforeInit(Timestamp::now());
   for (int i = 0; i < numPipes; ++i)
   {
-    Channel& channel = g_channels[i];
-    channel.setReadCallback(boost::bind(readCallback, _1, channel.fd(), i));
+    Channel& channel = *g_channels[i];
+    channel.setReadCallback(std::bind(readCallback, _1, channel.fd(), i));
     channel.enableReading();
   }
 
@@ -125,7 +123,7 @@ int main(int argc, char* argv[])
   for (int i = 0; i < numPipes; ++i)
   {
     Channel* channel = new Channel(&loop, g_pipes[i*2]);
-    g_channels.push_back(channel);
+    g_channels.emplace_back(channel);
   }
 
   for (int i = 0; i < 25; ++i)
@@ -134,10 +132,11 @@ int main(int argc, char* argv[])
     printf("%8d %8d\n", t.first, t.second);
   }
 
-  for (boost::ptr_vector<Channel>::iterator it = g_channels.begin();
-       it != g_channels.end(); ++it)
+  for (const auto& channel : g_channels)
   {
-    it->disableAll();
-    it->remove();
+    channel->disableAll();
+    channel->remove();
   }
+  g_channels.clear();
 }
+

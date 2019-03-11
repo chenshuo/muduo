@@ -1,6 +1,3 @@
-// Copyright 2010, Shuo Chen.  All rights reserved.
-// http://code.google.com/p/muduo/
-//
 // Use of this source code is governed by a BSD-style license
 // that can be found in the License file.
 
@@ -11,10 +8,11 @@
 #ifndef MUDUO_BASE_PROCESSINFO_H
 #define MUDUO_BASE_PROCESSINFO_H
 
-#include <muduo/base/StringPiece.h>
-#include <muduo/base/Types.h>
-#include <muduo/base/Timestamp.h>
+#include "muduo/base/StringPiece.h"
+#include "muduo/base/Types.h"
+#include "muduo/base/Timestamp.h"
 #include <vector>
+#include <sys/types.h>
 
 namespace muduo
 {
@@ -61,8 +59,8 @@ namespace ProcessInfo
 
   int numThreads();
   std::vector<pid_t> threads();
-}
+}  // namespace ProcessInfo
 
-}
+}  // namespace muduo
 
 #endif  // MUDUO_BASE_PROCESSINFO_H

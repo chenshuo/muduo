@@ -1,11 +1,9 @@
 // TcpClient destructs when TcpConnection is connected but unique.
 
-#include <muduo/base/Logging.h>
-#include <muduo/base/Thread.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/TcpClient.h>
-
-#include <boost/bind.hpp>
+#include "muduo/base/Logging.h"
+#include "muduo/base/Thread.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/TcpClient.h"
 
 using namespace muduo;
 using namespace muduo::net;
@@ -25,8 +23,8 @@ int main(int argc, char* argv[])
   Logger::setLogLevel(Logger::DEBUG);
 
   EventLoop loop;
-  loop.runAfter(3.0, boost::bind(&EventLoop::quit, &loop));
-  Thread thr(boost::bind(threadFunc, &loop));
+  loop.runAfter(3.0, std::bind(&EventLoop::quit, &loop));
+  Thread thr(std::bind(threadFunc, &loop));
   thr.start();
   loop.loop();
 }

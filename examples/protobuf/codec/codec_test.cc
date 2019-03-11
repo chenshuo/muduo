@@ -1,6 +1,6 @@
-#include "codec.h"
-#include <muduo/net/Endian.h>
-#include <examples/protobuf/codec/query.pb.h>
+#include "examples/protobuf/codec/codec.h"
+#include "muduo/net/Endian.h"
+#include "examples/protobuf/codec/query.pb.h"
 
 #include <stdio.h>
 #include <zlib.h>  // adler32
@@ -40,7 +40,7 @@ void testQuery()
   message->PrintDebugString();
   assert(message->DebugString() == query.DebugString());
 
-  boost::shared_ptr<muduo::Query> newQuery = down_pointer_cast<muduo::Query>(message);
+  std::shared_ptr<muduo::Query> newQuery = down_pointer_cast<muduo::Query>(message);
   assert(newQuery != NULL);
 }
 
@@ -67,7 +67,7 @@ void testAnswer()
   message->PrintDebugString();
   assert(message->DebugString() == answer.DebugString());
 
-  boost::shared_ptr<muduo::Answer> newAnswer = down_pointer_cast<muduo::Answer>(message);
+  std::shared_ptr<muduo::Answer> newAnswer = down_pointer_cast<muduo::Answer>(message);
   assert(newAnswer != NULL);
 }
 

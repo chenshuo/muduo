@@ -1,18 +1,15 @@
-#include "sudoku.h"
+#include "examples/sudoku/sudoku.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/base/FileUtil.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/TcpClient.h>
-
-#include <boost/bind.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
-#include <boost/unordered_map.hpp>
+#include "muduo/base/Logging.h"
+#include "muduo/base/FileUtil.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/TcpClient.h"
 
 #include <fstream>
 #include <numeric>
+#include <unordered_map>
 
-#include "percentile.h"
+#include "examples/sudoku/percentile.h"
 
 #include <stdio.h>
 
@@ -20,11 +17,11 @@ using namespace muduo;
 using namespace muduo::net;
 
 typedef std::vector<string> Input;
-typedef boost::shared_ptr<const Input> InputPtr;
+typedef std::shared_ptr<const Input> InputPtr;
 
 InputPtr readInput(std::istream& in)
 {
-  boost::shared_ptr<Input> input(new Input);
+  std::shared_ptr<Input> input(new Input);
   std::string line;
   while (getline(in, line))
   {
@@ -36,7 +33,7 @@ InputPtr readInput(std::istream& in)
   return input;
 }
 
-class SudokuClient : boost::noncopyable
+class SudokuClient : noncopyable
 {
  public:
   SudokuClient(EventLoop* loop,
@@ -51,9 +48,9 @@ class SudokuClient : boost::noncopyable
       count_(0)
   {
     client_.setConnectionCallback(
-        boost::bind(&SudokuClient::onConnection, this, _1));
+        std::bind(&SudokuClient::onConnection, this, _1));
     client_.setMessageCallback(
-        boost::bind(&SudokuClient::onMessage, this, _1, _2, _3));
+        std::bind(&SudokuClient::onMessage, this, _1, _2, _3));
   }
 
   void connect()
@@ -147,7 +144,7 @@ class SudokuClient : boost::noncopyable
       if (dash != string::npos && dash < colon)
       {
         int id = atoi(response.c_str()+dash+1);
-        boost::unordered_map<int, Timestamp>::iterator sendTime = sendTime_.find(id);
+        std::unordered_map<int, Timestamp>::iterator sendTime = sendTime_.find(id);
         if (sendTime != sendTime_.end())
         {
           int64_t latency_us = recvTime.microSecondsSinceEpoch() - sendTime->second.microSecondsSinceEpoch();
@@ -171,11 +168,11 @@ class SudokuClient : boost::noncopyable
   Buffer requests_;
   const InputPtr input_;
   int count_;
-  boost::unordered_map<int, Timestamp> sendTime_;
+  std::unordered_map<int, Timestamp> sendTime_;
   std::vector<int> latencies_;
 };
 
-class SudokuLoadtest : boost::noncopyable
+class SudokuLoadtest : noncopyable
 {
  public:
   SudokuLoadtest()
@@ -193,12 +190,12 @@ class SudokuLoadtest : boost::noncopyable
     {
       Fmt f("c%04d", i+1);
       string name(f.data(), f.length());
-      clients_.push_back(new SudokuClient(&loop, serverAddr, input, name, nodelay));
-      clients_.back().connect();
+      clients_.emplace_back(new SudokuClient(&loop, serverAddr, input, name, nodelay));
+      clients_.back()->connect();
     }
 
-    loop.runEvery(1.0 / kHz, boost::bind(&SudokuLoadtest::tick, this, rps));
-    loop.runEvery(1.0, boost::bind(&SudokuLoadtest::tock, this));
+    loop.runEvery(1.0 / kHz, std::bind(&SudokuLoadtest::tick, this, rps));
+    loop.runEvery(1.0, std::bind(&SudokuLoadtest::tock, this));
     loop.loop();
   }
 
@@ -211,10 +208,9 @@ class SudokuLoadtest : boost::noncopyable
 
     if (reqs > 0)
     {
-      for (boost::ptr_vector<SudokuClient>::iterator it = clients_.begin();
-           it != clients_.end(); ++it)
+      for (const auto& client : clients_)
       {
-        it->send(static_cast<int>(reqs));
+        client->send(static_cast<int>(reqs));
       }
     }
   }
@@ -223,10 +219,9 @@ class SudokuLoadtest : boost::noncopyable
   {
     std::vector<int> latencies;
     int infly = 0;
-    for (boost::ptr_vector<SudokuClient>::iterator it = clients_.begin();
-         it != clients_.end(); ++it)
+    for (const auto& client : clients_)
     {
-      it->report(&latencies, &infly);
+      client->report(&latencies, &infly);
     }
 
     Percentile p(latencies, infly);
@@ -237,7 +232,7 @@ class SudokuLoadtest : boost::noncopyable
     ++count_;
   }
 
-  boost::ptr_vector<SudokuClient> clients_;
+  std::vector<std::unique_ptr<SudokuClient>> clients_;
   int count_;
   int64_t ticks_;
   int64_t sofar_;

@@ -1,18 +1,16 @@
-#include "sudoku.h"
+#include "examples/sudoku/sudoku.h"
 
-#include <muduo/base/Atomic.h>
-#include <muduo/base/Logging.h>
-#include <muduo/base/Thread.h>
-#include <muduo/base/ThreadPool.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/EventLoopThread.h>
-#include <muduo/net/InetAddress.h>
-#include <muduo/net/TcpServer.h>
-#include <muduo/net/inspect/Inspector.h>
+#include "muduo/base/Atomic.h"
+#include "muduo/base/Logging.h"
+#include "muduo/base/Thread.h"
+#include "muduo/base/ThreadPool.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/EventLoopThread.h"
+#include "muduo/net/InetAddress.h"
+#include "muduo/net/TcpServer.h"
+#include "muduo/net/inspect/Inspector.h"
 
-#include <boost/bind.hpp>
 #include <boost/circular_buffer.hpp>
-#include <boost/noncopyable.hpp>
 
 //#include <stdio.h>
 //#include <unistd.h>
@@ -20,9 +18,9 @@
 using namespace muduo;
 using namespace muduo::net;
 
-#include "stat.h"
+#include "examples/sudoku/stat.h"
 
-class SudokuServer : boost::noncopyable
+class SudokuServer : noncopyable
 {
  public:
   SudokuServer(EventLoop* loop,
@@ -43,14 +41,14 @@ class SudokuServer : boost::noncopyable
     LOG_INFO << "TCP no delay " << nodelay;
 
     server_.setConnectionCallback(
-        boost::bind(&SudokuServer::onConnection, this, _1));
+        std::bind(&SudokuServer::onConnection, this, _1));
     server_.setMessageCallback(
-        boost::bind(&SudokuServer::onMessage, this, _1, _2, _3));
+        std::bind(&SudokuServer::onMessage, this, _1, _2, _3));
     server_.setThreadNum(numEventLoops);
 
-    inspector_.add("sudoku", "stats", boost::bind(&SudokuStat::report, &stat_),
+    inspector_.add("sudoku", "stats", std::bind(&SudokuStat::report, &stat_),
                    "statistics of sudoku solver");
-    inspector_.add("sudoku", "reset", boost::bind(&SudokuStat::reset, &stat_),
+    inspector_.add("sudoku", "reset", std::bind(&SudokuStat::reset, &stat_),
                    "reset statistics of sudoku solver");
   }
 
@@ -72,7 +70,7 @@ class SudokuServer : boost::noncopyable
       if (tcpNoDelay_)
         conn->setTcpNoDelay(true);
       conn->setHighWaterMarkCallback(
-          boost::bind(&SudokuServer::highWaterMark, this, _1, _2), 5 * 1024 * 1024);
+          std::bind(&SudokuServer::highWaterMark, this, _1, _2), 5 * 1024 * 1024);
       bool throttle = false;
       conn->setContext(throttle);
     }
@@ -84,8 +82,8 @@ class SudokuServer : boost::noncopyable
     if (tosend < 10 * 1024 * 1024)
     {
       conn->setHighWaterMarkCallback(
-          boost::bind(&SudokuServer::highWaterMark, this, _1, _2), 10 * 1024 * 1024);
-      conn->setWriteCompleteCallback(boost::bind(&SudokuServer::writeComplete, this, _1));
+          std::bind(&SudokuServer::highWaterMark, this, _1, _2), 10 * 1024 * 1024);
+      conn->setWriteCompleteCallback(std::bind(&SudokuServer::writeComplete, this, _1));
       bool throttle = true;
       conn->setContext(throttle);
     }
@@ -101,7 +99,7 @@ class SudokuServer : boost::noncopyable
   {
     LOG_INFO << conn->name() << " write complete";
     conn->setHighWaterMarkCallback(
-        boost::bind(&SudokuServer::highWaterMark, this, _1, _2), 5 * 1024 * 1024);
+        std::bind(&SudokuServer::highWaterMark, this, _1, _2), 5 * 1024 * 1024);
     conn->setWriteCompleteCallback(WriteCompleteCallback());
     bool throttle = false;
     conn->setContext(throttle);
@@ -172,7 +170,7 @@ class SudokuServer : boost::noncopyable
       bool throttle = boost::any_cast<bool>(conn->getContext());
       if (threadPool_.queueSize() < 1000 * 1000 && !throttle)
       {
-        threadPool_.run(boost::bind(&SudokuServer::solve, this, conn, req));
+        threadPool_.run(std::bind(&SudokuServer::solve, this, conn, req));
       }
       else
       {

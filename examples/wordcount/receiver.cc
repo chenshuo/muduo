@@ -1,11 +1,8 @@
-#include <muduo/base/Logging.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/TcpServer.h>
+#include "muduo/base/Logging.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/TcpServer.h"
 
-#include <boost/bind.hpp>
-#include <boost/noncopyable.hpp>
-
-#include <examples/wordcount/hash.h>
+#include "examples/wordcount/hash.h"
 
 #include <fstream>
 
@@ -14,7 +11,7 @@
 using namespace muduo;
 using namespace muduo::net;
 
-class WordCountReceiver : boost::noncopyable
+class WordCountReceiver : muduo::noncopyable
 {
  public:
   WordCountReceiver(EventLoop* loop, const InetAddress& listenAddr)
@@ -23,9 +20,9 @@ class WordCountReceiver : boost::noncopyable
       senders_(0)
   {
     server_.setConnectionCallback(
-         boost::bind(&WordCountReceiver::onConnection, this, _1));
+         std::bind(&WordCountReceiver::onConnection, this, _1));
     server_.setMessageCallback(
-        boost::bind(&WordCountReceiver::onMessage, this, _1, _2, _3));
+        std::bind(&WordCountReceiver::onMessage, this, _1, _2, _3));
   }
 
   void start(int senders)

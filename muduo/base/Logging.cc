@@ -1,8 +1,13 @@
-#include <muduo/base/Logging.h>
+// Use of this source code is governed by a BSD-style license
+// that can be found in the License file.
+//
+// Author: Shuo Chen (chenshuo at chenshuo dot com)
 
-#include <muduo/base/CurrentThread.h>
-#include <muduo/base/Timestamp.h>
-#include <muduo/base/TimeZone.h>
+#include "muduo/base/Logging.h"
+
+#include "muduo/base/CurrentThread.h"
+#include "muduo/base/Timestamp.h"
+#include "muduo/base/TimeZone.h"
 
 #include <errno.h>
 #include <stdio.h>
@@ -31,7 +36,7 @@ class LoggerImpl
 */
 
 __thread char t_errnobuf[512];
-__thread char t_time[32];
+__thread char t_time[64];
 __thread time_t t_lastSecond;
 
 const char* strerror_tl(int savedErrno)
@@ -104,7 +109,7 @@ Logger::OutputFunc g_output = defaultOutput;
 Logger::FlushFunc g_flush = defaultFlush;
 TimeZone g_logTimeZone;
 
-}
+}  // namespace muduo
 
 using namespace muduo;
 

@@ -1,13 +1,10 @@
-#include <muduo/net/TcpClient.h>
+#include "muduo/net/TcpClient.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/base/Thread.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/EventLoopThreadPool.h>
-#include <muduo/net/InetAddress.h>
-
-#include <boost/bind.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
+#include "muduo/base/Logging.h"
+#include "muduo/base/Thread.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/EventLoopThreadPool.h"
+#include "muduo/net/InetAddress.h"
 
 #include <utility>
 
@@ -19,7 +16,7 @@ using namespace muduo::net;
 
 class Client;
 
-class Session : boost::noncopyable
+class Session : noncopyable
 {
  public:
   Session(EventLoop* loop,
@@ -33,9 +30,9 @@ class Session : boost::noncopyable
       messagesRead_(0)
   {
     client_.setConnectionCallback(
-        boost::bind(&Session::onConnection, this, _1));
+        std::bind(&Session::onConnection, this, _1));
     client_.setMessageCallback(
-        boost::bind(&Session::onMessage, this, _1, _2, _3));
+        std::bind(&Session::onMessage, this, _1, _2, _3));
   }
 
   void start()
@@ -77,7 +74,7 @@ class Session : boost::noncopyable
   int64_t messagesRead_;
 };
 
-class Client : boost::noncopyable
+class Client : noncopyable
 {
  public:
   Client(EventLoop* loop,
@@ -91,7 +88,7 @@ class Client : boost::noncopyable
       sessionCount_(sessionCount),
       timeout_(timeout)
   {
-    loop->runAfter(timeout, boost::bind(&Client::handleTimeout, this));
+    loop->runAfter(timeout, std::bind(&Client::handleTimeout, this));
     if (threadCount > 1)
     {
       threadPool_.setThreadNum(threadCount);
@@ -109,7 +106,7 @@ class Client : boost::noncopyable
       snprintf(buf, sizeof buf, "C%05d", i);
       Session* session = new Session(threadPool_.getNextLoop(), serverAddr, buf, this);
       session->start();
-      sessions_.push_back(session);
+      sessions_.emplace_back(session);
     }
   }
 
@@ -134,11 +131,10 @@ class Client : boost::noncopyable
 
       int64_t totalBytesRead = 0;
       int64_t totalMessagesRead = 0;
-      for (boost::ptr_vector<Session>::iterator it = sessions_.begin();
-          it != sessions_.end(); ++it)
+      for (const auto& session : sessions_)
       {
-        totalBytesRead += it->bytesRead();
-        totalMessagesRead += it->messagesRead();
+        totalBytesRead += session->bytesRead();
+        totalMessagesRead += session->messagesRead();
       }
       LOG_WARN << totalBytesRead << " total bytes read";
       LOG_WARN << totalMessagesRead << " total messages read";
@@ -146,7 +142,7 @@ class Client : boost::noncopyable
                << " average message size";
       LOG_WARN << static_cast<double>(totalBytesRead) / (timeout_ * 1024 * 1024)
                << " MiB/s throughput";
-      conn->getLoop()->queueInLoop(boost::bind(&Client::quit, this));
+      conn->getLoop()->queueInLoop(std::bind(&Client::quit, this));
     }
   }
 
@@ -154,21 +150,23 @@ class Client : boost::noncopyable
 
   void quit()
   {
-    loop_->queueInLoop(boost::bind(&EventLoop::quit, loop_));
+    loop_->queueInLoop(std::bind(&EventLoop::quit, loop_));
   }
 
   void handleTimeout()
   {
     LOG_WARN << "stop";
-    std::for_each(sessions_.begin(), sessions_.end(),
-                  boost::mem_fn(&Session::stop));
+    for (auto& session : sessions_)
+    {
+      session->stop();
+    }
   }
 
   EventLoop* loop_;
   EventLoopThreadPool threadPool_;
   int sessionCount_;
   int timeout_;
-  boost::ptr_vector<Session> sessions_;
+  std::vector<std::unique_ptr<Session>> sessions_;
   string message_;
   AtomicInt32 numConnected_;
 };

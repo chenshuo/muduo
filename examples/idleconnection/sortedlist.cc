@@ -1,9 +1,9 @@
-#include <muduo/base/Logging.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/TcpServer.h>
-#include <boost/bind.hpp>
+#include "muduo/base/Logging.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/TcpServer.h"
 #include <list>
 #include <stdio.h>
+#include <unistd.h>
 
 using namespace muduo;
 using namespace muduo::net;
@@ -32,7 +32,7 @@ class EchoServer
 
   void dumpConnectionList() const;
 
-  typedef boost::weak_ptr<TcpConnection> WeakTcpConnectionPtr;
+  typedef std::weak_ptr<TcpConnection> WeakTcpConnectionPtr;
   typedef std::list<WeakTcpConnectionPtr> WeakConnectionList;
 
   struct Node : public muduo::copyable
@@ -53,10 +53,10 @@ EchoServer::EchoServer(EventLoop* loop,
     idleSeconds_(idleSeconds)
 {
   server_.setConnectionCallback(
-      boost::bind(&EchoServer::onConnection, this, _1));
+      std::bind(&EchoServer::onConnection, this, _1));
   server_.setMessageCallback(
-      boost::bind(&EchoServer::onMessage, this, _1, _2, _3));
-  loop->runEvery(1.0, boost::bind(&EchoServer::onTimer, this));
+      std::bind(&EchoServer::onMessage, this, _1, _2, _3));
+  loop->runEvery(1.0, std::bind(&EchoServer::onTimer, this));
   dumpConnectionList();
 }
 

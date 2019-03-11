@@ -3,10 +3,8 @@
 
 // internal header file
 
-#include <muduo/base/Types.h>
-#include <muduo/net/Buffer.h>
-
-#include <boost/noncopyable.hpp>
+#include "muduo/base/Types.h"
+#include "muduo/net/Buffer.h"
 
 namespace pubsub
 {
@@ -23,7 +21,7 @@ ParseResult parseMessage(muduo::net::Buffer* buf,
                          string* cmd,
                          string* topic,
                          string* content);
-}
+}  // namespace pubsub
 
 #endif  // MUDUO_EXAMPLES_HUB_CODEC_H
 

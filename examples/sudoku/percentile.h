@@ -80,7 +80,7 @@ class Percentile
   static int getPercentile(const std::vector<int>& latencies, int percent)
   {
     // The Nearest Rank method
-    assert(latencies.size() > 0);
+    assert(!latencies.empty());
     size_t idx = 0;
     if (percent > 0)
     {

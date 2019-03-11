@@ -1,29 +1,32 @@
-#include <muduo/base/BlockingQueue.h>
-#include <muduo/base/CountDownLatch.h>
-#include <muduo/base/Thread.h>
-#include <muduo/base/Timestamp.h>
+#include "muduo/base/BlockingQueue.h"
+#include "muduo/base/CountDownLatch.h"
+#include "muduo/base/Thread.h"
+#include "muduo/base/Timestamp.h"
 
-#include <boost/bind.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
 #include <map>
 #include <string>
+#include <vector>
 #include <stdio.h>
+#include <unistd.h>
 
 class Bench
 {
  public:
   Bench(int numThreads)
-    : latch_(numThreads),
-      threads_(numThreads)
+    : latch_(numThreads)
   {
+    threads_.reserve(numThreads);
     for (int i = 0; i < numThreads; ++i)
     {
       char name[32];
       snprintf(name, sizeof name, "work thread %d", i);
-      threads_.push_back(new muduo::Thread(
-            boost::bind(&Bench::threadFunc, this), muduo::string(name)));
+      threads_.emplace_back(new muduo::Thread(
+            std::bind(&Bench::threadFunc, this), muduo::string(name)));
     }
-    for_each(threads_.begin(), threads_.end(), boost::bind(&muduo::Thread::start, _1));
+    for (auto& thr : threads_)
+    {
+      thr->start();
+    }
   }
 
   void run(int times)
@@ -46,7 +49,10 @@ class Bench
       queue_.put(muduo::Timestamp::invalid());
     }
 
-    for_each(threads_.begin(), threads_.end(), boost::bind(&muduo::Thread::join, _1));
+    for (auto& thr : threads_)
+    {
+      thr->join();
+    }
   }
 
  private:
@@ -77,18 +83,17 @@ class Bench
     printf("tid=%d, %s stopped\n",
            muduo::CurrentThread::tid(),
            muduo::CurrentThread::name());
-    for (std::map<int, int>::iterator it = delays.begin();
-        it != delays.end(); ++it)
+    for (const auto& delay : delays)
     {
       printf("tid = %d, delay = %d, count = %d\n",
              muduo::CurrentThread::tid(),
-             it->first, it->second);
+             delay.first, delay.second);
     }
   }
 
   muduo::BlockingQueue<muduo::Timestamp> queue_;
   muduo::CountDownLatch latch_;
-  boost::ptr_vector<muduo::Thread> threads_;
+  std::vector<std::unique_ptr<muduo::Thread>> threads_;
 };
 
 int main(int argc, char* argv[])

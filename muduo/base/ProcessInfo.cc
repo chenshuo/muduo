@@ -1,15 +1,11 @@
-// Copyright 2010, Shuo Chen.  All rights reserved.
-// http://code.google.com/p/muduo/
-//
 // Use of this source code is governed by a BSD-style license
 // that can be found in the License file.
-
-// Author: Shuo Chen (chenshuo at chenshuo dot com)
 //
+// Author: Shuo Chen (chenshuo at chenshuo dot com)
 
-#include <muduo/base/ProcessInfo.h>
-#include <muduo/base/CurrentThread.h>
-#include <muduo/base/FileUtil.h>
+#include "muduo/base/ProcessInfo.h"
+#include "muduo/base/CurrentThread.h"
+#include "muduo/base/FileUtil.h"
 
 #include <algorithm>
 
@@ -58,8 +54,8 @@ Timestamp g_startTime = Timestamp::now();
 // assume those won't change during the life time of a process.
 int g_clockTicks = static_cast<int>(::sysconf(_SC_CLK_TCK));
 int g_pageSize = static_cast<int>(::sysconf(_SC_PAGE_SIZE));
-}
-}
+}  // namespace detail
+}  // namespace muduo
 
 using namespace muduo;
 using namespace muduo::detail;

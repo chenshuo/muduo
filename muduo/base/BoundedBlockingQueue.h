@@ -6,18 +6,17 @@
 #ifndef MUDUO_BASE_BOUNDEDBLOCKINGQUEUE_H
 #define MUDUO_BASE_BOUNDEDBLOCKINGQUEUE_H
 
-#include <muduo/base/Condition.h>
-#include <muduo/base/Mutex.h>
+#include "muduo/base/Condition.h"
+#include "muduo/base/Mutex.h"
 
 #include <boost/circular_buffer.hpp>
-#include <boost/noncopyable.hpp>
 #include <assert.h>
 
 namespace muduo
 {
 
 template<typename T>
-class BoundedBlockingQueue : boost::noncopyable
+class BoundedBlockingQueue : noncopyable
 {
  public:
   explicit BoundedBlockingQueue(int maxSize)
@@ -80,11 +79,11 @@ class BoundedBlockingQueue : boost::noncopyable
 
  private:
   mutable MutexLock          mutex_;
-  Condition                  notEmpty_;
-  Condition                  notFull_;
-  boost::circular_buffer<T>  queue_;
+  Condition                  notEmpty_ GUARDED_BY(mutex_);
+  Condition                  notFull_ GUARDED_BY(mutex_);
+  boost::circular_buffer<T>  queue_ GUARDED_BY(mutex_);
 };
 
-}
+}  // namespace muduo
 
 #endif  // MUDUO_BASE_BOUNDEDBLOCKINGQUEUE_H

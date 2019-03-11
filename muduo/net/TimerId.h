@@ -11,7 +11,7 @@
 #ifndef MUDUO_NET_TIMERID_H
 #define MUDUO_NET_TIMERID_H
 
-#include <muduo/base/copyable.h>
+#include "muduo/base/copyable.h"
 
 namespace muduo
 {
@@ -47,7 +47,7 @@ class TimerId : public muduo::copyable
   int64_t sequence_;
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_TIMERID_H

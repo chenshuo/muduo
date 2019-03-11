@@ -1,21 +1,20 @@
 #ifndef MUDUO_EXAMPLES_HUB_PUBSUB_H
 #define MUDUO_EXAMPLES_HUB_PUBSUB_H
 
-#include <muduo/net/TcpClient.h>
+#include "muduo/net/TcpClient.h"
 
 namespace pubsub
 {
 using muduo::string;
-using muduo::Timestamp;
 
 // FIXME: dtor is not thread safe
-class PubSubClient : boost::noncopyable
+class PubSubClient : muduo::noncopyable
 {
  public:
-  typedef boost::function<void (PubSubClient*)> ConnectionCallback;
-  typedef boost::function<void (const string& topic,
-                                const string& content,
-                                Timestamp)> SubscribeCallback;
+  typedef std::function<void (PubSubClient*)> ConnectionCallback;
+  typedef std::function<void (const string& topic,
+                              const string& content,
+                              muduo::Timestamp)> SubscribeCallback;
 
   PubSubClient(muduo::net::EventLoop* loop,
                const muduo::net::InetAddress& hubAddr,
@@ -43,6 +42,6 @@ class PubSubClient : boost::noncopyable
   ConnectionCallback connectionCallback_;
   SubscribeCallback subscribeCallback_;
 };
-}
+}  // namespace pubsub
 
 #endif  // MUDUO_EXAMPLES_HUB_PUBSUB_H

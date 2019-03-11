@@ -1,20 +1,25 @@
-#include "plot.h"
+#include "examples/procmon/plot.h"
 
-#include <muduo/base/FileUtil.h>
-#include <muduo/base/ProcessInfo.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/http/HttpRequest.h>
-#include <muduo/net/http/HttpResponse.h>
-#include <muduo/net/http/HttpServer.h>
+#include "muduo/base/FileUtil.h"
+#include "muduo/base/Logging.h"
+#include "muduo/base/ProcessInfo.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/http/HttpRequest.h"
+#include "muduo/net/http/HttpResponse.h"
+#include "muduo/net/http/HttpServer.h"
 
 #include <boost/algorithm/string/replace.hpp>
-#include <boost/bind.hpp>
 #include <boost/circular_buffer.hpp>
-#include <boost/type_traits/is_pod.hpp>
 
 #include <sstream>
+#include <type_traits>
+
+#include <dirent.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <sys/stat.h>
+#define __STDC_FORMAT_MACROS
+#include <inttypes.h>
 
 using namespace muduo;
 using namespace muduo::net;
@@ -79,9 +84,9 @@ struct StatData
   long rsslim;
 };
 
-BOOST_STATIC_ASSERT(boost::is_pod<StatData>::value);
+static_assert(std::is_pod<StatData>::value, "StatData should be POD.");
 
-class Procmon : boost::noncopyable
+class Procmon : noncopyable
 {
  public:
   Procmon(EventLoop* loop, pid_t pid, uint16_t port, const char* procname)
@@ -90,7 +95,7 @@ class Procmon : boost::noncopyable
       kBootTime_(getBootTime()),
       pid_(pid),
       server_(loop, InetAddress(port), getName()),
-      procname_(ProcessInfo::procname(readProcFile("stat")).as_string()),
+      procname_(procname ? procname : ProcessInfo::procname(readProcFile("stat")).as_string()),
       hostname_(ProcessInfo::hostname()),
       cmdline_(getCmdLine()),
       ticks_(0),
@@ -98,14 +103,30 @@ class Procmon : boost::noncopyable
       cpu_chart_(640, 100, 600, kPeriod_),
       ram_chart_(640, 100, 7200, 30)
   {
-    bzero(&lastStatData_, sizeof lastStatData_);
-    server_.setHttpCallback(boost::bind(&Procmon::onRequest, this, _1, _2));
+    {
+    // chdir to the same cwd of the process being monitored.
+    string cwd = readLink("cwd");
+    if (::chdir(cwd.c_str()))
+    {
+      LOG_SYSERR << "Cannot chdir() to " << cwd;
+    }
+    }
+
+    {
+    char cwd[1024];
+    if (::getcwd(cwd, sizeof cwd))
+    {
+      LOG_INFO << "Current dir: " << cwd;
+    }
+    }
+    memZero(&lastStatData_, sizeof lastStatData_);
+    server_.setHttpCallback(std::bind(&Procmon::onRequest, this, _1, _2));
   }
 
   void start()
   {
     tick();
-    server_.getLoop()->runEvery(kPeriod_, boost::bind(&Procmon::tick, this));
+    server_.getLoop()->runEvery(kPeriod_, std::bind(&Procmon::tick, this));
     server_.start();
   }
 
@@ -180,9 +201,14 @@ class Procmon : boost::noncopyable
     {
       resp->setBody(readProcFile("status"));
     }
+    else if (req.path() == "/files")
+    {
+      listFiles();
+      resp->setBody(response_.retrieveAllAsString());
+    }
     else if (req.path() == "/threads")
     {
-      fillThreads();
+      listThreads();
       resp->setBody(response_.retrieveAllAsString());
     }
     else
@@ -226,7 +252,7 @@ class Procmon : boost::noncopyable
 
     response_.append("<p><table>");
     StatData statData;  // how about use lastStatData_ ?
-    bzero(&statData, sizeof statData);
+    memZero(&statData, sizeof statData);
     statData.parse(procname.end()+1, kbPerPage_);  // end is ')'
 
     appendTableRow("PID", pid);
@@ -269,7 +295,54 @@ class Procmon : boost::noncopyable
     }
   }
 
-  void fillThreads()
+  static int dirFilter(const struct dirent* d)
+  {
+    return (d->d_name[0] != '.');
+  }
+
+  static char getDirType(char d_type)
+  {
+    switch (d_type)
+    {
+      case DT_REG: return '-';
+      case DT_DIR: return 'd';
+      case DT_LNK: return 'l';
+      default: return '?';
+    }
+  }
+
+  void listFiles()
+  {
+    struct dirent** namelist = NULL;
+    int result = ::scandir(".", &namelist, dirFilter, alphasort);
+    for (int i = 0; i < result; ++i)
+    {
+      struct stat stat;
+      if (::lstat(namelist[i]->d_name, &stat) == 0)
+      {
+        Timestamp mtime(stat.st_mtime * Timestamp::kMicroSecondsPerSecond);
+        int64_t size = stat.st_size;
+        appendResponse("%c %9" PRId64 " %s %s", getDirType(namelist[i]->d_type), size,
+                       mtime.toFormattedString(/*showMicroseconds=*/false).c_str(),
+                       namelist[i]->d_name);
+        if (namelist[i]->d_type == DT_LNK)
+        {
+          char link[1024];
+          ssize_t len = ::readlink(namelist[i]->d_name, link, sizeof link - 1);
+          if (len > 0)
+          {
+            link[len] = '\0';
+            appendResponse(" -> %s", link);
+          }
+        }
+        appendResponse("\n");
+      }
+      ::free(namelist[i]);
+    }
+    ::free(namelist);
+  }
+
+  void listThreads()
   {
     response_.retrieveAll();
     // FIXME: implement this
@@ -343,7 +416,7 @@ class Procmon : boost::noncopyable
       return;
     StringPiece procname = ProcessInfo::procname(stat);
     StatData statData;
-    bzero(&statData, sizeof statData);
+    memZero(&statData, sizeof statData);
     statData.parse(procname.end()+1, kbPerPage_);  // end is ')'
     if (ticks_ > 0)
     {
@@ -462,7 +535,7 @@ int main(int argc, char* argv[])
 
   EventLoop loop;
   uint16_t port = static_cast<uint16_t>(atoi(argv[2]));
-  Procmon procmon(&loop, pid, port, argc > 3 ? argv[3] : "");
+  Procmon procmon(&loop, pid, port, argc > 3 ? argv[3] : NULL);
   procmon.start();
   loop.loop();
 }

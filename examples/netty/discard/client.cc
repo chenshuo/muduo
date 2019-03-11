@@ -1,11 +1,9 @@
-#include <muduo/net/TcpClient.h>
+#include "muduo/net/TcpClient.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/base/Thread.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/InetAddress.h>
-
-#include <boost/bind.hpp>
+#include "muduo/base/Logging.h"
+#include "muduo/base/Thread.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/InetAddress.h"
 
 #include <utility>
 
@@ -15,7 +13,7 @@
 using namespace muduo;
 using namespace muduo::net;
 
-class DiscardClient : boost::noncopyable
+class DiscardClient : noncopyable
 {
  public:
   DiscardClient(EventLoop* loop, const InetAddress& listenAddr, int size)
@@ -24,11 +22,11 @@ class DiscardClient : boost::noncopyable
       message_(size, 'H')
   {
     client_.setConnectionCallback(
-        boost::bind(&DiscardClient::onConnection, this, _1));
+        std::bind(&DiscardClient::onConnection, this, _1));
     client_.setMessageCallback(
-        boost::bind(&DiscardClient::onMessage, this, _1, _2, _3));
+        std::bind(&DiscardClient::onMessage, this, _1, _2, _3));
     client_.setWriteCompleteCallback(
-        boost::bind(&DiscardClient::onWriteComplete, this, _1));
+        std::bind(&DiscardClient::onWriteComplete, this, _1));
     //client_.enableRetry();
   }
 

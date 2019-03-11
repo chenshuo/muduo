@@ -1,10 +1,8 @@
 // TcpClient::stop() called in the same iteration of IO event
 
-#include <muduo/base/Logging.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/TcpClient.h>
-
-#include <boost/bind.hpp>
+#include "muduo/base/Logging.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/TcpClient.h"
 
 using namespace muduo;
 using namespace muduo::net;
@@ -24,7 +22,7 @@ int main(int argc, char* argv[])
   TcpClient client(&loop, serverAddr, "TcpClient");
   g_client = &client;
   loop.runAfter(0.0, timeout);
-  loop.runAfter(1.0, boost::bind(&EventLoop::quit, &loop));
+  loop.runAfter(1.0, std::bind(&EventLoop::quit, &loop));
   client.connect();
   CurrentThread::sleepUsec(100 * 1000);
   loop.loop();

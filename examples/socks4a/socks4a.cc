@@ -1,8 +1,9 @@
-#include "tunnel.h"
+#include "examples/socks4a/tunnel.h"
 
-#include <muduo/net/Endian.h>
+#include "muduo/net/Endian.h"
 #include <stdio.h>
 #include <netdb.h>
+#include <unistd.h>
 
 using namespace muduo;
 using namespace muduo::net;
@@ -50,7 +51,7 @@ void onServerMessage(const TcpConnectionPtr& conn, Buffer* buf, Timestamp)
         const void* ip = buf->peek() + 4;
 
         sockaddr_in addr;
-        bzero(&addr, sizeof addr);
+        memZero(&addr, sizeof addr);
         addr.sin_family = AF_INET;
         addr.sin_port = *static_cast<const in_port_t*>(port);
         addr.sin_addr.s_addr = *static_cast<const uint32_t*>(ip);

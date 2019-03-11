@@ -1,39 +1,38 @@
-#include "codec.h"
-#include "dispatcher.h"
-#include <examples/protobuf/codec/query.pb.h>
+#include "examples/protobuf/codec/codec.h"
+#include "examples/protobuf/codec/dispatcher.h"
+#include "examples/protobuf/codec/query.pb.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/base/Mutex.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/TcpServer.h>
-
-#include <boost/bind.hpp>
+#include "muduo/base/Logging.h"
+#include "muduo/base/Mutex.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/TcpServer.h"
 
 #include <stdio.h>
+#include <unistd.h>
 
 using namespace muduo;
 using namespace muduo::net;
 
-typedef boost::shared_ptr<muduo::Query> QueryPtr;
-typedef boost::shared_ptr<muduo::Answer> AnswerPtr;
+typedef std::shared_ptr<muduo::Query> QueryPtr;
+typedef std::shared_ptr<muduo::Answer> AnswerPtr;
 
-class QueryServer : boost::noncopyable
+class QueryServer : noncopyable
 {
  public:
   QueryServer(EventLoop* loop,
               const InetAddress& listenAddr)
   : server_(loop, listenAddr, "QueryServer"),
-    dispatcher_(boost::bind(&QueryServer::onUnknownMessage, this, _1, _2, _3)),
-    codec_(boost::bind(&ProtobufDispatcher::onProtobufMessage, &dispatcher_, _1, _2, _3))
+    dispatcher_(std::bind(&QueryServer::onUnknownMessage, this, _1, _2, _3)),
+    codec_(std::bind(&ProtobufDispatcher::onProtobufMessage, &dispatcher_, _1, _2, _3))
   {
     dispatcher_.registerMessageCallback<muduo::Query>(
-        boost::bind(&QueryServer::onQuery, this, _1, _2, _3));
+        std::bind(&QueryServer::onQuery, this, _1, _2, _3));
     dispatcher_.registerMessageCallback<muduo::Answer>(
-        boost::bind(&QueryServer::onAnswer, this, _1, _2, _3));
+        std::bind(&QueryServer::onAnswer, this, _1, _2, _3));
     server_.setConnectionCallback(
-        boost::bind(&QueryServer::onConnection, this, _1));
+        std::bind(&QueryServer::onConnection, this, _1));
     server_.setMessageCallback(
-        boost::bind(&ProtobufCodec::onMessage, &codec_, _1, _2, _3));
+        std::bind(&ProtobufCodec::onMessage, &codec_, _1, _2, _3));
   }
 
   void start()

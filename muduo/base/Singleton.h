@@ -6,10 +6,11 @@
 #ifndef MUDUO_BASE_SINGLETON_H
 #define MUDUO_BASE_SINGLETON_H
 
-#include <boost/noncopyable.hpp>
+#include "muduo/base/noncopyable.h"
+
 #include <assert.h>
-#include <stdlib.h> // atexit
 #include <pthread.h>
+#include <stdlib.h> // atexit
 
 namespace muduo
 {
@@ -21,16 +22,19 @@ namespace detail
 template<typename T>
 struct has_no_destroy
 {
-  template <typename C> static char test(typeof(&C::no_destroy)); // or decltype in C++11
+  template <typename C> static char test(decltype(&C::no_destroy));
   template <typename C> static int32_t test(...);
   const static bool value = sizeof(test<T>(0)) == 1;
 };
-}
+}  // namespace detail
 
 template<typename T>
-class Singleton : boost::noncopyable
+class Singleton : noncopyable
 {
  public:
+  Singleton() = delete;
+  ~Singleton() = delete;
+
   static T& instance()
   {
     pthread_once(&ponce_, &Singleton::init);
@@ -39,9 +43,6 @@ class Singleton : boost::noncopyable
   }
 
  private:
-  Singleton();
-  ~Singleton();
-
   static void init()
   {
     value_ = new T();
@@ -71,6 +72,6 @@ pthread_once_t Singleton<T>::ponce_ = PTHREAD_ONCE_INIT;
 template<typename T>
 T* Singleton<T>::value_ = NULL;
 
-}
-#endif
+}  // namespace muduo
 
+#endif  // MUDUO_BASE_SINGLETON_H

@@ -7,8 +7,8 @@
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 //
 
-#include <muduo/net/http/HttpResponse.h>
-#include <muduo/net/Buffer.h>
+#include "muduo/net/http/HttpResponse.h"
+#include "muduo/net/Buffer.h"
 
 #include <stdio.h>
 
@@ -34,13 +34,11 @@ void HttpResponse::appendToBuffer(Buffer* output) const
     output->append("Connection: Keep-Alive\r\n");
   }
 
-  for (std::map<string, string>::const_iterator it = headers_.begin();
-       it != headers_.end();
-       ++it)
+  for (const auto& header : headers_)
   {
-    output->append(it->first);
+    output->append(header.first);
     output->append(": ");
-    output->append(it->second);
+    output->append(header.second);
     output->append("\r\n");
   }
 

@@ -1,8 +1,6 @@
-#include "echo.h"
+#include "examples/maxconnection/echo.h"
 
-#include <muduo/base/Logging.h>
-
-#include <boost/bind.hpp>
+#include "muduo/base/Logging.h"
 
 using namespace muduo;
 using namespace muduo::net;
@@ -15,9 +13,9 @@ EchoServer::EchoServer(EventLoop* loop,
     kMaxConnections_(maxConnections)
 {
   server_.setConnectionCallback(
-      boost::bind(&EchoServer::onConnection, this, _1));
+      std::bind(&EchoServer::onConnection, this, _1));
   server_.setMessageCallback(
-      boost::bind(&EchoServer::onMessage, this, _1, _2, _3));
+      std::bind(&EchoServer::onMessage, this, _1, _2, _3));
 }
 
 void EchoServer::start()

@@ -1,5 +1,5 @@
-#include "plot.h"
-#include <muduo/base/Timestamp.h>
+#include "examples/procmon/plot.h"
+#include "muduo/base/Timestamp.h"
 #include <vector>
 #include <math.h>
 #include <stdio.h>
@@ -7,6 +7,7 @@
 int main()
 {
   std::vector<double> cpu_usage;
+  cpu_usage.reserve(300);
   for (int i = 0; i < 300; ++i)
     cpu_usage.push_back(1.0 + sin(pow(i / 30.0, 2)));
   Plot plot(640, 100, 600, 2);

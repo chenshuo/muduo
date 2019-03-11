@@ -7,8 +7,8 @@
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 //
 
-#include <muduo/net/inspect/SystemInspector.h>
-#include <muduo/base/FileUtil.h>
+#include "muduo/net/inspect/SystemInspector.h"
+#include "muduo/base/FileUtil.h"
 
 #include <sys/utsname.h>
 
@@ -19,11 +19,9 @@ namespace muduo
 {
 namespace inspect
 {
-
 string uptime(Timestamp now, Timestamp start, bool showMicroseconds);
 long getLong(const string& content, const char* key);
 int stringPrintf(string* out, const char* fmt, ...) __attribute__ ((format (printf, 2, 3)));
-
 }
 }
 

@@ -1,33 +1,31 @@
-#include <muduo/base/Logging.h>
-#include <muduo/base/ThreadLocal.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/EventLoopThreadPool.h>
-#include <muduo/net/TcpClient.h>
-#include <muduo/net/TcpServer.h>
-#include <muduo/net/protorpc/RpcCodec.h>
-#include <muduo/net/protorpc/rpc.pb.h>
-
-#include <boost/bind.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
+#include "muduo/base/Logging.h"
+#include "muduo/base/ThreadLocal.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/EventLoopThreadPool.h"
+#include "muduo/net/TcpClient.h"
+#include "muduo/net/TcpServer.h"
+#include "muduo/net/protorpc/RpcCodec.h"
+#include "muduo/net/protorpc/rpc.pb.h"
 
 #include <stdio.h>
+#include <unistd.h>
 
 using namespace muduo;
 using namespace muduo::net;
 
-class BackendSession : boost::noncopyable
+class BackendSession : noncopyable
 {
  public:
   BackendSession(EventLoop* loop, const InetAddress& backendAddr, const string& name)
     : loop_(loop),
       client_(loop, backendAddr, name),
-      codec_(boost::bind(&BackendSession::onRpcMessage, this, _1, _2, _3)),
+      codec_(std::bind(&BackendSession::onRpcMessage, this, _1, _2, _3)),
       nextId_(0)
   {
     client_.setConnectionCallback(
-        boost::bind(&BackendSession::onConnection, this, _1));
+        std::bind(&BackendSession::onConnection, this, _1));
     client_.setMessageCallback(
-        boost::bind(&RpcCodec::onMessage, &codec_, _1, _2, _3));
+        std::bind(&RpcCodec::onMessage, &codec_, _1, _2, _3));
     client_.enableRetry();
   }
 
@@ -104,7 +102,7 @@ class BackendSession : boost::noncopyable
   struct Request
   {
     uint64_t origId;
-    boost::weak_ptr<TcpConnection> clientConn;
+    std::weak_ptr<TcpConnection> clientConn;
   };
 
   EventLoop* loop_;
@@ -115,24 +113,23 @@ class BackendSession : boost::noncopyable
   std::map<uint64_t, Request> outstandings_;
 };
 
-class Balancer : boost::noncopyable
+class Balancer : noncopyable
 {
  public:
   Balancer(EventLoop* loop,
            const InetAddress& listenAddr,
            const string& name,
            const std::vector<InetAddress>& backends)
-    : loop_(loop),
-      server_(loop, listenAddr, name),
-      codec_(boost::bind(&Balancer::onRpcMessage, this, _1, _2, _3)),
+    : server_(loop, listenAddr, name),
+      codec_(std::bind(&Balancer::onRpcMessage, this, _1, _2, _3)),
       backends_(backends)
   {
     server_.setThreadInitCallback(
-        boost::bind(&Balancer::initPerThread, this, _1));
+        std::bind(&Balancer::initPerThread, this, _1));
     server_.setConnectionCallback(
-        boost::bind(&Balancer::onConnection, this, _1));
+        std::bind(&Balancer::onConnection, this, _1));
     server_.setMessageCallback(
-        boost::bind(&RpcCodec::onMessage, &codec_, _1, _2, _3));
+        std::bind(&RpcCodec::onMessage, &codec_, _1, _2, _3));
   }
 
   ~Balancer()
@@ -153,7 +150,7 @@ class Balancer : boost::noncopyable
   struct PerThread
   {
     size_t current;
-    boost::ptr_vector<BackendSession> backends;
+    std::vector<std::unique_ptr<BackendSession>> backends;
     PerThread() : current(0) { }
   };
 
@@ -168,8 +165,8 @@ class Balancer : boost::noncopyable
     {
       char buf[32];
       snprintf(buf, sizeof buf, "%s#%d", backends_[i].toIpPort().c_str(), count);
-      t.backends.push_back(new BackendSession(ioLoop, backends_[i], buf));
-      t.backends.back().connect();
+      t.backends.emplace_back(new BackendSession(ioLoop, backends_[i], buf));
+      t.backends.back()->connect();
     }
   }
 
@@ -193,7 +190,7 @@ class Balancer : boost::noncopyable
     bool succeed = false;
     for (size_t i = 0; i < t.backends.size() && !succeed; ++i)
     {
-      succeed = t.backends[t.current].send(*msg, conn);
+      succeed = t.backends[t.current]->send(*msg, conn);
       t.current = (t.current+1) % t.backends.size();
     }
     if (!succeed)
@@ -202,7 +199,6 @@ class Balancer : boost::noncopyable
     }
   }
 
-  EventLoop* loop_;
   TcpServer server_;
   RpcCodec codec_;
   std::vector<InetAddress> backends_;

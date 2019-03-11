@@ -1,28 +1,30 @@
+// Use of this source code is governed by a BSD-style license
+// that can be found in the License file.
+//
+// Author: Shuo Chen (chenshuo at chenshuo dot com)
+
 #ifndef MUDUO_BASE_ASYNCLOGGING_H
 #define MUDUO_BASE_ASYNCLOGGING_H
 
-#include <muduo/base/BlockingQueue.h>
-#include <muduo/base/BoundedBlockingQueue.h>
-#include <muduo/base/CountDownLatch.h>
-#include <muduo/base/Mutex.h>
-#include <muduo/base/Thread.h>
+#include "muduo/base/BlockingQueue.h"
+#include "muduo/base/BoundedBlockingQueue.h"
+#include "muduo/base/CountDownLatch.h"
+#include "muduo/base/Mutex.h"
+#include "muduo/base/Thread.h"
+#include "muduo/base/LogStream.h"
 
-#include <muduo/base/LogStream.h>
-
-#include <boost/bind.hpp>
-#include <boost/noncopyable.hpp>
-#include <boost/scoped_ptr.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
+#include <atomic>
+#include <vector>
 
 namespace muduo
 {
 
-class AsyncLogging : boost::noncopyable
+class AsyncLogging : noncopyable
 {
  public:
 
   AsyncLogging(const string& basename,
-               size_t rollSize,
+               off_t rollSize,
                int flushInterval = 3);
 
   ~AsyncLogging()
@@ -42,7 +44,7 @@ class AsyncLogging : boost::noncopyable
     latch_.wait();
   }
 
-  void stop()
+  void stop() NO_THREAD_SAFETY_ANALYSIS
   {
     running_ = false;
     cond_.notify();
@@ -51,28 +53,25 @@ class AsyncLogging : boost::noncopyable
 
  private:
 
-  // declare but not define, prevent compiler-synthesized functions
-  AsyncLogging(const AsyncLogging&);  // ptr_container
-  void operator=(const AsyncLogging&);  // ptr_container
-
   void threadFunc();
 
   typedef muduo::detail::FixedBuffer<muduo::detail::kLargeBuffer> Buffer;
-  typedef boost::ptr_vector<Buffer> BufferVector;
-  typedef BufferVector::auto_type BufferPtr;
+  typedef std::vector<std::unique_ptr<Buffer>> BufferVector;
+  typedef BufferVector::value_type BufferPtr;
 
   const int flushInterval_;
-  bool running_;
-  string basename_;
-  size_t rollSize_;
+  std::atomic<bool> running_;
+  const string basename_;
+  const off_t rollSize_;
   muduo::Thread thread_;
   muduo::CountDownLatch latch_;
   muduo::MutexLock mutex_;
-  muduo::Condition cond_;
-  BufferPtr currentBuffer_;
-  BufferPtr nextBuffer_;
-  BufferVector buffers_;
+  muduo::Condition cond_ GUARDED_BY(mutex_);
+  BufferPtr currentBuffer_ GUARDED_BY(mutex_);
+  BufferPtr nextBuffer_ GUARDED_BY(mutex_);
+  BufferVector buffers_ GUARDED_BY(mutex_);
 };
 
-}
+}  // namespace muduo
+
 #endif  // MUDUO_BASE_ASYNCLOGGING_H

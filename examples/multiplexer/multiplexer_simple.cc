@@ -1,10 +1,8 @@
-#include <muduo/base/Logging.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/InetAddress.h>
-#include <muduo/net/TcpClient.h>
-#include <muduo/net/TcpServer.h>
-
-#include <boost/bind.hpp>
+#include "muduo/base/Logging.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/InetAddress.h"
+#include "muduo/net/TcpClient.h"
+#include "muduo/net/TcpServer.h"
 
 #include <queue>
 #include <utility>
@@ -23,7 +21,7 @@ const uint16_t kClientPort = 3333;
 const char* backendIp = "127.0.0.1";
 const uint16_t kBackendPort = 9999;
 
-class MultiplexServer : boost::noncopyable
+class MultiplexServer : noncopyable
 {
  public:
   MultiplexServer(EventLoop* loop, const InetAddress& listenAddr, const InetAddress& backendAddr)
@@ -31,13 +29,13 @@ class MultiplexServer : boost::noncopyable
       backend_(loop, backendAddr, "MultiplexBackend")
   {
     server_.setConnectionCallback(
-        boost::bind(&MultiplexServer::onClientConnection, this, _1));
+        std::bind(&MultiplexServer::onClientConnection, this, _1));
     server_.setMessageCallback(
-        boost::bind(&MultiplexServer::onClientMessage, this, _1, _2, _3));
+        std::bind(&MultiplexServer::onClientMessage, this, _1, _2, _3));
     backend_.setConnectionCallback(
-        boost::bind(&MultiplexServer::onBackendConnection, this, _1));
+        std::bind(&MultiplexServer::onBackendConnection, this, _1));
     backend_.setMessageCallback(
-        boost::bind(&MultiplexServer::onBackendMessage, this, _1, _2, _3));
+        std::bind(&MultiplexServer::onBackendMessage, this, _1, _2, _3));
     backend_.enableRetry();
   }
 

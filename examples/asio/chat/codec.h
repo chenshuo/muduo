@@ -1,18 +1,15 @@
 #ifndef MUDUO_EXAMPLES_ASIO_CHAT_CODEC_H
 #define MUDUO_EXAMPLES_ASIO_CHAT_CODEC_H
 
-#include <muduo/base/Logging.h>
-#include <muduo/net/Buffer.h>
-#include <muduo/net/Endian.h>
-#include <muduo/net/TcpConnection.h>
+#include "muduo/base/Logging.h"
+#include "muduo/net/Buffer.h"
+#include "muduo/net/Endian.h"
+#include "muduo/net/TcpConnection.h"
 
-#include <boost/function.hpp>
-#include <boost/noncopyable.hpp>
-
-class LengthHeaderCodec : boost::noncopyable
+class LengthHeaderCodec : muduo::noncopyable
 {
  public:
-  typedef boost::function<void (const muduo::net::TcpConnectionPtr&,
+  typedef std::function<void (const muduo::net::TcpConnectionPtr&,
                                 const muduo::string& message,
                                 muduo::Timestamp)> StringMessageCallback;
 

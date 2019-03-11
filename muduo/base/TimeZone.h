@@ -6,8 +6,8 @@
 #ifndef MUDUO_BASE_TIMEZONE_H
 #define MUDUO_BASE_TIMEZONE_H
 
-#include <muduo/base/copyable.h>
-#include <boost/shared_ptr.hpp>
+#include "muduo/base/copyable.h"
+#include <memory>
 #include <time.h>
 
 namespace muduo
@@ -19,7 +19,7 @@ class TimeZone : public muduo::copyable
  public:
   explicit TimeZone(const char* zonefile);
   TimeZone(int eastOfUtc, const char* tzname);  // a fixed timezone
-  TimeZone() {}  // an invalid timezone
+  TimeZone() = default;  // an invalid timezone
 
   // default copy ctor/assignment/dtor are Okay.
 
@@ -44,8 +44,9 @@ class TimeZone : public muduo::copyable
 
  private:
 
-  boost::shared_ptr<Data> data_;
+  std::shared_ptr<Data> data_;
 };
 
-}
+}  // namespace muduo
+
 #endif  // MUDUO_BASE_TIMEZONE_H

@@ -1,12 +1,10 @@
-#include <muduo/net/TcpServer.h>
+#include "muduo/net/TcpServer.h"
 
-#include <muduo/base/Atomic.h>
-#include <muduo/base/Logging.h>
-#include <muduo/base/Thread.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/InetAddress.h>
-
-#include <boost/bind.hpp>
+#include "muduo/base/Atomic.h"
+#include "muduo/base/Logging.h"
+#include "muduo/base/Thread.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/InetAddress.h"
 
 #include <utility>
 
@@ -27,11 +25,11 @@ class DiscardServer
       startTime_(Timestamp::now())
   {
     server_.setConnectionCallback(
-        boost::bind(&DiscardServer::onConnection, this, _1));
+        std::bind(&DiscardServer::onConnection, this, _1));
     server_.setMessageCallback(
-        boost::bind(&DiscardServer::onMessage, this, _1, _2, _3));
+        std::bind(&DiscardServer::onMessage, this, _1, _2, _3));
     server_.setThreadNum(numThreads);
-    loop->runEvery(3.0, boost::bind(&DiscardServer::printThroughput, this));
+    loop->runEvery(3.0, std::bind(&DiscardServer::printThroughput, this));
   }
 
   void start()

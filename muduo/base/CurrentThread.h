@@ -6,7 +6,7 @@
 #ifndef MUDUO_BASE_CURRENTTHREAD_H
 #define MUDUO_BASE_CURRENTTHREAD_H
 
-#include <stdint.h>
+#include "muduo/base/Types.h"
 
 namespace muduo
 {
@@ -45,8 +45,10 @@ namespace CurrentThread
 
   bool isMainThread();
 
-  void sleepUsec(int64_t usec);
-}
-}
+  void sleepUsec(int64_t usec);  // for testing
 
-#endif
+  string stackTrace(bool demangle);
+}  // namespace CurrentThread
+}  // namespace muduo
+
+#endif  // MUDUO_BASE_CURRENTTHREAD_H

@@ -11,11 +11,11 @@
 #ifndef MUDUO_NET_BUFFER_H
 #define MUDUO_NET_BUFFER_H
 
-#include <muduo/base/copyable.h>
-#include <muduo/base/StringPiece.h>
-#include <muduo/base/Types.h>
+#include "muduo/base/copyable.h"
+#include "muduo/base/StringPiece.h"
+#include "muduo/base/Types.h"
 
-#include <muduo/net/Endian.h>
+#include "muduo/net/Endian.h"
 
 #include <algorithm>
 #include <vector>
@@ -158,7 +158,7 @@ class Buffer : public muduo::copyable
 
   string retrieveAllAsString()
   {
-    return retrieveAsString(readableBytes());;
+    return retrieveAsString(readableBytes());
   }
 
   string retrieveAsString(size_t len)
@@ -416,7 +416,7 @@ class Buffer : public muduo::copyable
   static const char kCRLF[];
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_BUFFER_H

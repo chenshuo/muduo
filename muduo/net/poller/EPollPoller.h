@@ -11,7 +11,7 @@
 #ifndef MUDUO_NET_POLLER_EPOLLPOLLER_H
 #define MUDUO_NET_POLLER_EPOLLPOLLER_H
 
-#include <muduo/net/Poller.h>
+#include "muduo/net/Poller.h"
 
 #include <vector>
 
@@ -29,11 +29,11 @@ class EPollPoller : public Poller
 {
  public:
   EPollPoller(EventLoop* loop);
-  virtual ~EPollPoller();
+  ~EPollPoller() override;
 
-  virtual Timestamp poll(int timeoutMs, ChannelList* activeChannels);
-  virtual void updateChannel(Channel* channel);
-  virtual void removeChannel(Channel* channel);
+  Timestamp poll(int timeoutMs, ChannelList* activeChannels) override;
+  void updateChannel(Channel* channel) override;
+  void removeChannel(Channel* channel) override;
 
  private:
   static const int kInitEventListSize = 16;
@@ -50,6 +50,6 @@ class EPollPoller : public Poller
   EventList events_;
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 #endif  // MUDUO_NET_POLLER_EPOLLPOLLER_H

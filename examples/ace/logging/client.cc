@@ -1,14 +1,12 @@
-#include <examples/ace/logging/logrecord.pb.h>
+#include "examples/ace/logging/logrecord.pb.h"
 
-#include <muduo/base/Mutex.h>
-#include <muduo/base/Logging.h>
-#include <muduo/base/ProcessInfo.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/EventLoopThread.h>
-#include <muduo/net/TcpClient.h>
-#include <muduo/net/protobuf/ProtobufCodecLite.h>
-
-#include <boost/bind.hpp>
+#include "muduo/base/Mutex.h"
+#include "muduo/base/Logging.h"
+#include "muduo/base/ProcessInfo.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/EventLoopThread.h"
+#include "muduo/net/TcpClient.h"
+#include "muduo/net/protobuf/ProtobufCodecLite.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -24,17 +22,17 @@ extern const char logtag[] = "LOG0";
 typedef ProtobufCodecLiteT<LogRecord, logtag> Codec;
 
 // same as asio/char/client.cc
-class LogClient : boost::noncopyable
+class LogClient : noncopyable
 {
  public:
   LogClient(EventLoop* loop, const InetAddress& serverAddr)
     : client_(loop, serverAddr, "LogClient"),
-      codec_(boost::bind(&LogClient::onMessage, this, _1, _2, _3))
+      codec_(std::bind(&LogClient::onMessage, this, _1, _2, _3))
   {
     client_.setConnectionCallback(
-        boost::bind(&LogClient::onConnection, this, _1));
+        std::bind(&LogClient::onConnection, this, _1));
     client_.setMessageCallback(
-        boost::bind(&Codec::onMessage, &codec_, _1, _2, _3));
+        std::bind(&Codec::onMessage, &codec_, _1, _2, _3));
     client_.enableRetry();
   }
 
@@ -99,7 +97,7 @@ class LogClient : boost::noncopyable
     LOG_WARN << logRecord->DebugString();
   }
 
-  void updateLogRecord(const StringPiece& message)
+  void updateLogRecord(const StringPiece& message) REQUIRES(mutex_)
   {
     mutex_.assertLocked();
     logRecord_.set_level(1);
@@ -111,11 +109,11 @@ class LogClient : boost::noncopyable
   TcpClient client_;
   Codec codec_;
   MutexLock mutex_;
-  LogRecord logRecord_;
-  TcpConnectionPtr connection_;
+  LogRecord logRecord_ GUARDED_BY(mutex_);
+  TcpConnectionPtr connection_ GUARDED_BY(mutex_);
 };
 
-}
+}  // namespace logging
 
 int main(int argc, char* argv[])
 {

@@ -1,17 +1,14 @@
-#include "codec.h"
+#include "examples/asio/chat/codec.h"
 
-#include <muduo/base/Atomic.h>
-#include <muduo/base/Logging.h>
-#include <muduo/base/Mutex.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/EventLoopThreadPool.h>
-#include <muduo/net/TcpClient.h>
-
-#include <boost/bind.hpp>
-#include <boost/noncopyable.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
+#include "muduo/base/Atomic.h"
+#include "muduo/base/Logging.h"
+#include "muduo/base/Mutex.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/EventLoopThreadPool.h"
+#include "muduo/net/TcpClient.h"
 
 #include <stdio.h>
+#include <unistd.h>
 
 using namespace muduo;
 using namespace muduo::net;
@@ -22,20 +19,20 @@ AtomicInt32 g_messagesReceived;
 Timestamp g_startTime;
 std::vector<Timestamp> g_receiveTime;
 EventLoop* g_loop;
-boost::function<void()> g_statistic;
+std::function<void()> g_statistic;
 
-class ChatClient : boost::noncopyable
+class ChatClient : noncopyable
 {
  public:
   ChatClient(EventLoop* loop, const InetAddress& serverAddr)
     : loop_(loop),
       client_(loop, serverAddr, "LoadTestClient"),
-      codec_(boost::bind(&ChatClient::onStringMessage, this, _1, _2, _3))
+      codec_(std::bind(&ChatClient::onStringMessage, this, _1, _2, _3))
   {
     client_.setConnectionCallback(
-        boost::bind(&ChatClient::onConnection, this, _1));
+        std::bind(&ChatClient::onConnection, this, _1));
     client_.setMessageCallback(
-        boost::bind(&LengthHeaderCodec::onMessage, &codec_, _1, _2, _3));
+        std::bind(&LengthHeaderCodec::onMessage, &codec_, _1, _2, _3));
     //client_.enableRetry();
   }
 
@@ -64,7 +61,7 @@ class ChatClient : boost::noncopyable
       if (g_aliveConnections.incrementAndGet() == g_connections)
       {
         LOG_INFO << "all connected";
-        loop_->runAfter(10.0, boost::bind(&ChatClient::send, this));
+        loop_->runAfter(10.0, std::bind(&ChatClient::send, this));
       }
     }
     else
@@ -107,13 +104,13 @@ class ChatClient : boost::noncopyable
   Timestamp receiveTime_;
 };
 
-void statistic(const boost::ptr_vector<ChatClient>& clients)
+void statistic(const std::vector<std::unique_ptr<ChatClient>>& clients)
 {
   LOG_INFO << "statistic " << clients.size();
   std::vector<double> seconds(clients.size());
   for (size_t i = 0; i < clients.size(); ++i)
   {
-    seconds[i] = timeDifference(clients[i].receiveTime(), g_startTime);
+    seconds[i] = timeDifference(clients[i]->receiveTime(), g_startTime);
   }
 
   std::sort(seconds.begin(), seconds.end());
@@ -149,13 +146,13 @@ int main(int argc, char* argv[])
     loopPool.start();
 
     g_receiveTime.reserve(g_connections);
-    boost::ptr_vector<ChatClient> clients(g_connections);
-    g_statistic = boost::bind(statistic, boost::ref(clients));
+    std::vector<std::unique_ptr<ChatClient>> clients(g_connections);
+    g_statistic = std::bind(statistic, std::ref(clients));
 
     for (int i = 0; i < g_connections; ++i)
     {
-      clients.push_back(new ChatClient(loopPool.getNextLoop(), serverAddr));
-      clients[i].connect();
+      clients[i].reset(new ChatClient(loopPool.getNextLoop(), serverAddr));
+      clients[i]->connect();
       usleep(200);
     }
 

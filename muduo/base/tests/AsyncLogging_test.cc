@@ -1,11 +1,12 @@
-#include <muduo/base/AsyncLogging.h>
-#include <muduo/base/Logging.h>
-#include <muduo/base/Timestamp.h>
+#include "muduo/base/AsyncLogging.h"
+#include "muduo/base/Logging.h"
+#include "muduo/base/Timestamp.h"
 
 #include <stdio.h>
 #include <sys/resource.h>
+#include <unistd.h>
 
-int kRollSize = 500*1000*1000;
+off_t kRollSize = 500*1000*1000;
 
 muduo::AsyncLogging* g_asyncLog = NULL;
 
@@ -52,8 +53,8 @@ int main(int argc, char* argv[])
 
   printf("pid = %d\n", getpid());
 
-  char name[256];
-  strncpy(name, argv[0], 256);
+  char name[256] = { 0 };
+  strncpy(name, argv[0], sizeof name - 1);
   muduo::AsyncLogging log(::basename(name), kRollSize);
   log.start();
   g_asyncLog = &log;

@@ -1,12 +1,10 @@
-#include <muduo/base/Logging.h>
-#include <muduo/net/Channel.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/Socket.h>
-#include <muduo/net/SocketsOps.h>
-#include <muduo/net/TcpClient.h>
-#include <muduo/net/TcpServer.h>
-
-#include <boost/bind.hpp>
+#include "muduo/base/Logging.h"
+#include "muduo/net/Channel.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/Socket.h"
+#include "muduo/net/SocketsOps.h"
+#include "muduo/net/TcpClient.h"
+#include "muduo/net/TcpServer.h"
 
 #include <stdio.h>
 
@@ -31,12 +29,12 @@ void serverReadCallback(int sockfd, muduo::Timestamp receiveTime)
 {
   int64_t message[2];
   struct sockaddr peerAddr;
-  bzero(&peerAddr, sizeof peerAddr);
+  memZero(&peerAddr, sizeof peerAddr);
   socklen_t addrLen = sizeof peerAddr;
   ssize_t nr = ::recvfrom(sockfd, message, sizeof message, 0, &peerAddr, &addrLen);
 
-  char addrStr[32];
-  sockets::toIpPort(addrStr, sizeof addrStr, *reinterpret_cast<struct sockaddr_in*>(&peerAddr));
+  char addrStr[64];
+  sockets::toIpPort(addrStr, sizeof addrStr, &peerAddr);
   LOG_DEBUG << "received " << nr << " bytes from " << addrStr;
 
   if (nr < 0)
@@ -68,7 +66,7 @@ void runServer(uint16_t port)
   sock.bindAddress(InetAddress(port));
   EventLoop loop;
   Channel channel(&loop, sock.fd());
-  channel.setReadCallback(boost::bind(&serverReadCallback, sock.fd(), _1));
+  channel.setReadCallback(std::bind(&serverReadCallback, sock.fd(), _1));
   channel.enableReading();
   loop.loop();
 }
@@ -118,16 +116,16 @@ void runClient(const char* ip, uint16_t port)
 {
   Socket sock(createNonblockingUDP());
   InetAddress serverAddr(ip, port);
-  int ret = sockets::connect(sock.fd(), serverAddr.getSockAddrInet());
+  int ret = sockets::connect(sock.fd(), serverAddr.getSockAddr());
   if (ret < 0)
   {
     LOG_SYSFATAL << "::connect";
   }
   EventLoop loop;
   Channel channel(&loop, sock.fd());
-  channel.setReadCallback(boost::bind(&clientReadCallback, sock.fd(), _1));
+  channel.setReadCallback(std::bind(&clientReadCallback, sock.fd(), _1));
   channel.enableReading();
-  loop.runEvery(0.2, boost::bind(sendMyTime, sock.fd()));
+  loop.runEvery(0.2, std::bind(sendMyTime, sock.fd()));
   loop.loop();
 }
 

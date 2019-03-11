@@ -1,10 +1,8 @@
-#include "MemcacheServer.h"
+#include "examples/memcached/server/MemcacheServer.h"
 
-#include <muduo/base/Atomic.h>
-#include <muduo/base/Logging.h>
-#include <muduo/net/EventLoop.h>
-
-#include <boost/bind.hpp>
+#include "muduo/base/Atomic.h"
+#include "muduo/base/Logging.h"
+#include "muduo/net/EventLoop.h"
 
 using namespace muduo;
 using namespace muduo::net;
@@ -13,7 +11,7 @@ muduo::AtomicInt64 g_cas;
 
 MemcacheServer::Options::Options()
 {
-  bzero(this, sizeof(*this));
+  memZero(this, sizeof(*this));
 }
 
 struct MemcacheServer::Stats
@@ -28,12 +26,10 @@ MemcacheServer::MemcacheServer(muduo::net::EventLoop* loop, const Options& optio
     stats_(new Stats)
 {
   server_.setConnectionCallback(
-      boost::bind(&MemcacheServer::onConnection, this, _1));
+      std::bind(&MemcacheServer::onConnection, this, _1));
 }
 
-MemcacheServer::~MemcacheServer()
-{
-}
+MemcacheServer::~MemcacheServer() = default;
 
 void MemcacheServer::start()
 {
@@ -42,7 +38,7 @@ void MemcacheServer::start()
 
 void MemcacheServer::stop()
 {
-  loop_->runAfter(3.0, boost::bind(&EventLoop::quit, loop_));
+  loop_->runAfter(3.0, std::bind(&EventLoop::quit, loop_));
 }
 
 bool MemcacheServer::storeItem(const ItemPtr& item, const Item::UpdatePolicy policy, bool* exists)

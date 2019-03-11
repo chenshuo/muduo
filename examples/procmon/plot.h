@@ -1,11 +1,11 @@
-#include <muduo/base/Types.h>
+#include "muduo/base/noncopyable.h"
+#include "muduo/base/Types.h"
 #include <vector>
-#include <boost/noncopyable.hpp>
 #include <stdlib.h> // ssize_t
 
 typedef struct gdImageStruct* gdImagePtr;
 
-class Plot : boost::noncopyable
+class Plot : muduo::noncopyable
 {
  public:
   Plot(int width, int height, int totalSeconds, int samplingPeriod);
@@ -28,8 +28,8 @@ class Plot : boost::noncopyable
   const int height_;
   const int totalSeconds_;
   const int samplingPeriod_;
-  const gdImagePtr image_;
-  const MyGdFontPtr font_;
+  gdImagePtr const image_;
+  MyGdFontPtr const font_;
   const int fontWidth_;
   const int fontHeight_;
   const int background_;

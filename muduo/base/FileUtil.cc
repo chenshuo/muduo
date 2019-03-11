@@ -1,22 +1,17 @@
-// Copyright 2010, Shuo Chen.  All rights reserved.
-// http://code.google.com/p/muduo/
-//
 // Use of this source code is governed by a BSD-style license
 // that can be found in the License file.
-
-// Author: Shuo Chen (chenshuo at chenshuo dot com)
 //
+// Author: Shuo Chen (chenshuo at chenshuo dot com)
 
-#include <muduo/base/FileUtil.h>
-#include <muduo/base/Logging.h> // strerror_tl
-
-#include <boost/static_assert.hpp>
+#include "muduo/base/FileUtil.h"
+#include "muduo/base/Logging.h"
 
 #include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 using namespace muduo;
 
@@ -95,7 +90,7 @@ int FileUtil::ReadSmallFile::readToString(int maxSize,
                                           int64_t* modifyTime,
                                           int64_t* createTime)
 {
-  BOOST_STATIC_ASSERT(sizeof(off_t) == 8);
+  static_assert(sizeof(off_t) == 8, "_FILE_OFFSET_BITS = 64");
   assert(content != NULL);
   int err = err_;
   if (fd_ >= 0)
@@ -183,16 +178,4 @@ template int FileUtil::ReadSmallFile::readToString(
     int maxSize,
     string* content,
     int64_t*, int64_t*, int64_t*);
-
-#ifndef MUDUO_STD_STRING
-template int FileUtil::readFile(StringArg filename,
-                                int maxSize,
-                                std::string* content,
-                                int64_t*, int64_t*, int64_t*);
-
-template int FileUtil::ReadSmallFile::readToString(
-    int maxSize,
-    std::string* content,
-    int64_t*, int64_t*, int64_t*);
-#endif
 

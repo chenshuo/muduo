@@ -1,13 +1,11 @@
-#include <muduo/net/http/HttpServer.h>
-#include <muduo/net/http/HttpRequest.h>
-#include <muduo/net/http/HttpResponse.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/EventLoopThreadPool.h>
-#include <muduo/base/Logging.h>
+#include "muduo/net/http/HttpServer.h"
+#include "muduo/net/http/HttpRequest.h"
+#include "muduo/net/http/HttpResponse.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/EventLoopThreadPool.h"
+#include "muduo/base/Logging.h"
 
 #include <map>
-#include <boost/bind.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
 
 #include <sys/socket.h>  // SO_REUSEPORT
 
@@ -104,16 +102,16 @@ int main(int argc, char* argv[])
   }
   threadPool.start();
 
-  boost::ptr_vector<HttpServer> servers;
+  std::vector<std::unique_ptr<HttpServer>> servers;
   for (int i = 0; i < numThreads; ++i)
   {
-    servers.push_back(new HttpServer(threadPool.getNextLoop(),
-                                     InetAddress(8000),
-                                     "shorturl",
-                                     TcpServer::kReusePort));
-    servers.back().setHttpCallback(onRequest);
-    servers.back().getLoop()->runInLoop(
-        boost::bind(&HttpServer::start, &servers.back()));
+    servers.emplace_back(new HttpServer(threadPool.getNextLoop(),
+                                        InetAddress(8000),
+                                        "shorturl",
+                                        TcpServer::kReusePort));
+    servers.back()->setHttpCallback(onRequest);
+    servers.back()->getLoop()->runInLoop(
+        std::bind(&HttpServer::start, servers.back().get()));
   }
   loop.loop();
 #else

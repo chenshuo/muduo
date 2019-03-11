@@ -1,8 +1,6 @@
-#include "discard.h"
+#include "examples/simple/discard/discard.h"
 
-#include <muduo/base/Logging.h>
-
-#include <boost/bind.hpp>
+#include "muduo/base/Logging.h"
 
 using namespace muduo;
 using namespace muduo::net;
@@ -12,9 +10,9 @@ DiscardServer::DiscardServer(EventLoop* loop,
   : server_(loop, listenAddr, "DiscardServer")
 {
   server_.setConnectionCallback(
-      boost::bind(&DiscardServer::onConnection, this, _1));
+      std::bind(&DiscardServer::onConnection, this, _1));
   server_.setMessageCallback(
-      boost::bind(&DiscardServer::onMessage, this, _1, _2, _3));
+      std::bind(&DiscardServer::onMessage, this, _1, _2, _3));
 }
 
 void DiscardServer::start()

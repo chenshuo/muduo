@@ -1,11 +1,9 @@
-#include <muduo/net/TcpClient.h>
+#include "muduo/net/TcpClient.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/base/Thread.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/InetAddress.h>
-
-#include <boost/bind.hpp>
+#include "muduo/base/Logging.h"
+#include "muduo/base/Thread.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/InetAddress.h"
 
 #include <utility>
 
@@ -15,16 +13,16 @@
 using namespace muduo;
 using namespace muduo::net;
 
-class UptimeClient : boost::noncopyable
+class UptimeClient : noncopyable
 {
  public:
   UptimeClient(EventLoop* loop, const InetAddress& listenAddr)
     : client_(loop, listenAddr, "UptimeClient")
   {
     client_.setConnectionCallback(
-        boost::bind(&UptimeClient::onConnection, this, _1));
+        std::bind(&UptimeClient::onConnection, this, _1));
     client_.setMessageCallback(
-        boost::bind(&UptimeClient::onMessage, this, _1, _2, _3));
+        std::bind(&UptimeClient::onMessage, this, _1, _2, _3));
     //client_.enableRetry();
   }
 

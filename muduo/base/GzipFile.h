@@ -1,16 +1,21 @@
+// Use of this source code is governed by a BSD-style license
+// that can be found in the License file.
+//
+// Author: Shuo Chen (chenshuo at chenshuo dot com)
+
 #pragma once
 
-#include <muduo/base/StringPiece.h>
-#include <boost/noncopyable.hpp>
+#include "muduo/base/StringPiece.h"
+#include "muduo/base/noncopyable.h"
 #include <zlib.h>
 
 namespace muduo
 {
 
-class GzipFile : boost::noncopyable
+class GzipFile : noncopyable
 {
  public:
-  GzipFile(GzipFile&& rhs)
+  GzipFile(GzipFile&& rhs) noexcept
     : file_(rhs.file_)
   {
     rhs.file_ = NULL;
@@ -24,7 +29,7 @@ class GzipFile : boost::noncopyable
     }
   }
 
-  GzipFile& operator=(GzipFile&& rhs)
+  GzipFile& operator=(GzipFile&& rhs) noexcept
   {
     swap(rhs);
     return *this;
@@ -81,4 +86,4 @@ class GzipFile : boost::noncopyable
   gzFile file_;
 };
 
-}
+}  // namespace muduo

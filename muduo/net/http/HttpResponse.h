@@ -11,8 +11,8 @@
 #ifndef MUDUO_NET_HTTP_HTTPRESPONSE_H
 #define MUDUO_NET_HTTP_HTTPRESPONSE_H
 
-#include <muduo/base/copyable.h>
-#include <muduo/base/Types.h>
+#include "muduo/base/copyable.h"
+#include "muduo/base/Types.h"
 
 #include <map>
 
@@ -73,7 +73,7 @@ class HttpResponse : public muduo::copyable
   string body_;
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_HTTP_HTTPRESPONSE_H

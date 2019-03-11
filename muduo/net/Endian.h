@@ -23,9 +23,7 @@ namespace sockets
 
 // the inline assembler code makes type blur,
 // so we disable warnings for a while.
-#if defined(__clang__) || __GNUC_MINOR__ >= 6
 #pragma GCC diagnostic push
-#endif
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 inline uint64_t hostToNetwork64(uint64_t host64)
@@ -57,16 +55,11 @@ inline uint16_t networkToHost16(uint16_t net16)
 {
   return be16toh(net16);
 }
-#if defined(__clang__) || __GNUC_MINOR__ >= 6
+
 #pragma GCC diagnostic pop
-#else
-#pragma GCC diagnostic warning "-Wconversion"
-#pragma GCC diagnostic warning "-Wold-style-cast"
-#endif
 
-
-}
-}
-}
+}  // namespace sockets
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_ENDIAN_H

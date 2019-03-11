@@ -6,9 +6,9 @@
 
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
-#include <muduo/base/Logging.h>
-#include <muduo/net/Channel.h>
-#include <muduo/net/EventLoop.h>
+#include "muduo/base/Logging.h"
+#include "muduo/net/Channel.h"
+#include "muduo/net/EventLoop.h"
 
 #include <sstream>
 
@@ -44,7 +44,7 @@ Channel::~Channel()
   }
 }
 
-void Channel::tie(const boost::shared_ptr<void>& obj)
+void Channel::tie(const std::shared_ptr<void>& obj)
 {
   tie_ = obj;
   tied_ = true;
@@ -65,7 +65,7 @@ void Channel::remove()
 
 void Channel::handleEvent(Timestamp receiveTime)
 {
-  boost::shared_ptr<void> guard;
+  std::shared_ptr<void> guard;
   if (tied_)
   {
     guard = tie_.lock();
@@ -142,5 +142,5 @@ string Channel::eventsToString(int fd, int ev)
   if (ev & POLLNVAL)
     oss << "NVAL ";
 
-  return oss.str().c_str();
+  return oss.str();
 }

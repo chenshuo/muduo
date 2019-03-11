@@ -3,11 +3,10 @@
 //
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
-#include <muduo/base/ThreadPool.h>
+#include "muduo/base/ThreadPool.h"
 
-#include <muduo/base/Exception.h>
+#include "muduo/base/Exception.h"
 
-#include <boost/bind.hpp>
 #include <assert.h>
 #include <stdio.h>
 
@@ -40,9 +39,9 @@ void ThreadPool::start(int numThreads)
   {
     char id[32];
     snprintf(id, sizeof id, "%d", i+1);
-    threads_.push_back(new muduo::Thread(
-          boost::bind(&ThreadPool::runInThread, this), name_+id));
-    threads_[i].start();
+    threads_.emplace_back(new muduo::Thread(
+          std::bind(&ThreadPool::runInThread, this), name_+id));
+    threads_[i]->start();
   }
   if (numThreads == 0 && threadInitCallback_)
   {
@@ -57,9 +56,10 @@ void ThreadPool::stop()
   running_ = false;
   notEmpty_.notifyAll();
   }
-  for_each(threads_.begin(),
-           threads_.end(),
-           boost::bind(&muduo::Thread::join, _1));
+  for (auto& thr : threads_)
+  {
+    thr->join();
+  }
 }
 
 size_t ThreadPool::queueSize() const
@@ -68,28 +68,7 @@ size_t ThreadPool::queueSize() const
   return queue_.size();
 }
 
-void ThreadPool::run(const Task& task)
-{
-  if (threads_.empty())
-  {
-    task();
-  }
-  else
-  {
-    MutexLockGuard lock(mutex_);
-    while (isFull())
-    {
-      notFull_.wait();
-    }
-    assert(!isFull());
-
-    queue_.push_back(task);
-    notEmpty_.notify();
-  }
-}
-
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
-void ThreadPool::run(Task&& task)
+void ThreadPool::run(Task task)
 {
   if (threads_.empty())
   {
@@ -108,7 +87,6 @@ void ThreadPool::run(Task&& task)
     notEmpty_.notify();
   }
 }
-#endif
 
 ThreadPool::Task ThreadPool::take()
 {

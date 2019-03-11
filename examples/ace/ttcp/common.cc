@@ -1,4 +1,5 @@
-#include <examples/ace/ttcp/common.h>
+#include "examples/ace/ttcp/common.h"
+#include "muduo/base/Types.h"
 
 #include <boost/program_options.hpp>
 
@@ -66,7 +67,7 @@ struct sockaddr_in resolveOrDie(const char* host, uint16_t port)
   }
   assert(he->h_addrtype == AF_INET && he->h_length == sizeof(uint32_t));
   struct sockaddr_in addr;
-  bzero(&addr, sizeof(addr));
+  muduo::memZero(&addr, sizeof(addr));
   addr.sin_family = AF_INET;
   addr.sin_port = htons(port);
   addr.sin_addr = *reinterpret_cast<struct in_addr*>(he->h_addr);

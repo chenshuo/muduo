@@ -1,13 +1,11 @@
-#include <muduo/base/Atomic.h>
-#include <muduo/base/Logging.h>
-#include <muduo/base/Mutex.h>
-#include <muduo/base/Thread.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/InetAddress.h>
-#include <muduo/net/TcpClient.h>
-#include <muduo/net/TcpServer.h>
-
-#include <boost/bind.hpp>
+#include "muduo/base/Atomic.h"
+#include "muduo/base/Logging.h"
+#include "muduo/base/Mutex.h"
+#include "muduo/base/Thread.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/InetAddress.h"
+#include "muduo/net/TcpClient.h"
+#include "muduo/net/TcpServer.h"
 
 #include <queue>
 #include <utility>
@@ -40,18 +38,18 @@ class MultiplexServer
       startTime_(Timestamp::now())
   {
     server_.setConnectionCallback(
-        boost::bind(&MultiplexServer::onClientConnection, this, _1));
+        std::bind(&MultiplexServer::onClientConnection, this, _1));
     server_.setMessageCallback(
-        boost::bind(&MultiplexServer::onClientMessage, this, _1, _2, _3));
+        std::bind(&MultiplexServer::onClientMessage, this, _1, _2, _3));
     server_.setThreadNum(numThreads);
 
     backend_.setConnectionCallback(
-        boost::bind(&MultiplexServer::onBackendConnection, this, _1));
+        std::bind(&MultiplexServer::onBackendConnection, this, _1));
     backend_.setMessageCallback(
-        boost::bind(&MultiplexServer::onBackendMessage, this, _1, _2, _3));
+        std::bind(&MultiplexServer::onBackendMessage, this, _1, _2, _3));
     backend_.enableRetry();
 
-    // loop->runEvery(10.0, boost::bind(&MultiplexServer::printStatistics, this));
+    // loop->runEvery(10.0, std::bind(&MultiplexServer::printStatistics, this));
 
   }
 
@@ -288,9 +286,9 @@ class MultiplexServer
   int64_t oldCounter_;
   Timestamp startTime_;
   MutexLock mutex_;
-  TcpConnectionPtr backendConn_;
-  std::map<int, TcpConnectionPtr> clientConns_;
-  std::queue<int> availIds_;
+  TcpConnectionPtr backendConn_ GUARDED_BY(mutex_);
+  std::map<int, TcpConnectionPtr> clientConns_ GUARDED_BY(mutex_);
+  std::queue<int> availIds_ GUARDED_BY(mutex_);
 };
 
 int main(int argc, char* argv[])

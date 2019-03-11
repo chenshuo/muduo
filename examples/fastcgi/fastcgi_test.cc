@@ -1,12 +1,11 @@
-#include <examples/fastcgi/fastcgi.h>
-#include <examples/sudoku/sudoku.h>
+#include "examples/fastcgi/fastcgi.h"
+#include "examples/sudoku/sudoku.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/TcpServer.h>
+#include "muduo/base/Logging.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/TcpServer.h"
 
-#include <boost/bind.hpp>
-
+using namespace muduo;
 using namespace muduo::net;
 
 const string kPath = "/sudoku/";
@@ -23,6 +22,8 @@ void onRequest(const TcpConnectionPtr& conn,
   {
     LOG_DEBUG << it->first << " = " << it->second;
   }
+  if (in->readableBytes() > 0)
+    LOG_DEBUG << "stdin " << in->retrieveAllAsString();
   Buffer response;
   response.append("Context-Type: text/plain\r\n\r\n");
   if (uri.size() == kCells + kPath.size() && uri.find(kPath) == 0)
@@ -43,11 +44,11 @@ void onConnection(const TcpConnectionPtr& conn)
 {
   if (conn->connected())
   {
-    typedef boost::shared_ptr<FastCgiCodec> CodecPtr;
+    typedef std::shared_ptr<FastCgiCodec> CodecPtr;
     CodecPtr codec(new FastCgiCodec(onRequest));
     conn->setContext(codec);
     conn->setMessageCallback(
-        boost::bind(&FastCgiCodec::onMessage, codec, _1, _2, _3));
+        std::bind(&FastCgiCodec::onMessage, codec, _1, _2, _3));
     conn->setTcpNoDelay(true);
   }
 }

@@ -1,20 +1,19 @@
-#include <examples/protobuf/rpc/sudoku.pb.h>
+#include "examples/protobuf/rpc/sudoku.pb.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/InetAddress.h>
-#include <muduo/net/TcpClient.h>
-#include <muduo/net/TcpConnection.h>
-#include <muduo/net/protorpc/RpcChannel.h>
-
-#include <boost/bind.hpp>
+#include "muduo/base/Logging.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/InetAddress.h"
+#include "muduo/net/TcpClient.h"
+#include "muduo/net/TcpConnection.h"
+#include "muduo/net/protorpc/RpcChannel.h"
 
 #include <stdio.h>
+#include <unistd.h>
 
 using namespace muduo;
 using namespace muduo::net;
 
-class RpcClient : boost::noncopyable
+class RpcClient : noncopyable
 {
  public:
   RpcClient(EventLoop* loop, const InetAddress& serverAddr)
@@ -24,9 +23,9 @@ class RpcClient : boost::noncopyable
       stub_(get_pointer(channel_))
   {
     client_.setConnectionCallback(
-        boost::bind(&RpcClient::onConnection, this, _1));
+        std::bind(&RpcClient::onConnection, this, _1));
     client_.setMessageCallback(
-        boost::bind(&RpcChannel::onMessage, get_pointer(channel_), _1, _2, _3));
+        std::bind(&RpcChannel::onMessage, get_pointer(channel_), _1, _2, _3));
     // client_.enableRetry();
   }
 
@@ -56,7 +55,7 @@ class RpcClient : boost::noncopyable
 
   void solved(sudoku::SudokuResponse* resp)
   {
-    LOG_INFO << "solved:\n" << resp->DebugString().c_str();
+    LOG_INFO << "solved:\n" << resp->DebugString();
     client_.disconnect();
   }
 

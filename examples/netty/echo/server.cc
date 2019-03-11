@@ -1,12 +1,10 @@
-#include <muduo/net/TcpServer.h>
+#include "muduo/net/TcpServer.h"
 
-#include <muduo/base/Atomic.h>
-#include <muduo/base/Logging.h>
-#include <muduo/base/Thread.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/InetAddress.h>
-
-#include <boost/bind.hpp>
+#include "muduo/base/Atomic.h"
+#include "muduo/base/Logging.h"
+#include "muduo/base/Thread.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/InetAddress.h"
 
 #include <utility>
 
@@ -27,11 +25,11 @@ class EchoServer
       startTime_(Timestamp::now())
   {
     server_.setConnectionCallback(
-        boost::bind(&EchoServer::onConnection, this, _1));
+        std::bind(&EchoServer::onConnection, this, _1));
     server_.setMessageCallback(
-        boost::bind(&EchoServer::onMessage, this, _1, _2, _3));
+        std::bind(&EchoServer::onMessage, this, _1, _2, _3));
     server_.setThreadNum(numThreads);
-    loop->runEvery(3.0, boost::bind(&EchoServer::printThroughput, this));
+    loop->runEvery(3.0, std::bind(&EchoServer::printThroughput, this));
   }
 
   void start()

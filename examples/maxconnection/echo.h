@@ -1,7 +1,7 @@
-#ifndef MUDUO_EXAMPLES_SIMPLE_ECHO_ECHO_H
-#define MUDUO_EXAMPLES_SIMPLE_ECHO_ECHO_H
+#ifndef MUDUO_EXAMPLES_MAXCONNECTION_ECHO_H
+#define MUDUO_EXAMPLES_MAXCONNECTION_ECHO_H
 
-#include <muduo/net/TcpServer.h>
+#include "muduo/net/TcpServer.h"
 
 // RFC 862
 class EchoServer
@@ -25,4 +25,4 @@ class EchoServer
   const int kMaxConnections_;
 };
 
-#endif  // MUDUO_EXAMPLES_SIMPLE_ECHO_ECHO_H
+#endif  // MUDUO_EXAMPLES_MAXCONNECTION_ECHO_H

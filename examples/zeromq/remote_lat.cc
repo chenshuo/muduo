@@ -1,10 +1,14 @@
-#include <muduo/base/Logging.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/TcpClient.h>
-#include <examples/asio/chat/codec.h>
+#include "muduo/base/Logging.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/TcpClient.h"
+#include "examples/asio/chat/codec.h"
 
-#include <boost/bind.hpp>
 #include <stdio.h>
+
+using std::placeholders::_1;
+using std::placeholders::_2;
+using std::placeholders::_3;
+using muduo::get_pointer;
 
 bool g_tcpNoDelay = false;
 int g_msgSize = 0;
@@ -71,16 +75,16 @@ int main(int argc, char* argv[])
     g_msgSize = atoi(argv[3]);
     g_message.assign(g_msgSize, 'H');
     g_totalMsgs = argc > 4 ? atoi(argv[4]) : 10000;
-    g_tcpNoDelay = argc > 5 ? atoi(argv[5]) : 0;
+    g_tcpNoDelay = argc > 5 ? atoi(argv[5]) : false;
 
     muduo::net::EventLoop loop;
     muduo::net::InetAddress serverAddr(ip, port);
     muduo::net::TcpClient client(&loop, serverAddr, "Client");
-    LengthHeaderCodec codec(boost::bind(onStringMessage, &codec, _1, _2, _3));
+    LengthHeaderCodec codec(std::bind(onStringMessage, &codec, _1, _2, _3));
     client.setConnectionCallback(
-        boost::bind(onConnection, &codec, _1));
+        std::bind(onConnection, &codec, _1));
     client.setMessageCallback(
-        boost::bind(&LengthHeaderCodec::onMessage, &codec, _1, _2, _3));
+        std::bind(&LengthHeaderCodec::onMessage, &codec, _1, _2, _3));
     client.connect();
     loop.loop();
   }
