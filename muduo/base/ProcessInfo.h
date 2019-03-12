@@ -54,6 +54,8 @@ namespace ProcessInfo
     double systemSeconds;
 
     CpuTime() : userSeconds(0.0), systemSeconds(0.0) { }
+
+    double total() const { return userSeconds + systemSeconds; }
   };
   CpuTime cpuTime();
 
