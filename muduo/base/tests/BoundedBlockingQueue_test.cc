@@ -85,6 +85,7 @@ class Test
 
 void testMove()
 {
+#if BOOST_VERSION >= 105500L
   muduo::BoundedBlockingQueue<std::unique_ptr<int>> queue(10);
   queue.put(std::unique_ptr<int>(new int(42)));
   std::unique_ptr<int> x = queue.take();
@@ -94,6 +95,7 @@ void testMove()
   std::unique_ptr<int> y;
   y = queue.take();
   printf("took %d\n", *y);
+#endif
 }
 
 int main()
