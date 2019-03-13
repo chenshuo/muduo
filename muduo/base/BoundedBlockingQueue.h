@@ -39,6 +39,18 @@ class BoundedBlockingQueue : noncopyable
     notEmpty_.notify();
   }
 
+  void put(T&& x)
+  {
+    MutexLockGuard lock(mutex_);
+    while (queue_.full())
+    {
+      notFull_.wait();
+    }
+    assert(!queue_.full());
+    queue_.push_back(std::move(x));
+    notEmpty_.notify();
+  }
+
   T take()
   {
     MutexLockGuard lock(mutex_);
@@ -47,10 +59,10 @@ class BoundedBlockingQueue : noncopyable
       notEmpty_.wait();
     }
     assert(!queue_.empty());
-    T front(queue_.front());
+    T front(std::move(queue_.front()));
     queue_.pop_front();
     notFull_.notify();
-    return front;
+    return std::move(front);
   }
 
   bool empty() const

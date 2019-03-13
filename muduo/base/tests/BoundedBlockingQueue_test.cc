@@ -83,9 +83,23 @@ class Test
   std::vector<std::unique_ptr<muduo::Thread>> threads_;
 };
 
+void testMove()
+{
+  muduo::BoundedBlockingQueue<std::unique_ptr<int>> queue(10);
+  queue.put(std::unique_ptr<int>(new int(42)));
+  std::unique_ptr<int> x = queue.take();
+  printf("took %d\n", *x);
+  *x = 123;
+  queue.put(std::move(x));
+  std::unique_ptr<int> y;
+  y = queue.take();
+  printf("took %d\n", *y);
+}
+
 int main()
 {
   printf("pid=%d, tid=%d\n", ::getpid(), muduo::CurrentThread::tid());
+  testMove();
   Test t(5);
   t.run(100);
   t.joinAll();
