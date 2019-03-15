@@ -188,6 +188,16 @@ inline LogStream& operator<<(LogStream& s, const Fmt& fmt)
   return s;
 }
 
+// Format quantity n in SI units (k, M, G, T, P, E).
+// The returned string is atmost 5 characters long.
+// Requires n >= 0
+string formatSI(int64_t n);
+
+// Format quantity n in IEC (binary) units (Ki, Mi, Gi, Ti, Pi, Ei).
+// The returned string is atmost 6 characters long.
+// Requires n >= 0
+string formatIEC(int64_t n);
+
 }  // namespace muduo
 
 #endif  // MUDUO_BASE_LOGSTREAM_H
