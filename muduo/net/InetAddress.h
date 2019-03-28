@@ -11,8 +11,8 @@
 #ifndef MUDUO_NET_INETADDRESS_H
 #define MUDUO_NET_INETADDRESS_H
 
-#include <muduo/base/copyable.h>
-#include <muduo/base/StringPiece.h>
+#include "muduo/base/copyable.h"
+#include "muduo/base/StringPiece.h"
 
 #include <netinet/in.h>
 
@@ -68,6 +68,9 @@ class InetAddress : public muduo::copyable
   // thread safe
   static bool resolve(StringArg hostname, InetAddress* result);
   // static std::vector<InetAddress> resolveAll(const char* hostname, uint16_t port = 0);
+
+  // set IPv6 ScopeID
+  void setScopeId(uint32_t scope_id);
 
  private:
   union

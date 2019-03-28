@@ -6,8 +6,8 @@
 #ifndef MUDUO_BASE_LOGGING_H
 #define MUDUO_BASE_LOGGING_H
 
-#include <muduo/base/LogStream.h>
-#include <muduo/base/Timestamp.h>
+#include "muduo/base/LogStream.h"
+#include "muduo/base/Timestamp.h"
 
 namespace muduo
 {

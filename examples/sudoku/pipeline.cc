@@ -1,15 +1,15 @@
-#include "sudoku.h"
+#include "examples/sudoku/sudoku.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/base/FileUtil.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/TcpClient.h>
+#include "muduo/base/Logging.h"
+#include "muduo/base/FileUtil.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/TcpClient.h"
 
 #include <fstream>
 #include <numeric>
 #include <unordered_map>
 
-#include "percentile.h"
+#include "examples/sudoku/percentile.h"
 
 #include <stdio.h>
 

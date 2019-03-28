@@ -1,7 +1,7 @@
 #ifndef MUDUO_EXAMPLES_FASTCGI_FASTCGI_H
 #define MUDUO_EXAMPLES_FASTCGI_FASTCGI_H
 
-#include <muduo/net/TcpConnection.h>
+#include "muduo/net/TcpConnection.h"
 #include <map>
 
 // one FastCgiCodec per TcpConnection

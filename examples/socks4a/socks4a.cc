@@ -1,6 +1,6 @@
-#include "tunnel.h"
+#include "examples/socks4a/tunnel.h"
 
-#include <muduo/net/Endian.h>
+#include "muduo/net/Endian.h"
 #include <stdio.h>
 #include <netdb.h>
 #include <unistd.h>

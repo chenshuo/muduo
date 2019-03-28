@@ -11,7 +11,7 @@
 #ifndef MUDUO_NET_INSPECT_PERFORMANCEINSPECTOR_H
 #define MUDUO_NET_INSPECT_PERFORMANCEINSPECTOR_H
 
-#include <muduo/net/inspect/Inspector.h>
+#include "muduo/net/inspect/Inspector.h"
 
 namespace muduo
 {

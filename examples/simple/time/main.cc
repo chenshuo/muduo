@@ -1,7 +1,7 @@
-#include "time.h"
+#include "examples/simple/time/time.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/net/EventLoop.h>
+#include "muduo/base/Logging.h"
+#include "muduo/net/EventLoop.h"
 
 #include <unistd.h>
 

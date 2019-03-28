@@ -3,8 +3,8 @@
 //
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
-#include <muduo/base/Exception.h>
-#include <muduo/base/CurrentThread.h>
+#include "muduo/base/Exception.h"
+#include "muduo/base/CurrentThread.h"
 
 namespace muduo
 {

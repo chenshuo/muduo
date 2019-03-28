@@ -1,4 +1,4 @@
-#include "tunnel.h"
+#include "examples/socks4a/tunnel.h"
 
 #include <malloc.h>
 #include <stdio.h>

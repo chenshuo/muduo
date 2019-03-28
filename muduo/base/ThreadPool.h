@@ -6,10 +6,10 @@
 #ifndef MUDUO_BASE_THREADPOOL_H
 #define MUDUO_BASE_THREADPOOL_H
 
-#include <muduo/base/Condition.h>
-#include <muduo/base/Mutex.h>
-#include <muduo/base/Thread.h>
-#include <muduo/base/Types.h>
+#include "muduo/base/Condition.h"
+#include "muduo/base/Mutex.h"
+#include "muduo/base/Thread.h"
+#include "muduo/base/Types.h"
 
 #include <deque>
 #include <vector>
@@ -39,6 +39,10 @@ class ThreadPool : noncopyable
   size_t queueSize() const;
 
   // Could block if maxQueueSize > 0
+  // There is no move-only version of std::function in C++ as of C++14.
+  // So we don't need to overload a const& and an && versions
+  // as we do in (Bounded)BlockingQueue.
+  // https://stackoverflow.com/a/25408989
   void run(Task f);
 
  private:

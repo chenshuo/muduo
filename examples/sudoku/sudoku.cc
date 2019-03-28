@@ -1,4 +1,4 @@
-#include "sudoku.h"
+#include "examples/sudoku/sudoku.h"
 
 #include <vector>
 #include <assert.h>

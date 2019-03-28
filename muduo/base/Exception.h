@@ -6,7 +6,7 @@
 #ifndef MUDUO_BASE_EXCEPTION_H
 #define MUDUO_BASE_EXCEPTION_H
 
-#include <muduo/base/Types.h>
+#include "muduo/base/Types.h"
 #include <exception>
 
 namespace muduo

@@ -1,4 +1,4 @@
-#include <muduo/base/LogStream.h>
+#include "muduo/base/LogStream.h"
 
 #include <limits>
 #include <stdint.h>
@@ -232,4 +232,55 @@ BOOST_AUTO_TEST_CASE(testLogStreamLong)
   os << "abcdefghi";
   BOOST_CHECK_EQUAL(buf.length(), 3999);
   BOOST_CHECK_EQUAL(buf.avail(), 1);
+}
+
+BOOST_AUTO_TEST_CASE(testFormatSI)
+{
+  BOOST_CHECK_EQUAL(muduo::formatSI(0), string("0"));
+  BOOST_CHECK_EQUAL(muduo::formatSI(999), string("999"));
+  BOOST_CHECK_EQUAL(muduo::formatSI(1000), string("1.00k"));
+  BOOST_CHECK_EQUAL(muduo::formatSI(9990), string("9.99k"));
+  BOOST_CHECK_EQUAL(muduo::formatSI(9994), string("9.99k"));
+  BOOST_CHECK_EQUAL(muduo::formatSI(9995), string("10.0k"));
+  BOOST_CHECK_EQUAL(muduo::formatSI(10000), string("10.0k"));
+  BOOST_CHECK_EQUAL(muduo::formatSI(10049), string("10.0k"));
+  BOOST_CHECK_EQUAL(muduo::formatSI(10050), string("10.1k"));
+  BOOST_CHECK_EQUAL(muduo::formatSI(99900), string("99.9k"));
+  BOOST_CHECK_EQUAL(muduo::formatSI(99949), string("99.9k"));
+  BOOST_CHECK_EQUAL(muduo::formatSI(99950), string("100k"));
+  BOOST_CHECK_EQUAL(muduo::formatSI(100499), string("100k"));
+  // FIXME:
+  // BOOST_CHECK_EQUAL(muduo::formatSI(100500), string("101k"));
+  BOOST_CHECK_EQUAL(muduo::formatSI(100501), string("101k"));
+  BOOST_CHECK_EQUAL(muduo::formatSI(999499), string("999k"));
+  BOOST_CHECK_EQUAL(muduo::formatSI(999500), string("1.00M"));
+  BOOST_CHECK_EQUAL(muduo::formatSI(1004999), string("1.00M"));
+  // BOOST_CHECK_EQUAL(muduo::formatSI(1005000), string("1.01M"));
+  BOOST_CHECK_EQUAL(muduo::formatSI(1005001), string("1.01M"));
+  BOOST_CHECK_EQUAL(muduo::formatSI(INT64_MAX), string("9.22E"));
+}
+
+BOOST_AUTO_TEST_CASE(testFormatIEC)
+{
+  BOOST_CHECK_EQUAL(muduo::formatIEC(0), string("0"));
+  BOOST_CHECK_EQUAL(muduo::formatIEC(1023), string("1023"));
+  BOOST_CHECK_EQUAL(muduo::formatIEC(1024), string("1.00Ki"));
+  BOOST_CHECK_EQUAL(muduo::formatIEC(10234), string("9.99Ki"));
+  BOOST_CHECK_EQUAL(muduo::formatIEC(10235), string("10.0Ki"));
+  BOOST_CHECK_EQUAL(muduo::formatIEC(10240), string("10.0Ki"));
+  BOOST_CHECK_EQUAL(muduo::formatIEC(10291), string("10.0Ki"));
+  BOOST_CHECK_EQUAL(muduo::formatIEC(10292), string("10.1Ki"));
+  BOOST_CHECK_EQUAL(muduo::formatIEC(102348), string("99.9Ki"));
+  BOOST_CHECK_EQUAL(muduo::formatIEC(102349), string("100Ki"));
+  BOOST_CHECK_EQUAL(muduo::formatIEC(102912), string("100Ki"));
+  BOOST_CHECK_EQUAL(muduo::formatIEC(102913), string("101Ki"));
+  BOOST_CHECK_EQUAL(muduo::formatIEC(1022976), string("999Ki"));
+  BOOST_CHECK_EQUAL(muduo::formatIEC(1047552), string("1023Ki"));
+  BOOST_CHECK_EQUAL(muduo::formatIEC(1047961), string("1023Ki"));
+  BOOST_CHECK_EQUAL(muduo::formatIEC(1048063), string("1023Ki"));
+  BOOST_CHECK_EQUAL(muduo::formatIEC(1048064), string("1.00Mi"));
+  BOOST_CHECK_EQUAL(muduo::formatIEC(1048576), string("1.00Mi"));
+  BOOST_CHECK_EQUAL(muduo::formatIEC(10480517), string("9.99Mi"));
+  BOOST_CHECK_EQUAL(muduo::formatIEC(10480518), string("10.0Mi"));
+  BOOST_CHECK_EQUAL(muduo::formatIEC(INT64_MAX), string("8.00Ei"));
 }

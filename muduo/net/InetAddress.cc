@@ -6,11 +6,11 @@
 
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
-#include <muduo/net/InetAddress.h>
+#include "muduo/net/InetAddress.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/net/Endian.h>
-#include <muduo/net/SocketsOps.h>
+#include "muduo/base/Logging.h"
+#include "muduo/net/Endian.h"
+#include "muduo/net/SocketsOps.h"
 
 #include <netdb.h>
 #include <netinet/in.h>
@@ -137,5 +137,13 @@ bool InetAddress::resolve(StringArg hostname, InetAddress* out)
       LOG_SYSERR << "InetAddress::resolve";
     }
     return false;
+  }
+}
+
+void InetAddress::setScopeId(uint32_t scope_id)
+{
+  if (family() == AF_INET6)
+  {
+    addr6_.sin6_scope_id = scope_id;
   }
 }

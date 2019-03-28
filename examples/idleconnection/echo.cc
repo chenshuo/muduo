@@ -1,7 +1,7 @@
-#include "echo.h"
+#include "examples/idleconnection/echo.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/net/EventLoop.h>
+#include "muduo/base/Logging.h"
+#include "muduo/net/EventLoop.h"
 
 #include <assert.h>
 #include <stdio.h>

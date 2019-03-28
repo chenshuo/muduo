@@ -1,6 +1,6 @@
-#include <muduo/base/BoundedBlockingQueue.h>
-#include <muduo/base/CountDownLatch.h>
-#include <muduo/base/Thread.h>
+#include "muduo/base/BoundedBlockingQueue.h"
+#include "muduo/base/CountDownLatch.h"
+#include "muduo/base/Thread.h"
 
 #include <string>
 #include <vector>
@@ -13,9 +13,9 @@ class Test
  public:
   Test(int numThreads)
     : queue_(20),
-      latch_(numThreads),
-      threads_(numThreads)
+      latch_(numThreads)
   {
+    threads_.reserve(numThreads);
     for (int i = 0; i < numThreads; ++i)
     {
       char name[32];
@@ -83,9 +83,25 @@ class Test
   std::vector<std::unique_ptr<muduo::Thread>> threads_;
 };
 
+void testMove()
+{
+#if BOOST_VERSION >= 105500L
+  muduo::BoundedBlockingQueue<std::unique_ptr<int>> queue(10);
+  queue.put(std::unique_ptr<int>(new int(42)));
+  std::unique_ptr<int> x = queue.take();
+  printf("took %d\n", *x);
+  *x = 123;
+  queue.put(std::move(x));
+  std::unique_ptr<int> y;
+  y = queue.take();
+  printf("took %d\n", *y);
+#endif
+}
+
 int main()
 {
   printf("pid=%d, tid=%d\n", ::getpid(), muduo::CurrentThread::tid());
+  testMove();
   Test t(5);
   t.run(100);
   t.joinAll();

@@ -7,8 +7,8 @@
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 //
 
-#include <muduo/net/inspect/SystemInspector.h>
-#include <muduo/base/FileUtil.h>
+#include "muduo/net/inspect/SystemInspector.h"
+#include "muduo/base/FileUtil.h"
 
 #include <sys/utsname.h>
 

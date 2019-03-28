@@ -1,8 +1,8 @@
-#include "echo.h"
+#include "examples/idleconnection/echo.h"
 #include <stdio.h>
 
-#include <muduo/base/Logging.h>
-#include <muduo/net/EventLoop.h>
+#include "muduo/base/Logging.h"
+#include "muduo/net/EventLoop.h"
 
 using namespace muduo;
 using namespace muduo::net;

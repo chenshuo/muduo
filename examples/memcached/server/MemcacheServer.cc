@@ -1,8 +1,8 @@
-#include "MemcacheServer.h"
+#include "examples/memcached/server/MemcacheServer.h"
 
-#include <muduo/base/Atomic.h>
-#include <muduo/base/Logging.h>
-#include <muduo/net/EventLoop.h>
+#include "muduo/base/Atomic.h"
+#include "muduo/base/Logging.h"
+#include "muduo/net/EventLoop.h"
 
 using namespace muduo;
 using namespace muduo::net;
