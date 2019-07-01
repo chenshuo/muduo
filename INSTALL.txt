@@ -1,0 +1,19 @@
+language: cpp
+sudo: required
+dist: trusty
+compiler:
+  - gcc
+  - clang
+os:
+  - linux
+install:
+  - sudo apt-get install libboost-dev
+  - sudo apt-get install libprotobuf-dev protobuf-compiler libprotoc-dev libgoogle-perftools-dev
+  - sudo apt-get install libboost-test-dev libboost-program-options-dev libboost-system-dev
+  - sudo apt-get install libc-ares-dev libcurl4-openssl-dev
+  - sudo apt-get install zlib1g-dev libgd-dev
+env:
+  - BUILD_TYPE=debug
+  - BUILD_TYPE=release
+script:
+  - ./build.sh
