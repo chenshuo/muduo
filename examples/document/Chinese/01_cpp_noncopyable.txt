@@ -1,0 +1,66 @@
+c++ noncopyable
+从noncopyable派生的类不能赋值和拷贝。使用private 和 protected 实现：
+可以参考boost::noncopyable
+#include <boost/noncopyable.hpp>
+
+#ifndef BOOST_NONCOPYABLE_HPP_INCLUDED
+#define BOOST_NONCOPYABLE_HPP_INCLUDED
+
+namespace boost {
+
+//  Private copy constructor and copy assignment ensure classes derived from
+//  class noncopyable cannot be copied.
+
+//  Contributed by Dave Abrahams
+
+namespace noncopyable_  // protection from unintended ADL
+{
+  class noncopyable
+  {
+   protected:
+      noncopyable() {}
+      ~noncopyable() {}
+   private:  // emphasize the following members are private
+      noncopyable( const noncopyable& );
+      const noncopyable& operator=( const noncopyable& );
+  };
+}
+
+typedef noncopyable_::noncopyable noncopyable;
+
+} // namespace boost
+
+#endif  // BOOST_NONCOPYABLE_HPP_INCLUDED
+
+
+那么copyable 就是
+class copyable
+{
+ protected:
+  copyable() = default;
+  ~copyable() = default;
+};
+
+
+test code:
+
+#include "noncopyable.h"
+//#include "copyable.h"
+
+class no_copy_test : lmp_tool::noncopyable
+{
+public:
+    no_copy_test() { }
+    no_copy_test(int val) { value_ = val; }
+
+private:
+    mutable int value_;
+};
+
+int main(int argc, char *argv[])
+{
+    no_copy_test test1(1);
+    no_copy_test test2;
+
+    test2 = test1;  //编译出错  g++ -o 01_noncopyable 01_noncopyable.cpp
+}

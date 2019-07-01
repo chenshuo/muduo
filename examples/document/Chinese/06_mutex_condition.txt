@@ -1,0 +1,46 @@
+Mutex 使用RAII手法  是C++的标准实践
+使用起来很简单
+MutexLock g_mutex;
+然后在操作保护的资源时 使用函数{ MutexLockGuard lock(g_mutex); }
+
+测试例程：Mutex_text.cc
+
+Condition 跟Mutex配合使用，简单封装一下
+
+
+
+线程同步的四项原则，按重要性排列：
+1．首要原则是尽量最低限度地共享对象，减少需要同步的场合。
+一个对象能不暴露给别的线程就不要暴露；如果要暴露，优先考虑
+immutable对象；实在不行才暴露可修改的对象，并用同步措施来充分
+保护它。
+2．其次是使用高级的并发编程构件，如TaskQueue、Producer-
+Consumer Queue、CountDownLatch等等。
+3．最后不得已必须使用底层同步原语（primitives）时，只用非递
+归的互斥器和条件变量，慎用读写锁，不要用信号量。
+4．除了使用atomic整数之外，不自己编写lock-free代码3，也不要
+用“内核级”同步原语。不凭空猜测“哪种做法性能会更好”，比如spin
+lock vs. mutex。
+
+mutex,condition 是非常底层的同步原语，很少直接使用，一般都是用它来
+实现高层的同步措施，如BlockingQueue<T>或CountDownLatch
+
+BlockingQueue 可以实现线程安全的队列；put take 
+CountDownLatch 实现倒计时等待
+
+倒计时（CountDownLatch）是一种常用且易用的同步手段。它主
+要有两种用途：
+·主线程发起多个子线程，等这些子线程各自都完成一定的任务之
+后，主线程才继续执行。通常用于主线程等待多个子线程完成初始化。
+·主线程发起多个子线程，子线程都等待主线程，主线程完成其他
+一些任务之后通知所有子线程开始执行。通常用于多个子线程等待主线
+程发出“起跑”命令。
+
+
+CountDownLatch的实现同样简单，几乎就是条件变量的教科书式应
+用
+
+BlockingQueue_test.cc是个测试Blockingqueue 和 CountDownLatch的好程序
+大致过程：
+用CountDownLatch等待其他几个线程启动完毕；BlockingQueue 可以多线程安全使用
+然后主线程 deque.put   其他线程queue.take

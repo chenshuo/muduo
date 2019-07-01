@@ -1,0 +1,3 @@
+·pthread_once，封装为muduo::Singleton<T>。其实不如直接用全局变量。
+·pthread_key*，封装为muduo::ThreadLocal<T>。可以考虑用__thread替换之。不建议使用：
+·pthread_rwlock，读写锁通常应慎用。muduo没有封装读写锁，这是有意的。

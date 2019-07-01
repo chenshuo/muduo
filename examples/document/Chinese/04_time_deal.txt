@@ -1,0 +1,8 @@
+时间功能模块
+timezone 类，实现时区的转换
+对外的接口是 获取本地 或者 UTC 时间
+
+测试程序TimeZone_unittest.cc
+
+
+timestamp 类，提供时间戳

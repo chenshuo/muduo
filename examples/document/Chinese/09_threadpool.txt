@@ -1,0 +1,15 @@
+threadpool的实现：
+使用Mutex和condition 实现Task队列空和满的通知
+使用std::function 做TASK， 实现delegate 委托执行非成员函数；
+vector 实现 thread 的数量管理
+
+设定线程池名字，线程数，任务队列大小；
+然后只需要运行.run 即可；会运行任务函数，任务是多线程调用的。
+
+使用 CountDownLatch 等待所有任务完成，因为执行的最后一个任务是CountDownLatch减1，latch.wait()等待，
+然后 pool.stop() 退出 
+  lmp_tool::CountDownLatch latch(1);
+  pool.run(std::bind(&lmp_tool::CountDownLatch::countDown, &latch));
+  latch.wait();
+  pool.stop();
+

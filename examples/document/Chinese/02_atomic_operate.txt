@@ -1,0 +1,10 @@
+实现原子操作  https://blog.csdn.net/minCrazy/article/details/40791795
+gcc从4.1.2开始提供了__sync_*系列的build-in函数，用于提供加减和逻辑运算的原子操作
+
+使用template<typename T> 实现
+
+见Atomic.h
+
+测试程序
+Atomic_unit.cc
+g++ -o Atomic Atomic_unittest.cc -std=c++11

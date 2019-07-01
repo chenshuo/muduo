@@ -1,0 +1,11 @@
+Exception 
+借助backtrace和demangle实现，获取栈痕迹   https://www.cnblogs.com/inevermore/p/4005489.html
+int backtrace(void **buffer, int size);
+char **backtrace_symbols(void *const *buffer, int size);
+
+CurrentThread类
+可以获取当前thread的tid,是否主线程
+实现stackTrace
+通过cache_tid判断是都是同一个线程
+
+测试程序 Exception_test.cc

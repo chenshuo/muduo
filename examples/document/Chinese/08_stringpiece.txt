@@ -1,0 +1,6 @@
+·send(const StringPiece& message)这个重载可以发送std::string和
+const char*，其中StringPiece5是Google发明的专门用于传递字符串参数
+的class，这样程序里就不必为const char*和const std::string&提供两份重
+载了
+
+
