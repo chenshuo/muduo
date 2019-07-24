@@ -158,7 +158,7 @@ class Buffer : public muduo::copyable
 
   string retrieveAllAsString()
   {
-    return retrieveAsString(readableBytes());;
+    return retrieveAsString(readableBytes());
   }
 
   string retrieveAsString(size_t len)
@@ -416,7 +416,7 @@ class Buffer : public muduo::copyable
   static const char kCRLF[];
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_BUFFER_H

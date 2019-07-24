@@ -18,7 +18,7 @@ namespace muduo
 namespace net
 {
 
-class SystemInspector : boost::noncopyable
+class SystemInspector : noncopyable
 {
  public:
   void registerCommands(Inspector* ins);
@@ -31,7 +31,7 @@ class SystemInspector : boost::noncopyable
   static string stat(HttpRequest::Method, const Inspector::ArgList&);
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_INSPECT_SYSTEMINSPECTOR_H

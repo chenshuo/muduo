@@ -4,11 +4,9 @@
 
 #include <stdio.h>
 #include <sys/resource.h>
-#ifdef __MACH__
-#include <libgen.h>  // basename()
-#endif
+#include <unistd.h>
 
-int kRollSize = 500*1000*1000;
+off_t kRollSize = 500*1000*1000;
 
 muduo::AsyncLogging* g_asyncLog = NULL;
 
@@ -55,8 +53,8 @@ int main(int argc, char* argv[])
 
   printf("pid = %d\n", getpid());
 
-  char name[256];
-  strncpy(name, argv[0], 256);
+  char name[256] = { 0 };
+  strncpy(name, argv[0], sizeof name - 1);
   muduo::AsyncLogging log(::basename(name), kRollSize);
   log.start();
   g_asyncLog = &log;

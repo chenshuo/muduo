@@ -1,9 +1,13 @@
+// Use of this source code is governed by a BSD-style license
+// that can be found in the License file.
+//
+// Author: Shuo Chen (chenshuo at chenshuo dot com)
+
 #include <muduo/base/LogStream.h>
 
 #include <algorithm>
 #include <limits>
-#include <boost/static_assert.hpp>
-#include <boost/type_traits/is_arithmetic.hpp>
+#include <type_traits>
 #include <assert.h>
 #include <string.h>
 #include <stdint.h>
@@ -12,6 +16,7 @@
 using namespace muduo;
 using namespace muduo::detail;
 
+// TODO: better itoa.
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wtautological-compare"
 #else
@@ -25,10 +30,10 @@ namespace detail
 
 const char digits[] = "9876543210123456789";
 const char* zero = digits + 9;
-BOOST_STATIC_ASSERT(sizeof(digits) == 20);
+static_assert(sizeof(digits) == 20, "wrong number of digits");
 
 const char digitsHex[] = "0123456789ABCDEF";
-BOOST_STATIC_ASSERT(sizeof digitsHex == 17);
+static_assert(sizeof digitsHex == 17, "wrong number of digitsHex");
 
 // Efficient Integer to String Conversions, by Matthew Wilson.
 template<typename T>
@@ -75,8 +80,8 @@ size_t convertHex(char buf[], uintptr_t value)
 template class FixedBuffer<kSmallBuffer>;
 template class FixedBuffer<kLargeBuffer>;
 
-}
-}
+}  // namespace detail
+}  // namespace muduo
 
 template<int SIZE>
 const char* FixedBuffer<SIZE>::debugString()
@@ -97,10 +102,14 @@ void FixedBuffer<SIZE>::cookieEnd()
 
 void LogStream::staticCheck()
 {
-  BOOST_STATIC_ASSERT(kMaxNumericSize - 10 > std::numeric_limits<double>::digits10);
-  BOOST_STATIC_ASSERT(kMaxNumericSize - 10 > std::numeric_limits<long double>::digits10);
-  BOOST_STATIC_ASSERT(kMaxNumericSize - 10 > std::numeric_limits<long>::digits10);
-  BOOST_STATIC_ASSERT(kMaxNumericSize - 10 > std::numeric_limits<long long>::digits10);
+  static_assert(kMaxNumericSize - 10 > std::numeric_limits<double>::digits10,
+                "kMaxNumericSize is large enough");
+  static_assert(kMaxNumericSize - 10 > std::numeric_limits<long double>::digits10,
+                "kMaxNumericSize is large enough");
+  static_assert(kMaxNumericSize - 10 > std::numeric_limits<long>::digits10,
+                "kMaxNumericSize is large enough");
+  static_assert(kMaxNumericSize - 10 > std::numeric_limits<long long>::digits10,
+                "kMaxNumericSize is large enough");
 }
 
 template<typename T>
@@ -189,7 +198,7 @@ LogStream& LogStream::operator<<(double v)
 template<typename T>
 Fmt::Fmt(const char* fmt, T val)
 {
-  BOOST_STATIC_ASSERT(boost::is_arithmetic<T>::value == true);
+  static_assert(std::is_arithmetic<T>::value == true, "Must be arithmetic type");
 
   length_ = snprintf(buf_, sizeof buf_, fmt, val);
   assert(static_cast<size_t>(length_) < sizeof buf_);

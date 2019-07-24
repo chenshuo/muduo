@@ -30,11 +30,11 @@ class PollPoller : public Poller
  public:
 
   PollPoller(EventLoop* loop);
-  virtual ~PollPoller();
+  ~PollPoller() override;
 
-  virtual Timestamp poll(int timeoutMs, ChannelList* activeChannels);
-  virtual void updateChannel(Channel* channel);
-  virtual void removeChannel(Channel* channel);
+  Timestamp poll(int timeoutMs, ChannelList* activeChannels) override;
+  void updateChannel(Channel* channel) override;
+  void removeChannel(Channel* channel) override;
 
  private:
   void fillActiveChannels(int numEvents,
@@ -44,6 +44,6 @@ class PollPoller : public Poller
   PollFdList pollfds_;
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 #endif  // MUDUO_NET_POLLER_POLLPOLLER_H

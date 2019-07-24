@@ -4,7 +4,9 @@
 #include <libgen.h>  // basename()
 #endif
 
-boost::scoped_ptr<muduo::LogFile> g_logFile;
+#include <unistd.h>
+
+std::unique_ptr<muduo::LogFile> g_logFile;
 
 void outputFunc(const char* msg, int len)
 {
@@ -18,8 +20,8 @@ void flushFunc()
 
 int main(int argc, char* argv[])
 {
-  char name[256];
-  strncpy(name, argv[0], 256);
+  char name[256] = { 0 };
+  strncpy(name, argv[0], sizeof name - 1);
   g_logFile.reset(new muduo::LogFile(::basename(name), 200*1000));
   muduo::Logger::setOutput(outputFunc);
   muduo::Logger::setFlush(flushFunc);

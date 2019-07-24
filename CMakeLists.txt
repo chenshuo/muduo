@@ -27,7 +27,7 @@ set(CXX_FLAGS
  -Wwrite-strings
  -march=native
  # -MMD
- # -std=c++0x
+ -std=c++11
  )
 if(CMAKE_BUILD_BITS EQUAL 32)
   list(APPEND CXX_FLAGS "-m32")
@@ -50,7 +50,8 @@ find_path(MHD_INCLUDE_DIR microhttpd.h)
 find_library(MHD_LIBRARY NAMES microhttpd)
 find_library(BOOSTTEST_LIBRARY NAMES boost_unit_test_framework)
 find_library(BOOSTPO_LIBRARY NAMES boost_program_options)
-find_path(TCMALLOC_INCLUDE_DIR google/heap-profiler.h)
+find_library(BOOSTSYSTEM_LIBRARY NAMES boost_system)
+find_path(TCMALLOC_INCLUDE_DIR gperftools/heap-profiler.h)
 find_library(TCMALLOC_LIBRARY NAMES tcmalloc_and_profiler)
 find_path(HIREDIS_INCLUDE_DIR hiredis/hiredis.h)
 find_library(HIREDIS_LIBRARY NAMES hiredis)
@@ -79,16 +80,11 @@ include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${PROJECT_SOURCE_DIR})
 
 string(TOUPPER ${CMAKE_BUILD_TYPE} BUILD_TYPE)
+
 message(STATUS "CXX_FLAGS = " ${CMAKE_CXX_FLAGS} " " ${CMAKE_CXX_FLAGS_${BUILD_TYPE}})
 
 add_subdirectory(muduo/base)
 add_subdirectory(muduo/net)
 
-if(NOT CMAKE_BUILD_NO_EXAMPLES)
-  add_subdirectory(examples)
-else()
-  if(CARES_INCLUDE_DIR AND CARES_LIBRARY)
-    add_subdirectory(examples/cdns)
-  endif()
-endif()
+
 

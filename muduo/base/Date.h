@@ -114,5 +114,6 @@ inline bool operator==(Date x, Date y)
   return x.julianDayNumber() == y.julianDayNumber();
 }
 
-}
+}  // namespace muduo
+
 #endif  // MUDUO_BASE_DATE_H

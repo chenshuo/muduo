@@ -14,8 +14,6 @@
 #include <set>
 #include <vector>
 
-#include <boost/noncopyable.hpp>
-
 #include <muduo/base/Mutex.h>
 #include <muduo/base/Timestamp.h>
 #include <muduo/net/Callbacks.h>
@@ -34,10 +32,10 @@ class TimerId;
 /// A best efforts timer queue.
 /// No guarantee that the callback will be on time.
 ///
-class TimerQueue : boost::noncopyable
+class TimerQueue : noncopyable
 {
  public:
-  TimerQueue(EventLoop* loop);
+  explicit TimerQueue(EventLoop* loop);
   ~TimerQueue();
 
   ///
@@ -62,6 +60,8 @@ class TimerQueue : boost::noncopyable
  private:
 
   // FIXME: use unique_ptr<Timer> instead of raw pointers.
+  // This requires heterogeneous comparison lookup (N3465) from C++14
+  // so that we can find an T* in a set<unique_ptr<T>>.
   typedef std::pair<Timestamp, Timer*> Entry;
   typedef std::set<Entry> TimerList;
   typedef std::pair<Timer*, int64_t> ActiveTimer;
@@ -84,6 +84,6 @@ class TimerQueue : boost::noncopyable
   ActiveTimerSet cancelingTimers_;
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 #endif  // MUDUO_NET_TIMERQUEUE_H

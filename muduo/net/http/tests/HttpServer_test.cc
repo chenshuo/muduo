@@ -19,11 +19,9 @@ void onRequest(const HttpRequest& req, HttpResponse* resp)
   if (!benchmark)
   {
     const std::map<string, string>& headers = req.headers();
-    for (std::map<string, string>::const_iterator it = headers.begin();
-         it != headers.end();
-         ++it)
+    for (const auto& header : headers)
     {
-      std::cout << it->first << ": " << it->second << std::endl;
+      std::cout << header.first << ": " << header.second << std::endl;
     }
   }
 

@@ -73,7 +73,7 @@ class HttpResponse : public muduo::copyable
   string body_;
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_HTTP_HTTPRESPONSE_H

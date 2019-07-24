@@ -15,8 +15,6 @@
 #include <muduo/net/protorpc/rpc.pb.h>
 #include <muduo/net/protorpc/google-inl.h>
 
-#include <boost/bind.hpp>
-
 using namespace muduo;
 using namespace muduo::net;
 
@@ -27,7 +25,7 @@ namespace
     GOOGLE_PROTOBUF_VERIFY_VERSION;
     return 0;
   }
-  int dummy = ProtobufVersionCheck();
+  int dummy __attribute__ ((unused)) = ProtobufVersionCheck();
 }
 
 namespace muduo

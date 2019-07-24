@@ -3,8 +3,8 @@
 #include <muduo/base/CurrentThread.h>
 #include <muduo/base/Logging.h>
 
-#include <boost/bind.hpp>
 #include <stdio.h>
+#include <unistd.h>  // usleep
 
 void print()
 {
@@ -31,12 +31,12 @@ void test(int maxSize)
   {
     char buf[32];
     snprintf(buf, sizeof buf, "task %d", i);
-    pool.run(boost::bind(printString, std::string(buf)));
+    pool.run(std::bind(printString, std::string(buf)));
   }
   LOG_WARN << "Done";
 
   muduo::CountDownLatch latch(1);
-  pool.run(boost::bind(&muduo::CountDownLatch::countDown, &latch));
+  pool.run(std::bind(&muduo::CountDownLatch::countDown, &latch));
   latch.wait();
   pool.stop();
 }
