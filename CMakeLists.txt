@@ -8,6 +8,11 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Debug")
 endif()
 
+# only build examples if this is the main project
+if(CMAKE_PROJECT_NAME STREQUAL "muduo")
+  option(MUDUO_BUILD_EXAMPLES "Build Muduo examples" ON)
+endif()
+
 set(CXX_FLAGS
  -g
  # -DVALGRIND
@@ -16,7 +21,7 @@ set(CXX_FLAGS
  -D_FILE_OFFSET_BITS=64
  -Wall
  -Wextra
- # -Werror
+ -Werror
  -Wconversion
  -Wno-unused-parameter
  -Wno-sign-conversion
@@ -55,6 +60,11 @@ find_path(TCMALLOC_INCLUDE_DIR gperftools/heap-profiler.h)
 find_library(TCMALLOC_LIBRARY NAMES tcmalloc_and_profiler)
 find_path(HIREDIS_INCLUDE_DIR hiredis/hiredis.h)
 find_library(HIREDIS_LIBRARY NAMES hiredis)
+find_path(GD_INCLUDE_DIR gd.h)
+find_library(GD_LIBRARY NAMES gd)
+find_program(THRIFT_COMPILER thrift)
+find_path(THRIFT_INCLUDE_DIR thrift)
+find_library(THRIFT_LIBRARY NAMES thrift)
 
 if(CARES_INCLUDE_DIR AND CARES_LIBRARY)
   message(STATUS "found cares")
@@ -74,6 +84,12 @@ endif()
 if(HIREDIS_INCLUDE_DIR AND HIREDIS_LIBRARY)
   message(STATUS "found hiredis")
 endif()
+if(GD_INCLUDE_DIR AND GD_LIBRARY)
+  message(STATUS "found gd")
+endif()
+if(THRIFT_COMPILER AND THRIFT_INCLUDE_DIR AND THRIFT_LIBRARY)
+  message(STATUS "found thrift")
+endif()
 
 include_directories(${Boost_INCLUDE_DIRS})
 
@@ -86,5 +102,12 @@ message(STATUS "CXX_FLAGS = " ${CMAKE_CXX_FLAGS} " " ${CMAKE_CXX_FLAGS_${BUILD_T
 add_subdirectory(muduo/base)
 add_subdirectory(muduo/net)
 
-
+# if(MUDUO_BUILD_EXAMPLES)
+#   add_subdirectory(contrib)
+#   add_subdirectory(examples)
+# else()
+#   if(CARES_INCLUDE_DIR AND CARES_LIBRARY)
+#     add_subdirectory(examples/cdns)
+#   endif()
+# endif()
 
