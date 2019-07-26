@@ -21,7 +21,7 @@ set(CXX_FLAGS
  -D_FILE_OFFSET_BITS=64
  -Wall
  -Wextra
- -Werror
+ # -Werror
  -Wconversion
  -Wno-unused-parameter
  -Wno-sign-conversion
