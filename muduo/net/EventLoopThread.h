@@ -35,11 +35,11 @@ class EventLoopThread : noncopyable
  private:
   void threadFunc();
 
-  EventLoop* loop_ GUARDED_BY(mutex_);
+  EventLoop* loop_ ;
   bool exiting_;
   Thread thread_;
   MutexLock mutex_;
-  Condition cond_ GUARDED_BY(mutex_);
+  Condition cond_ ;
   ThreadInitCallback callback_;
 };
 

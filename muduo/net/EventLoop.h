@@ -157,7 +157,7 @@ class EventLoop : noncopyable
   Channel* currentActiveChannel_;
 
   mutable MutexLock mutex_;
-  std::vector<Functor> pendingFunctors_ GUARDED_BY(mutex_);
+  std::vector<Functor> pendingFunctors_ ;
 };
 
 }  // namespace net
