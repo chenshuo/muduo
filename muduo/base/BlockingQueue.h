@@ -6,8 +6,8 @@
 #ifndef MUDUO_BASE_BLOCKINGQUEUE_H
 #define MUDUO_BASE_BLOCKINGQUEUE_H
 
-#include <muduo/base/Condition.h>
-#include <muduo/base/Mutex.h>
+#include "muduo/base/Condition.h"
+#include "muduo/base/Mutex.h"
 
 #include <deque>
 #include <assert.h>
@@ -63,8 +63,8 @@ class BlockingQueue : noncopyable
 
  private:
   mutable MutexLock mutex_;
-  Condition         notEmpty_;
-  std::deque<T>     queue_;
+  Condition         notEmpty_ GUARDED_BY(mutex_);
+  std::deque<T>     queue_ GUARDED_BY(mutex_);
 };
 
 }  // namespace muduo

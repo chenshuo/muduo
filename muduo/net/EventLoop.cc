@@ -6,14 +6,14 @@
 
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
-#include <muduo/net/EventLoop.h>
+#include "muduo/net/EventLoop.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/base/Mutex.h>
-#include <muduo/net/Channel.h>
-#include <muduo/net/Poller.h>
-#include <muduo/net/SocketsOps.h>
-#include <muduo/net/TimerQueue.h>
+#include "muduo/base/Logging.h"
+#include "muduo/base/Mutex.h"
+#include "muduo/net/Channel.h"
+#include "muduo/net/Poller.h"
+#include "muduo/net/SocketsOps.h"
+#include "muduo/net/TimerQueue.h"
 
 #include <algorithm>
 
@@ -28,7 +28,7 @@ namespace
 {
 __thread EventLoop* t_loopInThisThread = 0;
 
-//const int kPollTimeMs = 10000;
+const int kPollTimeMs = 10000;
 
 class IgnoreSigPipe
 {
@@ -103,13 +103,12 @@ void EventLoop::loop()
   while (!quit_)
   {
     activeChannels_.clear();
-    pollReturnTime_ = poller_->poll(timerQueue_->getTimeout(), &activeChannels_);
+    pollReturnTime_ = poller_->poll(kPollTimeMs, &activeChannels_);
     ++iteration_;
-    if (Logger::logLevel() <= Logger::TRACE)
+    if (Logger::logLevel() <= Logger::INFO)
     {
       printActiveChannels();
     }
-    timerQueue_->processTimers();
     // TODO sort channel by priority
     eventHandling_ = true;
     for (Channel* channel : activeChannels_)

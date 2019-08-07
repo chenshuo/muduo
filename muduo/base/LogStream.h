@@ -6,9 +6,9 @@
 #ifndef MUDUO_BASE_LOGSTREAM_H
 #define MUDUO_BASE_LOGSTREAM_H
 
-#include <muduo/base/noncopyable.h>
-#include <muduo/base/StringPiece.h>
-#include <muduo/base/Types.h>
+#include "muduo/base/noncopyable.h"
+#include "muduo/base/StringPiece.h"
+#include "muduo/base/Types.h"
 #include <assert.h>
 #include <string.h> // memcpy
 
@@ -187,6 +187,16 @@ inline LogStream& operator<<(LogStream& s, const Fmt& fmt)
   s.append(fmt.data(), fmt.length());
   return s;
 }
+
+// Format quantity n in SI units (k, M, G, T, P, E).
+// The returned string is atmost 5 characters long.
+// Requires n >= 0
+string formatSI(int64_t n);
+
+// Format quantity n in IEC (binary) units (Ki, Mi, Gi, Ti, Pi, Ei).
+// The returned string is atmost 6 characters long.
+// Requires n >= 0
+string formatIEC(int64_t n);
 
 }  // namespace muduo
 

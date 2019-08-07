@@ -3,9 +3,9 @@
 //
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
-#include <muduo/base/ThreadPool.h>
+#include "muduo/base/ThreadPool.h"
 
-#include <muduo/base/Exception.h>
+#include "muduo/base/Exception.h"
 
 #include <assert.h>
 #include <stdio.h>

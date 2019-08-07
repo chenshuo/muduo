@@ -6,12 +6,12 @@
 #ifndef MUDUO_BASE_ASYNCLOGGING_H
 #define MUDUO_BASE_ASYNCLOGGING_H
 
-// #include <muduo/base/BlockingQueue.h>
-// #include <muduo/base/BoundedBlockingQueue.h>
-#include <muduo/base/CountDownLatch.h>
-#include <muduo/base/Mutex.h>
-#include <muduo/base/Thread.h>
-#include <muduo/base/LogStream.h>
+#include "muduo/base/BlockingQueue.h"
+#include "muduo/base/BoundedBlockingQueue.h"
+#include "muduo/base/CountDownLatch.h"
+#include "muduo/base/Mutex.h"
+#include "muduo/base/Thread.h"
+#include "muduo/base/LogStream.h"
 
 #include <atomic>
 #include <vector>
@@ -44,7 +44,7 @@ class AsyncLogging : noncopyable
     latch_.wait();
   }
 
-  void stop()
+  void stop() NO_THREAD_SAFETY_ANALYSIS
   {
     running_ = false;
     cond_.notify();
@@ -66,10 +66,10 @@ class AsyncLogging : noncopyable
   muduo::Thread thread_;
   muduo::CountDownLatch latch_;
   muduo::MutexLock mutex_;
-  muduo::Condition cond_;
-  BufferPtr currentBuffer_;
-  BufferPtr nextBuffer_;
-  BufferVector buffers_;
+  muduo::Condition cond_ GUARDED_BY(mutex_);
+  BufferPtr currentBuffer_ GUARDED_BY(mutex_);
+  BufferPtr nextBuffer_ GUARDED_BY(mutex_);
+  BufferVector buffers_ GUARDED_BY(mutex_);
 };
 
 }  // namespace muduo

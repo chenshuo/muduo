@@ -3,9 +3,9 @@
 //
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
-#include <muduo/base/AsyncLogging.h>
-#include <muduo/base/LogFile.h>
-#include <muduo/base/Timestamp.h>
+#include "muduo/base/AsyncLogging.h"
+#include "muduo/base/LogFile.h"
+#include "muduo/base/Timestamp.h"
 
 #include <stdio.h>
 
@@ -117,7 +117,6 @@ void AsyncLogging::threadFunc()
       assert(!buffersToWrite.empty());
       newBuffer1 = std::move(buffersToWrite.back());
       buffersToWrite.pop_back();
-      //call FixedBuffer reset 
       newBuffer1->reset();
     }
 
@@ -126,7 +125,6 @@ void AsyncLogging::threadFunc()
       assert(!buffersToWrite.empty());
       newBuffer2 = std::move(buffersToWrite.back());
       buffersToWrite.pop_back();
-      //call FixedBuffer reset 
       newBuffer2->reset();
     }
 

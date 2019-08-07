@@ -17,11 +17,11 @@
 
 #include <boost/any.hpp>
 
-#include <muduo/base/Mutex.h>
-#include <muduo/base/CurrentThread.h>
-#include <muduo/base/Timestamp.h>
-#include <muduo/net/Callbacks.h>
-#include <muduo/net/TimerId.h>
+#include "muduo/base/Mutex.h"
+#include "muduo/base/CurrentThread.h"
+#include "muduo/base/Timestamp.h"
+#include "muduo/net/Callbacks.h"
+#include "muduo/net/TimerId.h"
 
 namespace muduo
 {
@@ -157,7 +157,7 @@ class EventLoop : noncopyable
   Channel* currentActiveChannel_;
 
   mutable MutexLock mutex_;
-  std::vector<Functor> pendingFunctors_ ;
+  std::vector<Functor> pendingFunctors_ GUARDED_BY(mutex_);
 };
 
 }  // namespace net

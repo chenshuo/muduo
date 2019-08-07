@@ -6,7 +6,7 @@
 #ifndef MUDUO_BASE_CONDITION_H
 #define MUDUO_BASE_CONDITION_H
 
-#include <muduo/base/Mutex.h>
+#include "muduo/base/Mutex.h"
 
 #include <pthread.h>
 

@@ -8,9 +8,9 @@
 #ifndef MUDUO_BASE_PROCESSINFO_H
 #define MUDUO_BASE_PROCESSINFO_H
 
-#include <muduo/base/StringPiece.h>
-#include <muduo/base/Types.h>
-#include <muduo/base/Timestamp.h>
+#include "muduo/base/StringPiece.h"
+#include "muduo/base/Types.h"
+#include "muduo/base/Timestamp.h"
 #include <vector>
 #include <sys/types.h>
 
@@ -54,6 +54,8 @@ namespace ProcessInfo
     double systemSeconds;
 
     CpuTime() : userSeconds(0.0), systemSeconds(0.0) { }
+
+    double total() const { return userSeconds + systemSeconds; }
   };
   CpuTime cpuTime();
 

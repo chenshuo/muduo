@@ -6,20 +6,20 @@
 
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
-#include <muduo/net/InetAddress.h>
+#include "muduo/net/InetAddress.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/net/Endian.h>
-#include <muduo/net/SocketsOps.h>
+#include "muduo/base/Logging.h"
+#include "muduo/net/Endian.h"
+#include "muduo/net/SocketsOps.h"
 
 #include <netdb.h>
 #include <netinet/in.h>
 
 // INADDR_ANY use (type)value casting.
-// #pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 static const in_addr_t kInaddrAny = INADDR_ANY;
 static const in_addr_t kInaddrLoopback = INADDR_LOOPBACK;
-// #pragma GCC diagnostic error "-Wold-style-cast"
+#pragma GCC diagnostic error "-Wold-style-cast"
 
 //     /* Structure describing an Internet socket address.  */
 //     struct sockaddr_in {

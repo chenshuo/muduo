@@ -6,8 +6,8 @@
 #ifndef MUDUO_BASE_TIMESTAMP_H
 #define MUDUO_BASE_TIMESTAMP_H
 
-#include <muduo/base/copyable.h>
-#include <muduo/base/Types.h>
+#include "muduo/base/copyable.h"
+#include "muduo/base/Types.h"
 
 #include <boost/operators.hpp>
 

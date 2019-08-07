@@ -3,8 +3,8 @@
 //
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
-#include <muduo/base/FileUtil.h>
-#include <muduo/base/Logging.h> // strerror_tl
+#include "muduo/base/FileUtil.h"
+#include "muduo/base/Logging.h"
 
 #include <assert.h>
 #include <errno.h>
@@ -58,12 +58,11 @@ void FileUtil::AppendFile::flush()
   ::fflush(fp_);
 }
 
-std::mutex mtx;
 size_t FileUtil::AppendFile::write(const char* logline, size_t len)
 {
   // #undef fwrite_unlocked
   //return ::fwrite_unlocked(logline, 1, len, fp_);
-  std::lock_guard<std::mutex> lck (mtx);
+  //std::lock_guard<std::mutex> lck (mtx);
   return ::fwrite(logline, 1, len, fp_);
 }
 

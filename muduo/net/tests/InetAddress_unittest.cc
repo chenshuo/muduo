@@ -1,6 +1,6 @@
-#include <muduo/net/InetAddress.h>
+#include "muduo/net/InetAddress.h"
 
-#include <muduo/base/Logging.h>
+#include "muduo/base/Logging.h"
 
 //#define BOOST_TEST_MODULE InetAddressTest
 #define BOOST_TEST_MAIN

@@ -11,8 +11,8 @@
 #ifndef MUDUO_NET_TCPCLIENT_H
 #define MUDUO_NET_TCPCLIENT_H
 
-#include <muduo/base/Mutex.h>
-#include <muduo/net/TcpConnection.h>
+#include "muduo/base/Mutex.h"
+#include "muduo/net/TcpConnection.h"
 
 namespace muduo
 {
@@ -81,7 +81,7 @@ class TcpClient : noncopyable
   // always in loop thread
   int nextConnId_;
   mutable MutexLock mutex_;
-  TcpConnectionPtr connection_ ;
+  TcpConnectionPtr connection_ GUARDED_BY(mutex_);
 };
 
 }  // namespace net
