@@ -154,6 +154,7 @@ void EventLoop::runInLoop(Functor cb)
   else
   {
     queueInLoop(std::move(cb));
+    wakeup();
   }
 }
 
