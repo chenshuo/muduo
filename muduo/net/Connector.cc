@@ -7,14 +7,12 @@
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 //
 
-#include <muduo/net/Connector.h>
+#include "muduo/net/Connector.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/net/Channel.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/SocketsOps.h>
-
-#include <boost/bind.hpp>
+#include "muduo/base/Logging.h"
+#include "muduo/net/Channel.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/SocketsOps.h"
 
 #include <errno.h>
 
@@ -42,7 +40,7 @@ Connector::~Connector()
 void Connector::start()
 {
   connect_ = true;
-  loop_->runInLoop(boost::bind(&Connector::startInLoop, this)); // FIXME: unsafe
+  loop_->runInLoop(std::bind(&Connector::startInLoop, this)); // FIXME: unsafe
 }
 
 void Connector::startInLoop()
@@ -62,7 +60,7 @@ void Connector::startInLoop()
 void Connector::stop()
 {
   connect_ = false;
-  loop_->queueInLoop(boost::bind(&Connector::stopInLoop, this)); // FIXME: unsafe
+  loop_->queueInLoop(std::bind(&Connector::stopInLoop, this)); // FIXME: unsafe
   // FIXME: cancel timer
 }
 
@@ -79,8 +77,8 @@ void Connector::stopInLoop()
 
 void Connector::connect()
 {
-  int sockfd = sockets::createNonblockingOrDie();
-  int ret = sockets::connect(sockfd, serverAddr_.getSockAddrInet());
+  int sockfd = sockets::createNonblockingOrDie(serverAddr_.family());
+  int ret = sockets::connect(sockfd, serverAddr_.getSockAddr());
   int savedErrno = (ret == 0) ? 0 : errno;
   switch (savedErrno)
   {
@@ -133,9 +131,9 @@ void Connector::connecting(int sockfd)
   assert(!channel_);
   channel_.reset(new Channel(loop_, sockfd));
   channel_->setWriteCallback(
-      boost::bind(&Connector::handleWrite, this)); // FIXME: unsafe
+      std::bind(&Connector::handleWrite, this)); // FIXME: unsafe
   channel_->setErrorCallback(
-      boost::bind(&Connector::handleError, this)); // FIXME: unsafe
+      std::bind(&Connector::handleError, this)); // FIXME: unsafe
 
   // channel_->tie(shared_from_this()); is not working,
   // as channel_ is not managed by shared_ptr
@@ -148,7 +146,7 @@ int Connector::removeAndResetChannel()
   channel_->remove();
   int sockfd = channel_->fd();
   // Can't reset channel_ here, because we are inside Channel::handleEvent
-  loop_->queueInLoop(boost::bind(&Connector::resetChannel, this)); // FIXME: unsafe
+  loop_->queueInLoop(std::bind(&Connector::resetChannel, this)); // FIXME: unsafe
   return sockfd;
 }
 
@@ -217,7 +215,7 @@ void Connector::retry(int sockfd)
     LOG_INFO << "Connector::retry - Retry connecting to " << serverAddr_.toIpPort()
              << " in " << retryDelayMs_ << " milliseconds. ";
     loop_->runAfter(retryDelayMs_/1000.0,
-                    boost::bind(&Connector::startInLoop, shared_from_this()));
+                    std::bind(&Connector::startInLoop, shared_from_this()));
     retryDelayMs_ = std::min(retryDelayMs_ * 2, kMaxRetryDelayMs);
   }
   else

@@ -6,9 +6,9 @@
 
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
-#include <muduo/net/Poller.h>
+#include "muduo/net/Poller.h"
 
-#include <muduo/net/Channel.h>
+#include "muduo/net/Channel.h"
 
 using namespace muduo;
 using namespace muduo::net;
@@ -18,9 +18,7 @@ Poller::Poller(EventLoop* loop)
 {
 }
 
-Poller::~Poller()
-{
-}
+Poller::~Poller() = default;
 
 bool Poller::hasChannel(Channel* channel) const
 {

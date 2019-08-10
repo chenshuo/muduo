@@ -6,15 +6,13 @@
 
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
-#include <muduo/net/TcpServer.h>
+#include "muduo/net/TcpServer.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/net/Acceptor.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/EventLoopThreadPool.h>
-#include <muduo/net/SocketsOps.h>
-
-#include <boost/bind.hpp>
+#include "muduo/base/Logging.h"
+#include "muduo/net/Acceptor.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/EventLoopThreadPool.h"
+#include "muduo/net/SocketsOps.h"
 
 #include <stdio.h>  // snprintf
 
@@ -26,16 +24,16 @@ TcpServer::TcpServer(EventLoop* loop,
                      const string& nameArg,
                      Option option)
   : loop_(CHECK_NOTNULL(loop)),
-    hostport_(listenAddr.toIpPort()),
+    ipPort_(listenAddr.toIpPort()),
     name_(nameArg),
     acceptor_(new Acceptor(loop, listenAddr, option == kReusePort)),
-    threadPool_(new EventLoopThreadPool(loop)),
+    threadPool_(new EventLoopThreadPool(loop, name_)),
     connectionCallback_(defaultConnectionCallback),
     messageCallback_(defaultMessageCallback),
     nextConnId_(1)
 {
   acceptor_->setNewConnectionCallback(
-      boost::bind(&TcpServer::newConnection, this, _1, _2));
+      std::bind(&TcpServer::newConnection, this, _1, _2));
 }
 
 TcpServer::~TcpServer()
@@ -43,14 +41,12 @@ TcpServer::~TcpServer()
   loop_->assertInLoopThread();
   LOG_TRACE << "TcpServer::~TcpServer [" << name_ << "] destructing";
 
-  for (ConnectionMap::iterator it(connections_.begin());
-      it != connections_.end(); ++it)
+  for (auto& item : connections_)
   {
-    TcpConnectionPtr conn = it->second;
-    it->second.reset();
+    TcpConnectionPtr conn(item.second);
+    item.second.reset();
     conn->getLoop()->runInLoop(
-      boost::bind(&TcpConnection::connectDestroyed, conn));
-    conn.reset();
+      std::bind(&TcpConnection::connectDestroyed, conn));
   }
 }
 
@@ -68,7 +64,7 @@ void TcpServer::start()
 
     assert(!acceptor_->listenning());
     loop_->runInLoop(
-        boost::bind(&Acceptor::listen, get_pointer(acceptor_)));
+        std::bind(&Acceptor::listen, get_pointer(acceptor_)));
   }
 }
 
@@ -76,8 +72,8 @@ void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
 {
   loop_->assertInLoopThread();
   EventLoop* ioLoop = threadPool_->getNextLoop();
-  char buf[32];
-  snprintf(buf, sizeof buf, ":%s#%d", hostport_.c_str(), nextConnId_);
+  char buf[64];
+  snprintf(buf, sizeof buf, "-%s#%d", ipPort_.c_str(), nextConnId_);
   ++nextConnId_;
   string connName = name_ + buf;
 
@@ -97,14 +93,14 @@ void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
   conn->setMessageCallback(messageCallback_);
   conn->setWriteCompleteCallback(writeCompleteCallback_);
   conn->setCloseCallback(
-      boost::bind(&TcpServer::removeConnection, this, _1)); // FIXME: unsafe
-  ioLoop->runInLoop(boost::bind(&TcpConnection::connectEstablished, conn));
+      std::bind(&TcpServer::removeConnection, this, _1)); // FIXME: unsafe
+  ioLoop->runInLoop(std::bind(&TcpConnection::connectEstablished, conn));
 }
 
 void TcpServer::removeConnection(const TcpConnectionPtr& conn)
 {
   // FIXME: unsafe
-  loop_->runInLoop(boost::bind(&TcpServer::removeConnectionInLoop, this, conn));
+  loop_->runInLoop(std::bind(&TcpServer::removeConnectionInLoop, this, conn));
 }
 
 void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn)
@@ -117,6 +113,6 @@ void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn)
   assert(n == 1);
   EventLoop* ioLoop = conn->getLoop();
   ioLoop->queueInLoop(
-      boost::bind(&TcpConnection::connectDestroyed, conn));
+      std::bind(&TcpConnection::connectDestroyed, conn));
 }
 

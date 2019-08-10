@@ -3,8 +3,6 @@
 #include <muduo/base/Thread.h>
 #include <muduo/base/Timestamp.h>
 
-#include <boost/bind.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
 #include <vector>
 #include <stdio.h>
 
@@ -66,17 +64,17 @@ int main()
 
   for (int nthreads = 1; nthreads < kMaxThreads; ++nthreads)
   {
-    boost::ptr_vector<Thread> threads;
+    std::vector<std::unique_ptr<Thread>> threads;
     g_vec.clear();
     start = Timestamp::now();
     for (int i = 0; i < nthreads; ++i)
     {
-      threads.push_back(new Thread(&threadFunc));
-      threads.back().start();
+      threads.emplace_back(new Thread(&threadFunc));
+      threads.back()->start();
     }
     for (int i = 0; i < nthreads; ++i)
     {
-      threads[i].join();
+      threads[i]->join();
     }
     printf("%d thread(s) with lock %f\n", nthreads, timeDifference(Timestamp::now(), start));
   }

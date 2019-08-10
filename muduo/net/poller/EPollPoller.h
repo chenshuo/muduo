@@ -29,14 +29,16 @@ class EPollPoller : public Poller
 {
  public:
   EPollPoller(EventLoop* loop);
-  virtual ~EPollPoller();
+  ~EPollPoller() override;
 
-  virtual Timestamp poll(int timeoutMs, ChannelList* activeChannels);
-  virtual void updateChannel(Channel* channel);
-  virtual void removeChannel(Channel* channel);
+  Timestamp poll(int timeoutMs, ChannelList* activeChannels) override;
+  void updateChannel(Channel* channel) override;
+  void removeChannel(Channel* channel) override;
 
  private:
   static const int kInitEventListSize = 16;
+
+  static const char* operationToString(int op);
 
   void fillActiveChannels(int numEvents,
                           ChannelList* activeChannels) const;
@@ -48,6 +50,6 @@ class EPollPoller : public Poller
   EventList events_;
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 #endif  // MUDUO_NET_POLLER_EPOLLPOLLER_H

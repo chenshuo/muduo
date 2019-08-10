@@ -11,12 +11,11 @@
 #ifndef MUDUO_NET_CHANNEL_H
 #define MUDUO_NET_CHANNEL_H
 
-#include <boost/function.hpp>
-#include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
+#include "muduo/base/noncopyable.h"
+#include "muduo/base/Timestamp.h"
 
-#include <muduo/base/Timestamp.h>
+#include <functional>
+#include <memory>
 
 namespace muduo
 {
@@ -31,38 +30,28 @@ class EventLoop;
 /// This class doesn't own the file descriptor.
 /// The file descriptor could be a socket,
 /// an eventfd, a timerfd, or a signalfd
-class Channel : boost::noncopyable
+class Channel : noncopyable
 {
  public:
-  typedef boost::function<void()> EventCallback;
-  typedef boost::function<void(Timestamp)> ReadEventCallback;
+  typedef std::function<void()> EventCallback;
+  typedef std::function<void(Timestamp)> ReadEventCallback;
 
   Channel(EventLoop* loop, int fd);
   ~Channel();
 
   void handleEvent(Timestamp receiveTime);
-  void setReadCallback(const ReadEventCallback& cb)
-  { readCallback_ = cb; }
-  void setWriteCallback(const EventCallback& cb)
-  { writeCallback_ = cb; }
-  void setCloseCallback(const EventCallback& cb)
-  { closeCallback_ = cb; }
-  void setErrorCallback(const EventCallback& cb)
-  { errorCallback_ = cb; }
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
-  void setReadCallback(ReadEventCallback&& cb)
+  void setReadCallback(ReadEventCallback cb)
   { readCallback_ = std::move(cb); }
-  void setWriteCallback(EventCallback&& cb)
+  void setWriteCallback(EventCallback cb)
   { writeCallback_ = std::move(cb); }
-  void setCloseCallback(EventCallback&& cb)
+  void setCloseCallback(EventCallback cb)
   { closeCallback_ = std::move(cb); }
-  void setErrorCallback(EventCallback&& cb)
+  void setErrorCallback(EventCallback cb)
   { errorCallback_ = std::move(cb); }
-#endif
 
   /// Tie this channel to the owner object managed by shared_ptr,
   /// prevent the owner object being destroyed in handleEvent.
-  void tie(const boost::shared_ptr<void>&);
+  void tie(const std::shared_ptr<void>&);
 
   int fd() const { return fd_; }
   int events() const { return events_; }
@@ -76,6 +65,7 @@ class Channel : boost::noncopyable
   void disableWriting() { events_ &= ~kWriteEvent; update(); }
   void disableAll() { events_ = kNoneEvent; update(); }
   bool isWriting() const { return events_ & kWriteEvent; }
+  bool isReading() const { return events_ & kReadEvent; }
 
   // for Poller
   int index() { return index_; }
@@ -83,6 +73,7 @@ class Channel : boost::noncopyable
 
   // for debug
   string reventsToString() const;
+  string eventsToString() const;
 
   void doNotLogHup() { logHup_ = false; }
 
@@ -90,6 +81,8 @@ class Channel : boost::noncopyable
   void remove();
 
  private:
+  static string eventsToString(int fd, int ev);
+
   void update();
   void handleEventWithGuard(Timestamp receiveTime);
 
@@ -104,7 +97,7 @@ class Channel : boost::noncopyable
   int        index_; // used by Poller.
   bool       logHup_;
 
-  boost::weak_ptr<void> tie_;
+  std::weak_ptr<void> tie_;
   bool tied_;
   bool eventHandling_;
   bool addedToLoop_;
@@ -114,6 +107,7 @@ class Channel : boost::noncopyable
   EventCallback errorCallback_;
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
+
 #endif  // MUDUO_NET_CHANNEL_H

@@ -11,12 +11,11 @@
 #ifndef MUDUO_NET_CONNECTOR_H
 #define MUDUO_NET_CONNECTOR_H
 
-#include <muduo/net/InetAddress.h>
+#include "muduo/base/noncopyable.h"
+#include "muduo/net/InetAddress.h"
 
-#include <boost/enable_shared_from_this.hpp>
-#include <boost/function.hpp>
-#include <boost/noncopyable.hpp>
-#include <boost/scoped_ptr.hpp>
+#include <functional>
+#include <memory>
 
 namespace muduo
 {
@@ -26,11 +25,11 @@ namespace net
 class Channel;
 class EventLoop;
 
-class Connector : boost::noncopyable,
-                  public boost::enable_shared_from_this<Connector>
+class Connector : noncopyable,
+                  public std::enable_shared_from_this<Connector>
 {
  public:
-  typedef boost::function<void (int sockfd)> NewConnectionCallback;
+  typedef std::function<void (int sockfd)> NewConnectionCallback;
 
   Connector(EventLoop* loop, const InetAddress& serverAddr);
   ~Connector();
@@ -64,12 +63,12 @@ class Connector : boost::noncopyable,
   InetAddress serverAddr_;
   bool connect_; // atomic
   States state_;  // FIXME: use atomic variable
-  boost::scoped_ptr<Channel> channel_;
+  std::unique_ptr<Channel> channel_;
   NewConnectionCallback newConnectionCallback_;
   int retryDelayMs_;
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
 
 #endif  // MUDUO_NET_CONNECTOR_H

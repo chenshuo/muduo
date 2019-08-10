@@ -7,9 +7,9 @@
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 //
 
-#include <muduo/net/inspect/ProcessInspector.h>
-#include <muduo/base/FileUtil.h>
-#include <muduo/base/ProcessInfo.h>
+#include "muduo/net/inspect/ProcessInspector.h"
+#include "muduo/base/FileUtil.h"
+#include "muduo/base/ProcessInfo.h"
 #include <limits.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -114,8 +114,8 @@ int stringPrintf(string* out, const char* fmt, ...)
   return ret;
 }
 
-}
-}
+}  // namespace inspect
+}  // namespace muduo
 
 using namespace muduo::inspect;
 
@@ -215,11 +215,10 @@ string ProcessInspector::threads(HttpRequest::Method, const Inspector::ArgList&)
   string result = "  TID NAME             S    User Time  System Time\n";
   result.reserve(threads.size() * 64);
   string stat;
-  for (size_t i = 0; i < threads.size(); ++i)
+  for (pid_t tid : threads)
   {
     char buf[256];
-    int tid = threads[i];
-    snprintf(buf, sizeof buf, "/proc/%d/stat", tid);
+    snprintf(buf, sizeof buf, "/proc/%d/task/%d/stat", ProcessInfo::pid(), tid);
     if (FileUtil::readFile(buf, 65536, &stat) == 0)
     {
       StringPiece name = ProcessInfo::procname(stat);

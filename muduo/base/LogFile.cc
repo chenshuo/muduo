@@ -1,7 +1,12 @@
-#include <muduo/base/LogFile.h>
+// Use of this source code is governed by a BSD-style license
+// that can be found in the License file.
+//
+// Author: Shuo Chen (chenshuo at chenshuo dot com)
 
-#include <muduo/base/FileUtil.h>
-#include <muduo/base/ProcessInfo.h>
+#include "muduo/base/LogFile.h"
+
+#include "muduo/base/FileUtil.h"
+#include "muduo/base/ProcessInfo.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -10,7 +15,7 @@
 using namespace muduo;
 
 LogFile::LogFile(const string& basename,
-                 size_t rollSize,
+                 off_t rollSize,
                  bool threadSafe,
                  int flushInterval,
                  int checkEveryN)
@@ -28,9 +33,7 @@ LogFile::LogFile(const string& basename,
   rollFile();
 }
 
-LogFile::~LogFile()
-{
-}
+LogFile::~LogFile() = default;
 
 void LogFile::append(const char* logline, int len)
 {

@@ -1,8 +1,13 @@
+// Use of this source code is governed by a BSD-style license
+// that can be found in the License file.
+//
+// Author: Shuo Chen (chenshuo at chenshuo dot com)
+
 #ifndef MUDUO_BASE_TIMESTAMP_H
 #define MUDUO_BASE_TIMESTAMP_H
 
-#include <muduo/base/copyable.h>
-#include <muduo/base/Types.h>
+#include "muduo/base/copyable.h"
+#include "muduo/base/Types.h"
 
 #include <boost/operators.hpp>
 
@@ -16,6 +21,7 @@ namespace muduo
 /// It's recommended to pass it by value, since it's passed in register on x64.
 ///
 class Timestamp : public muduo::copyable,
+                  public boost::equality_comparable<Timestamp>,
                   public boost::less_than_comparable<Timestamp>
 {
  public:
@@ -31,7 +37,10 @@ class Timestamp : public muduo::copyable,
   /// Constucts a Timestamp at specific time
   ///
   /// @param microSecondsSinceEpoch
-  explicit Timestamp(int64_t microSecondsSinceEpoch);
+  explicit Timestamp(int64_t microSecondsSinceEpochArg)
+    : microSecondsSinceEpoch_(microSecondsSinceEpochArg)
+  {
+  }
 
   void swap(Timestamp& that)
   {
@@ -54,7 +63,20 @@ class Timestamp : public muduo::copyable,
   /// Get time of now.
   ///
   static Timestamp now();
-  static Timestamp invalid();
+  static Timestamp invalid()
+  {
+    return Timestamp();
+  }
+
+  static Timestamp fromUnixTime(time_t t)
+  {
+    return fromUnixTime(t, 0);
+  }
+
+  static Timestamp fromUnixTime(time_t t, int microseconds)
+  {
+    return Timestamp(static_cast<int64_t>(t) * kMicroSecondsPerSecond + microseconds);
+  }
 
   static const int kMicroSecondsPerSecond = 1000 * 1000;
 
@@ -96,5 +118,6 @@ inline Timestamp addTime(Timestamp timestamp, double seconds)
   return Timestamp(timestamp.microSecondsSinceEpoch() + delta);
 }
 
-}
+}  // namespace muduo
+
 #endif  // MUDUO_BASE_TIMESTAMP_H

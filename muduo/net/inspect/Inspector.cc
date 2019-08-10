@@ -7,23 +7,22 @@
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 //
 
-#include <muduo/net/inspect/Inspector.h>
+#include "muduo/net/inspect/Inspector.h"
 
-#include <muduo/base/Logging.h>
-#include <muduo/base/Thread.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/net/http/HttpRequest.h>
-#include <muduo/net/http/HttpResponse.h>
-#include <muduo/net/inspect/ProcessInspector.h>
-#include <muduo/net/inspect/PerformanceInspector.h>
-#include <muduo/net/inspect/SystemInspector.h>
+#include "muduo/base/Logging.h"
+#include "muduo/base/Thread.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/net/http/HttpRequest.h"
+#include "muduo/net/http/HttpResponse.h"
+#include "muduo/net/inspect/ProcessInspector.h"
+#include "muduo/net/inspect/PerformanceInspector.h"
+#include "muduo/net/inspect/SystemInspector.h"
 
 //#include <iostream>
 //#include <iterator>
 //#include <sstream>
-#include <boost/bind.hpp>
-#include <boost/algorithm/string/classification.hpp>
-#include <boost/algorithm/string/split.hpp>
+//#include <boost/algorithm/string/classification.hpp>
+//#include <boost/algorithm/string/split.hpp>
 
 using namespace muduo;
 using namespace muduo::net;
@@ -56,7 +55,7 @@ std::vector<string> split(const string& str)
   return result;
 }
 
-}
+}  // namespace
 
 extern char favicon[1743];
 
@@ -70,14 +69,14 @@ Inspector::Inspector(EventLoop* loop,
   assert(CurrentThread::isMainThread());
   assert(g_globalInspector == 0);
   g_globalInspector = this;
-  server_.setHttpCallback(boost::bind(&Inspector::onRequest, this, _1, _2));
+  server_.setHttpCallback(std::bind(&Inspector::onRequest, this, _1, _2));
   processInspector_->registerCommands(this);
   systemInspector_->registerCommands(this);
 #ifdef HAVE_TCMALLOC
   performanceInspector_.reset(new PerformanceInspector);
   performanceInspector_->registerCommands(this);
 #endif
-  loop->runAfter(0, boost::bind(&Inspector::start, this)); // little race condition
+  loop->runAfter(0, std::bind(&Inspector::start, this)); // little race condition
 }
 
 Inspector::~Inspector()
@@ -123,16 +122,15 @@ void Inspector::onRequest(const HttpRequest& req, HttpResponse* resp)
          ++helpListI)
     {
       const HelpList& list = helpListI->second;
-      for (HelpList::const_iterator it = list.begin();
-           it != list.end();
-           ++it)
+      for (const auto& it : list)
       {
         result += "/";
         result += helpListI->first;
         result += "/";
-        result += it->first;
-        result += "\t";
-        result += it->second;
+        result += it.first;
+        size_t len = helpListI->first.size() + it.first.size();
+        result += string(len >= 25 ? 1 : 25 - len, ' ');
+        result += it.second;
         result += "\n";
       }
     }
@@ -172,6 +170,7 @@ void Inspector::onRequest(const HttpRequest& req, HttpResponse* resp)
     else
     {
       string module = result[0];
+      MutexLockGuard lock(mutex_);
       std::map<string, CommandList>::const_iterator commListI = modules_.find(module);
       if (commListI != modules_.end())
       {

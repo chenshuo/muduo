@@ -3,13 +3,13 @@
 //
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
-#include <muduo/base/Condition.h>
+#include "muduo/base/Condition.h"
 
 #include <errno.h>
 #include <sys/time.h>
 
 // returns true if time out, false otherwise.
-bool muduo::Condition::waitForSeconds(int seconds)
+bool muduo::Condition::waitForSeconds(double seconds)
 {
   struct timespec abstime;
 #ifdef CLOCK_REALTIME

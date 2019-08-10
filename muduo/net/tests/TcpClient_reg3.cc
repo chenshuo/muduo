@@ -1,10 +1,8 @@
 // TcpClient destructs in a different thread.
 
-#include <muduo/base/Logging.h>
-#include <muduo/net/EventLoopThread.h>
-#include <muduo/net/TcpClient.h>
-
-#include <boost/bind.hpp>
+#include "muduo/base/Logging.h"
+#include "muduo/net/EventLoopThread.h"
+#include "muduo/net/TcpClient.h"
 
 using namespace muduo;
 using namespace muduo::net;

@@ -1,10 +1,9 @@
-#include <muduo/net/EventLoopThreadPool.h>
-#include <muduo/net/EventLoop.h>
-#include <muduo/base/Thread.h>
-
-#include <boost/bind.hpp>
+#include "muduo/net/EventLoopThreadPool.h"
+#include "muduo/net/EventLoop.h"
+#include "muduo/base/Thread.h"
 
 #include <stdio.h>
+#include <unistd.h>
 
 using namespace muduo;
 using namespace muduo::net;
@@ -26,11 +25,11 @@ int main()
   print();
 
   EventLoop loop;
-  loop.runAfter(11, boost::bind(&EventLoop::quit, &loop));
+  loop.runAfter(11, std::bind(&EventLoop::quit, &loop));
 
   {
     printf("Single thread %p:\n", &loop);
-    EventLoopThreadPool model(&loop);
+    EventLoopThreadPool model(&loop, "single");
     model.setThreadNum(0);
     model.start(init);
     assert(model.getNextLoop() == &loop);
@@ -40,11 +39,11 @@ int main()
 
   {
     printf("Another thread:\n");
-    EventLoopThreadPool model(&loop);
+    EventLoopThreadPool model(&loop, "another");
     model.setThreadNum(1);
     model.start(init);
     EventLoop* nextLoop = model.getNextLoop();
-    nextLoop->runAfter(2, boost::bind(print, nextLoop));
+    nextLoop->runAfter(2, std::bind(print, nextLoop));
     assert(nextLoop != &loop);
     assert(nextLoop == model.getNextLoop());
     assert(nextLoop == model.getNextLoop());
@@ -53,11 +52,11 @@ int main()
 
   {
     printf("Three threads:\n");
-    EventLoopThreadPool model(&loop);
+    EventLoopThreadPool model(&loop, "three");
     model.setThreadNum(3);
     model.start(init);
     EventLoop* nextLoop = model.getNextLoop();
-    nextLoop->runInLoop(boost::bind(print, nextLoop));
+    nextLoop->runInLoop(std::bind(print, nextLoop));
     assert(nextLoop != &loop);
     assert(nextLoop != model.getNextLoop());
     assert(nextLoop != model.getNextLoop());

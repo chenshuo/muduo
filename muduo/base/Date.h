@@ -6,8 +6,8 @@
 #ifndef MUDUO_BASE_DATE_H
 #define MUDUO_BASE_DATE_H
 
-#include <muduo/base/copyable.h>
-#include <muduo/base/Types.h>
+#include "muduo/base/copyable.h"
+#include "muduo/base/Types.h"
 
 struct tm;
 
@@ -114,5 +114,6 @@ inline bool operator==(Date x, Date y)
   return x.julianDayNumber() == y.julianDayNumber();
 }
 
-}
+}  // namespace muduo
+
 #endif  // MUDUO_BASE_DATE_H

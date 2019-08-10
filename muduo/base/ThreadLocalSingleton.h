@@ -6,7 +6,8 @@
 #ifndef MUDUO_BASE_THREADLOCALSINGLETON_H
 #define MUDUO_BASE_THREADLOCALSINGLETON_H
 
-#include <boost/noncopyable.hpp>
+#include "muduo/base/noncopyable.h"
+
 #include <assert.h>
 #include <pthread.h>
 
@@ -14,9 +15,11 @@ namespace muduo
 {
 
 template<typename T>
-class ThreadLocalSingleton : boost::noncopyable
+class ThreadLocalSingleton : noncopyable
 {
  public:
+  ThreadLocalSingleton() = delete;
+  ~ThreadLocalSingleton() = delete;
 
   static T& instance()
   {
@@ -34,9 +37,6 @@ class ThreadLocalSingleton : boost::noncopyable
   }
 
  private:
-  ThreadLocalSingleton();
-  ~ThreadLocalSingleton();
-
   static void destructor(void* obj)
   {
     assert(obj == t_value_);
@@ -78,5 +78,5 @@ __thread T* ThreadLocalSingleton<T>::t_value_ = 0;
 template<typename T>
 typename ThreadLocalSingleton<T>::Deleter ThreadLocalSingleton<T>::deleter_;
 
-}
-#endif
+}  // namespace muduo
+#endif  // MUDUO_BASE_THREADLOCALSINGLETON_H

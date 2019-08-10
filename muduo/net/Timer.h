@@ -11,39 +11,28 @@
 #ifndef MUDUO_NET_TIMER_H
 #define MUDUO_NET_TIMER_H
 
-#include <boost/noncopyable.hpp>
-
-#include <muduo/base/Atomic.h>
-#include <muduo/base/Timestamp.h>
-#include <muduo/net/Callbacks.h>
+#include "muduo/base/Atomic.h"
+#include "muduo/base/Timestamp.h"
+#include "muduo/net/Callbacks.h"
 
 namespace muduo
 {
 namespace net
 {
+
 ///
 /// Internal class for timer event.
 ///
-class Timer : boost::noncopyable
+class Timer : noncopyable
 {
  public:
-  Timer(const TimerCallback& cb, Timestamp when, double interval)
-    : callback_(cb),
-      expiration_(when),
-      interval_(interval),
-      repeat_(interval > 0.0),
-      sequence_(s_numCreated_.incrementAndGet())
-  { }
-
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
-  Timer(TimerCallback&& cb, Timestamp when, double interval)
+  Timer(TimerCallback cb, Timestamp when, double interval)
     : callback_(std::move(cb)),
       expiration_(when),
       interval_(interval),
       repeat_(interval > 0.0),
       sequence_(s_numCreated_.incrementAndGet())
   { }
-#endif
 
   void run() const
   {
@@ -67,6 +56,8 @@ class Timer : boost::noncopyable
 
   static AtomicInt64 s_numCreated_;
 };
-}
-}
+
+}  // namespace net
+}  // namespace muduo
+
 #endif  // MUDUO_NET_TIMER_H

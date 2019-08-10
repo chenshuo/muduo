@@ -6,13 +6,13 @@
 
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
-#include <muduo/net/protobuf/ProtobufCodecLite.h>
+#include "muduo/net/protobuf/ProtobufCodecLite.h"
 // #include <muduo/net/protobuf/BufferStream.h>
 
-#include <muduo/base/Logging.h>
-#include <muduo/net/Endian.h>
-#include <muduo/net/TcpConnection.h>
-#include <muduo/net/protorpc/google-inl.h>
+#include "muduo/base/Logging.h"
+#include "muduo/net/Endian.h"
+#include "muduo/net/TcpConnection.h"
+#include "muduo/net/protorpc/google-inl.h"
 
 #include <google/protobuf/message.h>
 #include <zlib.h>
@@ -27,7 +27,7 @@ namespace
     GOOGLE_PROTOBUF_VERIFY_VERSION;
     return 0;
   }
-  int dummy = ProtobufVersionCheck();
+  int __attribute__ ((unused)) dummy = ProtobufVersionCheck();
 }
 
 void ProtobufCodecLite::send(const TcpConnectionPtr& conn,

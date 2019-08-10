@@ -13,10 +13,9 @@
 
 #include <map>
 #include <vector>
-#include <boost/noncopyable.hpp>
 
-#include <muduo/base/Timestamp.h>
-#include <muduo/net/EventLoop.h>
+#include "muduo/base/Timestamp.h"
+#include "muduo/net/EventLoop.h"
 
 namespace muduo
 {
@@ -29,7 +28,7 @@ class Channel;
 /// Base class for IO Multiplexing
 ///
 /// This class doesn't own the Channel objects.
-class Poller : boost::noncopyable
+class Poller : noncopyable
 {
  public:
   typedef std::vector<Channel*> ChannelList;
@@ -66,6 +65,7 @@ class Poller : boost::noncopyable
   EventLoop* ownerLoop_;
 };
 
-}
-}
+}  // namespace net
+}  // namespace muduo
+
 #endif  // MUDUO_NET_POLLER_H

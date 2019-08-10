@@ -6,26 +6,24 @@
 #ifndef MUDUO_BASE_THREAD_H
 #define MUDUO_BASE_THREAD_H
 
-#include <muduo/base/Atomic.h>
-#include <muduo/base/Types.h>
+#include "muduo/base/Atomic.h"
+#include "muduo/base/CountDownLatch.h"
+#include "muduo/base/Types.h"
 
-#include <boost/function.hpp>
-#include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
+#include <functional>
+#include <memory>
 #include <pthread.h>
 
 namespace muduo
 {
 
-class Thread : boost::noncopyable
+class Thread : noncopyable
 {
  public:
-  typedef boost::function<void ()> ThreadFunc;
+  typedef std::function<void ()> ThreadFunc;
 
-  explicit Thread(const ThreadFunc&, const string& name = string());
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
-  explicit Thread(ThreadFunc&&, const string& name = string());
-#endif
+  explicit Thread(ThreadFunc, const string& name = string());
+  // FIXME: make it movable in C++11
   ~Thread();
 
   void start();
@@ -33,7 +31,7 @@ class Thread : boost::noncopyable
 
   bool started() const { return started_; }
   // pthread_t pthreadId() const { return pthreadId_; }
-  pid_t tid() const { return *tid_; }
+  pid_t tid() const { return tid_; }
   const string& name() const { return name_; }
 
   static int numCreated() { return numCreated_.get(); }
@@ -44,12 +42,13 @@ class Thread : boost::noncopyable
   bool       started_;
   bool       joined_;
   pthread_t  pthreadId_;
-  boost::shared_ptr<pid_t> tid_;
+  pid_t      tid_;
   ThreadFunc func_;
   string     name_;
+  CountDownLatch latch_;
 
   static AtomicInt32 numCreated_;
 };
 
-}
-#endif
+}  // namespace muduo
+#endif  // MUDUO_BASE_THREAD_H

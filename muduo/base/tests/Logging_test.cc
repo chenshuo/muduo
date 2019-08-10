@@ -4,10 +4,11 @@
 #include <muduo/base/TimeZone.h>
 
 #include <stdio.h>
+#include <unistd.h>
 
 int g_total;
 FILE* g_file;
-boost::scoped_ptr<muduo::LogFile> g_logFile;
+std::unique_ptr<muduo::LogFile> g_logFile;
 
 void dummyOutput(const char* msg, int len)
 {

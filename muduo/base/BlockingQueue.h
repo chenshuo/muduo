@@ -6,10 +6,9 @@
 #ifndef MUDUO_BASE_BLOCKINGQUEUE_H
 #define MUDUO_BASE_BLOCKINGQUEUE_H
 
-#include <muduo/base/Condition.h>
-#include <muduo/base/Mutex.h>
+#include "muduo/base/Condition.h"
+#include "muduo/base/Mutex.h"
 
-#include <boost/noncopyable.hpp>
 #include <deque>
 #include <assert.h>
 
@@ -17,7 +16,7 @@ namespace muduo
 {
 
 template<typename T>
-class BlockingQueue : boost::noncopyable
+class BlockingQueue : noncopyable
 {
  public:
   BlockingQueue()
@@ -35,15 +34,12 @@ class BlockingQueue : boost::noncopyable
     // http://www.domaigne.com/blog/computing/condvars-signal-with-mutex-locked-or-not/
   }
 
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
   void put(T&& x)
   {
     MutexLockGuard lock(mutex_);
     queue_.push_back(std::move(x));
     notEmpty_.notify();
   }
-  // FIXME: emplace()
-#endif
 
   T take()
   {
@@ -54,13 +50,9 @@ class BlockingQueue : boost::noncopyable
       notEmpty_.wait();
     }
     assert(!queue_.empty());
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
     T front(std::move(queue_.front()));
-#else
-    T front(queue_.front());
-#endif
     queue_.pop_front();
-    return front;
+    return std::move(front);
   }
 
   size_t size() const
@@ -71,10 +63,10 @@ class BlockingQueue : boost::noncopyable
 
  private:
   mutable MutexLock mutex_;
-  Condition         notEmpty_;
-  std::deque<T>     queue_;
+  Condition         notEmpty_ GUARDED_BY(mutex_);
+  std::deque<T>     queue_ GUARDED_BY(mutex_);
 };
 
-}
+}  // namespace muduo
 
 #endif  // MUDUO_BASE_BLOCKINGQUEUE_H

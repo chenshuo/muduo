@@ -1,14 +1,16 @@
+// Use of this source code is governed by a BSD-style license
+// that can be found in the License file.
+//
+// Author: Shuo Chen (chenshuo at chenshuo dot com)
+
 #ifndef MUDUO_BASE_LOGSTREAM_H
 #define MUDUO_BASE_LOGSTREAM_H
 
-#include <muduo/base/StringPiece.h>
-#include <muduo/base/Types.h>
+#include "muduo/base/noncopyable.h"
+#include "muduo/base/StringPiece.h"
+#include "muduo/base/Types.h"
 #include <assert.h>
 #include <string.h> // memcpy
-#ifndef MUDUO_STD_STRING
-#include <string>
-#endif
-#include <boost/noncopyable.hpp>
 
 namespace muduo
 {
@@ -20,7 +22,7 @@ const int kSmallBuffer = 4000;
 const int kLargeBuffer = 4000*1000;
 
 template<int SIZE>
-class FixedBuffer : boost::noncopyable
+class FixedBuffer : noncopyable
 {
  public:
   FixedBuffer()
@@ -53,13 +55,14 @@ class FixedBuffer : boost::noncopyable
   void add(size_t len) { cur_ += len; }
 
   void reset() { cur_ = data_; }
-  void bzero() { ::bzero(data_, sizeof data_); }
+  void bzero() { memZero(data_, sizeof data_); }
 
   // for used by GDB
   const char* debugString();
   void setCookie(void (*cookie)()) { cookie_ = cookie; }
   // for used by unit test
-  string asString() const { return string(data_, length()); }
+  string toString() const { return string(data_, length()); }
+  StringPiece toStringPiece() const { return StringPiece(data_, length()); }
 
  private:
   const char* end() const { return data_ + sizeof data_; }
@@ -72,9 +75,9 @@ class FixedBuffer : boost::noncopyable
   char* cur_;
 };
 
-}
+}  // namespace detail
 
-class LogStream : boost::noncopyable
+class LogStream : noncopyable
 {
   typedef LogStream self;
  public:
@@ -138,17 +141,15 @@ class LogStream : boost::noncopyable
     return *this;
   }
 
-#ifndef MUDUO_STD_STRING
-  self& operator<<(const std::string& v)
-  {
-    buffer_.append(v.c_str(), v.size());
-    return *this;
-  }
-#endif
-
   self& operator<<(const StringPiece& v)
   {
     buffer_.append(v.data(), v.size());
+    return *this;
+  }
+
+  self& operator<<(const Buffer& v)
+  {
+    *this << v.toStringPiece();
     return *this;
   }
 
@@ -167,7 +168,7 @@ class LogStream : boost::noncopyable
   static const int kMaxNumericSize = 32;
 };
 
-class Fmt // : boost::noncopyable
+class Fmt // : noncopyable
 {
  public:
   template<typename T>
@@ -187,6 +188,16 @@ inline LogStream& operator<<(LogStream& s, const Fmt& fmt)
   return s;
 }
 
-}
-#endif  // MUDUO_BASE_LOGSTREAM_H
+// Format quantity n in SI units (k, M, G, T, P, E).
+// The returned string is atmost 5 characters long.
+// Requires n >= 0
+string formatSI(int64_t n);
 
+// Format quantity n in IEC (binary) units (Ki, Mi, Gi, Ti, Pi, Ei).
+// The returned string is atmost 6 characters long.
+// Requires n >= 0
+string formatIEC(int64_t n);
+
+}  // namespace muduo
+
+#endif  // MUDUO_BASE_LOGSTREAM_H
