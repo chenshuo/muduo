@@ -103,7 +103,7 @@ void Channel::handleEventWithGuard(Timestamp receiveTime)
     if (errorCallback_) errorCallback_();
   }
 #ifndef POLLRDHUP
-  const int POLLRDHUP = 0;
+  const int POLLRDHUP = POLLHUP;
 #endif
   if (revents_ & (POLLIN | POLLPRI | POLLRDHUP))
   {
@@ -138,10 +138,11 @@ string Channel::eventsToString(int fd, int ev)
     oss << "OUT ";
   if (ev & POLLHUP)
     oss << "HUP ";
-#ifdef POLLRDHUP
+#ifndef POLLRDHUP
+  const int POLLRDHUP = POLLHUP;
+#endif
   if (ev & POLLRDHUP)
     oss << "RDHUP ";
-#endif
   if (ev & POLLERR)
     oss << "ERR ";
   if (ev & POLLNVAL)
