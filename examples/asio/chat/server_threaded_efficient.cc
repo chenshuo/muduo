@@ -68,7 +68,7 @@ class ChatServer : noncopyable
                        const string& message,
                        Timestamp)
   {
-    ConnectionListPtr connections = getConnectionList();;
+    ConnectionListPtr connections = getConnectionList();
     for (ConnectionList::iterator it = connections->begin();
         it != connections->end();
         ++it)
