@@ -52,7 +52,7 @@ class BlockingQueue : noncopyable
     assert(!queue_.empty());
     T front(std::move(queue_.front()));
     queue_.pop_front();
-    return std::move(front);
+    return front;
   }
 
   size_t size() const
