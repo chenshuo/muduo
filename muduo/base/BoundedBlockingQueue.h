@@ -62,7 +62,7 @@ class BoundedBlockingQueue : noncopyable
     T front(std::move(queue_.front()));
     queue_.pop_front();
     notFull_.notify();
-    return std::move(front);
+    return front;
   }
 
   bool empty() const
