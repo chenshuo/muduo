@@ -32,14 +32,14 @@ void ProtobufCodec::fillEmptyBuffer(Buffer* buf, const google::protobuf::Message
   // code copied from MessageLite::SerializeToArray() and MessageLite::SerializePartialToArray().
   GOOGLE_DCHECK(message.IsInitialized()) << InitializationErrorMessage("serialize", message);
 
-  int byte_size = message.ByteSize();
+  int byte_size = static_cast<int>(message.ByteSizeLong());
   buf->ensureWritableBytes(byte_size);
 
   uint8_t* start = reinterpret_cast<uint8_t*>(buf->beginWrite());
   uint8_t* end = message.SerializeWithCachedSizesToArray(start);
   if (end - start != byte_size)
   {
-    ByteSizeConsistencyError(byte_size, message.ByteSize(), static_cast<int>(end - start));
+    ByteSizeConsistencyError(byte_size, static_cast<int>(message.ByteSizeLong()), static_cast<int>(end - start));
   }
   buf->hasWritten(byte_size);
 
