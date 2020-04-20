@@ -16,6 +16,7 @@
 
 #include <functional>
 #include <memory>
+#include <poll.h>
 
 namespace muduo
 {
@@ -86,9 +87,9 @@ class Channel : noncopyable
   void update();
   void handleEventWithGuard(Timestamp receiveTime);
 
-  static const int kNoneEvent;
-  static const int kReadEvent;
-  static const int kWriteEvent;
+  static constexpr int kNoneEvent = 0;
+  static constexpr int kReadEvent = POLLIN | POLLPRI;
+  static constexpr int kWriteEvent = POLLOUT;
 
   EventLoop* loop_;
   const int  fd_;
