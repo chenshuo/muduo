@@ -21,8 +21,8 @@ class TtcpServerConnection : public std::enable_shared_from_this<TtcpServerConne
                              muduo::noncopyable
 {
  public:
-  TtcpServerConnection(boost::asio::io_service& io_service)
-    : socket_(io_service), count_(0), payload_(NULL), ack_(0)
+  TtcpServerConnection(boost::asio::executor executor)
+    : socket_(executor), count_(0), payload_(NULL), ack_(0)
   {
     sessionMessage_.number = 0;
     sessionMessage_.length = 0;
@@ -144,7 +144,7 @@ typedef std::shared_ptr<TtcpServerConnection> TtcpServerConnectionPtr;
 void doAccept(tcp::acceptor& acceptor)
 {
   // no need to pre-create new_connection if we use asio 1.12 or boost 1.66+
-  TtcpServerConnectionPtr new_connection(new TtcpServerConnection(acceptor.get_io_service()));
+  TtcpServerConnectionPtr new_connection(new TtcpServerConnection(acceptor.get_executor()));
   acceptor.async_accept(
       new_connection->socket(),
       [&acceptor, new_connection](boost::system::error_code error)  // move new_connection in C++14
