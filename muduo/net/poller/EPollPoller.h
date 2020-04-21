@@ -36,7 +36,7 @@ class EPollPoller : public Poller
   void removeChannel(Channel* channel) override;
 
  private:
-  static const int kInitEventListSize = 16;
+  static constexpr int kInitEventListSize = 16;
 
   static const char* operationToString(int op);
 
