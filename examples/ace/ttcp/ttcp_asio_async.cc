@@ -21,7 +21,7 @@ class TtcpServerConnection : public std::enable_shared_from_this<TtcpServerConne
                              muduo::noncopyable
 {
  public:
-  TtcpServerConnection(boost::asio::executor executor)
+  TtcpServerConnection(const boost::asio::executor& executor)
     : socket_(executor), count_(0), payload_(NULL), ack_(0)
   {
     sessionMessage_.number = 0;
