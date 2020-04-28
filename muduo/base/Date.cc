@@ -5,6 +5,7 @@
 
 #include "muduo/base/Date.h"
 #include <stdio.h>  // snprintf
+#include <time.h>  // struct tm
 
 namespace muduo
 {
