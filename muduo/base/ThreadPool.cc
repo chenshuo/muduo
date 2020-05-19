@@ -55,6 +55,7 @@ void ThreadPool::stop()
   MutexLockGuard lock(mutex_);
   running_ = false;
   notEmpty_.notifyAll();
+  notFull_.notifyAll();
   }
   for (auto& thr : threads_)
   {
@@ -77,10 +78,11 @@ void ThreadPool::run(Task task)
   else
   {
     MutexLockGuard lock(mutex_);
-    while (isFull())
+    while (isFull() && running_)
     {
       notFull_.wait();
     }
+    if (!running_) return;
     assert(!isFull());
 
     queue_.push_back(std::move(task));
