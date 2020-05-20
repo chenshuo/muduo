@@ -54,6 +54,38 @@ void testMove()
 }
 */
 
+void longTask(int num)
+{
+  LOG_INFO << "longTask " << num;
+  muduo::CurrentThread::sleepUsec(3000000);
+}
+
+void test2()
+{
+  LOG_WARN << "Test ThreadPool by stoping early.";
+  muduo::ThreadPool pool("ThreadPool");
+  pool.setMaxQueueSize(5);
+  pool.start(3);
+
+  muduo::Thread thread1([&pool]()
+  {
+    for (int i = 0; i < 20; ++i)
+    {
+      pool.run(std::bind(longTask, i));
+    }
+  }, "thread1");
+  thread1.start();
+
+  muduo::CurrentThread::sleepUsec(5000000);
+  LOG_WARN << "stop pool";
+  pool.stop();  // early stop
+
+  thread1.join();
+  // run() after stop()
+  pool.run(print);
+  LOG_WARN << "test2 Done";
+}
+
 int main()
 {
   test(0);
@@ -61,4 +93,5 @@ int main()
   test(5);
   test(10);
   test(50);
+  test2();
 }

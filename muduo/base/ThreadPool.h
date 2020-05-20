@@ -39,6 +39,7 @@ class ThreadPool : noncopyable
   size_t queueSize() const;
 
   // Could block if maxQueueSize > 0
+  // Call after stop() will return immediately.
   // There is no move-only version of std::function in C++ as of C++14.
   // So we don't need to overload a const& and an && versions
   // as we do in (Bounded)BlockingQueue.
