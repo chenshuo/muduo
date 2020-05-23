@@ -111,14 +111,31 @@ int ProtobufCodecLite::serializeToBuffer(const google::protobuf::Message& messag
   // code copied from MessageLite::SerializeToArray() and MessageLite::SerializePartialToArray().
   GOOGLE_DCHECK(message.IsInitialized()) << InitializationErrorMessage("serialize", message);
 
-  int byte_size = message.ByteSize();
+  /**
+   * 'ByteSize()' of message is deprecated in Protocol Buffers v3.4.0 firstly. But, till to v3.11.0, it just getting start to be marked by '__attribute__((deprecated()))'.
+   * So, here, v3.9.2 is selected as maximum version using 'ByteSize()' to avoid potential effect for previous muduo code/projects as far as possible.
+   * Note: All information above just INFER from 
+   * 1) https://github.com/protocolbuffers/protobuf/releases/tag/v3.4.0
+   * 2) MACRO in file 'include/google/protobuf/port_def.inc'. eg. '#define PROTOBUF_DEPRECATED_MSG(msg) __attribute__((deprecated(msg)))'.
+   * In addition, usage of 'ToIntSize()' comes from Impl of ByteSize() in new version's Protocol Buffers.
+   */
+
+  #if GOOGLE_PROTOBUF_VERSION > 3009002
+    int byte_size = google::protobuf::internal::ToIntSize(message.ByteSizeLong());
+  #else
+    int byte_size = message.ByteSize();
+  #endif
   buf->ensureWritableBytes(byte_size + kChecksumLen);
 
   uint8_t* start = reinterpret_cast<uint8_t*>(buf->beginWrite());
   uint8_t* end = message.SerializeWithCachedSizesToArray(start);
   if (end - start != byte_size)
   {
-    ByteSizeConsistencyError(byte_size, message.ByteSize(), static_cast<int>(end - start));
+    #if GOOGLE_PROTOBUF_VERSION > 3009002
+      ByteSizeConsistencyError(byte_size, google::protobuf::internal::ToIntSize(message.ByteSizeLong()), static_cast<int>(end - start));
+    #else
+      ByteSizeConsistencyError(byte_size, message.ByteSize(), static_cast<int>(end - start));
+    #endif
   }
   buf->hasWritten(byte_size);
   return byte_size;
