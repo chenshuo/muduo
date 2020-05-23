@@ -8,7 +8,7 @@
 
 #include "contrib/thrift/ThriftServer.h"
 
-using namespace muduo;
+using muduo::Timestamp;
 using muduo::net::Buffer;
 using muduo::net::TcpConnectionPtr;
 
