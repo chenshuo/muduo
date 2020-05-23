@@ -20,7 +20,7 @@ ThriftConnection::ThriftConnection(ThriftServer* server,
     frameSize_(0)
 {
   conn_->setMessageCallback(boost::bind(&ThriftConnection::onMessage,
-                                        this, ::_1, _2, _3));
+                                        this, _1, _2, _3));
   nullTransport_.reset(new TNullTransport());
   inputTransport_.reset(new TMemoryBuffer(NULL, 0));
   outputTransport_.reset(new TMemoryBuffer());
