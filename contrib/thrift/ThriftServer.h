@@ -1,9 +1,9 @@
 #ifndef MUDUO_CONTRIB_THRIFT_THRIFTSERVER_H
 #define MUDUO_CONTRIB_THRIFT_THRIFTSERVER_H
 
+#include <functional>
 #include <map>
 
-#include <boost/bind.hpp>
 #include <boost/noncopyable.hpp>
 
 #include "muduo/base/ThreadPool.h"
@@ -34,8 +34,8 @@ class ThriftServer : boost::noncopyable,
       numWorkerThreads_(0),
       workerThreadPool_(name + muduo::string("WorkerThreadPool"))
   {
-    server_.setConnectionCallback(boost::bind(&ThriftServer::onConnection,
-                                              this, _1));
+    server_.setConnectionCallback(std::bind(&ThriftServer::onConnection,
+                                              this, muduo::_1));
   }
 
   template <typename Processor>
@@ -49,8 +49,8 @@ class ThriftServer : boost::noncopyable,
       numWorkerThreads_(0),
       workerThreadPool_(name + muduo::string("WorkerThreadPool"))
   {
-    server_.setConnectionCallback(boost::bind(&ThriftServer::onConnection,
-                                              this, _1));
+    server_.setConnectionCallback(std::bind(&ThriftServer::onConnection,
+                                              this, muduo::_1));
   }
 
   template <typename ProcessorFactory>
@@ -65,8 +65,8 @@ class ThriftServer : boost::noncopyable,
       numWorkerThreads_(0),
       workerThreadPool_(name + muduo::string("WorkerThreadPool"))
   {
-    server_.setConnectionCallback(boost::bind(&ThriftServer::onConnection,
-                                              this, _1));
+    server_.setConnectionCallback(std::bind(&ThriftServer::onConnection,
+                                              this, muduo::_1));
     setInputProtocolFactory(protocolFactory);
     setOutputProtocolFactory(protocolFactory);
   }
@@ -83,8 +83,8 @@ class ThriftServer : boost::noncopyable,
       numWorkerThreads_(0),
       workerThreadPool_(name + muduo::string("WorkerThreadPool"))
   {
-    server_.setConnectionCallback(boost::bind(&ThriftServer::onConnection,
-                                              this, _1));
+    server_.setConnectionCallback(std::bind(&ThriftServer::onConnection,
+                                              this, muduo::_1));
     setInputProtocolFactory(protocolFactory);
     setOutputProtocolFactory(protocolFactory);
   }
@@ -102,8 +102,8 @@ class ThriftServer : boost::noncopyable,
       numWorkerThreads_(0),
       workerThreadPool_(name + muduo::string("WorkerThreadPool"))
   {
-    server_.setConnectionCallback(boost::bind(&ThriftServer::onConnection,
-                                              this, _1));
+    server_.setConnectionCallback(std::bind(&ThriftServer::onConnection,
+                                              this, muduo::_1));
     setInputTransportFactory(transportFactory);
     setOutputTransportFactory(transportFactory);
     setInputProtocolFactory(protocolFactory);
@@ -123,8 +123,8 @@ class ThriftServer : boost::noncopyable,
       numWorkerThreads_(0),
       workerThreadPool_(name + muduo::string("WorkerThreadPool"))
   {
-    server_.setConnectionCallback(boost::bind(&ThriftServer::onConnection,
-                                              this, _1));
+    server_.setConnectionCallback(std::bind(&ThriftServer::onConnection,
+                                              this, muduo::_1));
     setInputTransportFactory(transportFactory);
     setOutputTransportFactory(transportFactory);
     setInputProtocolFactory(protocolFactory);
@@ -146,8 +146,8 @@ class ThriftServer : boost::noncopyable,
       numWorkerThreads_(0),
       workerThreadPool_(name + muduo::string("WorkerThreadPool"))
   {
-    server_.setConnectionCallback(boost::bind(&ThriftServer::onConnection,
-                                              this, _1));
+    server_.setConnectionCallback(std::bind(&ThriftServer::onConnection,
+                                              this, muduo::_1));
     setInputTransportFactory(inputTransportFactory);
     setOutputTransportFactory(outputTransportFactory);
     setInputProtocolFactory(inputProtocolFactory);
@@ -169,8 +169,8 @@ class ThriftServer : boost::noncopyable,
       numWorkerThreads_(0),
       workerThreadPool_(name + muduo::string("WorkerThreadPool"))
   {
-    server_.setConnectionCallback(boost::bind(&ThriftServer::onConnection,
-                                              this, _1));
+    server_.setConnectionCallback(std::bind(&ThriftServer::onConnection,
+                                              this, muduo::_1));
     setInputTransportFactory(inputTransportFactory);
     setOutputTransportFactory(outputTransportFactory);
     setInputProtocolFactory(inputProtocolFactory);

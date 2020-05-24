@@ -1,6 +1,6 @@
 #include "contrib/thrift/ThriftServer.h"
 
-#include <boost/bind.hpp>
+#include <functional>
 
 #include "muduo/net/EventLoop.h"
 
@@ -29,7 +29,7 @@ void ThriftServer::stop()
   {
     workerThreadPool_.stop();
   }
-  server_.getLoop()->runAfter(3.0, boost::bind(&EventLoop::quit,
+  server_.getLoop()->runAfter(3.0, std::bind(&EventLoop::quit,
                                                server_.getLoop()));
 }
 
