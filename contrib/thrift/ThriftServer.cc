@@ -4,8 +4,10 @@
 
 #include "muduo/net/EventLoop.h"
 
-using namespace muduo;
-using namespace muduo::net;
+using muduo::MutexLockGuard;
+using muduo::Timestamp;
+using muduo::net::EventLoop;
+using muduo::net::TcpConnectionPtr;
 
 ThriftServer::~ThriftServer() = default;
 

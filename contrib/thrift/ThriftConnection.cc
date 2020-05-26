@@ -8,8 +8,12 @@
 
 #include "contrib/thrift/ThriftServer.h"
 
-using namespace muduo;
-using namespace muduo::net;
+using muduo::Timestamp;
+using muduo::net::Buffer;
+using muduo::net::TcpConnectionPtr;
+using muduo::_1;
+using muduo::_2;
+using muduo::_3;
 
 ThriftConnection::ThriftConnection(ThriftServer* server,
                                   const TcpConnectionPtr& conn)
@@ -19,7 +23,7 @@ ThriftConnection::ThriftConnection(ThriftServer* server,
     frameSize_(0)
 {
   conn_->setMessageCallback(std::bind(&ThriftConnection::onMessage,
-                                        this, muduo::_1, muduo::_2, muduo::_3));
+                                        this, _1, _2, _3));
   nullTransport_.reset(new TNullTransport());
   inputTransport_.reset(new TMemoryBuffer(NULL, 0));
   outputTransport_.reset(new TMemoryBuffer());
