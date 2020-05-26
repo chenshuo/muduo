@@ -1,6 +1,6 @@
 #include "contrib/thrift/ThriftConnection.h"
 
-#include <boost/bind.hpp>
+#include <functional>
 
 #include "muduo/base/Logging.h"
 
@@ -8,8 +8,12 @@
 
 #include "contrib/thrift/ThriftServer.h"
 
-using namespace muduo;
-using namespace muduo::net;
+using muduo::Timestamp;
+using muduo::net::Buffer;
+using muduo::net::TcpConnectionPtr;
+using muduo::_1;
+using muduo::_2;
+using muduo::_3;
 
 ThriftConnection::ThriftConnection(ThriftServer* server,
                                   const TcpConnectionPtr& conn)
@@ -18,7 +22,7 @@ ThriftConnection::ThriftConnection(ThriftServer* server,
     state_(kExpectFrameSize),
     frameSize_(0)
 {
-  conn_->setMessageCallback(boost::bind(&ThriftConnection::onMessage,
+  conn_->setMessageCallback(std::bind(&ThriftConnection::onMessage,
                                         this, _1, _2, _3));
   nullTransport_.reset(new TNullTransport());
   inputTransport_.reset(new TMemoryBuffer(NULL, 0));
@@ -65,7 +69,7 @@ void ThriftConnection::onMessage(const TcpConnectionPtr& conn,
 
         if (server_->isWorkerThreadPoolProcessing())
         {
-          server_->workerThreadPool().run(boost::bind(&ThriftConnection::process, this));
+          server_->workerThreadPool().run(std::bind(&ThriftConnection::process, this));
         }
         else
         {
