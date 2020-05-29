@@ -21,7 +21,7 @@ const int Channel::kNoneEvent = 0;
 const int Channel::kReadEvent = POLLIN | POLLPRI;
 const int Channel::kWriteEvent = POLLOUT;
 
-Channel::Channel(EventLoop* loop, int fd__)
+Channel::Channel(EventLoop* loop, int fd__, bool classify)
   : loop_(loop),
     fd_(fd__),
     events_(0),
@@ -30,7 +30,8 @@ Channel::Channel(EventLoop* loop, int fd__)
     logHup_(true),
     tied_(false),
     eventHandling_(false),
-    addedToLoop_(false)
+    addedToLoop_(false),
+    classify_(classify)
 {
 }
 
@@ -84,31 +85,38 @@ void Channel::handleEventWithGuard(Timestamp receiveTime)
 {
   eventHandling_ = true;
   LOG_TRACE << reventsToString();
-  if ((revents_ & POLLHUP) && !(revents_ & POLLIN))
+  if (classify_)
   {
-    if (logHup_)
+    if ((revents_ & POLLHUP) && !(revents_ & POLLIN))
     {
-      LOG_WARN << "fd = " << fd_ << " Channel::handle_event() POLLHUP";
+      if (logHup_)
+      {
+        LOG_WARN << "fd = " << fd_ << " Channel::handle_event() POLLHUP";
+      }
+      if (closeCallback_) closeCallback_();
     }
-    if (closeCallback_) closeCallback_();
-  }
 
-  if (revents_ & POLLNVAL)
-  {
-    LOG_WARN << "fd = " << fd_ << " Channel::handle_event() POLLNVAL";
-  }
+    if (revents_ & POLLNVAL)
+    {
+      LOG_WARN << "fd = " << fd_ << " Channel::handle_event() POLLNVAL";
+    }
 
-  if (revents_ & (POLLERR | POLLNVAL))
-  {
-    if (errorCallback_) errorCallback_();
+    if (revents_ & (POLLERR | POLLNVAL))
+    {
+      if (errorCallback_) errorCallback_();
+    }
+    if (revents_ & (POLLIN | POLLPRI | POLLRDHUP))
+    {
+      if (readCallback_) readCallback_(receiveTime);
+    }
+    if (revents_ & POLLOUT)
+    {
+      if (writeCallback_) writeCallback_();
+    }
   }
-  if (revents_ & (POLLIN | POLLPRI | POLLRDHUP))
+  else
   {
-    if (readCallback_) readCallback_(receiveTime);
-  }
-  if (revents_ & POLLOUT)
-  {
-    if (writeCallback_) writeCallback_();
+    if (eventsCallback_) eventsCallback_(revents_, receiveTime);
   }
   eventHandling_ = false;
 }
