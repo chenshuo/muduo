@@ -2,6 +2,10 @@
 
 set -x
 
+if [ -f "/usr/lib/x86_64-linux-gnu/libmariadbclient.so" ]; then
+  sudo ln -sf /usr/lib/x86_64-linux-gnu/libmariadbclient.so /usr/lib/x86_64-linux-gnu/libmysqlclient.so
+fi
+
 SOURCE_DIR=`pwd`
 BUILD_DIR=${BUILD_DIR:-../build}
 BUILD_TYPE=${BUILD_TYPE:-release}
