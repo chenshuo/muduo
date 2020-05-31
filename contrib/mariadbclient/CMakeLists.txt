@@ -1,5 +1,5 @@
 add_library(muduo_mariadbclient MariaDBClient.cc)
-target_link_libraries(muduo_mariadbclient muduo_net mysqlclient)
+target_link_libraries(muduo_mariadbclient muduo_net mariadbclient)
 
 add_executable(mmariadbclient mmariadbclient.cc)
 target_link_libraries(mmariadbclient muduo_mariadbclient)
