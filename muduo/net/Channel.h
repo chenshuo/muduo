@@ -50,9 +50,8 @@ class Channel : noncopyable
   { closeCallback_ = std::move(cb); }
   void setErrorCallback(EventCallback cb)
   { errorCallback_ = std::move(cb); }
-
-  void setEventsCallback(const EventsCallback& cb)
-  { eventsCallback_ = cb; }
+  void setEventsCallback(EventsCallback cb)
+  { eventsCallback_ = std::move(cb); }
 
   /// Tie this channel to the owner object managed by shared_ptr,
   /// prevent the owner object being destroyed in handleEvent.
@@ -71,7 +70,6 @@ class Channel : noncopyable
   void disableAll() { events_ = kNoneEvent; update(); }
   bool isWriting() const { return events_ & kWriteEvent; }
   bool isReading() const { return events_ & kReadEvent; }
-
   void enableEvents(int events__) { events_ = events__; update(); }
 
   // for Poller

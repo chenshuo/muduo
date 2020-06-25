@@ -10,7 +10,6 @@
 #include <deque>
 #include <functional>
 #include <memory>
-#include <vector>
 
 namespace muduo
 {
@@ -31,11 +30,8 @@ class MariaDBClient : muduo::noncopyable
   typedef std::function<void(MariaDBClient*)> ConnectCallback;
   typedef std::function<void(MariaDBClient*)> DisconnectCallback;
 
-  typedef std::function<void(MariaDBClient*)> QueryCallback;
-
-  typedef std::vector<std::vector<string>> FetchResult;
-  typedef std::shared_ptr<FetchResult> FetchResultPtr;
-  typedef std::function<void(MariaDBClient*, const FetchResultPtr&)> QueryFetchCallback;
+  typedef std::function<void(MariaDBClient*)> UpdateCallback; // similar to WriteCompleteCallback
+  typedef std::function<void(MariaDBClient*, MYSQL_RES*)> QueryCallback;
 
   enum State
   {
@@ -47,12 +43,12 @@ class MariaDBClient : muduo::noncopyable
     kRealQueryCont,
     kRealQueryEnd,
 
-    kFetchRowStart,
-    kFetchRowCont,
-    kFetchRowEnd,
+    kStoreResultStart,
+    kStoreResultCont,
+    kStoreResultEnd,
 
     kCloseStart,
-    kCloseContinue,
+    kCloseCont,
     kCloseEnd,
   };
 
@@ -69,19 +65,15 @@ class MariaDBClient : muduo::noncopyable
   void connect();
   void disconnect();
 
-  void query(muduo::StringArg queryStr, const QueryCallback& cb = QueryCallback());
-  void queryFetch(muduo::StringArg queryStr, const QueryFetchCallback& cb);
+  // INSERT, UPDATE, or DELETE
+  void executeUpdate(muduo::StringArg sql, const UpdateCallback& cb = UpdateCallback());
+  // SELECT, SHOW, DESCRIBE, EXPLAIN, CHECK TABLE, and so forth
+  void executeQuery(muduo::StringArg sql, const QueryCallback& cb = QueryCallback());
 
   uint32_t errorNo() { return ::mysql_errno(&mysql_); }
   const char* errorStr() { return ::mysql_error(&mysql_); }
 
  private:
-  void connectInLoop();
-  void disconnectInLoop();
-
-  void queryInLoop(muduo::StringArg queryStr, const QueryCallback& cb = QueryCallback());
-  void queryFetchInLoop(muduo::StringArg queryStr, const QueryFetchCallback& cb);
-
   void stateMachineHandler(int state, int revents = -1, muduo::Timestamp receiveTime = muduo::Timestamp::invalid());
 
   void logConnection(bool up) const;
@@ -102,34 +94,30 @@ class MariaDBClient : muduo::noncopyable
 
   MYSQL mysql_;
 
-  struct QueryData
+  struct SQLData
   {
-    enum QueryType
+    enum Type
     {
-      kQuery,
-      kQueryFetch
+      kUpdate,
+      kQuery
     };
 
-    QueryData(QueryType type, const string& queryStr, const QueryCallback& cb)
-        : type_(type), queryStr_(queryStr), queryCb_(cb) {}
-    QueryData(QueryType type, const string& queryStr, const QueryFetchCallback& cb)
-        : type_(type), queryStr_(queryStr), queryFetchCb_(cb) {}
-    ~QueryData() {}
+    SQLData(Type type, const string& sql, const UpdateCallback& cb)
+        : type_(type), sql_(sql), updateCb_(cb) {}
+    SQLData(Type type, const string& sql, const QueryCallback& cb)
+        : type_(type), sql_(sql), queryCb_(cb) {}
+    ~SQLData() {}
 
-    QueryType type_;
-    string queryStr_;
+    Type type_;
+    string sql_;
     union
     {
+      UpdateCallback updateCb_;
       QueryCallback queryCb_;
-      QueryFetchCallback queryFetchCb_;
     };
   };
 
-  std::deque<std::unique_ptr<QueryData>> queries_;
-
-  MYSQL_RES* res_;
-  MYSQL_ROW row_;
-  FetchResultPtr result_;
+  std::deque<std::unique_ptr<SQLData>> sqlQueue_;
 };
 
 }  // namespace mariadbclient

@@ -27,9 +27,7 @@ MariaDBClient::MariaDBClient(EventLoop* loop,
       user_(user),
       password_(password),
       db_(db),
-      isConnected_(false),
-      res_(NULL),
-      row_(NULL)
+      isConnected_(false)
 {
 }
 
@@ -43,27 +41,6 @@ MariaDBClient::~MariaDBClient()
 
 void MariaDBClient::connect()
 {
-  loop_->runInLoop(std::bind(&MariaDBClient::connectInLoop, this));
-}
-
-void MariaDBClient::disconnect()
-{
-  loop_->runInLoop(std::bind(&MariaDBClient::disconnectInLoop, this));
-}
-
-void MariaDBClient::query(StringArg queryStr, const QueryCallback& cb)
-{
-  loop_->runInLoop(std::bind(&MariaDBClient::queryInLoop, this, string(queryStr.c_str()), cb));
-}
-
-void MariaDBClient::queryFetch(StringArg queryStr, const QueryFetchCallback& cb)
-{
-  loop_->runInLoop(std::bind(&MariaDBClient::queryFetchInLoop, this, string(queryStr.c_str()), cb));
-}
-
-void MariaDBClient::connectInLoop()
-{
-  loop_->assertInLoopThread();
   assert(!isConnected_);
 
   ::mysql_init(&mysql_);
@@ -72,35 +49,32 @@ void MariaDBClient::connectInLoop()
   stateMachineHandler(kRealConnectStart);
 }
 
-void MariaDBClient::disconnectInLoop()
+void MariaDBClient::disconnect()
 {
-  loop_->assertInLoopThread();
   assert(isConnected_);
 
   stateMachineHandler(kCloseStart);
 }
 
-void MariaDBClient::queryInLoop(StringArg queryStr, const QueryCallback& cb)
+void MariaDBClient::executeUpdate(StringArg sql, const UpdateCallback& cb)
 {
-  loop_->assertInLoopThread();
   assert(isConnected_);
 
-  queries_.emplace_back(new QueryData(QueryData::kQuery, queryStr.c_str(), cb));
+  sqlQueue_.emplace_back(new SQLData(SQLData::kUpdate, sql.c_str(), cb));
 
-  if (queries_.size() == 1)
+  if (sqlQueue_.size() == 1)
   {
     stateMachineHandler(kRealQueryStart);
   }
 }
 
-void MariaDBClient::queryFetchInLoop(StringArg queryStr, const QueryFetchCallback& cb)
+void MariaDBClient::executeQuery(StringArg sql, const QueryCallback& cb)
 {
-  loop_->assertInLoopThread();
   assert(isConnected_);
 
-  queries_.emplace_back(new QueryData(QueryData::kQueryFetch, queryStr.c_str(), cb));
+  sqlQueue_.emplace_back(new SQLData(SQLData::kQuery, sql.c_str(), cb));
 
-  if (queries_.size() == 1)
+  if (sqlQueue_.size() == 1)
   {
     stateMachineHandler(kRealQueryStart);
   }
@@ -111,8 +85,10 @@ void MariaDBClient::stateMachineHandler(int state, int revents, Timestamp receiv
   loop_->assertInLoopThread();
 
   int mysqlRevents = toMySQLEvents(revents);
-  MYSQL* ret = NULL;
-  int err = 0;
+
+  static MYSQL* ret = NULL;
+  static int err = 0;
+  static MYSQL_RES* res = NULL;
 
   again:
   switch (state)
@@ -160,7 +136,7 @@ void MariaDBClient::stateMachineHandler(int state, int revents, Timestamp receiv
 
     case kRealConnectEnd:
     {
-      if (!ret)
+      if (ret == NULL)
       {
         LOG_ERROR << "Failed to mysql_real_connect(): " << errorStr();
       }
@@ -181,11 +157,10 @@ void MariaDBClient::stateMachineHandler(int state, int revents, Timestamp receiv
 
     case kRealQueryStart:
     {
-      int mysqlEvents =
-          ::mysql_real_query_start(&err,
-                                   &mysql_,
-                                   queries_.front()->queryStr_.c_str(),
-                                   queries_.front()->queryStr_.size());
+      int mysqlEvents = ::mysql_real_query_start(&err,
+                                                 &mysql_,
+                                                 sqlQueue_.front()->sql_.c_str(),
+                                                 sqlQueue_.front()->sql_.size());
       if (mysqlEvents != 0)
       {
         channel_->setEventsCallback(std::bind(&MariaDBClient::stateMachineHandler, this, kRealQueryCont, _1, _2));
@@ -216,66 +191,64 @@ void MariaDBClient::stateMachineHandler(int state, int revents, Timestamp receiv
 
     case kRealQueryEnd:
     {
-      if (queries_.front()->type_ == QueryData::kQuery)
+      if (sqlQueue_.front()->type_ == SQLData::kUpdate)
       {
-        if (queries_.front()->queryCb_)
+        if (sqlQueue_.front()->updateCb_)
         {
-          queries_.front()->queryCb_(this);
+          sqlQueue_.front()->updateCb_(this);
         }
-        queries_.pop_front();
+        sqlQueue_.pop_front();
 
-        if (!queries_.empty())
+        if (!sqlQueue_.empty())
         {
           NEXT_IMMEDIATE(kRealQueryStart);
         }
       }
       else
       {
-        assert(queries_.front()->type_ == QueryData::kQueryFetch);
-        assert(queries_.front()->queryFetchCb_);
-        if (err)
+        assert(sqlQueue_.front()->type_ == SQLData::kQuery);
+        if (err != 0)
         {
           LOG_ERROR << "mysql_real_query() returns error: " << errorStr();
-          queries_.front()->queryFetchCb_(this, FetchResultPtr());
+          if (sqlQueue_.front()->queryCb_)
+          {
+            sqlQueue_.front()->queryCb_(this, NULL);
+          }
+          sqlQueue_.pop_front();
+
+          if (!sqlQueue_.empty())
+          {
+            NEXT_IMMEDIATE(kRealQueryStart);
+          }
         }
         else
         {
-          res_ = ::mysql_use_result(&mysql_);
-          if (!res_)
-          {
-            LOG_ERROR << "mysql_use_result() returns error: " << errorStr();
-            queries_.front()->queryFetchCb_(this, FetchResultPtr());
-          }
-          else
-          {
-            result_.reset(new FetchResult);
-            NEXT_IMMEDIATE(kFetchRowStart);
-          }
+          NEXT_IMMEDIATE(kStoreResultStart);
         }
       }
     }
       break;
 
-    case kFetchRowStart:
+    case kStoreResultStart:
     {
-      int mysqlEvents = ::mysql_fetch_row_start(&row_, res_);
+      int mysqlEvents = ::mysql_store_result_start(&res, &mysql_);
       if (mysqlEvents != 0)
       {
-        channel_->setEventsCallback(std::bind(&MariaDBClient::stateMachineHandler, this, kFetchRowCont, _1, _2));
+        channel_->setEventsCallback(std::bind(&MariaDBClient::stateMachineHandler, this, kStoreResultCont, _1, _2));
 
         int events = toEvents(mysqlEvents);
         channel_->enableEvents(events);
       }
       else
       {
-        NEXT_IMMEDIATE(kFetchRowEnd);
+        NEXT_IMMEDIATE(kStoreResultEnd);
       }
     }
       break;
 
-    case kFetchRowCont:
+    case kStoreResultCont:
     {
-      int mysqlEvents = ::mysql_fetch_row_cont(&row_, res_, mysqlRevents);
+      int mysqlEvents = ::mysql_store_result_cont(&res, &mysql_, mysqlRevents);
       if (mysqlEvents != 0)
       {
         int events = toEvents(mysqlEvents);
@@ -283,48 +256,35 @@ void MariaDBClient::stateMachineHandler(int state, int revents, Timestamp receiv
       }
       else
       {
-        NEXT_IMMEDIATE(kFetchRowEnd);
+        NEXT_IMMEDIATE(kStoreResultEnd);
       }
     }
       break;
 
-    case kFetchRowEnd:
+    case kStoreResultEnd:
     {
-      if (row_)
+      if (sqlQueue_.front()->queryCb_)
       {
-        std::vector<string> fields;
-        for (size_t i = 0; i < ::mysql_num_fields(res_); ++i)
-        {
-          if (row_[i])
-          {
-            fields.push_back(row_[i]);
-          }
-          else
-          {
-            fields.push_back("");
-          }
-        }
-        result_->push_back(fields);
-
-        NEXT_IMMEDIATE(kFetchRowStart);
+        sqlQueue_.front()->queryCb_(this, res);
       }
       else
       {
-        if (errorNo() != 0)
+        if (res != NULL)
         {
-          LOG_ERROR << "Got error while retrieving rows: " << errorStr();
+          ::mysql_free_result(res);
         }
-        ::mysql_free_result(res_);
-
-        assert(queries_.front()->queryFetchCb_);
-        queries_.front()->queryFetchCb_(this, result_);
-        queries_.pop_front();
-        result_.reset();
-
-        if (!queries_.empty())
+        else
         {
-          NEXT_IMMEDIATE(kRealQueryStart);
+          assert(::mysql_field_count(&mysql_) != 0);
+          assert(::mysql_errno(&mysql_) != 0);
+          LOG_ERROR << "Got error while storing result: " << errorStr();
         }
+      }
+      sqlQueue_.pop_front();
+
+      if (!sqlQueue_.empty())
+      {
+        NEXT_IMMEDIATE(kRealQueryStart);
       }
     }
       break;
@@ -335,7 +295,7 @@ void MariaDBClient::stateMachineHandler(int state, int revents, Timestamp receiv
       int mysqlEvents = ::mysql_close_start(&mysql_);
       if (mysqlEvents != 0)
       {
-        channel_->setEventsCallback(std::bind(&MariaDBClient::stateMachineHandler, this, kCloseContinue, _1, _2));
+        channel_->setEventsCallback(std::bind(&MariaDBClient::stateMachineHandler, this, kCloseCont, _1, _2));
         int events = toEvents(mysqlEvents);
         channel_->enableEvents(events);
       }
@@ -346,7 +306,7 @@ void MariaDBClient::stateMachineHandler(int state, int revents, Timestamp receiv
     }
       break;
 
-    case kCloseContinue:
+    case kCloseCont:
     {
       int mysqlEvents = ::mysql_close_cont(&mysql_, mysqlRevents);
       if (mysqlEvents != 0)
@@ -363,18 +323,11 @@ void MariaDBClient::stateMachineHandler(int state, int revents, Timestamp receiv
 
     case kCloseEnd:
     {
-      if (errorNo() != 0)
-      {
-        LOG_ERROR << "Got error while close: " << errorStr();
-      }
-      else
-      {
-        isConnected_ = false;
-        channel_->disableAll();
-        channel_->remove();
-        loop_->queueInLoop(std::bind(dummy, channel_));
-        channel_.reset();
-      }
+      isConnected_ = false;
+      channel_->disableAll();
+      channel_->remove();
+      loop_->queueInLoop(std::bind(dummy, channel_));
+      channel_.reset();
 
       if (disconnectCb_)
       {
