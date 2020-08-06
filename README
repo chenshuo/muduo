@@ -18,6 +18,14 @@ Tested on:
   Unbuntu 14.04 and above
   CentOS 7 and above
 
+Install required packages:
+  # Debian, Ubuntu, etc.
+  $ sudo apt install g++ cmake make libboost-dev
+  # CentOS
+  $ sudo yum install gcc-c++ cmake make boost-devel
+
+See .travis.yml for additional packages for building more examples.
+
 To build, run:
   ./build.sh
 
