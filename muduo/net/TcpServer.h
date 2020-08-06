@@ -68,7 +68,7 @@ class TcpServer : noncopyable
   std::shared_ptr<EventLoopThreadPool> threadPool()
   { return threadPool_; }
 
-  /// Starts the server if it's not listenning.
+  /// Starts the server if it's not listening.
   ///
   /// It's harmless to call it multiple times.
   /// Thread safe.

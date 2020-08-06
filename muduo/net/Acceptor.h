@@ -38,8 +38,13 @@ class Acceptor : noncopyable
   void setNewConnectionCallback(const NewConnectionCallback& cb)
   { newConnectionCallback_ = cb; }
 
-  bool listenning() const { return listenning_; }
   void listen();
+
+  bool listening() const { return listening_; }
+
+  // Deprecated, use the correct spelling one above.
+  // Leave the wrong spelling here in case one needs to grep it for error messages.
+  // bool listenning() const { return listening(); }
 
  private:
   void handleRead();
@@ -48,7 +53,7 @@ class Acceptor : noncopyable
   Socket acceptSocket_;
   Channel acceptChannel_;
   NewConnectionCallback newConnectionCallback_;
-  bool listenning_;
+  bool listening_;
   int idleFd_;
 };
 
