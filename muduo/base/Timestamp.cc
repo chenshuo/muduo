@@ -17,7 +17,7 @@
 using namespace muduo;
 
 static_assert(sizeof(Timestamp) == sizeof(int64_t),
-              "Timestamp is same size as int64_t");
+              "Timestamp should be same size as int64_t");
 
 string Timestamp::toString() const
 {
