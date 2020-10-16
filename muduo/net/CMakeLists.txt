@@ -27,7 +27,7 @@ set(net_SRCS
   TimerQueue.cc
   )
 
-add_library(muduo_net SHARED ${net_SRCS})
+add_library(muduo_net ${net_SRCS})
 target_link_libraries(muduo_net muduo_base)
 
 #add_library(muduo_net_cpp11 ${net_SRCS})
