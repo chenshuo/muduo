@@ -55,7 +55,11 @@ TcpClient::TcpClient(EventLoop* loop,
                      const InetAddress& serverAddr,
                      const string& nameArg)
   : loop_(CHECK_NOTNULL(loop)),
+    #ifndef _USE_SMART_POINTER_
     connector_(new Connector(loop, serverAddr)),
+    #else
+    connector_(Connector::create(loop,serverAddr)),
+    #endif
     name_(nameArg),
     connectionCallback_(defaultConnectionCallback),
     messageCallback_(defaultMessageCallback),

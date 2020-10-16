@@ -16,7 +16,7 @@
 
 #include <functional>
 #include <memory>
-
+#define _USE_SMART_POINTER_
 namespace muduo
 {
 namespace net
@@ -28,10 +28,18 @@ class EventLoop;
 class Connector : noncopyable,
                   public std::enable_shared_from_this<Connector>
 {
+
+#ifdef _USE_SMART_POINTER_
+protected:
+    Connector(EventLoop* loop, const InetAddress& serverAddr);
+#endif
  public:
   typedef std::function<void (int sockfd)> NewConnectionCallback;
-
+#ifndef _USE_SMART_POINTER_
   Connector(EventLoop* loop, const InetAddress& serverAddr);
+#else
+    static std::shared_ptr<Connector> create(EventLoop* loop, const InetAddress& serverAddr);
+#endif
   ~Connector();
 
   void setNewConnectionCallback(const NewConnectionCallback& cb)

@@ -28,9 +28,14 @@ Connector::Connector(EventLoop* loop, const InetAddress& serverAddr)
     state_(kDisconnected),
     retryDelayMs_(kInitRetryDelayMs)
 {
-  LOG_DEBUG << "ctor[" << this << "]";
+    LOG_DEBUG << "ctor[" << this << "]";
 }
-
+#ifdef _USE_SMART_POINTER_
+std::shared_ptr<Connector> Connector::create(EventLoop *loop, const InetAddress &serverAddr)
+{
+    return std::shared_ptr<Connector>(new Connector(loop,serverAddr));
+}
+#endif
 Connector::~Connector()
 {
   LOG_DEBUG << "dtor[" << this << "]";
@@ -40,7 +45,19 @@ Connector::~Connector()
 void Connector::start()
 {
   connect_ = true;
+#ifndef _USE_SMART_POINTER_
   loop_->runInLoop(std::bind(&Connector::startInLoop, this)); // FIXME: unsafe
+#else
+  std::weak_ptr<Connector> pthis = shared_from_this();
+  loop_->runInLoop([pthis]{
+      auto pConnect = pthis.lock();
+      if(pConnect){
+          pConnect->startInLoop();
+      }else{
+          LOG_WARN<<"start connect ,but it is expired";
+      }
+  });
+#endif
 }
 
 void Connector::startInLoop()
@@ -60,7 +77,12 @@ void Connector::startInLoop()
 void Connector::stop()
 {
   connect_ = false;
+#ifndef _USE_SMART_POINTER_
   loop_->queueInLoop(std::bind(&Connector::stopInLoop, this)); // FIXME: unsafe
+
+#else
+    loop_->queueInLoop(std::bind(&Connector::stopInLoop, shared_from_this()));
+#endif
   // FIXME: cancel timer
 }
 
@@ -130,11 +152,30 @@ void Connector::connecting(int sockfd)
   setState(kConnecting);
   assert(!channel_);
   channel_.reset(new Channel(loop_, sockfd));
+#ifndef _USE_SMART_POINTER_
   channel_->setWriteCallback(
       std::bind(&Connector::handleWrite, this)); // FIXME: unsafe
   channel_->setErrorCallback(
       std::bind(&Connector::handleError, this)); // FIXME: unsafe
-
+#else
+   std::weak_ptr<Connector> pthis = shared_from_this();
+  channel_->setWriteCallback([pthis]{
+     auto p=pthis.lock();
+     if(p){
+         p->handleWrite();
+     }else{
+         LOG_WARN<<"connect writeable,but it is closed";
+     }
+  });
+  channel_->setErrorCallback([pthis]{
+    auto p=pthis.lock();
+    if(p){
+        p->handleError();
+    }else{
+        LOG_WARN<<"connect error,but it is closed";
+    }
+  });
+#endif
   // channel_->tie(shared_from_this()); is not working,
   // as channel_ is not managed by shared_ptr
   channel_->enableWriting();
@@ -146,7 +187,11 @@ int Connector::removeAndResetChannel()
   channel_->remove();
   int sockfd = channel_->fd();
   // Can't reset channel_ here, because we are inside Channel::handleEvent
+ #ifndef _USE_SMART_POINTER_
   loop_->queueInLoop(std::bind(&Connector::resetChannel, this)); // FIXME: unsafe
+ #else
+  loop_->queueInLoop(std::bind(&Connector::resetChannel, shared_from_this()));
+#endif
   return sockfd;
 }
 
