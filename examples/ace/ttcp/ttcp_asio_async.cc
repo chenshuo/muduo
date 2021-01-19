@@ -25,7 +25,7 @@ class TtcpServerConnection : public std::enable_shared_from_this<TtcpServerConne
   TtcpServerConnection(boost::asio::io_service& io_service)
     : socket_(io_service), count_(0), payload_(NULL), ack_(0)
 #else
-  TtcpServerConnection(const boost::asio::executor& executor)
+  TtcpServerConnection(const tcp::socket::executor_type& executor)
     : socket_(executor), count_(0), payload_(NULL), ack_(0)
 #endif
   {
