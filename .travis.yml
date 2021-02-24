@@ -1,6 +1,6 @@
 language: cpp
 sudo: required
-dist: trusty
+dist: bionic
 compiler:
   - gcc
   - clang
@@ -8,18 +8,15 @@ os:
   - linux
 addons:
   apt:
-    sources:
-    # add PPAs with more up-to-date toolchains
-    - ubuntu-toolchain-r-test
     packages:
-    # install toolchains
-    - g++-7
     - libboost-dev
-    - libboost-test-dev
     - libboost-program-options-dev
+    - libboost-system-dev
+    - libboost-test-dev
     - libc-ares-dev
     - libcurl4-openssl-dev
     - libgd-dev
+    - libgoogle-perftools-dev
     - libprotobuf-dev
     - libprotoc-dev
     - protobuf-compiler
@@ -28,7 +25,6 @@ env:
   - BUILD_TYPE=debug
   - BUILD_TYPE=release
 script:
-  - if [ "$CXX" == "g++" ]; then export CXX="g++-7"; fi
-  - g++-7 -v
+  - g++ -v
   - clang++ -v
   - ./build.sh
