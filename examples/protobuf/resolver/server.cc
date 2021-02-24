@@ -51,7 +51,7 @@ class ResolverServiceImpl : public ResolverService
 
   {
     LOG_INFO << "ResolverServiceImpl::doneCallback " << host;
-    int32_t ip = address.ipNetEndian();
+    int32_t ip = address.ipv4NetEndian();
     if (ip)
     {
       response->set_resolved(true);

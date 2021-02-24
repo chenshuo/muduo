@@ -53,14 +53,14 @@ class InetAddress : public muduo::copyable
   sa_family_t family() const { return addr_.sin_family; }
   string toIp() const;
   string toIpPort() const;
-  uint16_t toPort() const;
+  uint16_t port() const;
 
   // default copy/assignment are Okay
 
   const struct sockaddr* getSockAddr() const { return sockets::sockaddr_cast(&addr6_); }
   void setSockAddrInet6(const struct sockaddr_in6& addr6) { addr6_ = addr6; }
 
-  uint32_t ipNetEndian() const;
+  uint32_t ipv4NetEndian() const;
   uint16_t portNetEndian() const { return addr_.sin_port; }
 
   // resolve hostname to IP address, not changing port or sin_family

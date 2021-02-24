@@ -76,7 +76,7 @@ InetAddress::InetAddress(uint16_t port, bool loopbackOnly, bool ipv6)
 
 InetAddress::InetAddress(StringArg ip, uint16_t port, bool ipv6)
 {
-  if (ipv6)
+  if (ipv6 || strchr(ip.c_str(), ':'))
   {
     memZero(&addr6_, sizeof addr6_);
     sockets::fromIpPort(ip.c_str(), port, &addr6_);
@@ -102,13 +102,13 @@ string InetAddress::toIp() const
   return buf;
 }
 
-uint32_t InetAddress::ipNetEndian() const
+uint32_t InetAddress::ipv4NetEndian() const
 {
   assert(family() == AF_INET);
   return addr_.sin_addr.s_addr;
 }
 
-uint16_t InetAddress::toPort() const
+uint16_t InetAddress::port() const
 {
   return sockets::networkToHost16(portNetEndian());
 }
