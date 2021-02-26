@@ -1,0 +1,3 @@
+
+local_lat.cc  : echo server with LengthHeaderCodec
+remote_lat.cc : echo client with LengthHeaderCodec

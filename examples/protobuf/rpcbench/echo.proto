@@ -1,0 +1,19 @@
+package echo;
+//option py_generic_services = true;
+option cc_generic_services = true;
+option java_generic_services = true;
+option java_package = "echo";
+option java_outer_classname = "EchoProto";
+
+message EchoRequest {
+  required string payload = 1;
+}
+
+message EchoResponse {
+  required string payload = 2;
+}
+
+service EchoService {
+  rpc Echo (EchoRequest) returns (EchoResponse);
+}
+

@@ -1,0 +1,137 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 2c8880a..af0d174 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -21,7 +21,7 @@ set(CXX_FLAGS
+  -Wpointer-arith
+  -Wshadow
+  -Wwrite-strings
+- -march=native
++ -march=armv4
+  # -MMD
+  # -std=c++0x
+  -rdynamic
+@@ -31,7 +31,7 @@ if(CMAKE_BUILD_BITS EQUAL 32)
+ endif()
+ string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS}")
+ 
+-set(CMAKE_CXX_COMPILER "g++")
++set(CMAKE_CXX_COMPILER "arm-g++")
+ #set(CMAKE_CXX_COMPILER "icpc")
+ set(CMAKE_CXX_FLAGS_DEBUG "-O0")
+ set(CMAKE_CXX_FLAGS_RELEASE "-O2 -finline-limit=1000 -DNDEBUG")
+diff --git a/muduo/base/Atomic.h b/muduo/base/Atomic.h
+index 3478da0..cc1dd45 100644
+--- a/muduo/base/Atomic.h
++++ b/muduo/base/Atomic.h
+@@ -8,6 +8,7 @@
+ 
+ #include <boost/noncopyable.hpp>
+ #include <stdint.h>
++#include <muduo/base/Mutex.h>
+ 
+ namespace muduo
+ {
+@@ -83,10 +84,88 @@ class AtomicIntegerT : boost::noncopyable
+  private:
+   volatile T value_;
+ };
++
++template<typename T>
++class AtomicIntegerLock : boost::noncopyable
++{
++ public:
++  AtomicIntegerLock()
++    : value_(0)
++  {
++  }
++
++  // uncomment if you need copying and assignment
++  //
++  // AtomicIntegerT(const AtomicIntegerT& that)
++  //   : value_(that.get())
++  // {}
++  //
++  // AtomicIntegerT& operator=(const AtomicIntegerT& that)
++  // {
++  //   getAndSet(that.get());
++  //   return *this;
++  // }
++
++  T get()
++  {
++    MutexLockGuard lock(mutex_);
++    return value_;
++  }
++
++  T getAndAdd(T x)
++  {
++    MutexLockGuard lock(mutex_);
++    T old = value_;
++    value_ += x;
++    return old;
++  }
++
++  T addAndGet(T x)
++  {
++    return getAndAdd(x) + x;
++  }
++
++  T incrementAndGet()
++  {
++    return addAndGet(1);
++  }
++
++  T decrementAndGet()
++  {
++    return addAndGet(-1);
++  }
++
++  void add(T x)
++  {
++    getAndAdd(x);
++  }
++
++  void increment()
++  {
++    incrementAndGet();
++  }
++
++  void decrement()
++  {
++    decrementAndGet();
++  }
++
++  T getAndSet(T newValue)
++  {
++    MutexLockGuard lock(mutex_);
++    T old = value_;
++    value_ = newValue;
++    return old;
++  }
++
++ private:
++  volatile T value_;
++  MutexLock mutex_;
++};
+ }
+ 
+ typedef detail::AtomicIntegerT<int32_t> AtomicInt32;
+-typedef detail::AtomicIntegerT<int64_t> AtomicInt64;
++typedef detail::AtomicIntegerLock<int64_t> AtomicInt64;
+ }
+ 
+ #endif  // MUDUO_BASE_ATOMIC_H
+diff --git a/muduo/base/tests/CMakeLists.txt b/muduo/base/tests/CMakeLists.txt
+index 2c3f1c4..73d90fd 100644
+--- a/muduo/base/tests/CMakeLists.txt
++++ b/muduo/base/tests/CMakeLists.txt
+@@ -2,7 +2,7 @@
+ target_link_libraries(asynclogging_test muduo_base)
+ 
+ add_executable(atomic_unittest Atomic_unittest.cc)
+-# target_link_libraries(atomic_unittest muduo_base)
++target_link_libraries(atomic_unittest muduo_base)
+ 
+ add_executable(blockingqueue_test BlockingQueue_test.cc)
+ target_link_libraries(blockingqueue_test muduo_base)
