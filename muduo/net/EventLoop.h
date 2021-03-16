@@ -140,7 +140,7 @@ class EventLoop : noncopyable
   bool looping_; /* atomic */
   std::atomic<bool> quit_;
   bool eventHandling_; /* atomic */
-  bool callingPendingFunctors_; /* atomic */
+  std::atomic<bool>callingPendingFunctors_; /* atomic */
   int64_t iteration_;
   const pid_t threadId_;
   Timestamp pollReturnTime_;

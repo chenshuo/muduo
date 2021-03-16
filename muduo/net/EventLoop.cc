@@ -112,6 +112,7 @@ void EventLoop::loop()
   {
     activeChannels_.clear();
     pollReturnTime_ = poller_->poll(kPollTimeMs, &activeChannels_);
+    callingPendingFunctors_ = false;
     ++iteration_;
     if (Logger::logLevel() <= Logger::TRACE)
     {
@@ -254,18 +255,17 @@ void EventLoop::handleRead()
 void EventLoop::doPendingFunctors()
 {
   std::vector<Functor> functors;
-  callingPendingFunctors_ = true;
 
   {
   MutexLockGuard lock(mutex_);
   functors.swap(pendingFunctors_);
+  callingPendingFunctors_ = true;
   }
 
   for (const Functor& functor : functors)
   {
     functor();
   }
-  callingPendingFunctors_ = false;
 }
 
 void EventLoop::printActiveChannels() const
