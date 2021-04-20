@@ -31,25 +31,25 @@ FileUtil::AppendFile::~AppendFile()
 
 void FileUtil::AppendFile::append(const char* logline, const size_t len)
 {
-  size_t n = write(logline, len);
-  size_t remain = len - n;
-  while (remain > 0)
+  size_t written = 0;
+
+  while (written != len)
   {
-    size_t x = write(logline + n, remain);
-    if (x == 0)
+    size_t remain = len - written;
+    size_t n = write(logline + written, remain);
+    if (n != remain)
     {
       int err = ferror(fp_);
       if (err)
       {
         fprintf(stderr, "AppendFile::append() failed %s\n", strerror_tl(err));
+        break;
       }
-      break;
     }
-    n += x;
-    remain = len - n; // remain -= x
+    written += n;
   }
 
-  writtenBytes_ += len;
+  writtenBytes_ += written;
 }
 
 void FileUtil::AppendFile::flush()
