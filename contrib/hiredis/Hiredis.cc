@@ -44,7 +44,7 @@ void Hiredis::connect()
 {
   assert(!context_);
 
-  context_ = ::redisAsyncConnect(serverAddr_.toIp().c_str(), serverAddr_.toPort());
+  context_ = ::redisAsyncConnect(serverAddr_.toIp().c_str(), serverAddr_.port());
 
   context_->ev.addRead = addRead;
   context_->ev.delRead = delRead;
