@@ -52,7 +52,7 @@ static_assert(offsetof(sockaddr_in6, sin6_family) == 0, "sin6_family offset 0");
 static_assert(offsetof(sockaddr_in, sin_port) == 2, "sin_port offset 2");
 static_assert(offsetof(sockaddr_in6, sin6_port) == 2, "sin6_port offset 2");
 
-InetAddress::InetAddress(uint16_t port, bool loopbackOnly, bool ipv6)
+InetAddress::InetAddress(uint16_t portArg, bool loopbackOnly, bool ipv6)
 {
   static_assert(offsetof(InetAddress, addr6_) == 0, "addr6_ offset 0");
   static_assert(offsetof(InetAddress, addr_) == 0, "addr_ offset 0");
@@ -62,7 +62,7 @@ InetAddress::InetAddress(uint16_t port, bool loopbackOnly, bool ipv6)
     addr6_.sin6_family = AF_INET6;
     in6_addr ip = loopbackOnly ? in6addr_loopback : in6addr_any;
     addr6_.sin6_addr = ip;
-    addr6_.sin6_port = sockets::hostToNetwork16(port);
+    addr6_.sin6_port = sockets::hostToNetwork16(portArg);
   }
   else
   {
@@ -70,21 +70,21 @@ InetAddress::InetAddress(uint16_t port, bool loopbackOnly, bool ipv6)
     addr_.sin_family = AF_INET;
     in_addr_t ip = loopbackOnly ? kInaddrLoopback : kInaddrAny;
     addr_.sin_addr.s_addr = sockets::hostToNetwork32(ip);
-    addr_.sin_port = sockets::hostToNetwork16(port);
+    addr_.sin_port = sockets::hostToNetwork16(portArg);
   }
 }
 
-InetAddress::InetAddress(StringArg ip, uint16_t port, bool ipv6)
+InetAddress::InetAddress(StringArg ip, uint16_t portArg, bool ipv6)
 {
   if (ipv6 || strchr(ip.c_str(), ':'))
   {
     memZero(&addr6_, sizeof addr6_);
-    sockets::fromIpPort(ip.c_str(), port, &addr6_);
+    sockets::fromIpPort(ip.c_str(), portArg, &addr6_);
   }
   else
   {
     memZero(&addr_, sizeof addr_);
-    sockets::fromIpPort(ip.c_str(), port, &addr_);
+    sockets::fromIpPort(ip.c_str(), portArg, &addr_);
   }
 }
 
