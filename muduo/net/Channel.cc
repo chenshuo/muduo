@@ -12,14 +12,8 @@
 
 #include <sstream>
 
-#include <poll.h>
-
 using namespace muduo;
 using namespace muduo::net;
-
-const int Channel::kNoneEvent = 0;
-const int Channel::kReadEvent = POLLIN | POLLPRI;
-const int Channel::kWriteEvent = POLLOUT;
 
 Channel::Channel(EventLoop* loop, int fd__)
   : loop_(loop),
