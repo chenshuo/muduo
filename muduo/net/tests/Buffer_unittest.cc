@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE(testBufferShrink)
 
   buf.shrink(0);
   BOOST_CHECK_EQUAL(buf.readableBytes(), 500);
-  BOOST_CHECK_EQUAL(buf.writableBytes(), Buffer::kInitialSize-500);
+  BOOST_CHECK_EQUAL(buf.writableBytes(), 0);
   BOOST_CHECK_EQUAL(buf.retrieveAllAsString(), string(500, 'y'));
   BOOST_CHECK_EQUAL(buf.prependableBytes(), Buffer::kCheapPrepend);
 }
