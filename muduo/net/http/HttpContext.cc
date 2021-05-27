@@ -98,9 +98,16 @@ bool HttpContext::parseRequest(Buffer* buf, Timestamp receiveTime)
         else
         {
           // empty line, end of header
-          // FIXME:
-          state_ = kGotAll;
-          hasMore = false;
+          // FIXME: can other http method contain a body?
+          if (request_.method() == kGet)
+          {
+            state_ = kGotAll;
+            hasMore = false;
+          }
+          else if (request_.method() == kPost)
+          {
+            state_ = kExpectBody;
+          }
         }
         buf->retrieveUntil(crlf + 2);
       }
@@ -111,7 +118,13 @@ bool HttpContext::parseRequest(Buffer* buf, Timestamp receiveTime)
     }
     else if (state_ == kExpectBody)
     {
-      // FIXME:
+      // FIXME: can other http method contain a body?
+      if (request_.method() == kPost)
+      {
+        request_.setBody(buf->retrieveAllAsString());
+        state_ = kGotAll;
+        hasMore = false;
+      }
     }
   }
   return ok;
