@@ -33,7 +33,7 @@ class Date : public muduo::copyable
     int day;  // [1..31]
   };
 
-  static const int kDaysPerWeek = 7;
+  static constexpr int kDaysPerWeek = 7;
   static const int kJulianDayOf1970_01_01;
 
   ///
