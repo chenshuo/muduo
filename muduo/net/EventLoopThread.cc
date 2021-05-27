@@ -7,11 +7,31 @@
 // Author: Shuo Chen (chenshuo at chenshuo dot com)
 
 #include "muduo/net/EventLoopThread.h"
+#include "muduo/net/Channel.h"
 
 #include "muduo/net/EventLoop.h"
 
+
+#include "muduo/net/SocketsOps.h"
+#include "muduo/base/Logging.h"
+#include <sys/eventfd.h>
+#include <unistd.h>
+
 using namespace muduo;
 using namespace muduo::net;
+namespace 
+{
+int createEventfd()
+{
+    int evtfd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
+    if (evtfd < 0)
+    {
+        LOG_SYSERR << "Failed in eventfd";
+        abort();
+    }
+    return evtfd;
+}
+};
 
 EventLoopThread::EventLoopThread(const ThreadInitCallback& cb,
                                  const string& name)
@@ -54,6 +74,13 @@ EventLoop* EventLoopThread::startLoop()
   return loop;
 }
 
+void EventLoopThread::handleRead()
+{
+
+    MutexLockGuard lock(mutex_);
+    cond_.notify();
+}
+
 void EventLoopThread::threadFunc()
 {
   EventLoop loop;
@@ -66,12 +93,26 @@ void EventLoopThread::threadFunc()
   {
     MutexLockGuard lock(mutex_);
     loop_ = &loop;
-    cond_.notify();
+  }
+  int  loopFd_= createEventfd();
+  Channel loopReady(loop_,loopFd_);
+  loopReady.setReadCallback(std::bind(&EventLoopThread::handleRead, this));
+  loopReady.enableReading();
+  uint64_t one = 1;
+  ssize_t n = sockets::write(loopFd_, &one, sizeof one);
+  if (n != sizeof one)
+  {
+    LOG_ERROR << "EventLoopThread::wakeup() writes " << n << " bytes instead of 8";
   }
 
   loop.loop();
   //assert(exiting_);
   MutexLockGuard lock(mutex_);
   loop_ = NULL;
+
+  loopReady.disableAll();
+  loopReady.remove();
+  ::close(loopFd_);
+
 }
 
