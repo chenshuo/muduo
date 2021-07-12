@@ -165,7 +165,7 @@ class LogStream : noncopyable
 
   Buffer buffer_;
 
-  static const int kMaxNumericSize = 32;
+  static const int kMaxNumericSize = 48;
 };
 
 class Fmt // : noncopyable
