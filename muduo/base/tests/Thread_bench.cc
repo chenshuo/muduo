@@ -80,14 +80,14 @@ class Bench
   {
     const int numThreads = static_cast<int>(threads_.size());
     printf("Creating %d threads in parallel\n", numThreads);
-    muduo::Timestamp start = muduo::Timestamp::now();
+    muduo::Timestamp start1 = muduo::Timestamp::now();
 
     for (auto& thr : threads_)
     {
       thr->start();
     }
     startLatch_.wait();
-    double timeUsed = timeDifference(muduo::Timestamp::now(), start);
+    double timeUsed = timeDifference(muduo::Timestamp::now(), start1);
     printf("all %d threads started, %.3fms total, %.3fus per thread\n",
            numThreads, 1e3 * timeUsed, 1e6 * timeUsed / numThreads);
 
@@ -97,14 +97,14 @@ class Bench
       // for (const auto& [tid, ts] : queue)
       for (const auto& e : queue)
       {
-        printf("thread %d, %.0f us\n", e.first, timeDifference(e.second, start) * 1e6);
+        printf("thread %d, %.0f us\n", e.first, timeDifference(e.second, start1) * 1e6);
       }
     }
   }
 
   void stop()
   {
-    muduo::Timestamp stop = muduo::Timestamp::now();
+    muduo::Timestamp stop1 = muduo::Timestamp::now();
     stopLatch_.countDown();
     for (auto& thr : threads_)
     {
@@ -113,14 +113,14 @@ class Bench
 
     muduo::Timestamp t2 = muduo::Timestamp::now();
     printf("all %zd threads joined, %.3fms\n",
-           threads_.size(), 1e3 * timeDifference(t2, stop));
+           threads_.size(), 1e3 * timeDifference(t2, stop1));
     TimestampQueue::queue_type queue = done_.drain();
     if (g_verbose)
     {
       // for (const auto& [tid, ts] : queue)
       for (const auto& e : queue)
       {
-        printf("thread %d, %.0f us\n", e.first, timeDifference(e.second, stop) * 1e6);
+        printf("thread %d, %.0f us\n", e.first, timeDifference(e.second, stop1) * 1e6);
       }
     }
   }
