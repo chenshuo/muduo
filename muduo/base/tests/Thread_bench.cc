@@ -71,12 +71,12 @@ class Bench
       char name[32];
       snprintf(name, sizeof name, "work thread %d", i);
       threads_.emplace_back(new muduo::Thread(
-            [this, i] { threadFunc(i); },
+            [this] { threadFunc(); },
             muduo::string(name)));
     }
   }
 
-  void start()
+  void Start()
   {
     const int numThreads = static_cast<int>(threads_.size());
     printf("Creating %d threads in parallel\n", numThreads);
@@ -102,7 +102,7 @@ class Bench
     }
   }
 
-  void stop()
+  void Stop()
   {
     muduo::Timestamp stop = muduo::Timestamp::now();
     stopLatch_.countDown();
@@ -126,12 +126,13 @@ class Bench
   }
 
  private:
-  void threadFunc(int id)
+  void threadFunc()
   {
-    start_.put(std::make_pair(id, muduo::Timestamp::now()));
+    const int tid = muduo::CurrentThread::tid();
+    start_.put(std::make_pair(tid, muduo::Timestamp::now()));
     startLatch_.countDown();
     stopLatch_.wait();
-    done_.put(std::make_pair(id, muduo::Timestamp::now()));
+    done_.put(std::make_pair(tid, muduo::Timestamp::now()));
   }
 
   using TimestampQueue = muduo::BlockingQueue<std::pair<int, muduo::Timestamp>>;
@@ -181,8 +182,8 @@ int main(int argc, char* argv[])
   }
 
   Bench t(10000);
-  t.start();
-  t.stop();
+  t.Start();
+  t.Stop();
 
   forkBench();
 }
