@@ -40,6 +40,10 @@ int foo()
 
 int main()
 {
+  printf("sizeof pthread_mutex_t: %zd\n", sizeof(pthread_mutex_t));
+  printf("sizeof Mutex: %zd\n", sizeof(MutexLock));
+  printf("sizeof pthread_cond_t: %zd\n", sizeof(pthread_cond_t));
+  printf("sizeof Condition: %zd\n", sizeof(Condition));
   MCHECK(foo());
   if (g_count != 1)
   {
