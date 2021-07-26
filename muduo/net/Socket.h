@@ -16,13 +16,11 @@
 // struct tcp_info is in <netinet/tcp.h>
 struct tcp_info;
 
-namespace muduo
-{
+namespace muduo {
 ///
 /// TCP networking.
 ///
-namespace net
-{
+namespace net {
 
 class InetAddress;
 
@@ -31,23 +29,20 @@ class InetAddress;
 ///
 /// It closes the sockfd when desctructs.
 /// It's thread safe, all operations are delagated to OS.
-class Socket : noncopyable
-{
- public:
-  explicit Socket(int sockfd)
-    : sockfd_(sockfd)
-  { }
+class Socket : noncopyable {
+public:
+  explicit Socket(int sockfd) : sockfd_(sockfd) {}
 
   // Socket(Socket&&) // move constructor in C++11
   ~Socket();
 
   int fd() const { return sockfd_; }
   // return true if success.
-  bool getTcpInfo(struct tcp_info*) const;
-  bool getTcpInfoString(char* buf, int len) const;
+  bool getTcpInfo(struct tcp_info *) const;
+  bool getTcpInfoString(char *buf, int len) const;
 
   /// abort if address in use
-  void bindAddress(const InetAddress& localaddr);
+  void bindAddress(const InetAddress &localaddr);
   /// abort if address in use
   void listen();
 
@@ -55,7 +50,7 @@ class Socket : noncopyable
   /// a descriptor for the accepted socket, which has been
   /// set to non-blocking and close-on-exec. *peeraddr is assigned.
   /// On error, -1 is returned, and *peeraddr is untouched.
-  int accept(InetAddress* peeraddr);
+  int accept(InetAddress *peeraddr);
 
   void shutdownWrite();
 
@@ -79,11 +74,11 @@ class Socket : noncopyable
   ///
   void setKeepAlive(bool on);
 
- private:
+private:
   const int sockfd_;
 };
 
-}  // namespace net
-}  // namespace muduo
+} // namespace net
+} // namespace muduo
 
-#endif  // MUDUO_NET_SOCKET_H
+#endif // MUDUO_NET_SOCKET_H

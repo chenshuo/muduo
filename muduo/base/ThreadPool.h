@@ -14,27 +14,23 @@
 #include <deque>
 #include <vector>
 
-namespace muduo
-{
+namespace muduo {
 
-class ThreadPool : noncopyable
-{
- public:
-  typedef std::function<void ()> Task;
+class ThreadPool : noncopyable {
+public:
+  typedef std::function<void()> Task;
 
-  explicit ThreadPool(const string& nameArg = string("ThreadPool"));
+  explicit ThreadPool(const string &nameArg = string("ThreadPool"));
   ~ThreadPool();
 
   // Must be called before start().
   void setMaxQueueSize(int maxSize) { maxQueueSize_ = maxSize; }
-  void setThreadInitCallback(const Task& cb)
-  { threadInitCallback_ = cb; }
+  void setThreadInitCallback(const Task &cb) { threadInitCallback_ = cb; }
 
   void start(int numThreads);
   void stop();
 
-  const string& name() const
-  { return name_; }
+  const string &name() const { return name_; }
 
   size_t queueSize() const;
 
@@ -46,7 +42,7 @@ class ThreadPool : noncopyable
   // https://stackoverflow.com/a/25408989
   void run(Task f);
 
- private:
+private:
   bool isFull() const REQUIRES(mutex_);
   void runInThread();
   Task take();
@@ -62,6 +58,6 @@ class ThreadPool : noncopyable
   bool running_;
 };
 
-}  // namespace muduo
+} // namespace muduo
 
-#endif  // MUDUO_BASE_THREADPOOL_H
+#endif // MUDUO_BASE_THREADPOOL_H

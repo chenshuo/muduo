@@ -13,39 +13,33 @@
 using namespace muduo;
 using namespace muduo::net;
 
-EventLoopThread::EventLoopThread(const ThreadInitCallback& cb,
-                                 const string& name)
-  : loop_(NULL),
-    exiting_(false),
-    thread_(std::bind(&EventLoopThread::threadFunc, this), name),
-    mutex_(),
-    cond_(mutex_),
-    callback_(cb)
-{
-}
+EventLoopThread::EventLoopThread(const ThreadInitCallback &cb,
+                                 const string &name)
+    : loop_(NULL), exiting_(false),
+      thread_(std::bind(&EventLoopThread::threadFunc, this), name), mutex_(),
+      cond_(mutex_), callback_(cb) {}
 
-EventLoopThread::~EventLoopThread()
-{
+EventLoopThread::~EventLoopThread() {
   exiting_ = true;
-  if (loop_ != NULL) // not 100% race-free, eg. threadFunc could be running callback_.
+  if (loop_ !=
+      NULL) // not 100% race-free, eg. threadFunc could be running callback_.
   {
-    // still a tiny chance to call destructed object, if threadFunc exits just now.
-    // but when EventLoopThread destructs, usually programming is exiting anyway.
+    // still a tiny chance to call destructed object, if threadFunc exits
+    // just now. but when EventLoopThread destructs, usually programming is
+    // exiting anyway.
     loop_->quit();
     thread_.join();
   }
 }
 
-EventLoop* EventLoopThread::startLoop()
-{
+EventLoop *EventLoopThread::startLoop() {
   assert(!thread_.started());
   thread_.start();
 
-  EventLoop* loop = NULL;
+  EventLoop *loop = NULL;
   {
     MutexLockGuard lock(mutex_);
-    while (loop_ == NULL)
-    {
+    while (loop_ == NULL) {
       cond_.wait();
     }
     loop = loop_;
@@ -54,12 +48,10 @@ EventLoop* EventLoopThread::startLoop()
   return loop;
 }
 
-void EventLoopThread::threadFunc()
-{
+void EventLoopThread::threadFunc() {
   EventLoop loop;
 
-  if (callback_)
-  {
+  if (callback_) {
     callback_(&loop);
   }
 
@@ -70,8 +62,7 @@ void EventLoopThread::threadFunc()
   }
 
   loop.loop();
-  //assert(exiting_);
+  // assert(exiting_);
   MutexLockGuard lock(mutex_);
   loop_ = NULL;
 }
-

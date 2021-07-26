@@ -1,6 +1,6 @@
+#include "muduo/base/Thread.h"
 #include "muduo/net/EventLoop.h"
 #include "muduo/net/EventLoopThread.h"
-#include "muduo/base/Thread.h"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -9,31 +9,26 @@ using namespace muduo;
 using namespace muduo::net;
 
 int cnt = 0;
-EventLoop* g_loop;
+EventLoop *g_loop;
 
-void printTid()
-{
+void printTid() {
   printf("pid = %d, tid = %d\n", getpid(), CurrentThread::tid());
   printf("now %s\n", Timestamp::now().toString().c_str());
 }
 
-void print(const char* msg)
-{
+void print(const char *msg) {
   printf("msg %s %s\n", Timestamp::now().toString().c_str(), msg);
-  if (++cnt == 20)
-  {
+  if (++cnt == 20) {
     g_loop->quit();
   }
 }
 
-void cancel(TimerId timer)
-{
+void cancel(TimerId timer) {
   g_loop->cancel(timer);
   printf("cancelled at %s\n", Timestamp::now().toString().c_str());
 }
 
-int main()
-{
+int main() {
   printTid();
   sleep(1);
   {
@@ -58,7 +53,7 @@ int main()
   sleep(1);
   {
     EventLoopThread loopThread;
-    EventLoop* loop = loopThread.startLoop();
+    EventLoop *loop = loopThread.startLoop();
     loop->runAfter(2, printTid);
     sleep(3);
     print("thread loop exits");

@@ -2,7 +2,7 @@
 #define MUDUO_BASE_TYPES_H
 
 #include <stdint.h>
-#include <string.h>  // memset
+#include <string.h> // memset
 #include <string>
 
 #ifndef NDEBUG
@@ -12,15 +12,11 @@
 ///
 /// The most common stuffs.
 ///
-namespace muduo
-{
+namespace muduo {
 
 using std::string;
 
-inline void memZero(void* p, size_t n)
-{
-  memset(p, 0, n);
-}
+inline void memZero(void *p, size_t n) { memset(p, 0, n); }
 
 // Taken from google-protobuf stubs/common.h
 //
@@ -76,9 +72,7 @@ inline void memZero(void* p, size_t n)
 // implicit_cast would have been part of the C++ standard library,
 // but the proposal was submitted too late.  It will probably make
 // its way into the language in the future.
-template<typename To, typename From>
-inline To implicit_cast(From const &f)
-{
+template <typename To, typename From> inline To implicit_cast(From const &f) {
   return f;
 }
 
@@ -100,24 +94,23 @@ inline To implicit_cast(From const &f)
 //    if (dynamic_cast<Subclass2>(foo)) HandleASubclass2Object(foo);
 // You should design the code some other way not to need this.
 
-template<typename To, typename From>     // use like this: down_cast<T*>(foo);
-inline To down_cast(From* f)                     // so we only accept pointers
+template <typename To, typename From> // use like this: down_cast<T*>(foo);
+inline To down_cast(From *f)          // so we only accept pointers
 {
   // Ensures that To is a sub-type of From *.  This test is here only
   // for compile-time type checking, and has no overhead in an
   // optimized build at run-time, as it will be optimized away
   // completely.
-  if (false)
-  {
-    implicit_cast<From*, To>(0);
+  if (false) {
+    implicit_cast<From *, To>(0);
   }
 
 #if !defined(NDEBUG) && !defined(GOOGLE_PROTOBUF_NO_RTTI)
-  assert(f == NULL || dynamic_cast<To>(f) != NULL);  // RTTI: debug mode only!
+  assert(f == NULL || dynamic_cast<To>(f) != NULL); // RTTI: debug mode only!
 #endif
   return static_cast<To>(f);
 }
 
-}  // namespace muduo
+} // namespace muduo
 
-#endif  // MUDUO_BASE_TYPES_H
+#endif // MUDUO_BASE_TYPES_H

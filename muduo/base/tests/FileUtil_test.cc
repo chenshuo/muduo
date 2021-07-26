@@ -6,8 +6,7 @@
 
 using namespace muduo;
 
-int main()
-{
+int main() {
   string result;
   int64_t size = 0;
   int err = FileUtil::readFile("/proc/self", 1024, &result, &size);
@@ -27,4 +26,3 @@ int main()
   err = FileUtil::readFile("/dev/zero", 102400, &result, NULL);
   printf("%d %zd %" PRIu64 "\n", err, result.size(), size);
 }
-

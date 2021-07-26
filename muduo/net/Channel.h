@@ -11,16 +11,14 @@
 #ifndef MUDUO_NET_CHANNEL_H
 #define MUDUO_NET_CHANNEL_H
 
-#include "muduo/base/noncopyable.h"
 #include "muduo/base/Timestamp.h"
+#include "muduo/base/noncopyable.h"
 
 #include <functional>
 #include <memory>
 
-namespace muduo
-{
-namespace net
-{
+namespace muduo {
+namespace net {
 
 class EventLoop;
 
@@ -30,28 +28,23 @@ class EventLoop;
 /// This class doesn't own the file descriptor.
 /// The file descriptor could be a socket,
 /// an eventfd, a timerfd, or a signalfd
-class Channel : noncopyable
-{
- public:
+class Channel : noncopyable {
+public:
   typedef std::function<void()> EventCallback;
   typedef std::function<void(Timestamp)> ReadEventCallback;
 
-  Channel(EventLoop* loop, int fd);
+  Channel(EventLoop *loop, int fd);
   ~Channel();
 
   void handleEvent(Timestamp receiveTime);
-  void setReadCallback(ReadEventCallback cb)
-  { readCallback_ = std::move(cb); }
-  void setWriteCallback(EventCallback cb)
-  { writeCallback_ = std::move(cb); }
-  void setCloseCallback(EventCallback cb)
-  { closeCallback_ = std::move(cb); }
-  void setErrorCallback(EventCallback cb)
-  { errorCallback_ = std::move(cb); }
+  void setReadCallback(ReadEventCallback cb) { readCallback_ = std::move(cb); }
+  void setWriteCallback(EventCallback cb) { writeCallback_ = std::move(cb); }
+  void setCloseCallback(EventCallback cb) { closeCallback_ = std::move(cb); }
+  void setErrorCallback(EventCallback cb) { errorCallback_ = std::move(cb); }
 
   /// Tie this channel to the owner object managed by shared_ptr,
   /// prevent the owner object being destroyed in handleEvent.
-  void tie(const std::shared_ptr<void>&);
+  void tie(const std::shared_ptr<void> &);
 
   int fd() const { return fd_; }
   int events() const { return events_; }
@@ -59,11 +52,26 @@ class Channel : noncopyable
   // int revents() const { return revents_; }
   bool isNoneEvent() const { return events_ == kNoneEvent; }
 
-  void enableReading() { events_ |= kReadEvent; update(); }
-  void disableReading() { events_ &= ~kReadEvent; update(); }
-  void enableWriting() { events_ |= kWriteEvent; update(); }
-  void disableWriting() { events_ &= ~kWriteEvent; update(); }
-  void disableAll() { events_ = kNoneEvent; update(); }
+  void enableReading() {
+    events_ |= kReadEvent;
+    update();
+  }
+  void disableReading() {
+    events_ &= ~kReadEvent;
+    update();
+  }
+  void enableWriting() {
+    events_ |= kWriteEvent;
+    update();
+  }
+  void disableWriting() {
+    events_ &= ~kWriteEvent;
+    update();
+  }
+  void disableAll() {
+    events_ = kNoneEvent;
+    update();
+  }
   bool isWriting() const { return events_ & kWriteEvent; }
   bool isReading() const { return events_ & kReadEvent; }
 
@@ -77,10 +85,10 @@ class Channel : noncopyable
 
   void doNotLogHup() { logHup_ = false; }
 
-  EventLoop* ownerLoop() { return loop_; }
+  EventLoop *ownerLoop() { return loop_; }
   void remove();
 
- private:
+private:
   static string eventsToString(int fd, int ev);
 
   void update();
@@ -90,12 +98,12 @@ class Channel : noncopyable
   static const int kReadEvent;
   static const int kWriteEvent;
 
-  EventLoop* loop_;
-  const int  fd_;
-  int        events_;
-  int        revents_; // it's the received event types of epoll or poll
-  int        index_; // used by Poller.
-  bool       logHup_;
+  EventLoop *loop_;
+  const int fd_;
+  int events_;
+  int revents_; // it's the received event types of epoll or poll
+  int index_;   // used by Poller.
+  bool logHup_;
 
   std::weak_ptr<void> tie_;
   bool tied_;
@@ -107,7 +115,7 @@ class Channel : noncopyable
   EventCallback errorCallback_;
 };
 
-}  // namespace net
-}  // namespace muduo
+} // namespace net
+} // namespace muduo
 
-#endif  // MUDUO_NET_CHANNEL_H
+#endif // MUDUO_NET_CHANNEL_H

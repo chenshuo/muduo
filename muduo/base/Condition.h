@@ -10,25 +10,17 @@
 
 #include <pthread.h>
 
-namespace muduo
-{
+namespace muduo {
 
-class Condition : noncopyable
-{
- public:
-  explicit Condition(MutexLock& mutex)
-    : mutex_(mutex)
-  {
+class Condition : noncopyable {
+public:
+  explicit Condition(MutexLock &mutex) : mutex_(mutex) {
     MCHECK(pthread_cond_init(&pcond_, NULL));
   }
 
-  ~Condition()
-  {
-    MCHECK(pthread_cond_destroy(&pcond_));
-  }
+  ~Condition() { MCHECK(pthread_cond_destroy(&pcond_)); }
 
-  void wait()
-  {
+  void wait() {
     MutexLock::UnassignGuard ug(mutex_);
     MCHECK(pthread_cond_wait(&pcond_, mutex_.getPthreadMutex()));
   }
@@ -36,21 +28,15 @@ class Condition : noncopyable
   // returns true if time out, false otherwise.
   bool waitForSeconds(double seconds);
 
-  void notify()
-  {
-    MCHECK(pthread_cond_signal(&pcond_));
-  }
+  void notify() { MCHECK(pthread_cond_signal(&pcond_)); }
 
-  void notifyAll()
-  {
-    MCHECK(pthread_cond_broadcast(&pcond_));
-  }
+  void notifyAll() { MCHECK(pthread_cond_broadcast(&pcond_)); }
 
- private:
-  MutexLock& mutex_;
+private:
+  MutexLock &mutex_;
   pthread_cond_t pcond_;
 };
 
-}  // namespace muduo
+} // namespace muduo
 
-#endif  // MUDUO_BASE_CONDITION_H
+#endif // MUDUO_BASE_CONDITION_H

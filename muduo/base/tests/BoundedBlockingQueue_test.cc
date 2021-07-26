@@ -8,73 +8,59 @@
 #include <stdio.h>
 #include <unistd.h>
 
-class Test
-{
- public:
-  Test(int numThreads)
-    : queue_(20),
-      latch_(numThreads)
-  {
+class Test {
+public:
+  Test(int numThreads) : queue_(20), latch_(numThreads) {
     threads_.reserve(numThreads);
-    for (int i = 0; i < numThreads; ++i)
-    {
+    for (int i = 0; i < numThreads; ++i) {
       char name[32];
       snprintf(name, sizeof name, "work thread %d", i);
       threads_.emplace_back(new muduo::Thread(
-            std::bind(&Test::threadFunc, this), muduo::string(name)));
+          std::bind(&Test::threadFunc, this), muduo::string(name)));
     }
-    for (auto& thr : threads_)
-    {
+    for (auto &thr : threads_) {
       thr->start();
     }
   }
 
-  void run(int times)
-  {
+  void run(int times) {
     printf("waiting for count down latch\n");
     latch_.wait();
     printf("all threads started\n");
-    for (int i = 0; i < times; ++i)
-    {
+    for (int i = 0; i < times; ++i) {
       char buf[32];
       snprintf(buf, sizeof buf, "hello %d", i);
       queue_.put(buf);
-      printf("tid=%d, put data = %s, size = %zd\n", muduo::CurrentThread::tid(), buf, queue_.size());
+      printf("tid=%d, put data = %s, size = %zd\n", muduo::CurrentThread::tid(),
+             buf, queue_.size());
     }
   }
 
-  void joinAll()
-  {
-    for (size_t i = 0; i < threads_.size(); ++i)
-    {
+  void joinAll() {
+    for (size_t i = 0; i < threads_.size(); ++i) {
       queue_.put("stop");
     }
 
-    for (auto& thr : threads_)
-    {
+    for (auto &thr : threads_) {
       thr->join();
     }
   }
 
- private:
-
-  void threadFunc()
-  {
-    printf("tid=%d, %s started\n",
-           muduo::CurrentThread::tid(),
+private:
+  void threadFunc() {
+    printf("tid=%d, %s started\n", muduo::CurrentThread::tid(),
            muduo::CurrentThread::name());
 
     latch_.countDown();
     bool running = true;
-    while (running)
-    {
+    while (running) {
       std::string d(queue_.take());
-      printf("tid=%d, get data = %s, size = %zd\n", muduo::CurrentThread::tid(), d.c_str(), queue_.size());
+      printf("tid=%d, get data = %s, size = %zd\n", muduo::CurrentThread::tid(),
+             d.c_str(), queue_.size());
       running = (d != "stop");
     }
 
-    printf("tid=%d, %s stopped\n",
-           muduo::CurrentThread::tid(),
+    printf("tid=%d, %s stopped\n", muduo::CurrentThread::tid(),
            muduo::CurrentThread::name());
   }
 
@@ -83,8 +69,7 @@ class Test
   std::vector<std::unique_ptr<muduo::Thread>> threads_;
 };
 
-void testMove()
-{
+void testMove() {
 #if BOOST_VERSION >= 105500L
   muduo::BoundedBlockingQueue<std::unique_ptr<int>> queue(10);
   queue.put(std::unique_ptr<int>(new int(42)));
@@ -98,8 +83,7 @@ void testMove()
 #endif
 }
 
-int main()
-{
+int main() {
   printf("pid=%d, tid=%d\n", ::getpid(), muduo::CurrentThread::tid());
   testMove();
   Test t(5);

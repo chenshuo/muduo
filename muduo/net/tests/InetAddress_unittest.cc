@@ -10,8 +10,7 @@
 using muduo::string;
 using muduo::net::InetAddress;
 
-BOOST_AUTO_TEST_CASE(testInetAddress)
-{
+BOOST_AUTO_TEST_CASE(testInetAddress) {
   InetAddress addr0(1234);
   BOOST_CHECK_EQUAL(addr0.toIp(), string("0.0.0.0"));
   BOOST_CHECK_EQUAL(addr0.toIpPort(), string("0.0.0.0:1234"));
@@ -33,8 +32,7 @@ BOOST_AUTO_TEST_CASE(testInetAddress)
   BOOST_CHECK_EQUAL(addr3.port(), 65535);
 }
 
-BOOST_AUTO_TEST_CASE(testInet6Address)
-{
+BOOST_AUTO_TEST_CASE(testInet6Address) {
   InetAddress addr0(1234, false, true);
   BOOST_CHECK_EQUAL(addr0.toIp(), string("::"));
   BOOST_CHECK_EQUAL(addr0.toIpPort(), string("[::]:1234"));
@@ -56,15 +54,11 @@ BOOST_AUTO_TEST_CASE(testInet6Address)
   BOOST_CHECK_EQUAL(addr3.port(), 8888);
 }
 
-BOOST_AUTO_TEST_CASE(testInetAddressResolve)
-{
+BOOST_AUTO_TEST_CASE(testInetAddressResolve) {
   InetAddress addr(80);
-  if (InetAddress::resolve("google.com", &addr))
-  {
+  if (InetAddress::resolve("google.com", &addr)) {
     LOG_INFO << "google.com resolved to " << addr.toIpPort();
-  }
-  else
-  {
+  } else {
     LOG_ERROR << "Unable to resolve google.com";
   }
 }

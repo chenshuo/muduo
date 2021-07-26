@@ -1,56 +1,44 @@
-#include "muduo/base/Thread.h"
 #include "muduo/base/CurrentThread.h"
+#include "muduo/base/Thread.h"
 
-#include <string>
 #include <stdio.h>
+#include <string>
 #include <unistd.h>
 
-void mysleep(int seconds)
-{
-  timespec t = { seconds, 0 };
+void mysleep(int seconds) {
+  timespec t = {seconds, 0};
   nanosleep(&t, NULL);
 }
 
-void threadFunc()
-{
-  printf("tid=%d\n", muduo::CurrentThread::tid());
-}
+void threadFunc() { printf("tid=%d\n", muduo::CurrentThread::tid()); }
 
-void threadFunc2(int x)
-{
+void threadFunc2(int x) {
   printf("tid=%d, x=%d\n", muduo::CurrentThread::tid(), x);
 }
 
-void threadFunc3()
-{
+void threadFunc3() {
   printf("tid=%d\n", muduo::CurrentThread::tid());
   mysleep(1);
 }
 
-class Foo
-{
- public:
-  explicit Foo(double x)
-    : x_(x)
-  {
-  }
+class Foo {
+public:
+  explicit Foo(double x) : x_(x) {}
 
-  void memberFunc()
-  {
+  void memberFunc() {
     printf("tid=%d, Foo::x_=%f\n", muduo::CurrentThread::tid(), x_);
   }
 
-  void memberFunc2(const std::string& text)
-  {
-    printf("tid=%d, Foo::x_=%f, text=%s\n", muduo::CurrentThread::tid(), x_, text.c_str());
+  void memberFunc2(const std::string &text) {
+    printf("tid=%d, Foo::x_=%f, text=%s\n", muduo::CurrentThread::tid(), x_,
+           text.c_str());
   }
 
- private:
+private:
   double x_;
 };
 
-int main()
-{
+int main() {
   printf("pid=%d, tid=%d\n", ::getpid(), muduo::CurrentThread::tid());
 
   muduo::Thread t1(threadFunc);
@@ -70,7 +58,8 @@ int main()
   t3.start();
   t3.join();
 
-  muduo::Thread t4(std::bind(&Foo::memberFunc2, std::ref(foo), std::string("Shuo Chen")));
+  muduo::Thread t4(
+      std::bind(&Foo::memberFunc2, std::ref(foo), std::string("Shuo Chen")));
   t4.start();
   t4.join();
 
