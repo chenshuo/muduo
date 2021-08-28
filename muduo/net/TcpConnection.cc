@@ -342,6 +342,7 @@ void TcpConnection::connectDestroyed()
     connectionCallback_(shared_from_this());
   }
   channel_->remove();
+  delete channel_;
 }
 
 void TcpConnection::handleRead(Timestamp receiveTime)
