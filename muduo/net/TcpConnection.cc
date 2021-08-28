@@ -69,6 +69,7 @@ TcpConnection::~TcpConnection()
             << " fd=" << channel_->fd()
             << " state=" << stateToString();
   assert(state_ == kDisconnected);
+  delete channel_;
 }
 
 bool TcpConnection::getTcpInfo(struct tcp_info* tcpi) const
