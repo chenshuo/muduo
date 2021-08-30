@@ -88,7 +88,8 @@ namespace net
 //   RpcChannel* channel = new MyRpcChannel("remotehost.example.com:1234");
 //   MyService* service = new MyService::Stub(channel);
 //   service->MyMethod(request, &response, callback);
-class RpcChannel : public ::google::protobuf::RpcChannel
+class RpcChannel : public ::google::protobuf::RpcChannel,
+                   public std::enable_shared_from_this<RpcChannel>
 {
  public:
   RpcChannel();
@@ -123,11 +124,17 @@ class RpcChannel : public ::google::protobuf::RpcChannel
                  Timestamp receiveTime);
 
  private:
+  struct doneCallbackArg
+  {
+      ::google::protobuf::Message* response;
+      int64_t id;
+  };
+
   void onRpcMessage(const TcpConnectionPtr& conn,
                     const RpcMessagePtr& messagePtr,
                     Timestamp receiveTime);
 
-  void doneCallback(::google::protobuf::Message* response, int64_t id);
+  static void doneCallback(const std::weak_ptr<RpcChannel> wkChannel, const doneCallbackArg arg);
 
   struct OutstandingCall
   {
