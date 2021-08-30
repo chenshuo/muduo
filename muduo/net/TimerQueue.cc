@@ -150,7 +150,7 @@ void TimerQueue::cancelInLoop(TimerId timerId)
   {
     size_t n = timers_.erase(Entry(it->first->expiration(), it->first));
     assert(n == 1); (void)n;
-    delete it->first; // FIXME: no delete please
+    deletedTimers_.emplace_back(it->first);
     activeTimers_.erase(it);
   }
   else if (callingExpiredTimers_)
@@ -170,6 +170,7 @@ void TimerQueue::handleRead()
 
   callingExpiredTimers_ = true;
   cancelingTimers_.clear();
+  deletedTimers_.clear();
   // safe to callback outside critical section
   for (const Entry& it : expired)
   {
@@ -216,8 +217,7 @@ void TimerQueue::reset(const std::vector<Entry>& expired, Timestamp now)
     }
     else
     {
-      // FIXME move to a free list
-      delete it.second; // FIXME: no delete please
+        deletedTimers_.emplace_back(it.second);
     }
   }
 
