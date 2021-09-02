@@ -13,6 +13,7 @@
 
 #include "muduo/base/noncopyable.h"
 #include "muduo/base/Types.h"
+#include "muduo/base/Atomic.h"
 
 #include <functional>
 #include <memory>
@@ -58,7 +59,7 @@ class EventLoopThreadPool : noncopyable
   string name_;
   bool started_;
   int numThreads_;
-  int next_;
+  AtomicInt64 next_;
   std::vector<std::unique_ptr<EventLoopThread>> threads_;
   std::vector<EventLoop*> loops_;
 };
