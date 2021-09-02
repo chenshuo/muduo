@@ -64,7 +64,6 @@ TcpServer::~TcpServer()
 void TcpServer::setThreadNum(int numThreads)
 {
   assert(0 <= numThreads);
-  assert(sharedThreadPool_ == NULL);
   threadPool_->setThreadNum(numThreads);
 }
 
