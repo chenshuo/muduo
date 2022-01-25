@@ -44,6 +44,14 @@ class FixedBuffer : noncopyable
       memcpy(cur_, buf, len);
       cur_ += len;
     }
+    else
+    {
+      memcpy(cur_, buf, avail());
+      cur_ = const_cast<char*>(end() - 100);
+      string suffix = "...";
+      memcpy(cur_, suffix.c_str(), suffix.size());
+      cur_ += suffix.size();
+    }
   }
 
   const char* data() const { return data_; }
