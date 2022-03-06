@@ -47,5 +47,6 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "//muduo/base",
+        "@boost//:any",
     ],
 )
