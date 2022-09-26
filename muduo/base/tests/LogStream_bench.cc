@@ -12,9 +12,7 @@ const size_t N = 1000000;
 
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 
-template<typename T>
-void benchPrintf(const char* fmt)
-{
+template <typename T> void benchPrintf(const char *fmt) {
   char buf[32];
   Timestamp start(Timestamp::now());
   for (size_t i = 0; i < N; ++i)
@@ -24,14 +22,11 @@ void benchPrintf(const char* fmt)
   printf("benchPrintf %f\n", timeDifference(end, start));
 }
 
-template<typename T>
-void benchStringStream()
-{
+template <typename T> void benchStringStream() {
   Timestamp start(Timestamp::now());
   std::ostringstream os;
 
-  for (size_t i = 0; i < N; ++i)
-  {
+  for (size_t i = 0; i < N; ++i) {
     os << (T)(i);
     os.seekp(0, std::ios_base::beg);
   }
@@ -40,13 +35,10 @@ void benchStringStream()
   printf("benchStringStream %f\n", timeDifference(end, start));
 }
 
-template<typename T>
-void benchLogStream()
-{
+template <typename T> void benchLogStream() {
   Timestamp start(Timestamp::now());
   LogStream os;
-  for (size_t i = 0; i < N; ++i)
-  {
+  for (size_t i = 0; i < N; ++i) {
     os << (T)(i);
     os.resetBuffer();
   }
@@ -55,8 +47,7 @@ void benchLogStream()
   printf("benchLogStream %f\n", timeDifference(end, start));
 }
 
-int main()
-{
+int main() {
   benchPrintf<int>("%d");
 
   puts("int");
@@ -75,8 +66,7 @@ int main()
   benchLogStream<int64_t>();
 
   puts("void*");
-  benchPrintf<void*>("%p");
-  benchStringStream<void*>();
-  benchLogStream<void*>();
-
+  benchPrintf<void *>("%p");
+  benchStringStream<void *>();
+  benchLogStream<void *>();
 }

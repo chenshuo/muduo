@@ -44,25 +44,24 @@
 // protobuf implementation but is more likely caused by concurrent modification
 // of the message.  This function attempts to distinguish between the two and
 // provide a useful error message.
-inline
-void ByteSizeConsistencyError(int byte_size_before_serialization,
-                              int byte_size_after_serialization,
-                              int bytes_produced_by_serialization)
-{
+inline void ByteSizeConsistencyError(int byte_size_before_serialization,
+                                     int byte_size_after_serialization,
+                                     int bytes_produced_by_serialization) {
   GOOGLE_CHECK_EQ(byte_size_before_serialization, byte_size_after_serialization)
       << "Protocol message was modified concurrently during serialization.";
-  GOOGLE_CHECK_EQ(bytes_produced_by_serialization, byte_size_before_serialization)
+  GOOGLE_CHECK_EQ(bytes_produced_by_serialization,
+                  byte_size_before_serialization)
       << "Byte size calculation and serialization were inconsistent.  This "
          "may indicate a bug in protocol buffers or it may be caused by "
          "concurrent modification of the message.";
   GOOGLE_LOG(FATAL) << "This shouldn't be called if all the sizes are equal.";
 }
 
-inline
-std::string InitializationErrorMessage(const char* action,
-                                       const google::protobuf::MessageLite& message)
-{
-  // Note:  We want to avoid depending on strutil in the lite library, otherwise
+inline std::string
+InitializationErrorMessage(const char *action,
+                           const google::protobuf::MessageLite &message) {
+  // Note:  We want to avoid depending on strutil in the lite library,
+  // otherwise
   //   we'd use:
   //
   // return strings::Substitute(
@@ -80,5 +79,3 @@ std::string InitializationErrorMessage(const char* action,
   result += message.InitializationErrorString();
   return result;
 }
-
-

@@ -15,31 +15,21 @@
 #include "muduo/base/Timestamp.h"
 #include "muduo/net/Callbacks.h"
 
-namespace muduo
-{
-namespace net
-{
+namespace muduo {
+namespace net {
 
 ///
 /// Internal class for timer event.
 ///
-class Timer : noncopyable
-{
- public:
+class Timer : noncopyable {
+public:
   Timer(TimerCallback cb, Timestamp when, double interval)
-    : callback_(std::move(cb)),
-      expiration_(when),
-      interval_(interval),
-      repeat_(interval > 0.0),
-      sequence_(s_numCreated_.incrementAndGet())
-  { }
+      : callback_(std::move(cb)), expiration_(when), interval_(interval),
+        repeat_(interval > 0.0), sequence_(s_numCreated_.incrementAndGet()) {}
 
-  void run() const
-  {
-    callback_();
-  }
+  void run() const { callback_(); }
 
-  Timestamp expiration() const  { return expiration_; }
+  Timestamp expiration() const { return expiration_; }
   bool repeat() const { return repeat_; }
   int64_t sequence() const { return sequence_; }
 
@@ -47,7 +37,7 @@ class Timer : noncopyable
 
   static int64_t numCreated() { return s_numCreated_.get(); }
 
- private:
+private:
   const TimerCallback callback_;
   Timestamp expiration_;
   const double interval_;
@@ -57,7 +47,7 @@ class Timer : noncopyable
   static AtomicInt64 s_numCreated_;
 };
 
-}  // namespace net
-}  // namespace muduo
+} // namespace net
+} // namespace muduo
 
-#endif  // MUDUO_NET_TIMER_H
+#endif // MUDUO_NET_TIMER_H

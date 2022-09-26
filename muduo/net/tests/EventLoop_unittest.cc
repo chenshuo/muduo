@@ -1,5 +1,5 @@
-#include "muduo/net/EventLoop.h"
 #include "muduo/base/Thread.h"
+#include "muduo/net/EventLoop.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -8,16 +8,14 @@
 using namespace muduo;
 using namespace muduo::net;
 
-EventLoop* g_loop;
+EventLoop *g_loop;
 
-void callback()
-{
+void callback() {
   printf("callback(): pid = %d, tid = %d\n", getpid(), CurrentThread::tid());
   EventLoop anotherLoop;
 }
 
-void threadFunc()
-{
+void threadFunc() {
   printf("threadFunc(): pid = %d, tid = %d\n", getpid(), CurrentThread::tid());
 
   assert(EventLoop::getEventLoopOfCurrentThread() == NULL);
@@ -27,8 +25,7 @@ void threadFunc()
   loop.loop();
 }
 
-int main()
-{
+int main() {
   printf("main(): pid = %d, tid = %d\n", getpid(), CurrentThread::tid());
 
   assert(EventLoop::getEventLoopOfCurrentThread() == NULL);

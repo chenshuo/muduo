@@ -10,19 +10,12 @@
 
 #include <stdint.h>
 
-namespace muduo
-{
+namespace muduo {
 
-namespace detail
-{
-template<typename T>
-class AtomicIntegerT : noncopyable
-{
- public:
-  AtomicIntegerT()
-    : value_(0)
-  {
-  }
+namespace detail {
+template <typename T> class AtomicIntegerT : noncopyable {
+public:
+  AtomicIntegerT() : value_(0) {}
 
   // uncomment if you need copying and assignment
   //
@@ -36,62 +29,42 @@ class AtomicIntegerT : noncopyable
   //   return *this;
   // }
 
-  T get()
-  {
+  T get() {
     // in gcc >= 4.7: __atomic_load_n(&value_, __ATOMIC_SEQ_CST)
     return __sync_val_compare_and_swap(&value_, 0, 0);
   }
 
-  T getAndAdd(T x)
-  {
+  T getAndAdd(T x) {
     // in gcc >= 4.7: __atomic_fetch_add(&value_, x, __ATOMIC_SEQ_CST)
     return __sync_fetch_and_add(&value_, x);
   }
 
-  T addAndGet(T x)
-  {
-    return getAndAdd(x) + x;
-  }
+  T addAndGet(T x) { return getAndAdd(x) + x; }
 
-  T incrementAndGet()
-  {
-    return addAndGet(1);
-  }
+  T incrementAndGet() { return addAndGet(1); }
 
-  T decrementAndGet()
-  {
-    return addAndGet(-1);
-  }
+  T decrementAndGet() { return addAndGet(-1); }
 
-  void add(T x)
-  {
-    getAndAdd(x);
-  }
+  void add(T x) { getAndAdd(x); }
 
-  void increment()
-  {
-    incrementAndGet();
-  }
+  void increment() { incrementAndGet(); }
 
-  void decrement()
-  {
-    decrementAndGet();
-  }
+  void decrement() { decrementAndGet(); }
 
-  T getAndSet(T newValue)
-  {
-    // in gcc >= 4.7: __atomic_exchange_n(&value_, newValue, __ATOMIC_SEQ_CST)
+  T getAndSet(T newValue) {
+    // in gcc >= 4.7: __atomic_exchange_n(&value_, newValue,
+    // __ATOMIC_SEQ_CST)
     return __sync_lock_test_and_set(&value_, newValue);
   }
 
- private:
+private:
   volatile T value_;
 };
-}  // namespace detail
+} // namespace detail
 
 typedef detail::AtomicIntegerT<int32_t> AtomicInt32;
 typedef detail::AtomicIntegerT<int64_t> AtomicInt64;
 
-}  // namespace muduo
+} // namespace muduo
 
-#endif  // MUDUO_BASE_ATOMIC_H
+#endif // MUDUO_BASE_ATOMIC_H

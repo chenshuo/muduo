@@ -9,50 +9,40 @@
 #include "muduo/base/BlockingQueue.h"
 #include "muduo/base/BoundedBlockingQueue.h"
 #include "muduo/base/CountDownLatch.h"
+#include "muduo/base/LogStream.h"
 #include "muduo/base/Mutex.h"
 #include "muduo/base/Thread.h"
-#include "muduo/base/LogStream.h"
 
 #include <atomic>
 #include <vector>
 
-namespace muduo
-{
+namespace muduo {
 
-class AsyncLogging : noncopyable
-{
- public:
+class AsyncLogging : noncopyable {
+public:
+  AsyncLogging(const string &basename, off_t rollSize, int flushInterval = 3);
 
-  AsyncLogging(const string& basename,
-               off_t rollSize,
-               int flushInterval = 3);
-
-  ~AsyncLogging()
-  {
-    if (running_)
-    {
+  ~AsyncLogging() {
+    if (running_) {
       stop();
     }
   }
 
-  void append(const char* logline, int len);
+  void append(const char *logline, int len);
 
-  void start()
-  {
+  void start() {
     running_ = true;
     thread_.start();
     latch_.wait();
   }
 
-  void stop() NO_THREAD_SAFETY_ANALYSIS
-  {
+  void stop() NO_THREAD_SAFETY_ANALYSIS {
     running_ = false;
     cond_.notify();
     thread_.join();
   }
 
- private:
-
+private:
   void threadFunc();
 
   typedef muduo::detail::FixedBuffer<muduo::detail::kLargeBuffer> Buffer;
@@ -72,6 +62,6 @@ class AsyncLogging : noncopyable
   BufferVector buffers_ GUARDED_BY(mutex_);
 };
 
-}  // namespace muduo
+} // namespace muduo
 
-#endif  // MUDUO_BASE_ASYNCLOGGING_H
+#endif // MUDUO_BASE_ASYNCLOGGING_H

@@ -9,26 +9,20 @@
 #pragma once
 #include "muduo/net/Buffer.h"
 #include <google/protobuf/io/zero_copy_stream.h>
-namespace muduo
-{
-namespace net
-{
+namespace muduo {
+namespace net {
 
 // FIXME:
 // class BufferInputStream : google::protobuf::io::ZeroCopyInputStream
 // {
 // };
 
-class BufferOutputStream : public google::protobuf::io::ZeroCopyOutputStream
-{
- public:
-  BufferOutputStream(Buffer* buf)
-    : buffer_(CHECK_NOTNULL(buf)),
-      originalSize_(buffer_->readableBytes())
-  {
-  }
+class BufferOutputStream : public google::protobuf::io::ZeroCopyOutputStream {
+public:
+  BufferOutputStream(Buffer *buf)
+      : buffer_(CHECK_NOTNULL(buf)), originalSize_(buffer_->readableBytes()) {}
 
-  virtual bool Next(void** data, int* size) // override
+  virtual bool Next(void **data, int *size) // override
   {
     buffer_->ensureWritableBytes(4096);
     *data = buffer_->beginWrite();
@@ -47,10 +41,10 @@ class BufferOutputStream : public google::protobuf::io::ZeroCopyOutputStream
     return buffer_->readableBytes() - originalSize_;
   }
 
- private:
-  Buffer* buffer_;
+private:
+  Buffer *buffer_;
   size_t originalSize_;
 };
 
-}
-}
+} // namespace net
+} // namespace muduo

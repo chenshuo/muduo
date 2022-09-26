@@ -9,46 +9,34 @@
 #include "muduo/base/Condition.h"
 #include "muduo/base/Mutex.h"
 
-#include <deque>
 #include <assert.h>
+#include <deque>
 
-namespace muduo
-{
+namespace muduo {
 
-template<typename T>
-class BlockingQueue : noncopyable
-{
- public:
+template <typename T> class BlockingQueue : noncopyable {
+public:
   using queue_type = std::deque<T>;
 
-  BlockingQueue()
-    : mutex_(),
-      notEmpty_(mutex_),
-      queue_()
-  {
-  }
+  BlockingQueue() : mutex_(), notEmpty_(mutex_), queue_() {}
 
-  void put(const T& x)
-  {
+  void put(const T &x) {
     MutexLockGuard lock(mutex_);
     queue_.push_back(x);
     notEmpty_.notify(); // wait morphing saves us
     // http://www.domaigne.com/blog/computing/condvars-signal-with-mutex-locked-or-not/
   }
 
-  void put(T&& x)
-  {
+  void put(T &&x) {
     MutexLockGuard lock(mutex_);
     queue_.push_back(std::move(x));
     notEmpty_.notify();
   }
 
-  T take()
-  {
+  T take() {
     MutexLockGuard lock(mutex_);
     // always use a while-loop, due to spurious wakeup
-    while (queue_.empty())
-    {
+    while (queue_.empty()) {
       notEmpty_.wait();
     }
     assert(!queue_.empty());
@@ -57,8 +45,7 @@ class BlockingQueue : noncopyable
     return front;
   }
 
-  queue_type drain()
-  {
+  queue_type drain() {
     std::deque<T> queue;
     {
       MutexLockGuard lock(mutex_);
@@ -68,18 +55,17 @@ class BlockingQueue : noncopyable
     return queue;
   }
 
-  size_t size() const
-  {
+  size_t size() const {
     MutexLockGuard lock(mutex_);
     return queue_.size();
   }
 
- private:
+private:
   mutable MutexLock mutex_;
-  Condition         notEmpty_ GUARDED_BY(mutex_);
-  queue_type        queue_ GUARDED_BY(mutex_);
-};  // __attribute__ ((aligned (64)));
+  Condition notEmpty_ GUARDED_BY(mutex_);
+  queue_type queue_ GUARDED_BY(mutex_);
+}; // __attribute__ ((aligned (64)));
 
-}  // namespace muduo
+} // namespace muduo
 
-#endif  // MUDUO_BASE_BLOCKINGQUEUE_H
+#endif // MUDUO_BASE_BLOCKINGQUEUE_H

@@ -11,32 +11,26 @@
 
 #include <memory>
 
-namespace muduo
-{
+namespace muduo {
 
-namespace FileUtil
-{
+namespace FileUtil {
 class AppendFile;
 }
 
-class LogFile : noncopyable
-{
- public:
-  LogFile(const string& basename,
-          off_t rollSize,
-          bool threadSafe = true,
-          int flushInterval = 3,
-          int checkEveryN = 1024);
+class LogFile : noncopyable {
+public:
+  LogFile(const string &basename, off_t rollSize, bool threadSafe = true,
+          int flushInterval = 3, int checkEveryN = 1024);
   ~LogFile();
 
-  void append(const char* logline, int len);
+  void append(const char *logline, int len);
   void flush();
   bool rollFile();
 
- private:
-  void append_unlocked(const char* logline, int len);
+private:
+  void append_unlocked(const char *logline, int len);
 
-  static string getLogFileName(const string& basename, time_t* now);
+  static string getLogFileName(const string &basename, time_t *now);
 
   const string basename_;
   const off_t rollSize_;
@@ -51,8 +45,8 @@ class LogFile : noncopyable
   time_t lastFlush_;
   std::unique_ptr<FileUtil::AppendFile> file_;
 
-  const static int kRollPerSeconds_ = 60*60*24;
+  const static int kRollPerSeconds_ = 60 * 60 * 24;
 };
 
-}  // namespace muduo
-#endif  // MUDUO_BASE_LOGFILE_H
+} // namespace muduo
+#endif // MUDUO_BASE_LOGFILE_H

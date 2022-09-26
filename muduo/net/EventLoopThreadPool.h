@@ -11,59 +11,53 @@
 #ifndef MUDUO_NET_EVENTLOOPTHREADPOOL_H
 #define MUDUO_NET_EVENTLOOPTHREADPOOL_H
 
-#include "muduo/base/noncopyable.h"
 #include "muduo/base/Types.h"
+#include "muduo/base/noncopyable.h"
 
 #include <functional>
 #include <memory>
 #include <vector>
 
-namespace muduo
-{
+namespace muduo {
 
-namespace net
-{
+namespace net {
 
 class EventLoop;
 class EventLoopThread;
 
-class EventLoopThreadPool : noncopyable
-{
- public:
-  typedef std::function<void(EventLoop*)> ThreadInitCallback;
+class EventLoopThreadPool : noncopyable {
+public:
+  typedef std::function<void(EventLoop *)> ThreadInitCallback;
 
-  EventLoopThreadPool(EventLoop* baseLoop, const string& nameArg);
+  EventLoopThreadPool(EventLoop *baseLoop, const string &nameArg);
   ~EventLoopThreadPool();
   void setThreadNum(int numThreads) { numThreads_ = numThreads; }
-  void start(const ThreadInitCallback& cb = ThreadInitCallback());
+  void start(const ThreadInitCallback &cb = ThreadInitCallback());
 
   // valid after calling start()
   /// round-robin
-  EventLoop* getNextLoop();
+  EventLoop *getNextLoop();
 
   /// with the same hash code, it will always return the same EventLoop
-  EventLoop* getLoopForHash(size_t hashCode);
+  EventLoop *getLoopForHash(size_t hashCode);
 
-  std::vector<EventLoop*> getAllLoops();
+  std::vector<EventLoop *> getAllLoops();
 
-  bool started() const
-  { return started_; }
+  bool started() const { return started_; }
 
-  const string& name() const
-  { return name_; }
+  const string &name() const { return name_; }
 
- private:
-
-  EventLoop* baseLoop_;
+private:
+  EventLoop *baseLoop_;
   string name_;
   bool started_;
   int numThreads_;
   int next_;
   std::vector<std::unique_ptr<EventLoopThread>> threads_;
-  std::vector<EventLoop*> loops_;
+  std::vector<EventLoop *> loops_;
 };
 
-}  // namespace net
-}  // namespace muduo
+} // namespace net
+} // namespace muduo
 
-#endif  // MUDUO_NET_EVENTLOOPTHREADPOOL_H
+#endif // MUDUO_NET_EVENTLOOPTHREADPOOL_H

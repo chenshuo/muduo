@@ -8,18 +8,16 @@
 using namespace muduo;
 using namespace muduo::net;
 
-void threadFunc(EventLoop* loop)
-{
+void threadFunc(EventLoop *loop) {
   InetAddress serverAddr("127.0.0.1", 1234); // should succeed
   TcpClient client(loop, serverAddr, "TcpClient");
   client.connect();
 
-  CurrentThread::sleepUsec(1000*1000);
+  CurrentThread::sleepUsec(1000 * 1000);
   // client destructs when connected.
 }
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char *argv[]) {
   Logger::setLogLevel(Logger::DEBUG);
 
   EventLoop loop;

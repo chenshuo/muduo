@@ -1,20 +1,20 @@
 #include "muduo/base/CurrentThread.h"
 #include "muduo/base/Exception.h"
 #include <functional>
-#include <vector>
 #include <stdio.h>
+#include <vector>
 
-class Bar
-{
- public:
-  void test(std::vector<std::string> names = {})
-  {
+class Bar {
+public:
+  void test(std::vector<std::string> names = {}) {
     printf("Stack:\n%s\n", muduo::CurrentThread::stackTrace(true).c_str());
     [] {
-      printf("Stack inside lambda:\n%s\n", muduo::CurrentThread::stackTrace(true).c_str());
+      printf("Stack inside lambda:\n%s\n",
+             muduo::CurrentThread::stackTrace(true).c_str());
     }();
     std::function<void()> func([] {
-      printf("Stack inside std::function:\n%s\n", muduo::CurrentThread::stackTrace(true).c_str());
+      printf("Stack inside std::function:\n%s\n",
+             muduo::CurrentThread::stackTrace(true).c_str());
     });
     func();
 
@@ -24,27 +24,22 @@ class Bar
     throw muduo::Exception("oops");
   }
 
- private:
-   void callback()
-   {
-     printf("Stack inside std::bind:\n%s\n", muduo::CurrentThread::stackTrace(true).c_str());
-   }
+private:
+  void callback() {
+    printf("Stack inside std::bind:\n%s\n",
+           muduo::CurrentThread::stackTrace(true).c_str());
+  }
 };
 
-void foo()
-{
+void foo() {
   Bar b;
   b.test();
 }
 
-int main()
-{
-  try
-  {
+int main() {
+  try {
     foo();
-  }
-  catch (const muduo::Exception& ex)
-  {
+  } catch (const muduo::Exception &ex) {
     printf("reason: %s\n", ex.what());
     printf("stack trace:\n%s\n", ex.stackTrace());
   }
