@@ -88,3 +88,6 @@ add_executable(timezone_unittest TimeZone_unittest.cc)
 target_link_libraries(timezone_unittest muduo_base)
 add_test(NAME timezone_unittest COMMAND timezone_unittest)
 
+add_executable(timezone_util TimeZone_util.cc)
+target_link_libraries(timezone_util muduo_base)
+
