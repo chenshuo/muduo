@@ -342,6 +342,10 @@ void testLosAngeles()
   // 2023-11-05 09:00:00Z   0     -8.0   2023-11-05 01:00:00
 
   TimeZone tz = TimeZone::loadZoneFile("/usr/share/zoneinfo/America/Los_Angeles");
+  int utcOffset = 0;
+  printf("1234567890 in Los Angeles: %s", tz.toLocalTime(1234567890, &utcOffset).toIsoString().c_str());
+  printf(" %+03d%02d\n", utcOffset / 3600, utcOffset % 3600 / 60);
+  printf("1666666666 in Los Angeles: %s\n", tz.toLocalTime(1666666666).toIsoString().c_str());
   printf("Now in Los Angeles: %s\n", tz.toLocalTime(time(nullptr)).toIsoString().c_str());
 
   LocalToUtcTestCase cases[] =

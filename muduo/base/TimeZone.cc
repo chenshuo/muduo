@@ -429,6 +429,13 @@ const TimeZone::Data::LocalTime* TimeZone::Data::findLocalTime(
   return &localtimes[transI->localtimeIdx];
 }
 
+// static
+TimeZone TimeZone::UTC()
+{
+  return TimeZone(0, "UTC");
+}
+
+// static
 TimeZone TimeZone::loadZoneFile(const char* zonefile)
 {
   std::unique_ptr<Data> data(new Data);
@@ -494,6 +501,13 @@ int64_t TimeZone::fromUtcTime(const DateTime& dt)
   int secondsInDay = dt.hour * 3600 + dt.minute * 60 + dt.second;
   int64_t days = date.julianDayNumber() - Date::kJulianDayOf1970_01_01;
   return days * kSecondsPerDay + secondsInDay;
+}
+
+
+DateTime::DateTime(const struct tm& t)
+  : year(t.tm_year + 1900), month(t.tm_mon + 1), day(t.tm_mday),
+    hour(t.tm_hour), minute(t.tm_min), second(t.tm_sec)
+{
 }
 
 string DateTime::toIsoString() const

@@ -19,6 +19,7 @@ namespace muduo
 struct DateTime
 {
   DateTime() {}
+  explicit DateTime(const struct tm&);
   DateTime(int _year, int _month, int _day, int _hour, int _minute, int _second)
       : year(_year), month(_month), day(_day), hour(_hour), minute(_minute), second(_second)
   {
@@ -43,7 +44,7 @@ class TimeZone : public muduo::copyable
   TimeZone(int eastOfUtc, const char* tzname);  // a fixed timezone
 
   static TimeZone UTC();
-  static TimeZone China();
+  static TimeZone China();  // Fixed at GMT+8, no DST
   static TimeZone loadZoneFile(const char* zonefile);
 
   // default copy ctor/assignment/dtor are Okay.

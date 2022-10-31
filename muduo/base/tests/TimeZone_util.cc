@@ -2,17 +2,50 @@
 
 #include <assert.h>
 
+#include <string>
+
 using muduo::DateTime;
 using muduo::TimeZone;
 
+void printUtcAndLocal(time_t utc, TimeZone local)
+{
+  printf("Unix Time: %ld\n", utc);
+  printf("UTC:       %s\n", TimeZone::toUtcTime(utc).toIsoString().c_str());
+  int utcOffset = 0;
+  printf("Local:     %s", local.toLocalTime(utc, &utcOffset).toIsoString().c_str());
+  printf(" %+03d%02d\n", utcOffset / 3600, utcOffset % 3600 / 60);
+}
+
 int main(int argc, char* argv[])
 {
+  TimeZone local = TimeZone::loadZoneFile("/etc/localtime");
   if (argc <= 1)
-    return 1;
-  TimeZone tz = TimeZone::loadZoneFile(argv[1]);
-  assert(tz.valid());
+  {
+    time_t now = ::time(NULL);
+    printUtcAndLocal(now, local);
+    return 0;
+  }
 
-  DateTime luck = tz.toUtcTime(1666666666);
-  printf("%s\n", luck.toIsoString().c_str());
-  printf("%s\n", tz.toLocalTime(1666666666).toIsoString().c_str());
+  // TODO: input is from a different timezone.
+
+  for (int i = 1; i < argc; ++i)
+  {
+    char* end = NULL;
+    time_t t = strtol(argv[i], &end, 10);
+    if (end > argv[i] && *end == '\0')
+    {
+      printUtcAndLocal(t, local);
+    }
+    else
+    {
+      struct tm tm = { };
+      end = strptime(argv[i], "%F %T", &tm);
+      if (end != NULL && *end == '\0')
+      {
+        DateTime dt(tm);
+        t = local.fromLocalTime(dt);
+        printUtcAndLocal(t, local);
+      }
+    }
+  }
 }
