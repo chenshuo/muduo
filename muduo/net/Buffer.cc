@@ -13,6 +13,7 @@
 
 #include <errno.h>
 #include <sys/uio.h>
+#include <unistd.h>
 
 using namespace muduo;
 using namespace muduo::net;
@@ -56,3 +57,12 @@ ssize_t Buffer::readFd(int fd, int* savedErrno)
   return n;
 }
 
+ssize_t Buffer::writeFd(int fd, int* savedErrno)
+{
+  ssize_t n = ::write(fd, peek(), readableBytes());
+  if (n < 0)
+  {
+    *savedErrno = errno;
+  }
+  return n;
+}

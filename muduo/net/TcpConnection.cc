@@ -370,9 +370,8 @@ void TcpConnection::handleWrite()
   loop_->assertInLoopThread();
   if (channel_->isWriting())
   {
-    ssize_t n = sockets::write(channel_->fd(),
-                               outputBuffer_.peek(),
-                               outputBuffer_.readableBytes());
+    int savedErrno = 0;
+    ssize_t n = outputBuffer_.writeFd(channel_->fd(), &savedErrno);
     if (n > 0)
     {
       outputBuffer_.retrieve(n);

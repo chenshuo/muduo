@@ -379,6 +379,9 @@ class Buffer : public muduo::copyable
   /// @return result of read(2), @c errno is saved
   ssize_t readFd(int fd, int* savedErrno);
 
+  // Send data by fd.
+  ssize_t writeFd(int fd, int* savedErrno);
+
  private:
 
   char* begin()
