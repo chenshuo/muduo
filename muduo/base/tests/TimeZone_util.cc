@@ -2,14 +2,20 @@
 
 #include <assert.h>
 
+#ifndef __STDC_FORMAT_MACROS
+#define __STDC_FORMAT_MACROS
+#endif
+
+#include <inttypes.h>
+
 #include <string>
 
 using muduo::DateTime;
 using muduo::TimeZone;
 
-void printUtcAndLocal(time_t utc, TimeZone local)
+void printUtcAndLocal(int64_t utc, TimeZone local)
 {
-  printf("Unix Time: %ld\n", utc);
+  printf("Unix Time: %" PRId64 "\n", utc);
   printf("UTC:       %s\n", TimeZone::toUtcTime(utc).toIsoString().c_str());
   int utcOffset = 0;
   printf("Local:     %s", local.toLocalTime(utc, &utcOffset).toIsoString().c_str());
@@ -31,7 +37,7 @@ int main(int argc, char* argv[])
   for (int i = 1; i < argc; ++i)
   {
     char* end = NULL;
-    time_t t = strtol(argv[i], &end, 10);
+    int64_t t = strtol(argv[i], &end, 10);
     if (end > argv[i] && *end == '\0')
     {
       printUtcAndLocal(t, local);

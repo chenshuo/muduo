@@ -79,7 +79,7 @@ void test(const TimeZone& tz, TestCase tc)
   struct tm local = getTm(tc.local);
   DateTime localtime(local.tm_year+1900, local.tm_mon+1, local.tm_mday,
                      local.tm_hour, local.tm_min, local.tm_sec);
-  const time_t result = tz.fromLocalTime(localtime, tc.postTransition);
+  const int64_t result = tz.fromLocalTime(localtime, tc.postTransition);
   if (result != gmt)
   {
     failure++;
@@ -293,10 +293,10 @@ void testUtc()
     }
 
 
-    time_t u1 = TimeZone::fromUtcTime(t2);
+    int64_t u1 = TimeZone::fromUtcTime(t2);
     if (t != u1)
     {
-      printf("%ld != %ld\n", static_cast<long>(t), static_cast<long>(u1));
+      printf("%lld != %lld\n", static_cast<long long>(t), static_cast<long long>(u1));
       failure++;
       assert(0);
     }
