@@ -56,3 +56,30 @@ ssize_t Buffer::readFd(int fd, int* savedErrno)
   return n;
 }
 
+void Buffer::prependAlign()
+{
+  size_t readable = readableBytes();
+  if (readerIndex_ == kCheapPrepend)
+  {
+    return;
+  }
+  else if (readerIndex_ < kCheapPrepend)
+  {
+    if (buffer_.size() < readable + kCheapPrepend)
+    {
+      buffer_.resize(readable+kCheapPrepend);
+    }
+    std::copy_backward(begin()+readerIndex_,
+                       begin()+writerIndex_,
+                       begin()+readable+kCheapPrepend);
+  }
+  else
+  {
+    std::copy(begin()+readerIndex_,
+              begin()+writerIndex_,
+              begin()+kCheapPrepend);
+  }
+  readerIndex_ = kCheapPrepend;
+  writerIndex_ = readerIndex_ + readable;
+  assert(readable == readableBytes());
+}

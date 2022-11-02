@@ -56,11 +56,11 @@ BOOST_AUTO_TEST_CASE(testBufferGrow)
   buf.append(string(1000, 'z'));
   BOOST_CHECK_EQUAL(buf.readableBytes(), 1350);
   BOOST_CHECK_EQUAL(buf.writableBytes(), 0);
-  BOOST_CHECK_EQUAL(buf.prependableBytes(), Buffer::kCheapPrepend+50); // FIXME
+  BOOST_CHECK_EQUAL(buf.prependableBytes(), Buffer::kCheapPrepend);
 
   buf.retrieveAll();
   BOOST_CHECK_EQUAL(buf.readableBytes(), 0);
-  BOOST_CHECK_EQUAL(buf.writableBytes(), 1400); // FIXME
+  BOOST_CHECK_EQUAL(buf.writableBytes(), 1350);
   BOOST_CHECK_EQUAL(buf.prependableBytes(), Buffer::kCheapPrepend);
 }
 
