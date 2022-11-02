@@ -391,8 +391,15 @@ class Buffer : public muduo::copyable
   {
     if (writableBytes() + prependableBytes() < len + kCheapPrepend)
     {
-      // FIXME: move readable data
-      buffer_.resize(writerIndex_+len);
+      size_t readable = readableBytes();
+      std::vector<char> buffer(writerIndex_+len);
+      std::copy(begin()+readerIndex_,
+                begin()+writerIndex_,
+                &*(buffer.begin()+kCheapPrepend));
+      std::swap(buffer, buffer_);
+      readerIndex_ = kCheapPrepend;
+      writerIndex_ = readerIndex_ + readable;
+      assert(readable == readableBytes());
     }
     else
     {
