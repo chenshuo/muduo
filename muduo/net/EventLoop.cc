@@ -61,6 +61,7 @@ EventLoop* EventLoop::getEventLoopOfCurrentThread()
   return t_loopInThisThread;
 }
 
+//事件管理器：将监听到的事件交给时间处理器处理。
 EventLoop::EventLoop()
   : looping_(false),
     quit_(false),
