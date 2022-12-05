@@ -13,7 +13,7 @@ namespace muduo
 namespace CurrentThread
 {
   // internal
-  extern __thread int t_cachedTid;
+  extern __thread int t_cachedTid;  //__thread 局部存储设施。
   extern __thread char t_tidString[32];
   extern __thread int t_tidStringLength;
   extern __thread const char* t_threadName;
@@ -21,7 +21,7 @@ namespace CurrentThread
 
   inline int tid()
   {
-    if (__builtin_expect(t_cachedTid == 0, 0))
+    if (__builtin_expect(t_cachedTid == 0, 0)) //很可能是假。
     {
       cacheTid();
     }
