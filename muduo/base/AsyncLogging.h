@@ -6,13 +6,9 @@
 #include <muduo/base/CountDownLatch.h>
 #include <muduo/base/Mutex.h>
 #include <muduo/base/Thread.h>
-
 #include <muduo/base/LogStream.h>
 
-#include <boost/bind.hpp>
 #include <boost/noncopyable.hpp>
-#include <boost/scoped_ptr.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
 
 namespace muduo
 {
@@ -52,14 +48,14 @@ class AsyncLogging : boost::noncopyable
  private:
 
   // declare but not define, prevent compiler-synthesized functions
-  AsyncLogging(const AsyncLogging&);  // ptr_container
-  void operator=(const AsyncLogging&);  // ptr_container
+  AsyncLogging(const AsyncLogging&);
+  void operator=(const AsyncLogging&);
 
   void threadFunc();
 
   typedef muduo::detail::FixedBuffer<muduo::detail::kLargeBuffer> Buffer;
-  typedef boost::ptr_vector<Buffer> BufferVector;
-  typedef BufferVector::auto_type BufferPtr;
+  typedef std::unique_ptr<Buffer> BufferPtr;
+  typedef std::vector<BufferPtr> BufferVector;
 
   const int flushInterval_;
   bool running_;
