@@ -13,7 +13,7 @@ AsyncLogging::AsyncLogging(const string& basename,
     running_(false),
     basename_(basename),
     rollSize_(rollSize),
-    thread_(boost::bind(&AsyncLogging::threadFunc, this), "Logging"),
+    thread_(std::bind(&AsyncLogging::threadFunc, this), "Logging"),
     latch_(1),
     mutex_(),
     cond_(mutex_),
@@ -35,15 +35,12 @@ void AsyncLogging::append(const char* logline, int len)
   }
   else
   {
-    buffers_.push_back(currentBuffer_.release());
+    buffers_.emplace_back(std::move(currentBuffer_));
 
-    if (nextBuffer_)
-    {
-      currentBuffer_ = boost::ptr_container::move(nextBuffer_);
-    }
-    else
-    {
-      currentBuffer_.reset(new Buffer); // Rarely happens
+    if (nextBuffer_) {
+      currentBuffer_ = std::move(nextBuffer_);
+    } else {
+      currentBuffer_.reset(new Buffer);  // Rarely happens
     }
     currentBuffer_->append(logline, len);
     cond_.notify();
@@ -73,12 +70,12 @@ void AsyncLogging::threadFunc()
       {
         cond_.waitForSeconds(flushInterval_);
       }
-      buffers_.push_back(currentBuffer_.release());
-      currentBuffer_ = boost::ptr_container::move(newBuffer1);
+      buffers_.emplace_back(std::move(currentBuffer_));
+      currentBuffer_ = std::move(newBuffer1);
       buffersToWrite.swap(buffers_);
       if (!nextBuffer_)
       {
-        nextBuffer_ = boost::ptr_container::move(newBuffer2);
+        nextBuffer_ = std::move(newBuffer2);
       }
     }
 
@@ -98,7 +95,7 @@ void AsyncLogging::threadFunc()
     for (size_t i = 0; i < buffersToWrite.size(); ++i)
     {
       // FIXME: use unbuffered stdio FILE ? or use ::writev ?
-      output.append(buffersToWrite[i].data(), buffersToWrite[i].length());
+      output.append(buffersToWrite[i]->data(), buffersToWrite[i]->length());
     }
 
     if (buffersToWrite.size() > 2)
@@ -110,14 +107,16 @@ void AsyncLogging::threadFunc()
     if (!newBuffer1)
     {
       assert(!buffersToWrite.empty());
-      newBuffer1 = buffersToWrite.pop_back();
+      newBuffer1.reset(buffersToWrite.back().release());
+      buffersToWrite.pop_back();
       newBuffer1->reset();
     }
 
     if (!newBuffer2)
     {
       assert(!buffersToWrite.empty());
-      newBuffer2 = buffersToWrite.pop_back();
+      newBuffer2.reset(buffersToWrite.back().release());
+      buffersToWrite.pop_back();
       newBuffer2->reset();
     }
 
