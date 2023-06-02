@@ -173,7 +173,11 @@ void TimerQueue::handleRead()
   // safe to callback outside critical section
   for (const Entry& it : expired)
   {
-    it.second->run();
+    ActiveTimer timer(it.second, it.second->sequence());
+    if (cancelingTimers_.find(timer) == cancelingTimers_.end())
+    {
+      it.second->run();
+    }
   }
   callingExpiredTimers_ = false;
 
