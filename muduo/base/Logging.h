@@ -70,7 +70,7 @@ class Logger
 
   static LogLevel logLevel();
   static void setLogLevel(LogLevel level);
-
+  
   typedef void (*OutputFunc)(const char* msg, int len);
   typedef void (*FlushFunc)();
   static void setOutput(OutputFunc);
@@ -98,12 +98,6 @@ class Impl
 
 };
 
-extern Logger::LogLevel g_logLevel;
-
-inline Logger::LogLevel Logger::logLevel()
-{
-  return g_logLevel;
-}
 
 //
 // CAUTION: do not write:
