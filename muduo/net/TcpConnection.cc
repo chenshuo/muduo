@@ -121,12 +121,10 @@ void TcpConnection::send(Buffer* buf)
     }
     else
     {
-      void (TcpConnection::*fp)(const StringPiece& message) = &TcpConnection::sendInLoop;
-      loop_->runInLoop(
-          std::bind(fp,
-                    this,     // FIXME
-                    buf->retrieveAllAsString()));
-                    //std::forward<string>(message)));
+      auto temp = std::make_shared<Buffer>(std::move(*buf));// move
+      loop_->queueInLoop([this,temp](){//copy temp(ptr)
+        this->sendInLoop(temp->peek(),temp->readableBytes());//转到loop_
+      });
     }
   }
 }
