@@ -20,8 +20,8 @@ class Test
     {
       char name[32];
       snprintf(name, sizeof name, "work thread %d", i);
-      threads_.emplace_back(new muduo::Thread(
-            std::bind(&Test::threadFunc, this), muduo::string(name)));
+      threads_[i] = std::make_unique<muduo::Thread>(std::bind(&Test::threadFunc, this),
+                                     muduo::string(name));
     }
     for (auto& thr : threads_)
     {
