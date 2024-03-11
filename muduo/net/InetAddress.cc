@@ -12,6 +12,7 @@
 #include <muduo/net/Endian.h>
 #include <muduo/net/SocketsOps.h>
 
+#include <cstddef>
 #include <netdb.h>
 #include <netinet/in.h>
 
