@@ -59,7 +59,7 @@ class BlockingQueue : noncopyable
 
   queue_type drain()
   {
-    std::deque<T> queue;
+    queue_type queue;
     {
       MutexLockGuard lock(mutex_);
       queue = std::move(queue_);
