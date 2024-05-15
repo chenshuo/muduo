@@ -161,6 +161,7 @@ int Curl::socketCallback(CURL* c, int fd, int what, void* userp, void* socketp)
     muduo::net::Channel* ch = static_cast<Channel*>(socketp);
     if (!ch)
     {
+      if (req->getChannel()) return 0;
       ch = req->setChannel(fd);
       ch->setReadCallback(std::bind(&Curl::onRead, curl, fd));
       ch->setWriteCallback(std::bind(&Curl::onWrite, curl, fd));
