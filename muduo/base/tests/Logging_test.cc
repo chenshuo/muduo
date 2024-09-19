@@ -109,7 +109,7 @@ int main()
   LOG_ERROR << "Error CST";
 
   sleep(1);
-  muduo::TimeZone newyork("/usr/share/zoneinfo/America/New_York");
+  muduo::TimeZone newyork = muduo::TimeZone::loadZoneFile("/usr/share/zoneinfo/America/New_York");
   muduo::Logger::setTimeZone(newyork);
   LOG_TRACE << "trace NYT";
   LOG_DEBUG << "debug NYT";

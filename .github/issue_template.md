@@ -1,13 +1,12 @@
+DELETE FROM HERE TO LINE 18 BEFORE OPEN AN ISSUE.
+
 GitHub issues are for tracking bugs, not for general discussing like a forum.
 
-If you have a general question to ask, send it to mailing list:
+If you have a general question to ask, use GitHub discussions:
 
-muduo-library@googlegroups.com
+https://github.com/chenshuo/muduo/discussions
 
-Or visit:
-https://groups.google.com/forum/#!forum/muduo-library
-
-When file an issue muduo, please provide a [SSCCE](http://sscce.org):
+When filing an issue of muduo, please provide a [SSCCE](http://sscce.org):
 Short, Self Contained, Correct (Compilable), Example.
 
 If you can't compile muduo, make sure you install `cmake` and `boost` from the
