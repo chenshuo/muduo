@@ -54,7 +54,16 @@ Logger::LogLevel initLogLevel()
     return Logger::INFO;
 }
 
-Logger::LogLevel g_logLevel = initLogLevel();
+// Logger::LogLevel g_logLevel = initLogLevel();
+static Logger::LogLevel& g_logLevel()
+{
+  static Logger::LogLevel g_logLevel = initLogLevel();
+  return g_logLevel;
+}
+Logger::LogLevel Logger::logLevel()
+{
+  return g_logLevel();
+}
 
 const char* LogLevelName[Logger::NUM_LOG_LEVELS] =
 {
@@ -207,7 +216,7 @@ Logger::~Logger()
 
 void Logger::setLogLevel(Logger::LogLevel level)
 {
-  g_logLevel = level;
+  g_logLevel() = level;
 }
 
 void Logger::setOutput(OutputFunc out)
