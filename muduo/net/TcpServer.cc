@@ -28,12 +28,23 @@ TcpServer::TcpServer(EventLoop* loop,
     name_(nameArg),
     acceptor_(new Acceptor(loop, listenAddr, option == kReusePort)),
     threadPool_(new EventLoopThreadPool(loop, name_)),
+    sharedThreadPool_(NULL),
     connectionCallback_(defaultConnectionCallback),
     messageCallback_(defaultMessageCallback),
     nextConnId_(1)
 {
   acceptor_->setNewConnectionCallback(
       std::bind(&TcpServer::newConnection, this, _1, _2));
+}
+
+TcpServer::TcpServer(EventLoop* loop,
+                     const InetAddress& listenAddr,
+                     const string& nameArg,
+                     EventLoopThreadPool* sharedThreadPool,
+                     Option option)
+  : TcpServer(loop, listenAddr, nameArg, option)
+{
+    sharedThreadPool_ = CHECK_NOTNULL(sharedThreadPool);
 }
 
 TcpServer::~TcpServer()
@@ -60,7 +71,15 @@ void TcpServer::start()
 {
   if (started_.getAndSet(1) == 0)
   {
-    threadPool_->start(threadInitCallback_);
+    if (sharedThreadPool_ != NULL)
+    {
+        // the owner must start this ThreadPool before starting TcpServer
+        assert(sharedThreadPool_->started());
+    }
+    else
+    {
+        threadPool_->start(threadInitCallback_);
+    }
 
     assert(!acceptor_->listening());
     loop_->runInLoop(
@@ -71,7 +90,7 @@ void TcpServer::start()
 void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
 {
   loop_->assertInLoopThread();
-  EventLoop* ioLoop = threadPool_->getNextLoop();
+  EventLoop* ioLoop = sharedThreadPool_ != NULL ? sharedThreadPool_->getNextLoop() : threadPool_->getNextLoop();
   char buf[64];
   snprintf(buf, sizeof buf, "-%s#%d", ipPort_.c_str(), nextConnId_);
   ++nextConnId_;

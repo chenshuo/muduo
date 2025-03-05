@@ -20,8 +20,7 @@ EventLoopThreadPool::EventLoopThreadPool(EventLoop* baseLoop, const string& name
   : baseLoop_(baseLoop),
     name_(nameArg),
     started_(false),
-    numThreads_(0),
-    next_(0)
+    numThreads_(0)
 {
 }
 
@@ -60,12 +59,8 @@ EventLoop* EventLoopThreadPool::getNextLoop()
   if (!loops_.empty())
   {
     // round-robin
-    loop = loops_[next_];
-    ++next_;
-    if (implicit_cast<size_t>(next_) >= loops_.size())
-    {
-      next_ = 0;
-    }
+    int64_t next = next_.getAndAdd(1);
+    loop = loops_[implicit_cast<size_t>(next) % loops_.size()];
   }
   return loop;
 }
