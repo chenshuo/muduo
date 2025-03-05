@@ -162,6 +162,12 @@ class HttpRequest : public muduo::copyable
   const std::map<string, string>& headers() const
   { return headers_; }
 
+  void setBody(string content)
+  { body_ = content; }
+
+  const string& getBody() const 
+  { return body_; }
+
   void swap(HttpRequest& that)
   {
     std::swap(method_, that.method_);
@@ -177,6 +183,7 @@ class HttpRequest : public muduo::copyable
   Version version_;
   string path_;
   string query_;
+  string body_;
   Timestamp receiveTime_;
   std::map<string, string> headers_;
 };
