@@ -4,6 +4,12 @@ else()
   add_subdirectory(hiredis EXCLUDE_FROM_ALL)
 endif()
 
+if(MARIADBCLIENT_INCLUDE_DIR AND MARIADBCLIENT_LIBRARY)
+  add_subdirectory(mariadbclient)
+else()
+  add_subdirectory(mariadbclient EXCLUDE_FROM_ALL)
+endif()
+
 if(THRIFT_COMPILER AND THRIFT_INCLUDE_DIR AND THRIFT_LIBRARY)
   add_subdirectory(thrift)
 else()

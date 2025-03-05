@@ -36,7 +36,9 @@ class Channel : noncopyable
   typedef std::function<void()> EventCallback;
   typedef std::function<void(Timestamp)> ReadEventCallback;
 
-  Channel(EventLoop* loop, int fd);
+  typedef std::function<void(int, Timestamp)> EventsCallback;
+
+  Channel(EventLoop* loop, int fd, bool classify = true);
   ~Channel();
 
   void handleEvent(Timestamp receiveTime);
@@ -48,6 +50,8 @@ class Channel : noncopyable
   { closeCallback_ = std::move(cb); }
   void setErrorCallback(EventCallback cb)
   { errorCallback_ = std::move(cb); }
+  void setEventsCallback(EventsCallback cb)
+  { eventsCallback_ = std::move(cb); }
 
   /// Tie this channel to the owner object managed by shared_ptr,
   /// prevent the owner object being destroyed in handleEvent.
@@ -66,6 +70,7 @@ class Channel : noncopyable
   void disableAll() { events_ = kNoneEvent; update(); }
   bool isWriting() const { return events_ & kWriteEvent; }
   bool isReading() const { return events_ & kReadEvent; }
+  void enableEvents(int events__) { events_ = events__; update(); }
 
   // for Poller
   int index() { return index_; }
@@ -105,6 +110,9 @@ class Channel : noncopyable
   EventCallback writeCallback_;
   EventCallback closeCallback_;
   EventCallback errorCallback_;
+
+  EventsCallback eventsCallback_;
+  bool classify_;
 };
 
 }  // namespace net
