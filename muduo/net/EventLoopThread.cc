@@ -32,6 +32,9 @@ EventLoopThread::~EventLoopThread()
     // still a tiny chance to call destructed object, if threadFunc exits just now.
     // but when EventLoopThread destructs, usually programming is exiting anyway.
     loop_->quit();
+  }
+  // In case `threadFunc` finished before destructing.
+  if (thread_.started()) {
     thread_.join();
   }
 }
