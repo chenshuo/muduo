@@ -34,6 +34,7 @@ class EventLoopThread : noncopyable
 
  private:
   void threadFunc();
+  void handleRead();
 
   EventLoop* loop_ GUARDED_BY(mutex_);
   bool exiting_;
