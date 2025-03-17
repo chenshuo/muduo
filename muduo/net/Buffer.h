@@ -42,8 +42,8 @@ namespace net
 class Buffer : public muduo::copyable
 {
  public:
-  static const size_t kCheapPrepend = 8;
-  static const size_t kInitialSize = 1024;
+  static constexpr size_t kCheapPrepend = 8;
+  static constexpr size_t kInitialSize = 1024;
 
   explicit Buffer(size_t initialSize = kInitialSize)
     : buffer_(kCheapPrepend + initialSize),
