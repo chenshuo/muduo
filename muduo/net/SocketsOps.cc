@@ -25,9 +25,6 @@ using namespace muduo::net;
 namespace
 {
 
-typedef struct sockaddr SA;
-
-
 #if VALGRIND || defined (NO_ACCEPT4)
 void setNonBlockAndCloseOnExec(int sockfd)
 {
