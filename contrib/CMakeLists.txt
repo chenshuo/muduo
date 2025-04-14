@@ -9,3 +9,5 @@ if(THRIFT_COMPILER AND THRIFT_INCLUDE_DIR AND THRIFT_LIBRARY)
 else()
   add_subdirectory(thrift EXCLUDE_FROM_ALL)
 endif()
+
+add_subdirectory(udp)
