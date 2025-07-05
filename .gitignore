@@ -1,3 +1,5 @@
 *.swp
 bazel-*
 compile_commands.json
+build
+settings.json

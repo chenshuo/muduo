@@ -27,14 +27,70 @@ class ZlibInputStream : noncopyable
   {
     finish();
   }
+  int zlibErrorCode() const { return zerror_; }
+  bool write(StringPiece buf)
+  {
+    if (zerror_ != Z_OK && zerror_ != Z_STREAM_END)
+      return false;
 
-  bool write(StringPiece buf);
-  bool write(Buffer* input);
-  bool finish();
-    // inflateEnd(&zstream_);
+    assert(zstream_.next_in == NULL && zstream_.avail_in == 0);
+    void* in = const_cast<char*>(buf.data());
+    zstream_.next_in = static_cast<Bytef*>(in);
+    zstream_.avail_in = buf.size();
+    while (zstream_.avail_in > 0 && zerror_ == Z_OK)
+    {
+      zerror_ = decompress(Z_NO_FLUSH);
+    }
+    if (zstream_.avail_in == 0)
+    {
+      assert(static_cast<const void*>(zstream_.next_in) == buf.end());
+      zstream_.next_in = NULL;
+    }
+    return zerror_ == Z_OK || zerror_ == Z_STREAM_END;
+  }
+
+  // compress input as much as possible, not guarantee consuming all data.
+  bool write(Buffer* input)
+  {
+    if (zerror_ != Z_OK && zerror_ != Z_STREAM_END)
+      return false;
+
+    void* in = const_cast<char*>(input->peek());
+    zstream_.next_in = static_cast<Bytef*>(in);
+    zstream_.avail_in = static_cast<int>(input->readableBytes());
+    if (zstream_.avail_in > 0 && zerror_ == Z_OK)
+    {
+      zerror_ = decompress(Z_NO_FLUSH);
+    }
+    input->retrieve(input->readableBytes() - zstream_.avail_in);
+    return zerror_ == Z_OK || zerror_ == Z_STREAM_END;
+  }
+  bool finish()
+  {
+    if (zerror_ != Z_OK  && zerror_ != Z_STREAM_END) {
+      return false;
+    }
+    zerror_ = inflateEnd(&zstream_);
+    bool ok = (zerror_ == Z_OK  || zerror_ == Z_STREAM_END);
+    zerror_ = Z_STREAM_END;
+    return ok;
+  }
 
  private:
-  int decompress(int flush);
+  int decompress(int flush)
+  {
+    int buffer_size = 1024;
+    output_->ensureWritableBytes(buffer_size);
+    zstream_.next_out = reinterpret_cast<Bytef*>(output_->beginWrite());
+    zstream_.avail_out = static_cast<int>(output_->writableBytes());
+    int error = ::inflate(&zstream_, flush);
+    output_->hasWritten(output_->writableBytes() - zstream_.avail_out);
+    if (output_->writableBytes() == 0 && buffer_size < 65536)
+    {
+      buffer_size *= 2;
+    }
+    return error;
+  }
 
   Buffer* output_;
   z_stream zstream_;
@@ -69,7 +125,7 @@ class ZlibOutputStream : noncopyable
 
   bool write(StringPiece buf)
   {
-    if (zerror_ != Z_OK)
+    if (zerror_ != Z_OK && zerror_ != Z_STREAM_END)
       return false;
 
     assert(zstream_.next_in == NULL && zstream_.avail_in == 0);
@@ -85,13 +141,13 @@ class ZlibOutputStream : noncopyable
       assert(static_cast<const void*>(zstream_.next_in) == buf.end());
       zstream_.next_in = NULL;
     }
-    return zerror_ == Z_OK;
+    return zerror_ == Z_OK || zerror_ == Z_STREAM_END;
   }
 
   // compress input as much as possible, not guarantee consuming all data.
   bool write(Buffer* input)
   {
-    if (zerror_ != Z_OK)
+    if (zerror_ != Z_OK && zerror_ != Z_STREAM_END)
       return false;
 
     void* in = const_cast<char*>(input->peek());
@@ -102,12 +158,12 @@ class ZlibOutputStream : noncopyable
       zerror_ = compress(Z_NO_FLUSH);
     }
     input->retrieve(input->readableBytes() - zstream_.avail_in);
-    return zerror_ == Z_OK;
+    return zerror_ == Z_OK || zerror_ == Z_STREAM_END;
   }
 
   bool finish()
   {
-    if (zerror_ != Z_OK)
+    if (zerror_ != Z_OK && zerror_ != Z_STREAM_END)
       return false;
 
     while (zerror_ == Z_OK)

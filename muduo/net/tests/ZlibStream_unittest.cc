@@ -82,10 +82,55 @@ BOOST_AUTO_TEST_CASE(testZlibOutputStream5)
   {
     BOOST_CHECK(stream.write(input));
   }
-  printf("bufsiz %d\n", stream.internalOutputBufferSize());
-  LOG_INFO << "total_in " << stream.inputBytes();
-  LOG_INFO << "total_out " << stream.outputBytes();
   stream.finish();
-  printf("total %zd\n", output.readableBytes());
   BOOST_CHECK_EQUAL(stream.zlibErrorCode(), Z_STREAM_END);
+}
+
+
+BOOST_AUTO_TEST_CASE(testZlibInputStream) {
+  muduo::net::Buffer input;// zlib_data
+  muduo::net::Buffer output;// data
+  {
+    muduo::net::ZlibOutputStream outStream(&input);
+    outStream.write("Hello, Zlib!");
+    outStream.finish();
+  }
+  muduo::net::ZlibInputStream inStream(&output);
+  std::string result;
+  while (input.readableBytes() > 0 && (inStream.zlibErrorCode() == Z_OK || inStream.zlibErrorCode() == Z_NEED_DICT)) {
+    BOOST_CHECK(inStream.write(&input));
+  }
+  inStream.finish();
+  BOOST_CHECK_EQUAL(inStream.zlibErrorCode(), Z_STREAM_END);
+}
+
+BOOST_AUTO_TEST_CASE(testZlibInputStreamEmpty) {
+  muduo::net::Buffer input;
+  muduo::net::ZlibInputStream inStream(&input);
+  muduo::net::Buffer output;
+  BOOST_CHECK(inStream.write(&output));
+  BOOST_CHECK_EQUAL(output.readableBytes(), 0);
+}
+
+BOOST_AUTO_TEST_CASE(testZlibInputStreamLargeData) {
+  muduo::net::Buffer input;
+  std::string largeData;
+  for (int i = 0; i < 1000; ++i) {
+    largeData += "This is a test for large data compression and decompression. ";
+  }
+  
+  {
+    muduo::net::ZlibOutputStream outStream(&input);
+    outStream.write(largeData);
+    outStream.finish();
+  }
+
+  muduo::net::Buffer output;
+  muduo::net::ZlibInputStream inStream(&output);
+  std::string result;
+  while (input.readableBytes() > 0 && (inStream.zlibErrorCode() == Z_OK || inStream.zlibErrorCode() == Z_NEED_DICT)) {
+    BOOST_CHECK(inStream.write(&input));
+  }
+  result.append(output.peek(), output.readableBytes());
+  BOOST_CHECK_EQUAL(result, largeData);
 }
