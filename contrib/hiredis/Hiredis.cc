@@ -165,6 +165,8 @@ void Hiredis::disconnectCallback(int status)
   {
     disconnectCb_(this, status);
   }
+
+  context_ = NULL;
 }
 
 void Hiredis::addRead(void* privdata)
