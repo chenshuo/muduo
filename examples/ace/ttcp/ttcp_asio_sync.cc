@@ -21,9 +21,16 @@ void receive(const Options& opt)
 {
   try
   {
+#if BOOST_VERSION < 107000L
     boost::asio::io_service io_service;
     tcp::acceptor acceptor(io_service, tcp::endpoint(tcp::v4(), opt.port));
     tcp::socket socket(io_service);
+#else
+    boost::asio::io_context io_context;
+    tcp::acceptor acceptor(io_context, tcp::endpoint(tcp::v4(), opt.port));
+    tcp::socket socket(io_context);
+#endif
+
     acceptor.accept(socket);
 
     struct SessionMessage sessionMessage = { 0, 0 };
