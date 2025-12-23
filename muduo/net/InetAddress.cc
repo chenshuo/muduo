@@ -13,7 +13,9 @@
 #include <muduo/net/SocketsOps.h>
 
 #include <netdb.h>
+#include <stddef.h>
 #include <netinet/in.h>
+#include <sys/socket.h>
 
 // INADDR_ANY use (type)value casting.
 #pragma GCC diagnostic ignored "-Wold-style-cast"
@@ -113,29 +115,29 @@ uint16_t InetAddress::toPort() const
   return sockets::networkToHost16(portNetEndian());
 }
 
-static __thread char t_resolveBuffer[64 * 1024];
-
-bool InetAddress::resolve(StringArg hostname, InetAddress* out)
-{
+bool InetAddress::resolve(StringArg hostname, InetAddress *out) {
   assert(out != NULL);
-  struct hostent hent;
-  struct hostent* he = NULL;
-  int herrno = 0;
-  memZero(&hent, sizeof(hent));
+  // NOTE: we only consider ipv4 addrs
+  struct addrinfo hints {};
+  struct addrinfo *res{};
+  struct addrinfo *p{};
+  hints.ai_family = AF_INET;
+  hints.ai_socktype = SOCK_STREAM;
 
-  int ret = gethostbyname_r(hostname.c_str(), &hent, t_resolveBuffer, sizeof t_resolveBuffer, &he, &herrno);
-  if (ret == 0 && he != NULL)
-  {
-    assert(he->h_addrtype == AF_INET && he->h_length == sizeof(uint32_t));
-    out->addr_.sin_addr = *reinterpret_cast<struct in_addr*>(he->h_addr);
-    return true;
-  }
-  else
-  {
-    if (ret)
-    {
-      LOG_SYSERR << "InetAddress::resolve";
-    }
+  int ret = getaddrinfo(hostname.c_str(), nullptr, &hints, &res);
+  if (ret != 0) {
+    LOG_SYSERR << "InetAddress::resolve" << gai_strerror(ret);
     return false;
   }
+
+  for (p = res; p != nullptr; p = p->ai_next) {
+    if (p->ai_family == AF_INET) {
+      struct sockaddr_in *ipv4 = reinterpret_cast<sockaddr_in *>(p->ai_addr);
+      out->addr_.sin_addr = ipv4->sin_addr;
+      freeaddrinfo(res);
+      return true;
+    }
+  }
+  freeaddrinfo(res);
+  return false;
 }
