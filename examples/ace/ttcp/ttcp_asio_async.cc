@@ -25,8 +25,8 @@ class TtcpServerConnection : public std::enable_shared_from_this<TtcpServerConne
   TtcpServerConnection(boost::asio::io_service& io_service)
     : socket_(io_service), count_(0), payload_(NULL), ack_(0)
 #else
-  TtcpServerConnection(const boost::asio::executor& executor)
-    : socket_(executor), count_(0), payload_(NULL), ack_(0)
+  TtcpServerConnection(boost::asio::io_context& io_context)
+    : socket_(io_context), count_(0), payload_(NULL), ack_(0)
 #endif
   {
     sessionMessage_.number = 0;
@@ -152,7 +152,7 @@ void doAccept(tcp::acceptor& acceptor)
   // no need to pre-create new_connection if we use asio 1.12 or boost 1.66+
   TtcpServerConnectionPtr new_connection(new TtcpServerConnection(acceptor.get_io_service()));
 #else
-  TtcpServerConnectionPtr new_connection(new TtcpServerConnection(acceptor.get_executor()));
+  TtcpServerConnectionPtr new_connection(new TtcpServerConnection(static_cast<boost::asio::io_context&>(acceptor.get_executor().context())));
 #endif
   acceptor.async_accept(
       new_connection->socket(),
@@ -170,10 +170,19 @@ void receive(const Options& opt)
 {
   try
   {
+#if BOOST_VERSION < 107000L
     boost::asio::io_service io_service;
     tcp::acceptor acceptor(io_service, tcp::endpoint(tcp::v4(), opt.port));
+#else
+    boost::asio::io_context io_context;
+    tcp::acceptor acceptor(io_context, tcp::endpoint(tcp::v4(), opt.port));
+#endif
     doAccept(acceptor);
+#if BOOST_VERSION < 107000L
     io_service.run();
+#else
+    io_context.run();
+#endif
   }
   catch (std::exception& e)
   {
