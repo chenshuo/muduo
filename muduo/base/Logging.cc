@@ -41,7 +41,12 @@ __thread time_t t_lastSecond;
 
 const char* strerror_tl(int savedErrno)
 {
+#ifndef __MACH__
   return strerror_r(savedErrno, t_errnobuf, sizeof t_errnobuf);
+#else
+  strerror_r(savedErrno, t_errnobuf, sizeof t_errnobuf);
+  return t_errnobuf;
+#endif
 }
 
 Logger::LogLevel initLogLevel()

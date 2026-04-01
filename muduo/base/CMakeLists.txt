@@ -17,7 +17,11 @@ set(base_SRCS
   )
 
 add_library(muduo_base ${base_SRCS})
-target_link_libraries(muduo_base pthread rt)
+if(UNIX AND NOT APPLE)
+  target_link_libraries(muduo_base pthread rt)
+else()
+  target_link_libraries(muduo_base pthread)
+endif()
 
 #add_library(muduo_base_cpp11 ${base_SRCS})
 #target_link_libraries(muduo_base_cpp11 pthread rt)

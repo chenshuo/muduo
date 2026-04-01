@@ -47,10 +47,12 @@ using namespace muduo::net;
 
 static_assert(sizeof(InetAddress) == sizeof(struct sockaddr_in6),
               "InetAddress is same size as sockaddr_in6");
+#ifndef __MACH__
 static_assert(offsetof(sockaddr_in, sin_family) == 0, "sin_family offset 0");
 static_assert(offsetof(sockaddr_in6, sin6_family) == 0, "sin6_family offset 0");
 static_assert(offsetof(sockaddr_in, sin_port) == 2, "sin_port offset 2");
 static_assert(offsetof(sockaddr_in6, sin6_port) == 2, "sin6_port offset 2");
+#endif
 
 InetAddress::InetAddress(uint16_t portArg, bool loopbackOnly, bool ipv6)
 {
@@ -118,6 +120,7 @@ static __thread char t_resolveBuffer[64 * 1024];
 bool InetAddress::resolve(StringArg hostname, InetAddress* out)
 {
   assert(out != NULL);
+#ifndef __MACH__
   struct hostent hent;
   struct hostent* he = NULL;
   int herrno = 0;
@@ -138,6 +141,19 @@ bool InetAddress::resolve(StringArg hostname, InetAddress* out)
     }
     return false;
   }
+#else
+  struct hostent* he = gethostbyname(hostname.c_str());
+  if (he != NULL)
+  {
+    assert(he->h_addrtype == AF_INET && he->h_length == sizeof(uint32_t));
+    out->addr_.sin_addr = *reinterpret_cast<struct in_addr*>(he->h_addr);
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+#endif
 }
 
 void InetAddress::setScopeId(uint32_t scope_id)

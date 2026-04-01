@@ -14,6 +14,10 @@
 
 #include <poll.h>
 
+#ifndef POLLRDHUP
+#define POLLRDHUP 0
+#endif
+
 using namespace muduo;
 using namespace muduo::net;
 
