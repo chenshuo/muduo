@@ -18,7 +18,12 @@
 #include <algorithm>
 
 #include <signal.h>
+#ifndef __MACH__
 #include <sys/eventfd.h>
+#else
+#include <unistd.h>
+#include <fcntl.h>
+#endif
 #include <unistd.h>
 
 using namespace muduo;
@@ -30,8 +35,9 @@ __thread EventLoop* t_loopInThisThread = 0;
 
 const int kPollTimeMs = 10000;
 
-int createEventfd()
+int createEventfd(int wakeupFdPair[2])
 {
+#ifndef __MACH__
   int evtfd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
   if (evtfd < 0)
   {
@@ -39,6 +45,15 @@ int createEventfd()
     abort();
   }
   return evtfd;
+#else
+  if (::socketpair(AF_UNIX, SOCK_STREAM, 0, wakeupFdPair) < 0)
+  {
+    LOG_SYSFATAL << "Failed in socketpair";
+  }
+  ::fcntl(wakeupFdPair[0], F_SETFL, O_NONBLOCK | FD_CLOEXEC);
+  ::fcntl(wakeupFdPair[1], F_SETFL, O_NONBLOCK | FD_CLOEXEC);
+  return wakeupFdPair[0];
+#endif
 }
 
 #pragma GCC diagnostic ignored "-Wold-style-cast"
@@ -70,7 +85,8 @@ EventLoop::EventLoop()
     threadId_(CurrentThread::tid()),
     poller_(Poller::newDefaultPoller(this)),
     timerQueue_(new TimerQueue(this)),
-    wakeupFd_(createEventfd()),
+    wakeupFdPair_{-1, -1},
+    wakeupFd_(createEventfd(wakeupFdPair_)),
     wakeupChannel_(new Channel(this, wakeupFd_)),
     currentActiveChannel_(NULL)
 {
@@ -96,7 +112,12 @@ EventLoop::~EventLoop()
             << " destructs in thread " << CurrentThread::tid();
   wakeupChannel_->disableAll();
   wakeupChannel_->remove();
+#ifndef __MACH__
   ::close(wakeupFd_);
+#else
+  if (wakeupFdPair_[0] >= 0) ::close(wakeupFdPair_[0]);
+  if (wakeupFdPair_[1] >= 0) ::close(wakeupFdPair_[1]);
+#endif
   t_loopInThisThread = NULL;
 }
 
@@ -111,7 +132,13 @@ void EventLoop::loop()
   while (!quit_)
   {
     activeChannels_.clear();
+#ifdef __MACH__
+    pollReturnTime_ = poller_->poll(timerQueue_->getTimeout(), &activeChannels_);
+    // Process timers on macOS since we don't have timerfd
+    timerQueue_->processTimers();
+#else
     pollReturnTime_ = poller_->poll(kPollTimeMs, &activeChannels_);
+#endif
     ++iteration_;
     if (Logger::logLevel() <= Logger::TRACE)
     {
@@ -234,7 +261,11 @@ void EventLoop::abortNotInLoopThread()
 void EventLoop::wakeup()
 {
   uint64_t one = 1;
+#ifndef __MACH__
   ssize_t n = sockets::write(wakeupFd_, &one, sizeof one);
+#else
+  ssize_t n = sockets::write(wakeupFdPair_[1], &one, sizeof one);
+#endif
   if (n != sizeof one)
   {
     LOG_ERROR << "EventLoop::wakeup() writes " << n << " bytes instead of 8";
@@ -244,7 +275,11 @@ void EventLoop::wakeup()
 void EventLoop::handleRead()
 {
   uint64_t one = 1;
+#ifndef __MACH__
   ssize_t n = sockets::read(wakeupFd_, &one, sizeof one);
+#else
+  ssize_t n = sockets::read(wakeupFdPair_[0], &one, sizeof one);
+#endif
   if (n != sizeof one)
   {
     LOG_ERROR << "EventLoop::handleRead() reads " << n << " bytes instead of 8";

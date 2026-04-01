@@ -49,8 +49,15 @@ class TimerQueue : noncopyable
 
   void cancel(TimerId timerId);
 
- private:
+  /// Get timeout in milliseconds for the next timer, or default if none
+  int getTimeout() const;
 
+#ifdef __MACH__
+  // macOS doesn't have timerfd, process timers manually
+  void processTimers();
+#endif
+
+ private:
   // FIXME: use unique_ptr<Timer> instead of raw pointers.
   // This requires heterogeneous comparison lookup (N3465) from C++14
   // so that we can find an T* in a set<unique_ptr<T>>.
@@ -61,8 +68,10 @@ class TimerQueue : noncopyable
 
   void addTimerInLoop(Timer* timer);
   void cancelInLoop(TimerId timerId);
+#ifndef __MACH__
   // called when timerfd alarms
   void handleRead();
+#endif
   // move out all expired timers
   std::vector<Entry> getExpired(Timestamp now);
   void reset(const std::vector<Entry>& expired, Timestamp now);
@@ -70,8 +79,10 @@ class TimerQueue : noncopyable
   bool insert(Timer* timer);
 
   EventLoop* loop_;
+#ifndef __MACH__
   const int timerfd_;
   Channel timerfdChannel_;
+#endif
   // Timer list sorted by expiration
   TimerList timers_;
 

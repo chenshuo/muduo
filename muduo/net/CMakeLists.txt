@@ -5,6 +5,15 @@ if(NOT HAVE_ACCEPT4)
   set_source_files_properties(SocketsOps.cc PROPERTIES COMPILE_FLAGS "-DNO_ACCEPT4")
 endif()
 
+# Select poller implementation based on platform
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  set(poller_implementation poller/EPollPoller.cc)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  set(poller_implementation poller/KQueuePoller.cc)
+else()
+  set(poller_implementation poller/PollPoller.cc)
+endif()
+
 set(net_SRCS
   Acceptor.cc
   Buffer.cc
@@ -16,7 +25,7 @@ set(net_SRCS
   InetAddress.cc
   Poller.cc
   poller/DefaultPoller.cc
-  poller/EPollPoller.cc
+  ${poller_implementation}
   poller/PollPoller.cc
   Socket.cc
   SocketsOps.cc

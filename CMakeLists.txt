@@ -20,7 +20,7 @@ set(CXX_FLAGS
  -D_FILE_OFFSET_BITS=64
  -Wall
  -Wextra
- -Werror
+ # -Werror  # Disabled for macOS compatibility with old Boost
  -Wconversion
  -Wno-unused-parameter
  -Wold-style-cast
@@ -36,7 +36,7 @@ set(CXX_FLAGS
 if(CMAKE_BUILD_BITS EQUAL 32)
   list(APPEND CXX_FLAGS "-m32")
 endif()
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
   list(APPEND CXX_FLAGS "-Wno-null-dereference")
   list(APPEND CXX_FLAGS "-Wno-sign-conversion")
   list(APPEND CXX_FLAGS "-Wno-unused-local-typedef")

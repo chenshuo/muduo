@@ -76,7 +76,7 @@ const struct sockaddr_in6* sockets::sockaddr_in6_cast(const struct sockaddr* add
 
 int sockets::createNonblockingOrDie(sa_family_t family)
 {
-#if VALGRIND
+#if defined(VALGRIND) || defined(NO_ACCEPT4) || defined(__MACH__)
   int sockfd = ::socket(family, SOCK_STREAM, IPPROTO_TCP);
   if (sockfd < 0)
   {
@@ -96,7 +96,8 @@ int sockets::createNonblockingOrDie(sa_family_t family)
 
 void sockets::bindOrDie(int sockfd, const struct sockaddr* addr)
 {
-  int ret = ::bind(sockfd, addr, static_cast<socklen_t>(sizeof(struct sockaddr_in6)));
+  socklen_t addrlen = addr->sa_family == AF_INET ? sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6);
+  int ret = ::bind(sockfd, addr, addrlen);
   if (ret < 0)
   {
     LOG_SYSFATAL << "sockets::bindOrDie";

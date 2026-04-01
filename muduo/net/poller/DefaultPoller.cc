@@ -8,7 +8,12 @@
 
 #include "muduo/net/Poller.h"
 #include "muduo/net/poller/PollPoller.h"
+
+#ifdef __linux__
 #include "muduo/net/poller/EPollPoller.h"
+#elif defined(__APPLE__)
+#include "muduo/net/poller/KQueuePoller.h"
+#endif
 
 #include <stdlib.h>
 
@@ -20,8 +25,20 @@ Poller* Poller::newDefaultPoller(EventLoop* loop)
   {
     return new PollPoller(loop);
   }
+#ifdef __linux__
   else
   {
     return new EPollPoller(loop);
   }
+#elif defined(__APPLE__)
+  else
+  {
+    return new KQueuePoller(loop);
+  }
+#else
+  else
+  {
+    return new PollPoller(loop);
+  }
+#endif
 }

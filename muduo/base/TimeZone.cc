@@ -6,6 +6,7 @@
 #include "muduo/base/TimeZone.h"
 #include "muduo/base/noncopyable.h"
 #include "muduo/base/Date.h"
+#include "muduo/net/Endian.h"
 
 #include <algorithm>
 #include <memory>
@@ -14,13 +15,12 @@
 #include <vector>
 
 #include <assert.h>
-//#define _BSD_SOURCE
-#include <endian.h>
 
 #include <stdint.h>
 #include <stdio.h>
 
 using namespace muduo;
+using namespace muduo::net;
 
 struct TimeZone::Data
 {
@@ -135,7 +135,7 @@ class File : noncopyable
     ssize_t nr = ::fread(&x, 1, sizeof(int64_t), fp_);
     if (nr != sizeof(int64_t))
       throw std::logic_error("bad int64_t data");
-    return be64toh(x);
+    return sockets::networkToHost64(x);
   }
 
   int32_t readInt32()
@@ -144,7 +144,7 @@ class File : noncopyable
     ssize_t nr = ::fread(&x, 1, sizeof(int32_t), fp_);
     if (nr != sizeof(int32_t))
       throw std::logic_error("bad int32_t data");
-    return be32toh(x);
+    return sockets::networkToHost32(x);
   }
 
   uint8_t readUInt8()

@@ -26,13 +26,18 @@ Socket::~Socket()
 
 bool Socket::getTcpInfo(struct tcp_info* tcpi) const
 {
+#ifndef __MACH__
   socklen_t len = sizeof(*tcpi);
   memZero(tcpi, len);
   return ::getsockopt(sockfd_, SOL_TCP, TCP_INFO, tcpi, &len) == 0;
+#else
+  return false;
+#endif
 }
 
 bool Socket::getTcpInfoString(char* buf, int len) const
 {
+#ifndef __MACH__
   struct tcp_info tcpi;
   bool ok = getTcpInfo(&tcpi);
   if (ok)
@@ -55,6 +60,9 @@ bool Socket::getTcpInfoString(char* buf, int len) const
              tcpi.tcpi_total_retrans);  // Total retransmits for entire connection
   }
   return ok;
+#else
+  return false;
+#endif
 }
 
 void Socket::bindAddress(const InetAddress& addr)
