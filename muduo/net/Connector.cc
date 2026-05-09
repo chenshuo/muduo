@@ -130,10 +130,11 @@ void Connector::connecting(int sockfd)
   setState(kConnecting);
   assert(!channel_);
   channel_.reset(new Channel(loop_, sockfd));
+  channel_->tie(shared_from_this());
   channel_->setWriteCallback(
-      std::bind(&Connector::handleWrite, this)); // FIXME: unsafe
+      std::bind(&Connector::handleWrite, this));
   channel_->setErrorCallback(
-      std::bind(&Connector::handleError, this)); // FIXME: unsafe
+      std::bind(&Connector::handleError, this));
 
   // channel_->tie(shared_from_this()); is not working,
   // as channel_ is not managed by shared_ptr
@@ -146,7 +147,7 @@ int Connector::removeAndResetChannel()
   channel_->remove();
   int sockfd = channel_->fd();
   // Can't reset channel_ here, because we are inside Channel::handleEvent
-  loop_->queueInLoop(std::bind(&Connector::resetChannel, this)); // FIXME: unsafe
+  loop_->queueInLoop(std::bind(&Connector::resetChannel, this));
   return sockfd;
 }
 
