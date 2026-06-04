@@ -18,8 +18,6 @@ namespace muduo
 namespace net
 {
 
-class Timer;
-
 ///
 /// An opaque identifier, for canceling Timer.
 ///
@@ -27,14 +25,12 @@ class TimerId : public muduo::copyable
 {
  public:
   TimerId()
-    : timer_(NULL),
-      sequence_(0)
+    : sequence_(0)
   {
   }
 
-  TimerId(Timer* timer, int64_t seq)
-    : timer_(timer),
-      sequence_(seq)
+  TimerId(int64_t seq)
+    : sequence_(seq)
   {
   }
 
@@ -43,7 +39,6 @@ class TimerId : public muduo::copyable
   friend class TimerQueue;
 
  private:
-  Timer* timer_;
   int64_t sequence_;
 };
 

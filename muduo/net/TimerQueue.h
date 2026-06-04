@@ -11,9 +11,12 @@
 #ifndef MUDUO_NET_TIMERQUEUE_H
 #define MUDUO_NET_TIMERQUEUE_H
 
+#include <memory>
 #include <set>
+#include <unordered_map>
 #include <vector>
 
+#include "muduo/base/Atomic.h"
 #include "muduo/base/Mutex.h"
 #include "muduo/base/Timestamp.h"
 #include "muduo/net/Callbacks.h"
@@ -51,15 +54,15 @@ class TimerQueue : noncopyable
 
  private:
 
-  // FIXME: use unique_ptr<Timer> instead of raw pointers.
-  // This requires heterogeneous comparison lookup (N3465) from C++14
-  // so that we can find an T* in a set<unique_ptr<T>>.
-  typedef std::pair<Timestamp, Timer*> Entry;
+  typedef std::pair<Timestamp, int64_t> Entry;
   typedef std::set<Entry> TimerList;
-  typedef std::pair<Timer*, int64_t> ActiveTimer;
-  typedef std::set<ActiveTimer> ActiveTimerSet;
+  typedef std::unordered_map<int64_t, std::unique_ptr<Timer>> TimerMap;
+  typedef std::set<int64_t> ActiveTimerSet;
 
-  void addTimerInLoop(Timer* timer);
+  void addTimerInLoop(int64_t timerId,
+                      const std::shared_ptr<TimerCallback>& cb,
+                      Timestamp when,
+                      double interval);
   void cancelInLoop(TimerId timerId);
   // called when timerfd alarms
   void handleRead();
@@ -67,13 +70,15 @@ class TimerQueue : noncopyable
   std::vector<Entry> getExpired(Timestamp now);
   void reset(const std::vector<Entry>& expired, Timestamp now);
 
-  bool insert(Timer* timer);
+  bool insert(int64_t timerId);
 
   EventLoop* loop_;
+  AtomicInt64 nextTimerId_;
   const int timerfd_;
   Channel timerfdChannel_;
   // Timer list sorted by expiration
   TimerList timers_;
+  TimerMap timerMap_;
 
   // for cancel()
   ActiveTimerSet activeTimers_;
