@@ -1,3 +1,4 @@
+#include<iostream>
 #include "muduo/base/ThreadPool.h"
 #include "muduo/base/CountDownLatch.h"
 #include "muduo/base/CurrentThread.h"
@@ -15,6 +16,12 @@ void printString(const std::string& str)
 {
   LOG_INFO << str;
   usleep(100*1000);
+}
+
+void selfprint()
+{
+  std::cout<<"这是一次调用"<<"\n";
+  usleep(5000*1000);
 }
 
 void test(int maxSize)
@@ -86,6 +93,20 @@ void test2()
   LOG_WARN << "test2 Done";
 }
 
+void test3()
+{
+  muduo::ThreadPool pool("miniThread");
+  pool.setMaxQueueSize(10);
+  pool.start(3);
+  for(int i=0;i<8;++i)
+  {
+    pool.run(selfprint);
+  }
+  usleep(100000);
+  pool.stop();
+  std::cout<<"线程池运行退出了"<<std::endl;
+}
+
 int main()
 {
   test(0);
@@ -94,4 +115,6 @@ int main()
   test(10);
   test(50);
   test2();
+  test3();
 }
+
