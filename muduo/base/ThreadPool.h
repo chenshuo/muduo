@@ -60,6 +60,7 @@ class ThreadPool : noncopyable
   std::deque<Task> queue_ GUARDED_BY(mutex_);
   size_t maxQueueSize_;
   bool running_;
+  bool havetask_;
 };
 
 }  // namespace muduo

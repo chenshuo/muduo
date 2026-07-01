@@ -18,7 +18,8 @@ ThreadPool::ThreadPool(const string& nameArg)
     notFull_(mutex_),
     name_(nameArg),
     maxQueueSize_(0),
-    running_(false)
+    running_(false),
+    havetask_(false)
 {
 }
 
@@ -86,6 +87,7 @@ void ThreadPool::run(Task task)
     assert(!isFull());
 
     queue_.push_back(std::move(task));
+    havetask_=true;
     notEmpty_.notify();
   }
 }
@@ -108,6 +110,10 @@ ThreadPool::Task ThreadPool::take()
       notFull_.notify();
     }
   }
+  else
+  {
+    havetask_=false;
+  }
   return task;
 }
 
@@ -125,7 +131,7 @@ void ThreadPool::runInThread()
     {
       threadInitCallback_();
     }
-    while (running_)
+    while (running_||havetask_)
     {
       Task task(take());
       if (task)
@@ -153,4 +159,5 @@ void ThreadPool::runInThread()
     throw; // rethrow
   }
 }
+
 
