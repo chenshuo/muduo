@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.6)
 
 project(muduo C CXX)
 
+option(MUDUO_BUILD_FUZZERS "Build Muduo fuzzers" OFF)
+
 enable_testing()
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -105,6 +107,10 @@ message(STATUS "CXX_FLAGS = " ${CMAKE_CXX_FLAGS} " " ${CMAKE_CXX_FLAGS_${BUILD_T
 
 add_subdirectory(muduo/base)
 add_subdirectory(muduo/net)
+
+if(MUDUO_BUILD_FUZZERS)
+  add_subdirectory(fuzz)
+endif()
 
 if(MUDUO_BUILD_EXAMPLES)
   add_subdirectory(contrib)
