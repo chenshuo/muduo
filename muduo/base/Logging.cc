@@ -169,7 +169,8 @@ void Logger::Impl::formatTime()
 
 void Logger::Impl::finish()
 {
-  stream_ << " - " << basename_ << ':' << line_ << '\n';
+  stream_ << " - " << basename_ << ':' << line_;
+  stream_.appendEndOfLine();
 }
 
 Logger::Logger(SourceFile file, int line)
