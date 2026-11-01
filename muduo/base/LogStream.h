@@ -157,6 +157,14 @@ class LogStream : noncopyable
   }
 
   void append(const char* data, int len) { buffer_.append(data, len); }
+  // Preserve the record boundary even when the payload has been truncated.
+  void appendEndOfLine()
+  {
+    if (buffer_.avail() > 1)
+      buffer_.append("\n", 1);
+    else
+      buffer_.current()[-1] = '\n';
+  }
   const Buffer& buffer() const { return buffer_; }
   void resetBuffer() { buffer_.reset(); }
 

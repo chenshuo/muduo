@@ -44,6 +44,10 @@ target_link_libraries(logfile_test muduo_base)
 add_executable(logging_test Logging_test.cc)
 target_link_libraries(logging_test muduo_base)
 
+add_executable(logging_unittest Logging_unittest.cc)
+target_link_libraries(logging_unittest muduo_base)
+add_test(NAME logging_unittest COMMAND logging_unittest)
+
 add_executable(logstream_bench LogStream_bench.cc)
 target_link_libraries(logstream_bench muduo_base)
 
