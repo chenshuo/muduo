@@ -9,6 +9,7 @@
 #include "muduo/base/noncopyable.h"
 #include "muduo/base/StringPiece.h"
 #include "muduo/base/Types.h"
+#include <algorithm>
 #include <assert.h>
 #include <string.h> // memcpy
 
@@ -38,11 +39,13 @@ class FixedBuffer : noncopyable
 
   void append(const char* /*restrict*/ buf, size_t len)
   {
-    // FIXME: append partially
-    if (implicit_cast<size_t>(avail()) > len)
+    // Keep one byte available for debugString()'s terminating NUL. Truncate
+    // oversized input to the remaining payload space instead of dropping it.
+    if (avail() > 1 && len > 0)
     {
-      memcpy(cur_, buf, len);
-      cur_ += len;
+      const size_t n = std::min(len, static_cast<size_t>(avail() - 1));
+      memcpy(cur_, buf, n);
+      cur_ += n;
     }
   }
 

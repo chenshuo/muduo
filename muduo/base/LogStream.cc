@@ -84,9 +84,6 @@ size_t convertHex(char buf[], uintptr_t value)
   return p - buf;
 }
 
-template class FixedBuffer<kSmallBuffer>;
-template class FixedBuffer<kLargeBuffer>;
-
 }  // namespace detail
 
 /*
@@ -220,6 +217,10 @@ template<int SIZE>
 void FixedBuffer<SIZE>::cookieEnd()
 {
 }
+
+// Instantiate after the out-of-line members, including debugString(), are defined.
+template class muduo::detail::FixedBuffer<muduo::detail::kSmallBuffer>;
+template class muduo::detail::FixedBuffer<muduo::detail::kLargeBuffer>;
 
 void LogStream::staticCheck()
 {
