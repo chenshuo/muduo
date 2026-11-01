@@ -1,6 +1,16 @@
 add_executable(asynclogging_test AsyncLogging_test.cc)
 target_link_libraries(asynclogging_test muduo_base)
 
+add_executable(asynclogging_unittest AsyncLogging_unittest.cc)
+target_link_libraries(asynclogging_unittest muduo_base
+  -Wl,--wrap=fopen -Wl,--wrap=fwrite_unlocked
+  -Wl,--wrap=pthread_cond_signal -Wl,--wrap=pthread_cond_timedwait)
+foreach(scenario empty startup inflight)
+  add_test(NAME asynclogging_shutdown_${scenario}
+           COMMAND asynclogging_unittest ${scenario})
+  set_tests_properties(asynclogging_shutdown_${scenario} PROPERTIES TIMEOUT 15)
+endforeach()
+
 add_executable(atomic_unittest Atomic_unittest.cc)
 add_test(NAME atomic_unittest COMMAND atomic_unittest)
 
