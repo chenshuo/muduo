@@ -66,7 +66,7 @@ void AsyncLogging::threadFunc()
   newBuffer2->bzero();
   BufferVector buffersToWrite;
   buffersToWrite.reserve(16);
-  while (running_)
+  while (true)
   {
     assert(newBuffer1 && newBuffer1->length() == 0);
     assert(newBuffer2 && newBuffer2->length() == 0);
@@ -74,9 +74,15 @@ void AsyncLogging::threadFunc()
 
     {
       muduo::MutexLockGuard lock(mutex_);
-      if (buffers_.empty())  // unusual usage!
+      if (buffers_.empty() && running_)  // unusual usage!
       {
         cond_.waitForSeconds(flushInterval_);
+      }
+      // stop() may run while the previous batch is being written. Exit only
+      // after consuming both the queued buffers and the final partial buffer.
+      if (!running_ && buffers_.empty() && currentBuffer_->length() == 0)
+      {
+        break;
       }
       buffers_.push_back(std::move(currentBuffer_));
       currentBuffer_ = std::move(newBuffer1);

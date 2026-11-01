@@ -44,10 +44,15 @@ class AsyncLogging : noncopyable
     latch_.wait();
   }
 
-  void stop() NO_THREAD_SAFETY_ANALYSIS
+  // Stop producers before calling stop(). All preceding appends are flushed
+  // before this function returns (subject to the overload dropping policy).
+  void stop()
   {
-    running_ = false;
-    cond_.notify();
+    {
+      MutexLockGuard lock(mutex_);
+      running_ = false;
+      cond_.notify();
+    }
     thread_.join();
   }
 
