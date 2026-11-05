@@ -334,7 +334,7 @@ void TcpConnection::connectEstablished()
 void TcpConnection::connectDestroyed()
 {
   loop_->assertInLoopThread();
-  if (state_ == kConnected)
+  if (state_ == kConnected || state_ == kDisconnecting)
   {
     setState(kDisconnected);
     channel_->disableAll();
